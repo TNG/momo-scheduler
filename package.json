@@ -1,0 +1,59 @@
+{
+  "name": "momo-scheduler",
+  "version": "0.0.0",
+  "description": "momo is a scheduler that persists jobs in mongodb",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TNG/momo-scheduler.git"
+  },
+  "private": false,
+  "license": "Apache-2.0",
+  "dependencies": {
+    "human-interval": "2.0.1",
+    "lodash": "4.17.21",
+    "luxon": "1.26.0",
+    "mongodb": "3.6.6",
+    "typed-emitter": "1.3.1",
+    "typeorm": "0.2.28"
+  },
+  "devDependencies": {
+    "@sinonjs/fake-timers": "7.0.5",
+    "@types/human-interval": "1.0.0",
+    "@types/jest": "26.0.20",
+    "@types/lodash": "4.14.168",
+    "@types/luxon": "1.26.3",
+    "@types/mongodb": "3.6.12",
+    "@types/node": "15.0.0",
+    "@types/pino": "6.3.8",
+    "@types/uuid": "8.3.0",
+    "@typescript-eslint/eslint-plugin": "4.14.2",
+    "@typescript-eslint/parser": "4.15.1",
+    "eslint": "7.22.0",
+    "eslint-config-prettier": "7.2.0",
+    "eslint-plugin-import": "2.22.1",
+    "eslint-plugin-jest": "24.3.6",
+    "eslint-plugin-jsdoc": "32.3.1",
+    "eslint-plugin-markdown": "2.0.1",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
+    "eslint-plugin-prettier": "3.4.0",
+    "jest": "26.6.3",
+    "mongodb-memory-server": "6.9.6",
+    "pino": "6.11.3",
+    "prettier": "2.2.1",
+    "ts-jest": "26.5.4",
+    "ts-mockito": "2.6.1",
+    "ts-node": "9.1.1",
+    "typescript": "4.2.4",
+    "uuid": "8.3.2"
+  },
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "npx rimraf dist",
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:integration": "npm run test -- --testPathPattern=test/integration",
+    "lint": "prettier --check \"**/*.{ts,tsx}\"  && eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx}\" && eslint . --fix"
+  }
+}

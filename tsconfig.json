@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "dist",
+    "pretty": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es6",
+    "types": [
+      "jest",
+      "node"
+    ]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "test" ]
+}
