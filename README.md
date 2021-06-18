@@ -1,4 +1,4 @@
-# momo-scheduler
+# momo-scheduler <img src="momo_logo.svg" align="right" />
 
 momo is a scheduler that persists jobs in MongoDB.
 
