@@ -1,29 +1,19 @@
 module.exports = {
-  env: {
-    es6: true,
-    node: true,
-  },
-  extends: ['plugin:prettier/recommended', 'plugin:jest/recommended'],
+  env: { es6: true, node: true },
+  extends: ['plugin:jest/recommended', 'plugin:prettier/recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.eslint.json',
     sourceType: 'module',
   },
   plugins: [
+    '@typescript-eslint',
     'eslint-plugin-import',
     'eslint-plugin-jsdoc',
     'eslint-plugin-prefer-arrow',
     'sort-imports-es6-autofix',
-    '@typescript-eslint',
   ],
   rules: {
-    'jest/expect-expect': [
-      'error',
-      {
-        assertFunctionNames: ['expect*', 'verify*'],
-      },
-    ],
-    'sort-imports-es6-autofix/sort-imports-es6': 'error',
     '@typescript-eslint/adjacent-overload-signatures': 'error',
     '@typescript-eslint/array-type': [
       'error',
@@ -77,6 +67,7 @@ module.exports = {
     '@typescript-eslint/no-namespace': 'error',
     '@typescript-eslint/no-parameter-properties': 'off',
     '@typescript-eslint/no-this-alias': 'error',
+    '@typescript-eslint/no-unnecessary-condition': 'error',
     '@typescript-eslint/no-unnecessary-qualifier': 'error',
     '@typescript-eslint/no-unnecessary-type-arguments': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
@@ -90,7 +81,6 @@ module.exports = {
     '@typescript-eslint/promise-function-async': 'error',
     '@typescript-eslint/quotes': 'off',
     '@typescript-eslint/restrict-plus-operands': 'error',
-    '@typescript-eslint/no-unnecessary-condition': 'error',
     '@typescript-eslint/semi': ['off', null],
     '@typescript-eslint/strict-boolean-expressions': [
       'error',
@@ -140,6 +130,12 @@ module.exports = {
         groups: ['builtin', 'external', 'object'],
       },
     ],
+    'jest/expect-expect': [
+      'error',
+      {
+        assertFunctionNames: ['expect*', 'verify*'],
+      },
+    ],
     'jsdoc/check-alignment': 'error',
     'jsdoc/check-indentation': 'error',
     'jsdoc/newline-after-description': 'error',
@@ -186,6 +182,7 @@ module.exports = {
     'react/jsx-equals-spacing': 'off',
     'react/jsx-wrap-multilines': 'off',
     'sort-imports': ['error', { allowSeparatedGroups: true, ignoreDeclarationSort: true }],
+    'sort-imports-es6-autofix/sort-imports-es6': 'error',
     'space-before-function-paren': 'off',
     'space-in-parens': ['off', 'never'],
     'spaced-comment': [
