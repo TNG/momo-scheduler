@@ -11,7 +11,7 @@ describe('connect', () => {
     url = await mongo.getUri();
   });
 
-  afterAll(async () => await mongo.stop());
+  afterAll(async () => mongo.stop());
 
   it('connects mongo', async () => {
     await connect({ url });
