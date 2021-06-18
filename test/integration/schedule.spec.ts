@@ -432,7 +432,7 @@ describe('schedule', () => {
     let job: MomoJob;
 
     beforeEach(() => {
-      jobHandler = createTestJobHandler(3000);
+      jobHandler = createTestJobHandler(3100);
       job = createTestJob(jobHandler);
     });
 
