@@ -1,5 +1,5 @@
 {
-  "name": "momo-scheduler",
+  "name": "@tngtech/momo-scheduler",
   "version": "0.0.0",
   "description": "momo is a scheduler that persists jobs in mongodb",
   "main": "dist/index.js",
@@ -10,6 +10,14 @@
   },
   "private": false,
   "license": "Apache-2.0",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "npx rimraf dist",
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:integration": "npm run test -- --testPathPattern=test/integration",
+    "lint": "prettier --check \"**/*.{ts,tsx}\"  && eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx}\" && eslint . --fix"
+  },
   "dependencies": {
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
@@ -47,13 +55,5 @@
     "ts-node": "9.1.1",
     "typescript": "4.2.4",
     "uuid": "8.3.2"
-  },
-  "scripts": {
-    "build": "npm run clean && tsc",
-    "clean": "npx rimraf dist",
-    "test": "jest --detectOpenHandles --forceExit",
-    "test:integration": "npm run test -- --testPathPattern=test/integration",
-    "lint": "prettier --check \"**/*.{ts,tsx}\"  && eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx}\" && eslint . --fix"
   }
 }
