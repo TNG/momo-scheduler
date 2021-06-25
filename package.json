@@ -15,8 +15,8 @@
     "clean": "npx rimraf dist",
     "test": "jest --detectOpenHandles --forceExit",
     "test:integration": "npm run test -- --testPathPattern=test/integration",
-    "lint": "prettier --check \"**/*.{ts,tsx}\"  && eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx}\" && eslint . --fix"
+    "lint": "prettier --check \"**/*.{ts,tsx}\" --ignore-path \".gitignore\" && eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx}\" --ignore-path \".gitignore\" && eslint . --fix"
   },
   "dependencies": {
     "human-interval": "2.0.1",
