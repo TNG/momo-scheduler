@@ -22,6 +22,12 @@ if [[ ! $VERSION =~ ^[0-9]*\.[0-9]*\.[0-9]*(-[A-Z0-9]*)?$ ]]; then
     exit 1
 fi
 
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [[ ! $GIT_BRANCH =~ main ]]; then
+    echo "You do not seem to be on the main branch!"
+    exit 1
+fi
+
 echo Releasing version "$VERSION"
 
 echo Updating version in package.json ...
@@ -38,12 +44,12 @@ npm run lint
 npm run build
 npm run test
 
-echo Publish to npmjs:
-npm publish --access public --registry https://registry.npmjs.org/
-
 echo Creating Tag...
 git tag -a -m "$VERSION_PREFIXED" "$VERSION_PREFIXED"
 
 echo Pushing version and tag to GitHub repository:
 git push
 git push "$(git config --get remote.origin.url)" "$VERSION_PREFIXED"
+
+echo Publish to npmjs:
+npm publish --access public --registry https://registry.npmjs.org/
