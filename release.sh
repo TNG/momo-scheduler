@@ -32,10 +32,12 @@ echo Releasing version "$VERSION"
 
 echo Updating version in package.json ...
 sed -i -e "s/\"version\":.*/\"version\":\ \"$VERSION\"\,/" package.json
+npm install
 
 if [ -n "$(git status --porcelain)" ]; then
     echo Commiting version change
     git add package.json
+    git add package-lock.json
     git commit --signoff -m "Update version to $VERSION"
 fi
 
