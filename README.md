@@ -101,6 +101,8 @@ momo-scheduler also includes some utility functions to retrieve information on m
 
 ## License
 
-This project is open source and licensed under [Apache 2.0](LICENSE). 
+This project is open source and licensed under [Apache 2.0](LICENSE).
+
+Licenses and Copyrights of dependencies can be found in [NOTICE.third-party](NOTICE.third-party) for the latest release.
 
 For contribution guidelines see [CONTRIBUTING.md](CONTRIBUTING.md).
