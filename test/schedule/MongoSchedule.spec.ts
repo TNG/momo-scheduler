@@ -78,7 +78,7 @@ describe('MongoSchedule', () => {
     await mongoSchedule.define(jobToKeep);
     await mongoSchedule.define(job);
 
-    mongoSchedule.cancel(job.name);
+    mongoSchedule.cancelJob(job.name);
 
     const jobs = mongoSchedule.list();
     expect(jobs).toEqual([withDefaults(jobToKeep)]);
@@ -106,14 +106,14 @@ describe('MongoSchedule', () => {
     await mongoSchedule.define(notStartedJob);
     await mongoSchedule.define(job);
 
-    await mongoSchedule.start(job.name);
+    await mongoSchedule.startJob(job.name);
 
     expect(mongoSchedule.count()).toBe(2);
     expect(mongoSchedule.count(true)).toBe(1);
   });
 
   it('does nothing if a job is started that is not on the schedule', async () => {
-    await mongoSchedule.start('not defined');
+    await mongoSchedule.startJob('not defined');
 
     expect(mongoSchedule.count()).toBe(0);
     expect(mongoSchedule.count(true)).toBe(0);
@@ -137,7 +137,7 @@ describe('MongoSchedule', () => {
     const jobToKeep = { ...job, name };
     await mongoSchedule.define(jobToKeep);
 
-    await mongoSchedule.remove(job.name);
+    await mongoSchedule.removeJob(job.name);
 
     const jobs = mongoSchedule.list();
     expect(jobs).toEqual([withDefaults(jobToKeep)]);

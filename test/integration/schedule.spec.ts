@@ -362,7 +362,7 @@ describe('schedule', () => {
         expect(jobHandler2.count).toBe(1);
       });
 
-      mongoSchedule.stop(job1.name);
+      mongoSchedule.stopJob(job1.name);
 
       await waitFor(() => {
         expect(jobHandler1.count).toBe(1);
@@ -381,7 +381,7 @@ describe('schedule', () => {
         expect(jobHandler2.count).toBe(1);
       });
 
-      await mongoSchedule.remove(job1.name);
+      await mongoSchedule.removeJob(job1.name);
 
       await waitFor(() => {
         expect(jobHandler1.count).toBe(1);
@@ -404,7 +404,7 @@ describe('schedule', () => {
         expect(jobHandler2.count).toBe(1);
       });
 
-      mongoSchedule.cancel(job1.name);
+      mongoSchedule.cancelJob(job1.name);
 
       await waitFor(() => {
         expect(jobHandler1.count).toBe(1);
@@ -416,7 +416,7 @@ describe('schedule', () => {
       await mongoSchedule.define(job1);
       await mongoSchedule.define(job2);
 
-      await mongoSchedule.start(job1.name);
+      await mongoSchedule.startJob(job1.name);
 
       await waitFor(() => {
         expect(jobHandler1.count).toBe(2);

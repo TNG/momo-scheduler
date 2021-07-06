@@ -80,26 +80,31 @@ export class Schedule extends LogEmitter {
   }
 
   /**
-   * Schedules a defined job.
-   * Does nothing if no job with this name exists.
-   * If not provided with a name, all defined jobs are started.
+   * Schedule all defined jobs.
    *
    * Updates made to jobs after starting the scheduler are picked up
-   * automatically from the database, EXPECT for changes to the interval.
+   * automatically from the database, EXCEPT for changes to the interval.
+   * Start the scheduler again to change a job's interval.
+   */
+  public async start(): Promise<void> {
+    this.logger.debug('start all jobs', { count: this.count() });
+    await Promise.all(Object.values(this.jobs).map((job) => this.startScheduler(job)));
+  }
+
+  /**
+   * Schedules a defined job.
+   * Does nothing if no job with the given name exists.
+   *
+   * Updates made to jobs after starting the scheduler are picked up
+   * automatically from the database, EXCEPT for changes to the interval.
    * Start the scheduler again to change a job's interval.
    *
    * @param name the job to start
    */
-  public async start(name?: string): Promise<void> {
-    if (name) {
-      this.logger.debug('start', { name });
-      const job = this.jobs[name];
-      if (job) await this.startScheduler(job);
-      return;
-    }
-
-    this.logger.debug('start all jobs', { count: this.count() });
-    await Promise.all(Object.values(this.jobs).map((job) => this.startScheduler(job)));
+  public async startJob(name: string): Promise<void> {
+    this.logger.debug('start', { name });
+    const job = this.jobs[name];
+    if (job) await this.startScheduler(job);
   }
 
   private async startScheduler(job: Job): Promise<void> {
@@ -109,21 +114,22 @@ export class Schedule extends LogEmitter {
 
   /**
    * Stops a scheduled job without removing it from neither the schedule nor the database.
-   * Does not check whether a job exists.
+   * Does nothing if no job with the given name exists.
    * Jobs can be started again using start().
-   *
-   * If not provided with a job name, all scheduled jobs are stopped.
    *
    * @param name the job to stop
    */
-  public stop(name?: string): void {
-    if (name) {
-      this.logger.debug('stop', { name });
-      this.jobSchedulers[name]?.stop();
-      delete this.jobSchedulers[name];
-      return;
-    }
+  public stopJob(name: string): void {
+    this.logger.debug('stop', { name });
+    this.jobSchedulers[name]?.stop();
+    delete this.jobSchedulers[name];
+  }
 
+  /**
+   * Stops all scheduled jobs without removing them from neither the schedule nor the database.
+   * Jobs can be started again using start().
+   */
+  public stop(): void {
     this.logger.debug('stop all jobs', {
       count: this.count(),
     });
@@ -133,41 +139,41 @@ export class Schedule extends LogEmitter {
 
   /**
    * Stops a scheduled job and removes it from the schedule (but not from the database).
-   * Does not check whether a job exists.
-   *
-   * If not provided with a job name, all scheduled jobs are canceled.
+   * Does nothing if no job with the given name exists.
    *
    * @param name the job to cancel
    */
-  public cancel(name?: string): void {
-    if (name) {
-      this.stop(name);
-      this.logger.debug('cancel', { name });
-      delete this.jobs[name];
-      return;
-    }
+  public cancelJob(name: string): void {
+    this.stopJob(name);
+    this.logger.debug('cancel', { name });
+    delete this.jobs[name];
+  }
 
+  /**
+   * Stops all scheduled jobs and removes them from the schedule (but not from the database).
+   */
+  public cancel(): void {
     this.stop();
     this.logger.debug('cancel all jobs');
     this.jobs = {};
   }
 
   /**
-   * Cancels a scheduled job and removes it from the schedule and the database.
-   * Does not check whether a job exists.
-   *
-   * If not provided with a job name, all scheduled jobs are removed.
+   * Stops a scheduled job and removes it from the schedule and the database.
+   * Does nothing if no job with the given name exists.
    *
    * @param name the job to remove
    */
-  public async remove(name?: string): Promise<void> {
-    if (name) {
-      this.cancel(name);
-      this.logger.debug('remove', { name });
-      await getJobRepository().delete({ name });
-      return;
-    }
+  public async removeJob(name: string): Promise<void> {
+    this.cancelJob(name);
+    this.logger.debug('remove', { name });
+    await getJobRepository().delete({ name }); // does this not fail if the job doesn't exist?
+  }
 
+  /**
+   * Stops all scheduled jobs and removes them from the schedule and the database.
+   */
+  public async remove(): Promise<void> {
     const names = Object.keys(this.jobs);
     this.cancel();
     this.logger.debug('remove all jobs');
