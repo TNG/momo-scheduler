@@ -167,7 +167,7 @@ export class Schedule extends LogEmitter {
   public async removeJob(name: string): Promise<void> {
     this.cancelJob(name);
     this.logger.debug('remove', { name });
-    await getJobRepository().delete({ name }); // does this not fail if the job doesn't exist?
+    await getJobRepository().delete({ name });
   }
 
   /**

@@ -393,6 +393,10 @@ describe('schedule', () => {
       expect(jobs[0].name).toEqual(job2.name);
     });
 
+    it('does not fail when trying to remove a non existent job', async () => {
+      await expect(mongoSchedule.removeJob(job1.name)).resolves.not.toThrow();
+    });
+
     it('cancels one of two jobs', async () => {
       await mongoSchedule.define(job1);
       await mongoSchedule.define(job2);
