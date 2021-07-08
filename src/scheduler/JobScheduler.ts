@@ -41,7 +41,7 @@ export class JobScheduler {
     const delay = calculateDelay(interval, this.job.immediate, jobEntity);
     this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
 
-    this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ millisecond: delay }).toISO()}`, {
+    this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
       name: this.job.name,
       interval,
       delay,
