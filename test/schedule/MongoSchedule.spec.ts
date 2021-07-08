@@ -125,7 +125,7 @@ describe('MongoSchedule', () => {
 
     expect(mongoSchedule.list()).toHaveLength(0);
 
-    verify(jobRepository.deleteMany(deepEqual({ where: { name: { $in: [job.name] } } }))).once();
+    verify(jobRepository.deleteMany(deepEqual({ name: { $in: [job.name] } }))).once();
   });
 
   it('removes a job', async () => {

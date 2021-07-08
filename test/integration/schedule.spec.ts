@@ -128,30 +128,6 @@ describe('schedule', () => {
       await waitFor(() => expect(jobHandler.count).toBe(1), 600);
     });
 
-    it('stops all jobs', async () => {
-      await mongoSchedule.define(job);
-
-      await mongoSchedule.start();
-
-      await waitFor(() => expect(jobHandler.count).toBe(1));
-
-      mongoSchedule.stop();
-
-      await waitFor(() => expect(jobHandler.count).toBe(1), 1500);
-    });
-
-    it('cancels all jobs', async () => {
-      await mongoSchedule.define(job);
-
-      await mongoSchedule.start();
-
-      await waitFor(() => expect(jobHandler.count).toBe(1));
-
-      mongoSchedule.cancel();
-
-      await waitFor(() => expect(jobHandler.count).toBe(1), 1500);
-    });
-
     it('saves executionInfo in mongo', async () => {
       await mongoSchedule.define(job);
 
@@ -426,6 +402,63 @@ describe('schedule', () => {
         expect(jobHandler1.count).toBe(2);
         expect(jobHandler2.count).toBe(0);
       }, 3100);
+    });
+
+    it('stops all jobs', async () => {
+      await mongoSchedule.define(job1);
+      await mongoSchedule.define(job2);
+      await mongoSchedule.start();
+
+      await waitFor(() => {
+        expect(jobHandler1.count).toBe(1);
+        expect(jobHandler2.count).toBe(1);
+      });
+
+      mongoSchedule.stop();
+
+      await waitFor(() => {
+        expect(jobHandler1.count).toBe(1);
+        expect(jobHandler2.count).toBe(1);
+      }, 1500);
+    });
+
+    it('cancels all jobs', async () => {
+      await mongoSchedule.define(job1);
+      await mongoSchedule.define(job2);
+      await mongoSchedule.start();
+
+      await waitFor(() => {
+        expect(jobHandler1.count).toBe(1);
+        expect(jobHandler2.count).toBe(1);
+      });
+
+      mongoSchedule.cancel();
+
+      await waitFor(() => {
+        expect(jobHandler1.count).toBe(1);
+        expect(jobHandler2.count).toBe(1);
+      }, 1500);
+    });
+
+    it('removes all jobs', async () => {
+      await mongoSchedule.define(job1);
+      await mongoSchedule.define(job2);
+
+      await mongoSchedule.start();
+
+      await waitFor(() => {
+        expect(jobHandler1.count).toBe(1);
+        expect(jobHandler2.count).toBe(1);
+      });
+
+      await mongoSchedule.remove();
+
+      await sleep(1500);
+      expect(jobHandler1.count).toBe(1);
+      expect(jobHandler2.count).toBe(1);
+
+      const jobs = await jobRepository.find();
+      expect(jobs).toHaveLength(0);
     });
   });
 

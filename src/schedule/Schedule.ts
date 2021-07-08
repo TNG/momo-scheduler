@@ -154,7 +154,7 @@ export class Schedule extends LogEmitter {
    */
   public cancel(): void {
     this.stop();
-    this.logger.debug('cancel all jobs');
+    this.logger.debug('cancel all jobs', { count: Object.keys(this.jobs).length });
     this.jobs = {};
   }
 
@@ -176,8 +176,8 @@ export class Schedule extends LogEmitter {
   public async remove(): Promise<void> {
     const names = Object.keys(this.jobs);
     this.cancel();
-    this.logger.debug('remove all jobs');
-    await getJobRepository().deleteMany({ where: { name: { $in: names } } });
+    this.logger.debug('remove all jobs', { names: names.join(', ') });
+    await getJobRepository().deleteMany({ name: { $in: names } });
   }
 
   /**
