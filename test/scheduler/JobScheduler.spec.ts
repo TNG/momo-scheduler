@@ -45,7 +45,7 @@ describe('JobScheduler', () => {
 
   describe('single job', () => {
     it('executes a job', async () => {
-      await jobScheduler.run();
+      await jobScheduler.start();
 
       clock.tick(oneMinute);
       verify(await jobExecutor.execute(anything())).once();
@@ -54,14 +54,14 @@ describe('JobScheduler', () => {
     it('executes an immediate job', async () => {
       job.immediate = true;
 
-      await jobScheduler.run();
+      await jobScheduler.start();
 
       clock.tick(10);
       verify(await jobExecutor.execute(anything())).once();
     });
 
     it('stops', async () => {
-      await jobScheduler.run();
+      await jobScheduler.start();
 
       clock.tick(oneMinute);
       verify(await jobExecutor.execute(anything())).once();
@@ -77,13 +77,13 @@ describe('JobScheduler', () => {
     it('throws on non-parsable interval', async () => {
       job.interval = 'not an interval';
 
-      await expect(async () => jobScheduler.run()).rejects.toThrow(MomoError.nonParsableInterval);
+      await expect(async () => jobScheduler.start()).rejects.toThrow(MomoError.nonParsableInterval);
     });
 
     it('reports error when job was removed before scheduling', async () => {
       when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
 
-      await jobScheduler.run();
+      await jobScheduler.start();
 
       expect(errorFn).toHaveBeenCalledWith(
         'cannot schedule job',
@@ -94,7 +94,7 @@ describe('JobScheduler', () => {
     });
 
     it('reports unexpected error with mongo', async () => {
-      await jobScheduler.run();
+      await jobScheduler.start();
 
       const error = new Error('something unexpected happened');
       when(jobRepository.find(deepEqual({ name: job.name }))).thenThrow(error);
@@ -120,7 +120,7 @@ describe('JobScheduler', () => {
     });
 
     it('executes job thrice', async () => {
-      await jobScheduler.run();
+      await jobScheduler.start();
 
       clock.tick(oneMinute);
       verify(await jobExecutor.execute(anything())).thrice();
@@ -128,7 +128,7 @@ describe('JobScheduler', () => {
 
     it('executes job when no maxRunning is set', async () => {
       job.maxRunning = 0;
-      await jobScheduler.run();
+      await jobScheduler.start();
 
       clock.tick(2 * oneMinute);
       verify(await jobExecutor.execute(anything())).times(2 * job.concurrency);
@@ -139,7 +139,7 @@ describe('JobScheduler', () => {
       jobEntity.running = 1;
       when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([jobEntity]);
 
-      await jobScheduler.run();
+      await jobScheduler.start();
 
       clock.tick(oneMinute);
       verify(await jobExecutor.execute(anything())).twice();

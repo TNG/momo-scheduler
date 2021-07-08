@@ -1,6 +1,5 @@
 import { sum } from 'lodash';
 import { JobScheduler } from '../scheduler/JobScheduler';
-import { JobExecutor } from '../executor/JobExecutor';
 import { Job } from '../job/Job';
 import { MomoJob } from '../job/MomoJob';
 import { withDefaults } from '../job/withDefaults';
@@ -74,7 +73,7 @@ export class Schedule extends LogEmitter {
       return { status: ExecutionStatus.notFound };
     }
 
-    const jobScheduler = new JobScheduler(job, new JobExecutor(job, this.logger), this.logger);
+    const jobScheduler = JobScheduler.forJob(job, this.logger);
 
     return jobScheduler.executeOnce();
   }
@@ -108,8 +107,10 @@ export class Schedule extends LogEmitter {
   }
 
   private async startScheduler(job: Job): Promise<void> {
+    const newExecutor = JobScheduler.forJob(job, this.logger);
     this.jobSchedulers[job.name]?.stop();
-    this.jobSchedulers[job.name] = await new JobScheduler(job, new JobExecutor(job, this.logger), this.logger).run();
+    this.jobSchedulers[job.name] = newExecutor;
+    await newExecutor.start();
   }
 
   /**

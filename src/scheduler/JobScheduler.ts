@@ -18,11 +18,16 @@ export class JobScheduler {
 
   constructor(private readonly job: Job, private readonly jobExecutor: JobExecutor, private readonly logger: Logger) {}
 
+  static forJob(job: Job, logger: Logger): JobScheduler {
+    const executor = new JobExecutor(job, logger);
+    return new JobScheduler(job, executor, logger);
+  }
+
   public getUnexpectedErrorCount(): number {
     return this.unexpectedErrorCount;
   }
 
-  public async run(): Promise<JobScheduler> {
+  public async start(): Promise<void> {
     const interval = humanInterval(this.job.interval);
     if (!interval || isNaN(interval)) {
       throw MomoError.nonParsableInterval;
@@ -36,7 +41,7 @@ export class JobScheduler {
         { name: this.job.name },
         MomoError.jobNotFound
       );
-      return this;
+      return;
     }
     const delay = calculateDelay(interval, this.job.immediate, jobEntity);
     this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
@@ -46,7 +51,6 @@ export class JobScheduler {
       interval,
       delay,
     });
-    return this;
   }
 
   public stop(): void {
