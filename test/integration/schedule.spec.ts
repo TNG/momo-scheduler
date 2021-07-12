@@ -233,7 +233,7 @@ describe('schedule', () => {
 
       await mongoSchedule.start();
 
-      const updatedConcurrency = 10;
+      const updatedConcurrency = 5;
       const updatedMaxRunning = 5;
       await jobRepository.update(
         { name: job.name },
@@ -247,8 +247,8 @@ describe('schedule', () => {
       });
 
       // ToDo: Investigate. There is some weird behaviour here when scheduling with concurrency > 1
-      //await sleep(1100);
-      //expect(jobHandler.count).toBe(updatedMaxRunning);
+      // await sleep(1100);
+      // expect(jobHandler.count).toBe(updatedMaxRunning);
     });
 
     it('does not update interval from mongo', async () => {
