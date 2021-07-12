@@ -1,12 +1,17 @@
 #!/bin/bash
 
+DRY_RUN=0
+
 set -e
 
-while [ $# -gt 0 ]; do
-  case "$1" in
+for arg in "$@"; do
+  case $arg in
     --version=*)
       VERSION="${1#*=}"
       VERSION_PREFIXED="v${1#*=}"
+      ;;
+    --dry-run)
+      DRY_RUN=1
       ;;
     *)
       printf "***************************\n"
@@ -49,9 +54,18 @@ npm run test
 echo Creating Tag...
 git tag -a -m "$VERSION_PREFIXED" "$VERSION_PREFIXED"
 
-echo Pushing version and tag to GitHub repository:
-git push
-git push "$(git config --get remote.origin.url)" "$VERSION_PREFIXED"
+if [[ $DRY_RUN ]]; then
+  echo "Pushing version and tag to GitHub repository (dry-run)":
+  git push --dry-run
+  git push "$(git config --get remote.origin.url)" "$VERSION_PREFIXED" --dry-run
 
-echo Publish to npmjs:
-npm publish --access public --registry https://registry.npmjs.org/
+  echo "Publish to npmjs (dry-run):"
+  npm publish --access public --registry https://registry.npmjs.org/ --dry-run
+else
+  echo "Pushing version and tag to GitHub repository:"
+  git push
+  git push "$(git config --get remote.origin.url)" "$VERSION_PREFIXED"
+
+  echo "Publish to npmjs:"
+  npm publish --access public --registry https://registry.npmjs.org/
+fi
