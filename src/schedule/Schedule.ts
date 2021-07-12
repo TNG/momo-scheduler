@@ -200,6 +200,8 @@ export class Schedule extends LogEmitter {
    * @param name the name of the job to return
    */
   public async get(name: string): Promise<MomoJobDescription | undefined> {
+    if (!Object.keys(this.jobSchedulers).includes(name)) return;
+
     const jobEntity = await getJobRepository().findOne({ name });
     return jobEntity === undefined ? undefined : jobDescriptionFromEntity(jobEntity);
   }

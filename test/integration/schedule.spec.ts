@@ -240,8 +240,8 @@ describe('schedule', () => {
         { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning }
       );
 
-      await waitFor(() => {
-        const [updatedJob] = mongoSchedule.list();
+      await waitFor(async () => {
+        const [updatedJob] = await mongoSchedule.list();
         expect(updatedJob.concurrency).toEqual(updatedConcurrency);
         expect(updatedJob.maxRunning).toEqual(updatedMaxRunning);
       });
@@ -260,7 +260,7 @@ describe('schedule', () => {
       await jobRepository.update({ name: job.name }, { interval: updatedInterval });
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
-      const [updatedJob] = mongoSchedule.list();
+      const [updatedJob] = await mongoSchedule.list();
       expect(updatedJob.interval).toEqual(job.interval);
     });
   });

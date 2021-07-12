@@ -1,11 +1,9 @@
 import { deepEqual, verify, when } from 'ts-mockito';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { MomoJob, MongoSchedule } from '../../src';
-import { withDefaults } from '../../src/job/withDefaults';
+import { ExecutionStatus, MomoEvent, MomoJob, MongoSchedule } from '../../src';
 import { mockJobRepository } from '../utils/mockJobRepository';
 import { createJobEntity } from '../utils/createJobEntity';
 import { initLoggingForTests } from '../utils/logging';
-import { ExecutionStatus, MomoEvent } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { Job } from '../../src/job/Job';
 
@@ -42,48 +40,6 @@ describe('MongoSchedule', () => {
     expect(caughtEvent).toEqual({ message: 'start all jobs', data: { count: 0 } });
   });
 
-  it('saves job with defaults', async () => {
-    await mongoSchedule.define(job);
-
-    expect(await mongoSchedule.list()).toHaveLength(1);
-  });
-
-  it('updates job', async () => {
-    when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([createJobEntity(job)]);
-
-    const newInterval = 'two minutes';
-    await mongoSchedule.define({ ...job, interval: newInterval });
-
-    expect(await mongoSchedule.list()).toHaveLength(1);
-  });
-
-  it('lists jobs', async () => {
-    await mongoSchedule.define(job);
-
-    expect(await mongoSchedule.list()).toEqual([withDefaults(job)]);
-  });
-
-  it('cancels jobs', async () => {
-    await mongoSchedule.define(job);
-    mongoSchedule.cancel();
-
-    expect(await mongoSchedule.list()).toHaveLength(0);
-  });
-
-  it('cancels a job', async () => {
-    const name = 'keep me';
-    when(jobRepository.find(deepEqual({ name }))).thenResolve([]);
-
-    const jobToKeep = { ...job, name };
-    await mongoSchedule.define(jobToKeep);
-    await mongoSchedule.define(job);
-
-    mongoSchedule.cancelJob(job.name);
-
-    const jobs = await mongoSchedule.list();
-    expect(jobs).toEqual([withDefaults(jobToKeep)]);
-  });
-
   it('does not report error when concurrency > maxRunning but maxRunning is not set', async () => {
     await mongoSchedule.define({ ...job, concurrency: 3 });
 
@@ -117,32 +73,6 @@ describe('MongoSchedule', () => {
 
     expect(mongoSchedule.count()).toBe(0);
     expect(mongoSchedule.count(true)).toBe(0);
-  });
-
-  it('removes jobs', async () => {
-    await mongoSchedule.define(job);
-    await mongoSchedule.remove();
-
-    expect(await mongoSchedule.list()).toHaveLength(0);
-
-    verify(jobRepository.deleteMany(deepEqual({ name: { $in: [job.name] } }))).once();
-  });
-
-  it('removes a job', async () => {
-    const name = 'keep me';
-    when(jobRepository.find(deepEqual({ name: name }))).thenResolve([]);
-
-    await mongoSchedule.define(job);
-
-    const jobToKeep = { ...job, name };
-    await mongoSchedule.define(jobToKeep);
-
-    await mongoSchedule.removeJob(job.name);
-
-    const jobs = await mongoSchedule.list();
-    expect(jobs).toEqual([withDefaults(jobToKeep)]);
-
-    verify(jobRepository.delete(deepEqual({ name: job.name }))).once();
   });
 
   it('runs a job once', async () => {
