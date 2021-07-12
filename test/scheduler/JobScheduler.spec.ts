@@ -3,6 +3,7 @@ import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { Job } from '../../src/job/Job';
+import { withDefaults } from '../../src/job/withDefaults';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { MomoError, MomoErrorType } from '../../src';
@@ -75,6 +76,36 @@ describe('JobScheduler', () => {
 
       clock.tick(oneMinute);
       verify(await jobExecutor.execute(anything())).once();
+    });
+
+    it('returns job description', async () => {
+      const job = createJob();
+
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(withDefaults(job)));
+
+      const jobDescription = await jobScheduler.getJobDescription();
+      expect(jobDescription).toEqual({
+        name: job.name,
+        interval: job.interval,
+        concurrency: job.concurrency,
+        maxRunning: job.maxRunning,
+      });
+    });
+
+    it('returns job description for started job', async () => {
+      const job = createJob();
+      await jobScheduler.start();
+
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(withDefaults(job)));
+
+      const jobDescription = await jobScheduler.getJobDescription();
+      expect(jobDescription).toEqual({
+        name: job.name,
+        interval: job.interval,
+        concurrency: job.concurrency,
+        maxRunning: job.maxRunning,
+        schedulerStatus: { started: true, interval: job.interval },
+      });
     });
   });
 

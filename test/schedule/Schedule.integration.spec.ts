@@ -234,7 +234,7 @@ describe('schedule', () => {
       await mongoSchedule.start();
 
       const updatedConcurrency = 5;
-      const updatedMaxRunning = 5;
+      const updatedMaxRunning = 10;
       await jobRepository.update(
         { name: job.name },
         { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning }
@@ -246,12 +246,11 @@ describe('schedule', () => {
         expect(updatedJob.maxRunning).toEqual(updatedMaxRunning);
       });
 
-      // ToDo: Investigate. There is some weird behaviour here when scheduling with concurrency > 1
-      // await sleep(1100);
-      // expect(jobHandler.count).toBe(updatedMaxRunning);
+      await sleep(1100);
+      expect(jobHandler.count).toBe(updatedConcurrency);
     });
 
-    it('does not update interval from mongo', async () => {
+    it('does not update interval of started job from mongo', async () => {
       await mongoSchedule.define(job);
 
       await mongoSchedule.start();
@@ -261,7 +260,13 @@ describe('schedule', () => {
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
       const [updatedJob] = await mongoSchedule.list();
-      expect(updatedJob.interval).toEqual(job.interval);
+      expect(updatedJob).toEqual({
+        name: job.name,
+        concurrency: 1,
+        maxRunning: 0,
+        interval: updatedInterval,
+        schedulerStatus: { started: true, interval: job.interval },
+      });
     });
   });
 

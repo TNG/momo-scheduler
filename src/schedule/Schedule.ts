@@ -1,12 +1,13 @@
 import { sum } from 'lodash';
 import { JobScheduler } from '../scheduler/JobScheduler';
-import { jobDescriptionFromEntity, MomoJob, MomoJobDescription } from '../job/MomoJob';
+import { MomoJob } from '../job/MomoJob';
 import { withDefaults } from '../job/withDefaults';
 import { validate } from '../job/validate';
 import { define } from '../job/define';
 import { LogEmitter } from '../logging/LogEmitter';
 import { getJobRepository } from '../repository/getJobRepository';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
+import { MomoJobDescription } from '../job/MomoJobDescription';
 
 export class Schedule extends LogEmitter {
   private jobSchedulers: { [name: string]: JobScheduler } = {};
@@ -181,17 +182,18 @@ export class Schedule extends LogEmitter {
    * @param started = false only count started jobs
    */
   public count(started = false): number {
-    // ToDo: the job scheduler should remember if it is stopped or not
-    return started ? Object.values(this.jobSchedulers).length : Object.values(this.jobSchedulers).length;
+    return started
+      ? Object.values(this.jobSchedulers).filter((jobScheduler) => jobScheduler.isStarted()).length
+      : Object.values(this.jobSchedulers).length;
   }
 
   /**
    * Returns descriptions of all jobs on the schedule.
    */
   public async list(): Promise<MomoJobDescription[]> {
-    const jobNames = Object.keys(this.jobSchedulers);
-    const jobEntities = await getJobRepository().find({ where: { name: { $in: jobNames } } });
-    return jobEntities.map(jobDescriptionFromEntity);
+    return (
+      await Promise.all(Object.values(this.jobSchedulers).map((jobScheduler) => jobScheduler.getJobDescription()))
+    ).filter((jobDescription): jobDescription is MomoJobDescription => jobDescription !== undefined);
   }
 
   /**
@@ -200,9 +202,6 @@ export class Schedule extends LogEmitter {
    * @param name the name of the job to return
    */
   public async get(name: string): Promise<MomoJobDescription | undefined> {
-    if (!Object.keys(this.jobSchedulers).includes(name)) return;
-
-    const jobEntity = await getJobRepository().findOne({ name });
-    return jobEntity === undefined ? undefined : jobDescriptionFromEntity(jobEntity);
+    return this.jobSchedulers[name]?.getJobDescription();
   }
 }

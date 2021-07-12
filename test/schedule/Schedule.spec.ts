@@ -6,8 +6,9 @@ import { createJobEntity } from '../utils/createJobEntity';
 import { initLoggingForTests } from '../utils/logging';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { Job } from '../../src/job/Job';
+import { withDefaults } from '../../src/job/withDefaults';
 
-describe('MongoSchedule', () => {
+describe('Schedule', () => {
   const job: MomoJob = {
     name: 'test job',
     interval: 'one minute',
@@ -30,6 +31,8 @@ describe('MongoSchedule', () => {
 
     initLoggingForTests(mongoSchedule);
   });
+
+  afterEach(() => mongoSchedule.stop());
 
   it('emits logs', async () => {
     let caughtEvent: MomoEvent | undefined;
@@ -61,6 +64,8 @@ describe('MongoSchedule', () => {
     const notStartedJob = { ...job, name };
     await mongoSchedule.define(notStartedJob);
     await mongoSchedule.define(job);
+
+    when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([JobEntity.from(withDefaults(job))]);
 
     await mongoSchedule.startJob(job.name);
 

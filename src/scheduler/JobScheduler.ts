@@ -11,10 +11,12 @@ import { getJobRepository } from '../repository/getJobRepository';
 import { Logger } from '../logging/Logger';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { DateTime } from 'luxon';
+import { jobDescriptionFromEntity, MomoJobDescription } from '../job/MomoJobDescription';
 
 export class JobScheduler {
   private jobHandle?: TimeoutHandle;
   private unexpectedErrorCount = 0;
+  private interval?: string;
 
   constructor(
     private readonly jobName: string,
@@ -32,7 +34,28 @@ export class JobScheduler {
     return this.unexpectedErrorCount;
   }
 
+  public isStarted(): boolean {
+    return this.jobHandle !== undefined;
+  }
+
+  public async getJobDescription(): Promise<MomoJobDescription | undefined> {
+    const jobEntity = await getJobRepository().findOne({ name: this.jobName });
+    if (!jobEntity) {
+      this.logger.error(
+        'get job description - job not found',
+        MomoErrorType.scheduleJob,
+        { name: this.jobName },
+        MomoError.jobNotFound
+      );
+      return;
+    }
+    const schedulerStatus = this.interval !== undefined ? { interval: this.interval, started: true } : undefined;
+    return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
+  }
+
   public async start(): Promise<void> {
+    this.stop();
+
     const [jobEntity] = await getJobRepository().find({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
@@ -49,6 +72,8 @@ export class JobScheduler {
       throw MomoError.nonParsableInterval;
     }
 
+    this.interval = jobEntity.interval;
+
     const delay = calculateDelay(interval, this.immediate, jobEntity);
     this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
 
@@ -62,6 +87,8 @@ export class JobScheduler {
   public stop(): void {
     if (this.jobHandle) {
       clearInterval(this.jobHandle.get());
+      this.jobHandle = undefined;
+      this.interval = undefined;
     }
   }
 

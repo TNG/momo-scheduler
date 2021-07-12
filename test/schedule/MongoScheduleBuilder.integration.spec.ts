@@ -1,8 +1,8 @@
-import { deepEqual, when } from 'ts-mockito';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { MomoConnectionOptions, MomoJob, MongoSchedule } from '../../src';
-import { mockJobRepository } from '../utils/mockJobRepository';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+
+import { clear, MomoConnectionOptions, MomoJob, MongoSchedule } from '../../src';
 import { MongoScheduleBuilder } from '../../src/schedule/MongoScheduleBuilder';
+import { initLoggingForTests } from '../utils/logging';
 
 describe('MongoScheduleBuilder', () => {
   const job1: MomoJob = {
@@ -23,37 +23,41 @@ describe('MongoScheduleBuilder', () => {
     handler: jest.fn(),
   };
 
-  const connectionOptions: MomoConnectionOptions = {
-    url: 'mongodb://does.not/matter',
-  };
+  let mongo: MongoMemoryServer;
+  let mongoSchedule: MongoSchedule;
+  let connectionOptions: MomoConnectionOptions;
 
-  let jobRepository: JobRepository;
+  beforeAll(async () => {
+    mongo = await MongoMemoryServer.create();
+    connectionOptions = { url: await mongo.getUri() };
+    mongoSchedule = await MongoSchedule.connect(connectionOptions);
+
+    initLoggingForTests(mongoSchedule);
+  });
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    mongoSchedule.cancel();
+    await clear();
+  });
 
-    jobRepository = mockJobRepository();
+  afterAll(async () => {
+    await mongoSchedule.disconnect();
+    await mongo.stop();
   });
 
   it('can build with one job and a connection', async () => {
-    when(jobRepository.find(deepEqual({ name: job1.name }))).thenResolve([]);
-
     const mongoSchedule: MongoSchedule = await new MongoScheduleBuilder()
       .withJob(job1)
       .withConnection(connectionOptions)
       .build();
 
-    const jobList = mongoSchedule.list();
+    const jobList = await mongoSchedule.list();
     expect(jobList).toHaveLength(1);
     expect(jobList[0].name).toEqual(job1.name);
     expect(jobList[0].interval).toEqual(job1.interval);
   });
 
   it('can build with multiple jobs and a connection', async () => {
-    when(jobRepository.find(deepEqual({ name: job1.name }))).thenResolve([]);
-    when(jobRepository.find(deepEqual({ name: job2.name }))).thenResolve([]);
-    when(jobRepository.find(deepEqual({ name: job3.name }))).thenResolve([]);
-
     const mongoSchedule: MongoSchedule = await new MongoScheduleBuilder()
       .withJob(job1)
       .withJob(job2)
@@ -61,7 +65,7 @@ describe('MongoScheduleBuilder', () => {
       .withConnection(connectionOptions)
       .build();
 
-    const jobList = mongoSchedule.list();
+    const jobList = await mongoSchedule.list();
     expect(jobList).toHaveLength(3);
     expect(jobList[0].name).toEqual(job1.name);
     expect(jobList[0].interval).toEqual(job1.interval);
@@ -80,8 +84,6 @@ describe('MongoScheduleBuilder', () => {
   });
 
   it('throws an error when built with no jobs', async () => {
-    when(jobRepository.find(deepEqual({ name: job1.name }))).thenResolve([]);
-
     const mongoScheduleBuilder = new MongoScheduleBuilder().withConnection(connectionOptions);
 
     await expect(mongoScheduleBuilder.build()).rejects.toThrowError(

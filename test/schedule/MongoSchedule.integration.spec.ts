@@ -5,8 +5,8 @@ import { clear, MomoJob, MongoSchedule } from '../../src';
 import { connectionName } from '../../src/connect';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
-import { JobEntity } from '../../dist/repository/JobEntity';
-import { withDefaults } from '../../dist/job/withDefaults';
+import { JobEntity } from '../../src/repository/JobEntity';
+import { withDefaults } from '../../src/job/withDefaults';
 
 describe('MongoSchedule', () => {
   const job: MomoJob = {
@@ -89,13 +89,6 @@ describe('MongoSchedule', () => {
       concurrency: 1,
       maxRunning: 0,
     });
-  });
-
-  it('does not return description of jobs that are not on the schedule', async () => {
-    const name = 'some job that is in the database but not on the schedule';
-    await jobRepository.save(JobEntity.from(withDefaults({ name, handler: jest.fn(), interval: 'one minute' })));
-
-    expect(await mongoSchedule.get(name)).toBeUndefined();
   });
 
   it('cancels jobs without removing them from the database', async () => {
