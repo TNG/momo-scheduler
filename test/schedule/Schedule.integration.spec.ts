@@ -2,15 +2,13 @@ import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { getConnection } from 'typeorm';
 import { v4 as uuid } from 'uuid';
-import { clear, ExecutionStatus, MomoError, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
-import { JobEntity } from '../../src/repository/JobEntity';
+import { clear, ExecutionStatus, MomoError, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { sleep } from '../utils/sleep';
 import { waitFor } from '../utils/waitFor';
 import { connectionName } from '../../src/connect';
-import { withDefaults } from '../../src/job/withDefaults';
 import { initLoggingForTests } from '../utils/logging';
-import { MomoErrorEvent } from '../../src';
+import { createJobEntity } from '../utils/createJobEntity';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -110,7 +108,7 @@ describe('schedule', () => {
     });
 
     it('executes job that was executed before', async () => {
-      const jobEntity = JobEntity.from(withDefaults(job));
+      const jobEntity = createJobEntity(job);
       jobEntity.executionInfo = {
         lastStarted: DateTime.now().toISO(),
         lastFinished: DateTime.now().toISO(),

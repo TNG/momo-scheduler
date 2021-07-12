@@ -6,7 +6,6 @@ import { createJobEntity } from '../utils/createJobEntity';
 import { initLoggingForTests } from '../utils/logging';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { Job } from '../../src/job/Job';
-import { withDefaults } from '../../src/job/withDefaults';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -65,7 +64,7 @@ describe('Schedule', () => {
     await mongoSchedule.define(notStartedJob);
     await mongoSchedule.define(job);
 
-    when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([JobEntity.from(withDefaults(job))]);
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
 
     await mongoSchedule.startJob(job.name);
 
@@ -83,7 +82,7 @@ describe('Schedule', () => {
   it('runs a job once', async () => {
     await mongoSchedule.define(job);
 
-    when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([createJobEntity(job)]);
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
     when(jobRepository.incrementRunning(job.name, 0)).thenResolve(true);
 
     const result = await mongoSchedule.run(job.name);
@@ -101,7 +100,7 @@ describe('Schedule', () => {
   it('skips running job once when job is not found in repository', async () => {
     await mongoSchedule.define(job);
 
-    when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(undefined);
 
     const result = await mongoSchedule.run(job.name);
 
@@ -111,7 +110,7 @@ describe('Schedule', () => {
   it('skips running job once when maxRunning is reached', async () => {
     await mongoSchedule.define(job);
 
-    when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([createJobEntity(job)]);
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
     when(jobRepository.incrementRunning(job.name, 0)).thenResolve(false);
 
     const result = await mongoSchedule.run(job.name);

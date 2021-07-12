@@ -3,12 +3,12 @@ import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { Job } from '../../src/job/Job';
-import { withDefaults } from '../../src/job/withDefaults';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { MomoError, MomoErrorType } from '../../src';
 import { mockJobRepository } from '../utils/mockJobRepository';
 import { loggerForTests } from '../utils/logging';
+import { createJobEntity } from '../utils/createJobEntity';
 import clearAllMocks = jest.clearAllMocks;
 
 describe('JobScheduler', () => {
@@ -43,7 +43,7 @@ describe('JobScheduler', () => {
   function createJob(partialJob: Partial<Job> = {}): Job {
     const job = { ...defaultJob, ...partialJob };
     jobScheduler = new JobScheduler(job.name, job.immediate, instance(jobExecutor), loggerForTests(errorFn));
-    when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([JobEntity.from(job)]);
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(job));
     return job;
   }
 
@@ -81,7 +81,7 @@ describe('JobScheduler', () => {
     it('returns job description', async () => {
       const job = createJob();
 
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(withDefaults(job)));
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
@@ -96,7 +96,7 @@ describe('JobScheduler', () => {
       const job = createJob();
       await jobScheduler.start();
 
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(withDefaults(job)));
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
@@ -118,7 +118,7 @@ describe('JobScheduler', () => {
 
     it('reports error when job was removed before scheduling', async () => {
       const job = createJob();
-      when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(undefined);
 
       await jobScheduler.start();
 
@@ -135,7 +135,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       const error = new Error('something unexpected happened');
-      when(jobRepository.find(deepEqual({ name: job.name }))).thenThrow(error);
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenThrow(error);
 
       clock.tick(oneMinute);
 
@@ -171,7 +171,7 @@ describe('JobScheduler', () => {
       const job = createJob({ concurrency: 3, maxRunning: 3 });
       const jobEntity = JobEntity.from(job);
       jobEntity.running = 1;
-      when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([jobEntity]);
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
 
       await jobScheduler.start();
 

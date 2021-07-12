@@ -56,7 +56,7 @@ export class JobScheduler {
   public async start(): Promise<void> {
     this.stop();
 
-    const [jobEntity] = await getJobRepository().find({ name: this.jobName });
+    const jobEntity = await getJobRepository().findOne({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
         'cannot schedule job',
@@ -94,7 +94,7 @@ export class JobScheduler {
 
   async executeOnce(): Promise<JobResult> {
     try {
-      const [jobEntity] = await getJobRepository().find({ name: this.jobName });
+      const jobEntity = await getJobRepository().findOne({ name: this.jobName });
       if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
@@ -118,7 +118,7 @@ export class JobScheduler {
 
   async executeConcurrently(): Promise<void> {
     try {
-      const [jobEntity] = await getJobRepository().find({ name: this.jobName });
+      const jobEntity = await getJobRepository().findOne({ name: this.jobName });
       if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
