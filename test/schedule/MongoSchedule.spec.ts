@@ -45,7 +45,7 @@ describe('MongoSchedule', () => {
   it('saves job with defaults', async () => {
     await mongoSchedule.define(job);
 
-    expect(mongoSchedule.list()).toHaveLength(1);
+    expect(await mongoSchedule.list()).toHaveLength(1);
   });
 
   it('updates job', async () => {
@@ -54,20 +54,20 @@ describe('MongoSchedule', () => {
     const newInterval = 'two minutes';
     await mongoSchedule.define({ ...job, interval: newInterval });
 
-    expect(mongoSchedule.list()).toHaveLength(1);
+    expect(await mongoSchedule.list()).toHaveLength(1);
   });
 
   it('lists jobs', async () => {
     await mongoSchedule.define(job);
 
-    expect(mongoSchedule.list()).toEqual([withDefaults(job)]);
+    expect(await mongoSchedule.list()).toEqual([withDefaults(job)]);
   });
 
   it('cancels jobs', async () => {
     await mongoSchedule.define(job);
     mongoSchedule.cancel();
 
-    expect(mongoSchedule.list()).toHaveLength(0);
+    expect(await mongoSchedule.list()).toHaveLength(0);
   });
 
   it('cancels a job', async () => {
@@ -80,7 +80,7 @@ describe('MongoSchedule', () => {
 
     mongoSchedule.cancelJob(job.name);
 
-    const jobs = mongoSchedule.list();
+    const jobs = await mongoSchedule.list();
     expect(jobs).toEqual([withDefaults(jobToKeep)]);
   });
 
@@ -123,7 +123,7 @@ describe('MongoSchedule', () => {
     await mongoSchedule.define(job);
     await mongoSchedule.remove();
 
-    expect(mongoSchedule.list()).toHaveLength(0);
+    expect(await mongoSchedule.list()).toHaveLength(0);
 
     verify(jobRepository.deleteMany(deepEqual({ name: { $in: [job.name] } }))).once();
   });
@@ -139,7 +139,7 @@ describe('MongoSchedule', () => {
 
     await mongoSchedule.removeJob(job.name);
 
-    const jobs = mongoSchedule.list();
+    const jobs = await mongoSchedule.list();
     expect(jobs).toEqual([withDefaults(jobToKeep)]);
 
     verify(jobRepository.delete(deepEqual({ name: job.name }))).once();

@@ -1,7 +1,6 @@
 import { sum } from 'lodash';
 import { JobScheduler } from '../scheduler/JobScheduler';
-import { Job } from '../job/Job';
-import { MomoJob } from '../job/MomoJob';
+import { jobDescriptionFromEntity, MomoJob, MomoJobDescription } from '../job/MomoJob';
 import { withDefaults } from '../job/withDefaults';
 import { validate } from '../job/validate';
 import { define } from '../job/define';
@@ -10,7 +9,6 @@ import { getJobRepository } from '../repository/getJobRepository';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 
 export class Schedule extends LogEmitter {
-  private jobs: { [name: string]: Job } = {};
   private jobSchedulers: { [name: string]: JobScheduler } = {};
 
   protected constructor() {
@@ -38,7 +36,7 @@ export class Schedule extends LogEmitter {
   /**
    * Defines a job on the schedule and persists it in the database.
    *
-   * A job is identified by its name. If a job with the same name already exists, the job is updated.
+   * A job is identified by its name. If a job with the same name already exists, the job is stopped and updated.
    *
    * If several jobs with the given name are found in the database, they are deleted and a new job is saved.
    *
@@ -53,9 +51,11 @@ export class Schedule extends LogEmitter {
     if (!validate(job, this.logger)) {
       return;
     }
+    this.stopJob(job.name);
 
     await define(job, this.logger);
-    this.jobs[momoJob.name] = job;
+
+    this.jobSchedulers[job.name] = JobScheduler.forJob(job, this.logger);
   }
 
   /**
@@ -66,14 +66,12 @@ export class Schedule extends LogEmitter {
    * @returns the return value of the job's handler or one of: 'finished', 'max running reached' (job could not be executed), 'not found', 'failed'
    */
   public async run(name: string): Promise<JobResult> {
-    const job = this.jobs[name];
+    const jobScheduler = this.jobSchedulers[name];
 
-    if (!job) {
+    if (!jobScheduler) {
       this.logger.debug('cannot run job - not found', { name });
       return { status: ExecutionStatus.notFound };
     }
-
-    const jobScheduler = JobScheduler.forJob(job, this.logger);
 
     return jobScheduler.executeOnce();
   }
@@ -87,7 +85,7 @@ export class Schedule extends LogEmitter {
    */
   public async start(): Promise<void> {
     this.logger.debug('start all jobs', { count: this.count() });
-    await Promise.all(Object.values(this.jobs).map((job) => this.startScheduler(job)));
+    await Promise.all(Object.values(this.jobSchedulers).map((jobScheduler) => jobScheduler.start()));
   }
 
   /**
@@ -101,16 +99,14 @@ export class Schedule extends LogEmitter {
    * @param name the job to start
    */
   public async startJob(name: string): Promise<void> {
-    this.logger.debug('start', { name });
-    const job = this.jobs[name];
-    if (job) await this.startScheduler(job);
-  }
+    const jobScheduler = this.jobSchedulers[name];
+    if (!jobScheduler) {
+      this.logger.debug('job not found', { name });
+      return;
+    }
 
-  private async startScheduler(job: Job): Promise<void> {
-    const newExecutor = JobScheduler.forJob(job, this.logger);
-    this.jobSchedulers[job.name]?.stop();
-    this.jobSchedulers[job.name] = newExecutor;
-    await newExecutor.start();
+    this.logger.debug('start', { name });
+    await jobScheduler.start();
   }
 
   /**
@@ -123,7 +119,6 @@ export class Schedule extends LogEmitter {
   public stopJob(name: string): void {
     this.logger.debug('stop', { name });
     this.jobSchedulers[name]?.stop();
-    delete this.jobSchedulers[name];
   }
 
   /**
@@ -135,7 +130,6 @@ export class Schedule extends LogEmitter {
       count: this.count(),
     });
     Object.values(this.jobSchedulers).forEach((jobScheduler) => jobScheduler.stop());
-    this.jobSchedulers = {};
   }
 
   /**
@@ -147,7 +141,7 @@ export class Schedule extends LogEmitter {
   public cancelJob(name: string): void {
     this.stopJob(name);
     this.logger.debug('cancel', { name });
-    delete this.jobs[name];
+    delete this.jobSchedulers[name];
   }
 
   /**
@@ -155,8 +149,8 @@ export class Schedule extends LogEmitter {
    */
   public cancel(): void {
     this.stop();
-    this.logger.debug('cancel all jobs', { count: Object.keys(this.jobs).length });
-    this.jobs = {};
+    this.logger.debug('cancel all jobs', { count: Object.keys(this.jobSchedulers).length });
+    this.jobSchedulers = {};
   }
 
   /**
@@ -175,7 +169,7 @@ export class Schedule extends LogEmitter {
    * Stops all scheduled jobs and removes them from the schedule and the database.
    */
   public async remove(): Promise<void> {
-    const names = Object.keys(this.jobs);
+    const names = Object.keys(this.jobSchedulers);
     this.cancel();
     this.logger.debug('remove all jobs', { names: names.join(', ') });
     await getJobRepository().deleteMany({ name: { $in: names } });
@@ -187,22 +181,26 @@ export class Schedule extends LogEmitter {
    * @param started = false only count started jobs
    */
   public count(started = false): number {
-    return started ? Object.values(this.jobSchedulers).length : Object.values(this.jobs).length;
+    // ToDo: the job scheduler should remember if it is stopped or not
+    return started ? Object.values(this.jobSchedulers).length : Object.values(this.jobSchedulers).length;
   }
 
   /**
-   * Returns all jobs on the schedule.
+   * Returns descriptions of all jobs on the schedule.
    */
-  public list(): MomoJob[] {
-    return Object.values(this.jobs);
+  public async list(): Promise<MomoJobDescription[]> {
+    const jobNames = Object.keys(this.jobSchedulers);
+    const jobEntities = await getJobRepository().find({ where: { name: { $in: jobNames } } });
+    return jobEntities.map(jobDescriptionFromEntity);
   }
 
   /**
-   * Returns a job. Returns undefined if no job with the given name is on the schedule.
+   * Returns the description of a job or undefined if no job with the given name is on the schedule.
    *
    * @param name the name of the job to return
    */
-  public get(name: string): MomoJob | undefined {
-    return this.jobs[name];
+  public async get(name: string): Promise<MomoJobDescription | undefined> {
+    const jobEntity = await getJobRepository().findOne({ name });
+    return jobEntity === undefined ? undefined : jobDescriptionFromEntity(jobEntity);
   }
 }
