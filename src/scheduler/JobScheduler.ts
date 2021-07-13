@@ -49,7 +49,8 @@ export class JobScheduler {
       );
       return;
     }
-    const schedulerStatus = this.interval !== undefined ? { interval: this.interval, started: true } : undefined;
+    const schedulerStatus =
+      this.interval !== undefined ? { interval: this.interval, running: jobEntity.running } : undefined;
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }
 

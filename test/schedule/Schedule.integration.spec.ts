@@ -257,14 +257,11 @@ describe('schedule', () => {
       await jobRepository.update({ name: job.name }, { interval: updatedInterval });
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
-      const [updatedJob] = await mongoSchedule.list();
-      expect(updatedJob).toEqual({
-        name: job.name,
-        concurrency: 1,
-        maxRunning: 0,
-        interval: updatedInterval,
-        schedulerStatus: { started: true, interval: job.interval },
-      });
+
+      const [{ interval, schedulerStatus }] = await mongoSchedule.list();
+      expect(interval).toEqual(updatedInterval);
+      expect(schedulerStatus?.interval).toBe(job.interval);
+      expect(schedulerStatus?.running).toBeGreaterThanOrEqual(0);
     });
   });
 

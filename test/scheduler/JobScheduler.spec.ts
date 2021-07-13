@@ -104,7 +104,7 @@ describe('JobScheduler', () => {
         interval: job.interval,
         concurrency: job.concurrency,
         maxRunning: job.maxRunning,
-        schedulerStatus: { started: true, interval: job.interval },
+        schedulerStatus: { interval: job.interval, running: 0 },
       });
     });
   });

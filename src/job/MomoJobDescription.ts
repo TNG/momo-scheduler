@@ -2,7 +2,7 @@ import { JobEntity } from '../repository/JobEntity';
 
 export interface SchedulerStatus {
   interval: string;
-  started: boolean;
+  running: number;
 }
 
 export interface MomoJobDescription {

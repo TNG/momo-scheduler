@@ -60,10 +60,22 @@ If the parameter is omitted, all jobs are started/stopped/cancelled/removed.
 | cancel     | `string` (optional)   | Stops and removes jobs from the schedule, does not remove them from the database. |
 | remove     | `string` (optional)   | Stops and removes jobs from both the schedule and the database. |
 | count      | `boolean` (optional)  | Returns the number of jobs on the schedule. Only started jobs are counted if parameter is set to true. |
-| list       |                       | Returns all jobs on the schedule. |
-| get        | `string`              | Returns the job. Returns undefined if no job with the provided name is defined. |
+| list       |                       | Returns a description of all jobs on the schedule. |
+| get        | `string`              | Returns a description of the job. Returns undefined if no job with the provided name is defined. |
 | run        | `string`              | Runs the job with the provided name once, immediately. Note that `maxRunning` is respected, ie. the execution is skipped if the job is already running `maxRunning` times. |
 | on         | `'debug'` or `'error'`, `function` | Define a callback for debug or error events. |
+
+### MomoJobDescription
+
+The job description returned by the `list` and `get`functions contains the following properties:
+
+| property    | type     | optional | description |
+|-------------|----------|----------|-------------|
+| name        | `string`   | false    | The name of the job. Used as a unique identifier. |
+| interval    | `string`   | false    | Specifies the time interval at which the job is started. | 
+| concurrency | `number`   | false     | How many instances of a job are started at a time. |
+| maxRunning  | `number`   | false     | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The job will not be started anymore if maxRunning is reached. |
+| schedulerStatus     | `{ interval: string, running: number }` | true    | Only present if the job was started, reports the number of instances of this job currently running and the time interval at which the job is started. This might differ from the top-level `interval` as the interval of an already started job is not changed automatically when the job is updated. |
 
 The MongoSchedule is an EventEmitter, emitting `'debug'` and `'error'` events.
 You can define callbacks to handle them:
