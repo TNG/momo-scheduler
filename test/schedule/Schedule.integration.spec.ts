@@ -2,15 +2,13 @@ import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { getConnection } from 'typeorm';
 import { v4 as uuid } from 'uuid';
-import { clear, ExecutionStatus, MomoError, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
-import { JobEntity } from '../../src/repository/JobEntity';
+import { clear, ExecutionStatus, MomoError, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { sleep } from '../utils/sleep';
 import { waitFor } from '../utils/waitFor';
 import { connectionName } from '../../src/connect';
-import { withDefaults } from '../../src/job/withDefaults';
 import { initLoggingForTests } from '../utils/logging';
-import { MomoErrorEvent } from '../../src';
+import { createJobEntity } from '../utils/createJobEntity';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -44,6 +42,7 @@ describe('schedule', () => {
   });
 
   afterEach(() => {
+    receivedError = undefined;
     // eslint-disable-next-line jest/no-standalone-expect
     expect(mongoSchedule.getUnexpectedErrorCount()).toBe(0);
   });
@@ -109,7 +108,7 @@ describe('schedule', () => {
     });
 
     it('executes job that was executed before', async () => {
-      const jobEntity = JobEntity.from(withDefaults(job));
+      const jobEntity = createJobEntity(job);
       jobEntity.executionInfo = {
         lastStarted: DateTime.now().toISO(),
         lastFinished: DateTime.now().toISO(),
@@ -146,7 +145,7 @@ describe('schedule', () => {
       expect(info2?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: jobHandler.result });
     });
 
-    it('updates failing job in mongo', async () => {
+    it('updates and reports failing job in mongo', async () => {
       jobHandler.failJob = true;
       await mongoSchedule.define(job);
 
@@ -159,15 +158,6 @@ describe('schedule', () => {
         return executionInfo;
       }, 100);
       expect(executionInfo?.lastResult).toEqual({ status: ExecutionStatus.failed, handlerResult: jobHandler.message });
-    });
-
-    it('reports failing job', async () => {
-      jobHandler.failJob = true;
-      await mongoSchedule.define(job);
-
-      await mongoSchedule.start();
-      await waitFor(() => expect(jobHandler.count).toBe(1));
-
       expect(receivedError).toEqual({
         message: 'job failed',
         type: MomoErrorType.executeJob,
@@ -179,21 +169,16 @@ describe('schedule', () => {
     it('updates result message when job succeeds', async () => {
       jobHandler.failJob = true;
       await mongoSchedule.define(job);
-
       await mongoSchedule.start();
-      await waitFor(() => expect(jobHandler.count).toBe(1));
 
+      await waitFor(() => expect(jobHandler.count).toBe(1));
       await waitFor(async () => {
         const [{ executionInfo: info1 }] = await jobRepository.find({ name: job.name });
         expect(info1?.lastResult).toEqual({ status: ExecutionStatus.failed, handlerResult: jobHandler.message });
       }, 100);
 
       jobHandler.failJob = false;
-      await mongoSchedule.define(job);
-
-      await mongoSchedule.start();
       await waitFor(() => expect(jobHandler.count).toBe(2));
-
       await waitFor(async () => {
         const [{ executionInfo: info2 }] = await jobRepository.find({ name: job.name });
         expect(info2?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: jobHandler.result });
@@ -202,30 +187,33 @@ describe('schedule', () => {
 
     it('can be stopped and restarted', async () => {
       await mongoSchedule.define(job);
-
       await mongoSchedule.start();
+
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
       mongoSchedule.stop();
 
-      await sleep(1000);
+      await sleep(1100);
       expect(jobHandler.count).toBe(1);
 
       await mongoSchedule.start();
 
-      // job should be executed immediately
+      // job should be executed immediately, because last run is further in the past than the interval
       await waitFor(() => expect(jobHandler.count).toBe(2), 100);
     });
 
     it('updates already started job', async () => {
       await mongoSchedule.define(job);
-
       await mongoSchedule.start();
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
       await mongoSchedule.define({ ...job, interval: '2 seconds' });
+      await mongoSchedule.start(); // pick up the new interval
 
-      await waitFor(() => expect(jobHandler.count).toBe(2));
+      await sleep(1100);
+      expect(jobHandler.count).toBe(1);
+      await sleep(1100);
+      expect(jobHandler.count).toBe(2);
     });
 
     it('does not execute a job that was removed from mongo', async () => {
@@ -243,21 +231,24 @@ describe('schedule', () => {
 
       await mongoSchedule.start();
 
-      const updatedConcurrency = 10;
-      const updatedMaxRunning = 5;
+      const updatedConcurrency = 5;
+      const updatedMaxRunning = 10;
       await jobRepository.update(
         { name: job.name },
         { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning }
       );
 
-      await waitFor(() => {
-        const [updatedJob] = mongoSchedule.list();
+      await waitFor(async () => {
+        const [updatedJob] = await mongoSchedule.list();
         expect(updatedJob.concurrency).toEqual(updatedConcurrency);
         expect(updatedJob.maxRunning).toEqual(updatedMaxRunning);
       });
+
+      await sleep(1100);
+      expect(jobHandler.count).toBe(updatedConcurrency);
     });
 
-    it('does not update interval from mongo', async () => {
+    it('does not update interval of started job from mongo', async () => {
       await mongoSchedule.define(job);
 
       await mongoSchedule.start();
@@ -266,8 +257,11 @@ describe('schedule', () => {
       await jobRepository.update({ name: job.name }, { interval: updatedInterval });
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
-      const [updatedJob] = mongoSchedule.list();
-      expect(updatedJob.interval).toEqual(job.interval);
+
+      const [{ interval, schedulerStatus }] = await mongoSchedule.list();
+      expect(interval).toEqual(updatedInterval);
+      expect(schedulerStatus?.interval).toBe(job.interval);
+      expect(schedulerStatus?.running).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -297,10 +291,9 @@ describe('schedule', () => {
 
       await mongoSchedule.define({ ...job1, interval: '2 seconds' });
       await mongoSchedule.start();
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(2);
-        expect(jobHandler2.count).toBe(3);
-      });
+      await sleep(2100);
+      expect(jobHandler1.count).toBe(2);
+      expect(jobHandler2.count).toBe(3);
 
       mongoSchedule.stop();
 
@@ -314,17 +307,15 @@ describe('schedule', () => {
 
       await mongoSchedule.start();
 
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-      });
+      await sleep(1100);
+      expect(jobHandler1.count).toBe(1);
       await mongoSchedule.define(job2);
 
       await mongoSchedule.start();
 
-      await waitFor(() => {
-        expect(jobHandler1.count).toBeGreaterThanOrEqual(1);
-        expect(jobHandler2.count).toBe(1);
-      });
+      await sleep(1100);
+      expect(jobHandler1.count).toBe(2);
+      expect(jobHandler2.count).toBe(1);
     });
 
     it('stops one of two jobs', async () => {
@@ -340,10 +331,9 @@ describe('schedule', () => {
 
       mongoSchedule.stopJob(job1.name);
 
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-        expect(jobHandler2.count).toBe(3);
-      });
+      await sleep(1500);
+      expect(jobHandler1.count).toBe(1);
+      expect(jobHandler2.count).toBe(2);
     });
 
     it('removes one of two jobs', async () => {
@@ -359,10 +349,9 @@ describe('schedule', () => {
 
       await mongoSchedule.removeJob(job1.name);
 
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-        expect(jobHandler2.count).toBe(3);
-      });
+      await sleep(1500);
+      expect(jobHandler1.count).toBe(1);
+      expect(jobHandler2.count).toBe(2);
 
       const jobs = await jobRepository.find();
       expect(jobs).toHaveLength(1);
@@ -386,10 +375,9 @@ describe('schedule', () => {
 
       mongoSchedule.cancelJob(job1.name);
 
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-        expect(jobHandler2.count).toBe(3);
-      });
+      await sleep(1500);
+      expect(jobHandler1.count).toBe(1);
+      expect(jobHandler2.count).toBe(2);
     });
 
     it('starts one of two jobs', async () => {
@@ -398,10 +386,9 @@ describe('schedule', () => {
 
       await mongoSchedule.startJob(job1.name);
 
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(2);
-        expect(jobHandler2.count).toBe(0);
-      }, 3100);
+      await sleep(1500);
+      expect(jobHandler1.count).toBe(1);
+      expect(jobHandler2.count).toBe(0);
     });
 
     it('stops all jobs', async () => {
@@ -416,10 +403,9 @@ describe('schedule', () => {
 
       mongoSchedule.stop();
 
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-        expect(jobHandler2.count).toBe(1);
-      }, 1500);
+      await sleep(1500);
+      expect(jobHandler1.count).toBe(1);
+      expect(jobHandler2.count).toBe(1);
     });
 
     it('cancels all jobs', async () => {
@@ -434,10 +420,9 @@ describe('schedule', () => {
 
       mongoSchedule.cancel();
 
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-        expect(jobHandler2.count).toBe(1);
-      }, 1500);
+      await sleep(1500);
+      expect(jobHandler1.count).toBe(1);
+      expect(jobHandler2.count).toBe(1);
     });
 
     it('removes all jobs', async () => {
@@ -490,7 +475,7 @@ describe('schedule', () => {
       const duration =
         DateTime.fromISO(executionInfo.lastFinished).toMillis() -
         DateTime.fromISO(executionInfo.lastStarted).toMillis();
-      expect(duration).toBeGreaterThanOrEqual(jobHandler.duration);
+      expect(duration).toBeGreaterThan(3000);
     });
 
     it('does not start twice a long running job that should not run in parallel', async () => {

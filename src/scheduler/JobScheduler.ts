@@ -11,58 +11,96 @@ import { getJobRepository } from '../repository/getJobRepository';
 import { Logger } from '../logging/Logger';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { DateTime } from 'luxon';
+import { jobDescriptionFromEntity, MomoJobDescription } from '../job/MomoJobDescription';
 
 export class JobScheduler {
   private jobHandle?: TimeoutHandle;
   private unexpectedErrorCount = 0;
+  private interval?: string;
 
-  constructor(private readonly job: Job, private readonly jobExecutor: JobExecutor, private readonly logger: Logger) {}
+  constructor(
+    private readonly jobName: string,
+    private readonly immediate: boolean,
+    private readonly jobExecutor: JobExecutor,
+    private readonly logger: Logger
+  ) {}
+
+  static forJob(job: Job, logger: Logger): JobScheduler {
+    const executor = new JobExecutor(job.handler, logger);
+    return new JobScheduler(job.name, job.immediate, executor, logger);
+  }
 
   public getUnexpectedErrorCount(): number {
     return this.unexpectedErrorCount;
   }
 
-  public async run(): Promise<JobScheduler> {
-    const interval = humanInterval(this.job.interval);
-    if (!interval || isNaN(interval)) {
-      throw MomoError.nonParsableInterval;
-    }
+  public isStarted(): boolean {
+    return this.jobHandle !== undefined;
+  }
 
-    const [jobEntity] = await getJobRepository().find({ name: this.job.name });
+  public async getJobDescription(): Promise<MomoJobDescription | undefined> {
+    const jobEntity = await getJobRepository().findOne({ name: this.jobName });
+    if (!jobEntity) {
+      this.logger.error(
+        'get job description - job not found',
+        MomoErrorType.scheduleJob,
+        { name: this.jobName },
+        MomoError.jobNotFound
+      );
+      return;
+    }
+    const schedulerStatus =
+      this.interval !== undefined ? { interval: this.interval, running: jobEntity.running } : undefined;
+    return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
+  }
+
+  public async start(): Promise<void> {
+    this.stop();
+
+    const jobEntity = await getJobRepository().findOne({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
         'cannot schedule job',
         MomoErrorType.scheduleJob,
-        { name: this.job.name },
+        { name: this.jobName },
         MomoError.jobNotFound
       );
-      return this;
+      return;
     }
-    const delay = calculateDelay(interval, this.job.immediate, jobEntity);
+
+    const interval = humanInterval(jobEntity.interval);
+    if (!interval || isNaN(interval)) {
+      throw MomoError.nonParsableInterval;
+    }
+
+    this.interval = jobEntity.interval;
+
+    const delay = calculateDelay(interval, this.immediate, jobEntity);
     this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
-      name: this.job.name,
+      name: this.jobName,
       interval,
       delay,
     });
-    return this;
   }
 
   public stop(): void {
     if (this.jobHandle) {
       clearInterval(this.jobHandle.get());
+      this.jobHandle = undefined;
+      this.interval = undefined;
     }
   }
 
   async executeOnce(): Promise<JobResult> {
     try {
-      const [savedJob] = await getJobRepository().find({ name: this.job.name });
-      if (!savedJob) {
+      const jobEntity = await getJobRepository().findOne({ name: this.jobName });
+      if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
           MomoErrorType.executeJob,
-          { name: this.job.name },
+          { name: this.jobName },
           MomoError.jobNotFound
         );
         return {
@@ -70,7 +108,7 @@ export class JobScheduler {
         };
       }
 
-      return this.jobExecutor.execute(savedJob);
+      return this.jobExecutor.execute(jobEntity);
     } catch (e) {
       this.handleUnexpectedError(e);
       return {
@@ -81,25 +119,25 @@ export class JobScheduler {
 
   async executeConcurrently(): Promise<void> {
     try {
-      const [savedJob] = await getJobRepository().find({ name: this.job.name });
-      if (!savedJob) {
+      const jobEntity = await getJobRepository().findOne({ name: this.jobName });
+      if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
           MomoErrorType.executeJob,
-          { name: this.job.name },
+          { name: this.jobName },
           MomoError.jobNotFound
         );
         return;
       }
 
       const numToExecute =
-        savedJob.maxRunning > 0
-          ? min([savedJob.concurrency, savedJob.maxRunning - (savedJob.running ?? 0)]) ?? savedJob.concurrency
-          : savedJob.concurrency;
-      this.logger.debug('execute job', { name: this.job.name, times: numToExecute });
+        jobEntity.maxRunning > 0
+          ? min([jobEntity.concurrency, jobEntity.maxRunning - (jobEntity.running ?? 0)]) ?? jobEntity.concurrency
+          : jobEntity.concurrency;
+      this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
 
       for (let i = 0; i < numToExecute; i++) {
-        void this.jobExecutor.execute(savedJob).catch((e) => {
+        void this.jobExecutor.execute(jobEntity).catch((e) => {
           this.handleUnexpectedError(e);
         });
       }
@@ -113,7 +151,7 @@ export class JobScheduler {
     this.logger.error(
       'an unexpected error occurred while running job',
       MomoErrorType.executeJob,
-      { name: this.job.name },
+      { name: this.jobName },
       error
     );
   }

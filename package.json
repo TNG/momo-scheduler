@@ -14,7 +14,7 @@
     "build": "npm run clean && tsc",
     "clean": "npx rimraf dist",
     "test": "jest --detectOpenHandles --forceExit",
-    "test:integration": "npm run test -- --testPathPattern=test/integration",
+    "test:integration": "npm run test integration",
     "lint": "prettier --check \"**/*.{ts,tsx}\" --ignore-path \".gitignore\" && eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\" --ignore-path \".gitignore\" && eslint . --fix"
   },

@@ -8,13 +8,14 @@ import { mockJobRepository } from '../utils/mockJobRepository';
 import { loggerForTests } from '../utils/logging';
 
 describe('JobExecutor', () => {
+  const handler = jest.fn();
   const job: Job = {
     name: 'test',
     interval: '1 minute',
     immediate: false,
     concurrency: 1,
     maxRunning: 0,
-    handler: jest.fn(),
+    handler,
   };
   const savedJob = JobEntity.from(job);
 
@@ -28,7 +29,7 @@ describe('JobExecutor', () => {
     jobRepository = mockJobRepository();
     when(jobRepository.incrementRunning(job.name, job.maxRunning)).thenResolve(true);
 
-    jobExecutor = new JobExecutor(job, loggerForTests(errorFn));
+    jobExecutor = new JobExecutor(job.handler, loggerForTests(errorFn));
   });
 
   it('executes job', async () => {
@@ -58,9 +59,9 @@ describe('JobExecutor', () => {
 
   it('reports job error', async () => {
     const error = new Error('something bad happened');
-    job.handler = () => {
+    handler.mockImplementation(() => {
       throw error;
-    };
+    });
 
     await jobExecutor.execute(savedJob);
 
@@ -72,9 +73,9 @@ describe('JobExecutor', () => {
 
   it('writes result to mongo', async () => {
     const handlerResult = 'the job result';
-    job.handler = () => {
+    handler.mockImplementation(() => {
       return handlerResult;
-    };
+    });
 
     await jobExecutor.execute(savedJob);
 
