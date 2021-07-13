@@ -37,7 +37,7 @@ describe('MongoSchedule', () => {
     await mongo.stop();
   });
 
-  it('saves job with defaults', async () => {
+  it('saves job with defaults and returns description of jobs on the schedule', async () => {
     await mongoSchedule.define(job);
 
     expect(await mongoSchedule.get(job.name)).toEqual({
@@ -78,17 +78,6 @@ describe('MongoSchedule', () => {
     expect(await mongoSchedule.list()).toEqual([
       { name: job.name, interval: job.interval, concurrency: 1, maxRunning: 0 },
     ]);
-  });
-
-  it('returns description of jobs on the schedule', async () => {
-    await mongoSchedule.define(job);
-
-    expect(await mongoSchedule.get(job.name)).toEqual({
-      name: job.name,
-      interval: job.interval,
-      concurrency: 1,
-      maxRunning: 0,
-    });
   });
 
   it('cancels jobs without removing them from the database', async () => {
