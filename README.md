@@ -55,12 +55,16 @@ If the parameter is omitted, all jobs are started/stopped/cancelled/removed.
 | function   | parameters            | description |
 |------------|-----------------------|-------------|
 | define     | `MomoJob`             | Creates a new MomoJob on the schedule. |
-| start      | `string` (optional)   | Starts jobs that are on the schedule. |
-| stop       | `string` (optional)   | Stops jobs, but does not remove them from either the schedule or the database. |
-| cancel     | `string` (optional)   | Stops and removes jobs from the schedule, does not remove them from the database. |
-| remove     | `string` (optional)   | Stops and removes jobs from both the schedule and the database. |
+| start      |                       | Starts jobs that are on the schedule. |
+| stop       |                       | Stops jobs, but does not remove them from either the schedule or the database. |
+| cancel     |                       | Stops and removes jobs from the schedule, does not remove them from the database. |
+| remove     |                       | Stops and removes jobs from both the schedule and the database. |
+| startJob   | `string`              | Starts the job with the provided name (if on the schedule). |
+| stopJob    | `string`              | Stops the job with the provided name (if on the schedule), but does not remove it from either the schedule or the database. |
+| cancelJob  | `string`              | Stops and removes the job with the provided name (if on the schedule) from the schedule, does not remove it from the database. |
+| removeJob  | `string`              | Stops and removes the job with the provided name (if on the schedule) from both the schedule and the database. |
 | count      | `boolean` (optional)  | Returns the number of jobs on the schedule. Only started jobs are counted if parameter is set to true. |
-| list       |                       | Returns a description of all jobs on the schedule. |
+| list       |                       | Returns descriptions of all jobs on the schedule. |
 | get        | `string`              | Returns a description of the job. Returns undefined if no job with the provided name is defined. |
 | run        | `string`              | Runs the job with the provided name once, immediately. Note that `maxRunning` is respected, ie. the execution is skipped if the job is already running `maxRunning` times. |
 | on         | `'debug'` or `'error'`, `function` | Define a callback for debug or error events. |
