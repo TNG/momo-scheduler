@@ -1,5 +1,6 @@
 #!/bin/bash
 
+UPSTREAM_URL='git@github.com:TNG/momo-scheduler.git'
 # default: not dry-run
 DRY_RUN=0
 
@@ -67,16 +68,16 @@ git tag -a -m "$VERSION_PREFIXED" "$VERSION_PREFIXED"
 
 if [[ $DRY_RUN ]]; then
   echo "Pushing version and tag to GitHub repository (dry-run):"
-  git push --set-upstream origin "$RELEASE_BRANCH" --dry-run
-  git push "$(git config --get remote.origin.url)" "$VERSION_PREFIXED" --dry-run
+  git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH" --dry-run
+  git push "$UPSTREAM_URL" "$VERSION_PREFIXED" --dry-run
 
   echo "Publish to npmjs (dry-run):"
   npm publish --access public --registry https://registry.npmjs.org/ --dry-run
 
 else
   echo "Pushing version and tag to GitHub repository:"
-  git push --set-upstream origin "$RELEASE_BRANCH"
-  git push "$(git config --get remote.origin.url)" "$VERSION_PREFIXED"
+  git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH"
+  git push "$UPSTREAM_URL" "$VERSION_PREFIXED"
 
   echo "Publish to npmjs:"
   npm publish --access public --registry https://registry.npmjs.org/
