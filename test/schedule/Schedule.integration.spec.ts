@@ -475,7 +475,7 @@ describe('schedule', () => {
       const duration =
         DateTime.fromISO(executionInfo.lastFinished).toMillis() -
         DateTime.fromISO(executionInfo.lastStarted).toMillis();
-      expect(duration).toBeGreaterThanOrEqual(jobHandler.duration);
+      expect(duration).toBeGreaterThan(3000);
     });
 
     it('does not start twice a long running job that should not run in parallel', async () => {
