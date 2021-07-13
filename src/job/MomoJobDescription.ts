@@ -1,6 +1,12 @@
 import { JobEntity } from '../repository/JobEntity';
 
-export interface SchedulerStatus {
+/**
+ * information about scheduled job
+ *
+ * interval: the time interval at which job execution is triggered;
+ * running: the number of currently running executions
+ */
+export interface JobSchedulerStatus {
   interval: string;
   running: number;
 }
@@ -10,7 +16,8 @@ export interface MomoJobDescription {
   interval: string;
   concurrency: number;
   maxRunning: number;
-  schedulerStatus?: SchedulerStatus;
+  /** present only if the job is started */
+  schedulerStatus?: JobSchedulerStatus;
 }
 
 export function jobDescriptionFromEntity(jobEntity: JobEntity): MomoJobDescription {

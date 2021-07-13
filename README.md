@@ -79,7 +79,7 @@ The job description returned by the `list` and `get`functions contains the follo
 | interval    | `string`   | false    | Specifies the time interval at which the job is started. | 
 | concurrency | `number`   | false     | How many instances of a job are started at a time. |
 | maxRunning  | `number`   | false     | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The job will not be started anymore if maxRunning is reached. |
-| schedulerStatus     | `{ interval: string, running: number }` | true    | Only present if the job was started, reports the number of instances of this job currently running and the time interval at which the job is started. This might differ from the top-level `interval` as the interval of an already started job is not changed automatically when the job is updated. |
+| schedulerStatus     | `{ interval: string, running: number }` | true    | Only present if the job was started, reports the number of currently running executions of the job and the time interval at which job execution is triggered. This might differ from the top-level `interval` as the interval of an already started job is not changed automatically when the job is updated. |
 
 The MongoSchedule is an EventEmitter, emitting `'debug'` and `'error'` events.
 You can define callbacks to handle them:
