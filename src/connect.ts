@@ -30,7 +30,7 @@ export async function connect(connectionOptions: MomoConnectionOptions, logger?:
   await connection.getCustomRepository(JobRepository).createCollectionIndex({ name: 1 }, { name: 'job_name_index' });
   await connection
     .getCustomRepository(ExecutionRepository)
-    .createCollectionIndex({ execution: 1 }, { name: 'execution_uuid_index' });
+    .createCollectionIndex({ scheduleId: 1 }, { name: 'schedule_id_index' });
 
   return connection;
 }

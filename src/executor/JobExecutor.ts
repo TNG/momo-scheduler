@@ -8,22 +8,35 @@ import { Logger } from '../logging/Logger';
 import { Handler } from '../job/MomoJob';
 
 export class JobExecutor {
-  constructor(private readonly handler: Handler, private readonly logger: Logger) {}
+  private stopped = false;
+
+  constructor(
+    private readonly handler: Handler,
+    private readonly scheduleId: string,
+    private readonly logger: Logger
+  ) {}
+
+  stop(): void {
+    this.stopped = true;
+  }
 
   async execute(jobEntity: JobEntity): Promise<JobResult> {
     const executionRepository = getExecutionRepository();
 
-    const executionPing = await executionRepository.add(jobEntity.name, jobEntity.maxRunning);
-    if (executionPing === undefined) {
+    const { added, running } = await executionRepository.addExecution(
+      this.scheduleId,
+      jobEntity.name,
+      jobEntity.maxRunning
+    );
+    if (!added) {
       this.logger.debug('maxRunning reached, skip', {
         name: jobEntity.name,
-        running: jobEntity.maxRunning,
+        running,
       });
       return {
         status: ExecutionStatus.maxRunningReached,
       };
     }
-    executionPing.start();
 
     const { started, result } = await this.executeHandler(jobEntity);
 
@@ -40,7 +53,9 @@ export class JobExecutor {
       status: result.status,
     });
 
-    await executionPing.stop();
+    if (!this.stopped) {
+      await executionRepository.removeExecution(this.scheduleId, jobEntity.name);
+    }
 
     return result;
   }

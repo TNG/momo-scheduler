@@ -1,23 +1,27 @@
 import { Column, Entity, Index, ObjectID, ObjectIdColumn } from 'typeorm';
 
-@Entity({ name: 'execution-pings' })
+interface Executions {
+  [name: string]: number;
+}
+
+@Entity({ name: 'executions' })
 export class ExecutionEntity {
   @ObjectIdColumn()
   public _id?: ObjectID;
 
   @Index()
   @Column()
-  public executionId: string;
+  public scheduleId: string;
 
   @Column()
   public timestamp: number;
 
   @Column()
-  public name: string;
+  public executions: Executions;
 
-  constructor(executionId: string, timestamp: number, name: string) {
-    this.executionId = executionId;
+  constructor(scheduleId: string, timestamp: number, executions: Executions) {
+    this.scheduleId = scheduleId;
     this.timestamp = timestamp;
-    this.name = name;
+    this.executions = executions;
   }
 }

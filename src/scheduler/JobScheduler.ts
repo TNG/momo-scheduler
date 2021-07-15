@@ -22,12 +22,13 @@ export class JobScheduler {
     private readonly jobName: string,
     private readonly immediate: boolean,
     private readonly jobExecutor: JobExecutor,
+    private readonly scheduleId: string,
     private readonly logger: Logger
   ) {}
 
-  static forJob(job: Job, logger: Logger): JobScheduler {
-    const executor = new JobExecutor(job.handler, logger);
-    return new JobScheduler(job.name, job.immediate, executor, logger);
+  static forJob(scheduleId: string, job: Job, logger: Logger): JobScheduler {
+    const executor = new JobExecutor(job.handler, scheduleId, logger);
+    return new JobScheduler(job.name, job.immediate, executor, scheduleId, logger);
   }
 
   getUnexpectedErrorCount(): number {
@@ -39,12 +40,6 @@ export class JobScheduler {
   }
 
   async getJobDescription(): Promise<MomoJobDescription | undefined> {
-    const executionRepository = getExecutionRepository();
-    const deadCount = await executionRepository.clean(this.jobName);
-    if (deadCount > 0) {
-      this.logger.debug('removed dead executions', { name: this.jobName, count: deadCount });
-    }
-
     const jobEntity = await getJobRepository().findOne({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
@@ -56,14 +51,14 @@ export class JobScheduler {
       return;
     }
 
-    const running = await executionRepository.executions(jobEntity.name);
+    const running = await getExecutionRepository().countRunningExecutions(jobEntity.name);
     const schedulerStatus = this.interval !== undefined ? { interval: this.interval, running } : undefined;
 
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }
 
   async start(): Promise<void> {
-    this.stop();
+    await this.stop();
 
     const jobEntity = await getJobRepository().findOne({ name: this.jobName });
     if (!jobEntity) {
@@ -84,6 +79,9 @@ export class JobScheduler {
     this.interval = jobEntity.interval;
 
     const delay = calculateDelay(interval, this.immediate, jobEntity);
+
+    await getExecutionRepository().addJob(this.scheduleId, this.jobName);
+
     this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
@@ -93,9 +91,11 @@ export class JobScheduler {
     });
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     if (this.jobHandle) {
       clearInterval(this.jobHandle.get());
+      this.jobExecutor.stop();
+      await getExecutionRepository().removeJob(this.scheduleId, this.jobName);
       this.jobHandle = undefined;
       this.interval = undefined;
     }
@@ -138,7 +138,7 @@ export class JobScheduler {
         return;
       }
 
-      const running = await getExecutionRepository().executions(jobEntity.name);
+      const running = await getExecutionRepository().countRunningExecutions(jobEntity.name);
       const numToExecute =
         jobEntity.maxRunning > 0
           ? min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency

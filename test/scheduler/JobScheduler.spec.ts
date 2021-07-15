@@ -23,6 +23,7 @@ describe('JobScheduler', () => {
   };
   const oneMinute = 60 * 1000;
   const errorFn = jest.fn();
+  const scheduleId = '123';
 
   let jobExecutor: JobExecutor;
   let jobRepository: JobRepository;
@@ -46,9 +47,15 @@ describe('JobScheduler', () => {
 
   function createJob(partialJob: Partial<Job> = {}): Job {
     const job = { ...defaultJob, ...partialJob };
-    jobScheduler = new JobScheduler(job.name, job.immediate, instance(jobExecutor), loggerForTests(errorFn));
+    jobScheduler = new JobScheduler(
+      job.name,
+      job.immediate,
+      instance(jobExecutor),
+      scheduleId,
+      loggerForTests(errorFn)
+    );
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(job));
-    when(executionRepository.executions(job.name)).thenResolve(0);
+    when(executionRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
 
@@ -174,7 +181,7 @@ describe('JobScheduler', () => {
 
     it('executes job only twice if it is already running', async () => {
       const job = createJob({ concurrency: 3, maxRunning: 3 });
-      when(executionRepository.executions(job.name)).thenResolve(1);
+      when(executionRepository.countRunningExecutions(job.name)).thenResolve(1);
 
       await jobScheduler.start();
 

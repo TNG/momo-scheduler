@@ -9,6 +9,7 @@ export function mockRepositories(): { jobRepository: JobRepository; executionRep
   const executionRepository = mock(ExecutionRepository);
   jest.spyOn(typeorm, 'getConnection').mockReturnValue(({
     isConnected: true,
+    close: jest.fn(),
     getCustomRepository: (clazz: typeof MongoRepository) => {
       switch (clazz) {
         case JobRepository:

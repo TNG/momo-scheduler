@@ -1,10 +1,12 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
+
 import { connect, disconnect } from '../../src/connect';
 import { deadExecutionThreshold, ExecutionRepository } from '../../src/repository/ExecutionRepository';
 import { getExecutionRepository } from '../../src/repository/getRepository';
 import { sleep } from '../utils/sleep';
 
 describe('ExecutionRepository', () => {
+  const scheduleId = '123';
   const name = 'test job';
 
   let mongo: MongoMemoryServer;
@@ -23,64 +25,68 @@ describe('ExecutionRepository', () => {
     await mongo.stop();
   });
 
-  describe('add', () => {
-    it('can add an execution', async () => {
-      const executionPing = await executionRepository.add(name, 1);
-      expect(executionPing).toBeDefined();
-    });
+  describe('addSchedule', () => {
+    it('can add a schedule', async () => {
+      await executionRepository.addSchedule(scheduleId);
 
-    it('cannot add an execution when maxRunning is reached', async () => {
-      await executionRepository.add(name, 1);
-      const executionPing = await executionRepository.add(name, 1);
-      expect(executionPing).toBeUndefined();
-    });
+      const entities = await executionRepository.find({});
 
-    it('can add an execution with maxRunning set to 0', async () => {
-      const executionPing = await executionRepository.add(name, 0);
-      expect(executionPing).toBeDefined();
+      expect(entities).toHaveLength(1);
+      expect(entities[0].scheduleId).toEqual(scheduleId);
     });
   });
 
   describe('executions', () => {
-    it('returns number of executions', async () => {
-      await executionRepository.add(name, 2);
-      await executionRepository.add(name, 2);
-
-      const running = await executionRepository.executions(name);
-      expect(running).toBe(2);
+    beforeEach(async () => {
+      await executionRepository.addSchedule(scheduleId);
     });
 
-    it('does not count dead executions', async () => {
-      await executionRepository.add(name, 2);
-      await sleep(deadExecutionThreshold);
-      await executionRepository.add(name, 2);
+    describe('addExecution', () => {
+      it('can add an execution', async () => {
+        const executionPing = await executionRepository.addExecution(scheduleId, name, 1);
+        expect(executionPing).toBeDefined();
+      });
 
-      const running = await executionRepository.executions(name);
-      expect(running).toBe(1);
+      it('cannot add an execution when maxRunning is reached', async () => {
+        await executionRepository.addExecution(scheduleId, name, 1);
+        const { added, running } = await executionRepository.addExecution(scheduleId, name, 1);
+        expect(added).toBe(false);
+        expect(running).toBe(1);
+      });
+
+      it('can add an execution with maxRunning set to 0', async () => {
+        const executionPing = await executionRepository.addExecution(scheduleId, name, 0);
+        expect(executionPing).toBeDefined();
+      });
     });
-  });
 
-  describe('ping', () => {
-    it('updates timestamp', async () => {
-      await executionRepository.add(name, 2);
-      const entity = await executionRepository.findOne({ name });
+    describe('countRunningExecutions', () => {
+      it('returns number of executions', async () => {
+        await executionRepository.addExecution(scheduleId, name, 2);
+        await executionRepository.addExecution(scheduleId, name, 2);
 
-      await executionRepository.ping(entity!.executionId);
+        const running = await executionRepository.countRunningExecutions(name);
+        expect(running).toBe(2);
+      });
 
-      const entityAfterPing = await executionRepository.findOne({ name });
-      expect(entityAfterPing?.timestamp).toBeGreaterThan(entity!.timestamp);
+      it('does not count dead executions', async () => {
+        await executionRepository.addExecution(scheduleId, name, 1);
+        await sleep(deadExecutionThreshold);
+
+        const running = await executionRepository.countRunningExecutions(name);
+        expect(running).toBe(0);
+      });
     });
-  });
 
-  describe('clean', () => {
-    it('cleans dead executions', async () => {
-      await executionRepository.add(name, 2);
-      await sleep(deadExecutionThreshold);
-      await executionRepository.add(name, 2);
+    describe('ping', () => {
+      it('updates timestamp', async () => {
+        const entity = await executionRepository.findOne({ scheduleId });
 
-      const deadCount = await executionRepository.clean(name);
-      expect(deadCount).toBe(1);
-      expect(await executionRepository.count({ name })).toBe(1);
+        await executionRepository.ping(scheduleId);
+
+        const entityAfterPing = await executionRepository.findOne({ scheduleId });
+        expect(entityAfterPing?.timestamp).toBeGreaterThan(entity!.timestamp);
+      });
     });
   });
 });

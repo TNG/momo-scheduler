@@ -27,7 +27,7 @@ describe('MongoSchedule', () => {
   });
 
   beforeEach(async () => {
-    mongoSchedule.cancel();
+    await mongoSchedule.cancel();
     await clear();
   });
 
@@ -81,7 +81,7 @@ describe('MongoSchedule', () => {
 
   it('cancels jobs without removing them from the database', async () => {
     await mongoSchedule.define(job);
-    mongoSchedule.cancel();
+    await mongoSchedule.cancel();
 
     expect(await mongoSchedule.get(job.name)).toBeUndefined();
     expect(await jobRepository.find({})).toHaveLength(1);
@@ -92,7 +92,7 @@ describe('MongoSchedule', () => {
     await mongoSchedule.define(jobToKeep);
     await mongoSchedule.define(job);
 
-    mongoSchedule.cancelJob(job.name);
+    await mongoSchedule.cancelJob(job.name);
 
     const jobs = await mongoSchedule.list();
     expect(jobs).toHaveLength(1);

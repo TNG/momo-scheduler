@@ -1,6 +1,6 @@
-import { deepEqual, instance, mock, verify, when } from 'ts-mockito';
+import { anyString, deepEqual, verify, when } from 'ts-mockito';
+
 import { ExecutionStatus, MomoEvent, MomoJob, MongoSchedule } from '../../src';
-import { ExecutionPing } from '../../src/executor/ExecutionPing';
 import { ExecutionRepository } from '../../src/repository/ExecutionRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobEntity } from '../../src/repository/JobEntity';
@@ -32,12 +32,12 @@ describe('Schedule', () => {
     mongoSchedule = await MongoSchedule.connect({
       url: 'mongodb://does.not/matter',
     });
-    mongoSchedule.cancel();
-
     initLoggingForTests(mongoSchedule);
+
+    await mongoSchedule.cancel();
   });
 
-  afterEach(() => mongoSchedule.stop());
+  afterEach(() => mongoSchedule.disconnect());
 
   it('emits logs', async () => {
     let caughtEvent: MomoEvent | undefined;
@@ -89,7 +89,7 @@ describe('Schedule', () => {
     await mongoSchedule.define(job);
 
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
-    when(executionRepository.add(job.name, 0)).thenResolve(instance(mock(ExecutionPing)));
+    when(executionRepository.addExecution(anyString(), job.name, 0)).thenResolve({ added: true, running: 0 });
 
     const result = await mongoSchedule.run(job.name);
 
@@ -117,7 +117,10 @@ describe('Schedule', () => {
     await mongoSchedule.define(job);
 
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
-    when(executionRepository.add(job.name, 0)).thenResolve(undefined);
+    when(executionRepository.addExecution(anyString(), job.name, 0)).thenResolve({
+      added: false,
+      running: 0,
+    });
 
     const result = await mongoSchedule.run(job.name);
 
