@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { Schedule } from './Schedule';
 import { SchedulePing } from './SchedulePing';
 import { connect, disconnect, MomoConnectionOptions } from '../connect';
-import { getExecutionRepository } from '../repository/getRepository';
+import { getExecutionsRepository } from '../repository/getRepository';
 
 export class MongoSchedule extends Schedule {
   private readonly schedulePing: SchedulePing;
@@ -21,7 +21,7 @@ export class MongoSchedule extends Schedule {
     const scheduleId = uuid();
     const mongoSchedule = new MongoSchedule(scheduleId);
     await connect(connectionOptions, mongoSchedule.logger);
-    await getExecutionRepository().addSchedule(scheduleId);
+    await getExecutionsRepository().addSchedule(scheduleId);
     mongoSchedule.schedulePing.start();
     return mongoSchedule;
   }

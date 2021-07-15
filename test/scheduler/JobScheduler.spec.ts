@@ -2,7 +2,7 @@ import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { ExecutionRepository } from '../../src/repository/ExecutionRepository';
+import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobEntity } from '../../src/repository/JobEntity';
@@ -26,7 +26,7 @@ describe('JobScheduler', () => {
 
   let jobExecutor: JobExecutor;
   let jobRepository: JobRepository;
-  let executionRepository: ExecutionRepository;
+  let executionsRepository: ExecutionsRepository;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
@@ -35,9 +35,13 @@ describe('JobScheduler', () => {
     jobExecutor = mock(JobExecutor);
     const repositories = mockRepositories();
     jobRepository = repositories.jobRepository;
-    executionRepository = repositories.executionRepository;
+    executionsRepository = repositories.executionsRepository;
 
     when(jobExecutor.execute(anything())).thenResolve();
+  });
+
+  afterEach(async () => {
+    await jobScheduler.stop();
   });
 
   function createJob(partialJob: Partial<Job> = {}): Job {
@@ -50,7 +54,7 @@ describe('JobScheduler', () => {
       loggerForTests(errorFn)
     );
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(job));
-    when(executionRepository.countRunningExecutions(job.name)).thenResolve(0);
+    when(executionsRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
 
@@ -176,7 +180,7 @@ describe('JobScheduler', () => {
 
     it('executes job only twice if it is already running', async () => {
       const job = createJob({ concurrency: 3, maxRunning: 3 });
-      when(executionRepository.countRunningExecutions(job.name)).thenResolve(1);
+      when(executionsRepository.countRunningExecutions(job.name)).thenResolve(1);
 
       await jobScheduler.start();
 

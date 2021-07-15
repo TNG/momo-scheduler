@@ -1,7 +1,7 @@
 import { anyString, deepEqual, verify, when } from 'ts-mockito';
 
 import { ExecutionStatus, MomoEvent, MomoJob, MongoSchedule } from '../../src';
-import { ExecutionRepository } from '../../src/repository/ExecutionRepository';
+import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { Job } from '../../src/job/Job';
@@ -17,7 +17,7 @@ describe('Schedule', () => {
   };
 
   let jobRepository: JobRepository;
-  let executionRepository: ExecutionRepository;
+  let executionsRepository: ExecutionsRepository;
   let mongoSchedule: MongoSchedule;
 
   beforeEach(async () => {
@@ -25,7 +25,7 @@ describe('Schedule', () => {
 
     const repositories = mockRepositories();
     jobRepository = repositories.jobRepository;
-    executionRepository = repositories.executionRepository;
+    executionsRepository = repositories.executionsRepository;
 
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
 
@@ -89,7 +89,7 @@ describe('Schedule', () => {
     await mongoSchedule.define(job);
 
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
-    when(executionRepository.addExecution(anyString(), job.name, 0)).thenResolve({ added: true, running: 0 });
+    when(executionsRepository.addExecution(anyString(), job.name, 0)).thenResolve({ added: true, running: 0 });
 
     const result = await mongoSchedule.run(job.name);
 
@@ -117,7 +117,7 @@ describe('Schedule', () => {
     await mongoSchedule.define(job);
 
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
-    when(executionRepository.addExecution(anyString(), job.name, 0)).thenResolve({
+    when(executionsRepository.addExecution(anyString(), job.name, 0)).thenResolve({
       added: false,
       running: 0,
     });

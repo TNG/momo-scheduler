@@ -7,7 +7,7 @@ import { setIntervalWithDelay, TimeoutHandle } from './setIntervalWithDelay';
 import { calculateDelay } from './calculateDelay';
 import { MomoError } from '../logging/error/MomoError';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { getExecutionRepository, getJobRepository } from '../repository/getRepository';
+import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
 import { Logger } from '../logging/Logger';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { DateTime } from 'luxon';
@@ -51,7 +51,7 @@ export class JobScheduler {
       return;
     }
 
-    const running = await getExecutionRepository().countRunningExecutions(jobEntity.name);
+    const running = await getExecutionsRepository().countRunningExecutions(jobEntity.name);
     const schedulerStatus = this.interval !== undefined ? { interval: this.interval, running } : undefined;
 
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
@@ -80,7 +80,7 @@ export class JobScheduler {
 
     const delay = calculateDelay(interval, this.immediate, jobEntity);
 
-    await getExecutionRepository().addJob(this.scheduleId, this.jobName);
+    await getExecutionsRepository().addJob(this.scheduleId, this.jobName);
 
     this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
 
@@ -95,7 +95,7 @@ export class JobScheduler {
     if (this.jobHandle) {
       clearInterval(this.jobHandle.get());
       this.jobExecutor.stop();
-      await getExecutionRepository().removeJob(this.scheduleId, this.jobName);
+      await getExecutionsRepository().removeJob(this.scheduleId, this.jobName);
       this.jobHandle = undefined;
       this.interval = undefined;
     }
@@ -138,7 +138,7 @@ export class JobScheduler {
         return;
       }
 
-      const running = await getExecutionRepository().countRunningExecutions(jobEntity.name);
+      const running = await getExecutionsRepository().countRunningExecutions(jobEntity.name);
       const numToExecute =
         jobEntity.maxRunning > 0
           ? min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency

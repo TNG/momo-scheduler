@@ -1,8 +1,8 @@
 import { Connection, createConnection, getConnection } from 'typeorm';
 import { JobEntity } from './repository/JobEntity';
 import { JobRepository } from './repository/JobRepository';
-import { ExecutionEntity } from './repository/ExecutionEntity';
-import { ExecutionRepository } from './repository/ExecutionRepository';
+import { ExecutionsEntity } from './repository/ExecutionsEntity';
+import { ExecutionsRepository } from './repository/ExecutionsRepository';
 import { isConnected } from './isConnected';
 import { Logger } from './logging/Logger';
 
@@ -23,13 +23,13 @@ export async function connect(connectionOptions: MomoConnectionOptions, logger?:
     type: 'mongodb',
     name: connectionName,
     useUnifiedTopology: true,
-    entities: [ExecutionEntity, JobEntity],
+    entities: [ExecutionsEntity, JobEntity],
   });
 
   logger?.debug('create indices');
   await connection.getCustomRepository(JobRepository).createCollectionIndex({ name: 1 }, { name: 'job_name_index' });
   await connection
-    .getCustomRepository(ExecutionRepository)
+    .getCustomRepository(ExecutionsRepository)
     .createCollectionIndex({ scheduleId: 1 }, { name: 'schedule_id_index' });
 
   return connection;

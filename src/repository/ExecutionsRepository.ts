@@ -1,23 +1,24 @@
 import { DateTime } from 'luxon';
 import { EntityRepository, MongoRepository } from 'typeorm';
 
-import { ExecutionEntity } from './ExecutionEntity';
+import { ExecutionsEntity } from './ExecutionsEntity';
 import { pingInterval } from '../schedule/SchedulePing';
 
-export const deadExecutionThreshold = 1.1 * pingInterval;
+export const deadExecutionThreshold = 2 * pingInterval;
 
-@EntityRepository(ExecutionEntity)
-export class ExecutionRepository extends MongoRepository<ExecutionEntity> {
+@EntityRepository(ExecutionsEntity)
+export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
   async addSchedule(scheduleId: string): Promise<void> {
-    await this.save(new ExecutionEntity(scheduleId, DateTime.now().toMillis(), {}));
+    console.log('add schedule', scheduleId);
+    await this.save(new ExecutionsEntity(scheduleId, DateTime.now().toMillis(), {}));
   }
 
   async addJob(scheduleId: string, name: string): Promise<void> {
-    const entity = await this.findOne({ scheduleId });
-    if (entity === undefined) {
-      throw new Error(`executionEntity not found for scheduleId=${scheduleId}`);
+    const executionsEntity = await this.findOne({ scheduleId });
+    if (executionsEntity === undefined) {
+      throw new Error(`executionsEntity not found for scheduleId=${scheduleId}`);
     }
-    await this.update({ scheduleId }, { executions: { ...entity.executions, [name]: 0 } });
+    await this.update({ scheduleId }, { executions: { ...executionsEntity.executions, [name]: 0 } });
   }
 
   async addExecution(
@@ -40,12 +41,12 @@ export class ExecutionRepository extends MongoRepository<ExecutionEntity> {
   }
 
   async removeJob(scheduleId: string, name: string) {
-    const executionEntity = await this.findOne({ scheduleId });
-    if (executionEntity === undefined) {
-      throw new Error(`executionEntity not found for scheduleId=${scheduleId}`);
+    const executionsEntity = await this.findOne({ scheduleId });
+    if (executionsEntity === undefined) {
+      throw new Error(`executionsEntity not found for scheduleId=${scheduleId}`);
     }
 
-    const executions = executionEntity.executions;
+    const executions = executionsEntity.executions;
     delete executions[name];
     await this.update({ scheduleId }, { executions });
   }
@@ -53,7 +54,7 @@ export class ExecutionRepository extends MongoRepository<ExecutionEntity> {
   async countRunningExecutions(name: string): Promise<number> {
     const timestamp = DateTime.now().toMillis() - deadExecutionThreshold;
     return (await this.find({ where: { timestamp: { $gt: timestamp } } }))
-      .map((entity) => entity.executions[name] ?? 0)
+      .map((executionsEntity) => executionsEntity.executions[name] ?? 0)
       .reduce((sum, current) => sum + current, 0);
   }
 

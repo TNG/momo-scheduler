@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { JobEntity } from '../repository/JobEntity';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { getExecutionRepository, getJobRepository } from '../repository/getRepository';
+import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
 import { Logger } from '../logging/Logger';
 import { Handler } from '../job/MomoJob';
 
@@ -21,9 +21,9 @@ export class JobExecutor {
   }
 
   async execute(jobEntity: JobEntity): Promise<JobResult> {
-    const executionRepository = getExecutionRepository();
+    const executionsRepository = getExecutionsRepository();
 
-    const { added, running } = await executionRepository.addExecution(
+    const { added, running } = await executionsRepository.addExecution(
       this.scheduleId,
       jobEntity.name,
       jobEntity.maxRunning
@@ -54,7 +54,7 @@ export class JobExecutor {
     });
 
     if (!this.stopped) {
-      await executionRepository.removeExecution(this.scheduleId, jobEntity.name);
+      await executionsRepository.removeExecution(this.scheduleId, jobEntity.name);
     }
 
     return result;

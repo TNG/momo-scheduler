@@ -5,7 +5,7 @@ interface Executions {
 }
 
 @Entity({ name: 'executions' })
-export class ExecutionEntity {
+export class ExecutionsEntity {
   @ObjectIdColumn()
   public _id?: ObjectID;
 

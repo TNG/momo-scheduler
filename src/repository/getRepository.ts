@@ -1,12 +1,12 @@
 import { getConnection } from 'typeorm';
 import { connectionName } from '../connect';
-import { ExecutionRepository } from './ExecutionRepository';
+import { ExecutionsRepository } from './ExecutionsRepository';
 import { JobRepository } from './JobRepository';
 
 export function getJobRepository(): JobRepository {
   return getConnection(connectionName).getCustomRepository(JobRepository);
 }
 
-export function getExecutionRepository(): ExecutionRepository {
-  return getConnection(connectionName).getCustomRepository(ExecutionRepository);
+export function getExecutionsRepository(): ExecutionsRepository {
+  return getConnection(connectionName).getCustomRepository(ExecutionsRepository);
 }

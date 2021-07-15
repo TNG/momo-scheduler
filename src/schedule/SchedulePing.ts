@@ -1,5 +1,5 @@
 import { Logger } from '../logging/Logger';
-import { getExecutionRepository } from '../repository/getRepository';
+import { getExecutionsRepository } from '../repository/getRepository';
 
 export const pingInterval = 1000;
 
@@ -13,7 +13,7 @@ export class SchedulePing {
       return;
     }
     this.logger.debug('start SchedulerPing', { scheduleId: this.scheduleId });
-    const executionRepository = getExecutionRepository();
+    const executionsRepository = getExecutionsRepository();
     this.handle = setInterval(async () => {
       await executionRepository.ping(this.scheduleId);
     }, pingInterval);
@@ -24,6 +24,6 @@ export class SchedulePing {
       this.logger.debug('stop SchedulerPing', { scheduleId: this.scheduleId });
       clearInterval(this.handle);
     }
-    await getExecutionRepository().delete({ scheduleId: this.scheduleId });
+    await getExecutionsRepository().delete({ scheduleId: this.scheduleId });
   }
 }
