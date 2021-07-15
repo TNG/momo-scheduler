@@ -5,16 +5,12 @@ import { withDefaults } from '../job/withDefaults';
 import { validate } from '../job/validate';
 import { define } from '../job/define';
 import { LogEmitter } from '../logging/LogEmitter';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getJobRepository } from '../repository/getRepository';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { MomoJobDescription } from '../job/MomoJobDescription';
 
 export class Schedule extends LogEmitter {
   private jobSchedulers: { [name: string]: JobScheduler } = {};
-
-  protected constructor() {
-    super();
-  }
 
   /**
    * Returns the number of unexpected errors that occurred during execution of scheduled jobs.
@@ -127,9 +123,7 @@ export class Schedule extends LogEmitter {
    * Jobs can be started again using start().
    */
   public stop(): void {
-    this.logger.debug('stop all jobs', {
-      count: this.count(),
-    });
+    this.logger.debug('stop all jobs', { count: this.count() });
     Object.values(this.jobSchedulers).forEach((jobScheduler) => jobScheduler.stop());
   }
 

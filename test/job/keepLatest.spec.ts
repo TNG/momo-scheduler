@@ -6,14 +6,14 @@ import { keepLatest } from '../../src/job/keepLatest';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { Job } from '../../src/job/Job';
 import { ExecutionInfo } from '../../src';
-import { mockJobRepository } from '../utils/mockJobRepository';
+import { mockRepositories } from '../utils/mockRepositories';
 
 describe('keepLatest', () => {
   const name = 'test';
   let jobRepository: JobRepository;
 
   beforeAll(() => {
-    jobRepository = mockJobRepository();
+    jobRepository = mockRepositories().jobRepository;
   });
 
   afterEach(() => jest.clearAllMocks());

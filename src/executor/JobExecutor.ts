@@ -3,18 +3,18 @@ import { DateTime } from 'luxon';
 import { JobEntity } from '../repository/JobEntity';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getExecutionRepository, getJobRepository } from '../repository/getRepository';
 import { Logger } from '../logging/Logger';
 import { Handler } from '../job/MomoJob';
 
 export class JobExecutor {
   constructor(private readonly handler: Handler, private readonly logger: Logger) {}
 
-  public async execute(jobEntity: JobEntity): Promise<JobResult> {
-    const jobRepository = getJobRepository();
+  async execute(jobEntity: JobEntity): Promise<JobResult> {
+    const executionRepository = getExecutionRepository();
 
-    const incremented = await jobRepository.incrementRunning(jobEntity.name, jobEntity.maxRunning);
-    if (!incremented) {
+    const executionPing = await executionRepository.add(jobEntity.name, jobEntity.maxRunning);
+    if (executionPing === undefined) {
       this.logger.debug('maxRunning reached, skip', {
         name: jobEntity.name,
         running: jobEntity.maxRunning,
@@ -23,6 +23,7 @@ export class JobExecutor {
         status: ExecutionStatus.maxRunningReached,
       };
     }
+    executionPing.start();
 
     const { started, result } = await this.executeHandler(jobEntity);
 
@@ -39,7 +40,7 @@ export class JobExecutor {
       status: result.status,
     });
 
-    await jobRepository.decrementRunning(jobEntity.name);
+    await executionPing.stop();
 
     return result;
   }

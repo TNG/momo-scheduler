@@ -1,12 +1,12 @@
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getConnection } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { clear, ExecutionStatus, MomoError, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
+import { ExecutionRepository } from '../../src/repository/ExecutionRepository';
+import { getExecutionRepository, getJobRepository } from '../../src/repository/getRepository';
 import { sleep } from '../utils/sleep';
 import { waitFor } from '../utils/waitFor';
-import { connectionName } from '../../src/connect';
 import { initLoggingForTests } from '../utils/logging';
 import { createJobEntity } from '../utils/createJobEntity';
 
@@ -24,27 +24,26 @@ describe('schedule', () => {
 
   let mongo: MongoMemoryServer;
   let jobRepository: JobRepository;
+  let executionRepository: ExecutionRepository;
   let mongoSchedule: MongoSchedule;
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     mongoSchedule = await MongoSchedule.connect({ url: await mongo.getUri() });
-    jobRepository = getConnection(connectionName).getCustomRepository(JobRepository);
+    jobRepository = getJobRepository();
+    executionRepository = getExecutionRepository();
 
     initLoggingForTests(mongoSchedule);
 
     mongoSchedule.on('error', (error) => (receivedError = error));
   });
 
-  beforeEach(async () => {
-    mongoSchedule.cancel();
-    await clear();
-  });
-
-  afterEach(() => {
+  afterEach(async () => {
     receivedError = undefined;
     // eslint-disable-next-line jest/no-standalone-expect
     expect(mongoSchedule.getUnexpectedErrorCount()).toBe(0);
+    mongoSchedule.cancel();
+    await clear();
   });
 
   afterAll(async () => {
@@ -496,11 +495,11 @@ describe('schedule', () => {
       await mongoSchedule.start();
 
       await sleep(2100);
-      const [{ running: runningAfter2Sec }] = await jobRepository.find({ name: job.name });
+      const runningAfter2Sec = await executionRepository.executions(job.name);
       expect(runningAfter2Sec).toBe(2);
 
       await sleep(1000);
-      const [{ running: runningAfter3Sec }] = await jobRepository.find({ name: job.name });
+      const runningAfter3Sec = await executionRepository.executions(job.name);
       expect(runningAfter3Sec).toBe(2);
 
       mongoSchedule.stop();
@@ -510,7 +509,7 @@ describe('schedule', () => {
       }, jobHandler.duration + 2000);
 
       await waitFor(async () => {
-        const [{ running }] = await jobRepository.find({ name: job.name });
+        const running = await executionRepository.executions(job.name);
         expect(running).toBe(0);
       });
     });
@@ -521,7 +520,7 @@ describe('schedule', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const [{ running }] = await jobRepository.find({ name: job.name });
+        const running = await executionRepository.executions(job.name);
         expect(running).toBe(2);
       });
     });
@@ -532,12 +531,12 @@ describe('schedule', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const [{ running }] = await jobRepository.find({ name: job.name });
+        const running = await executionRepository.executions(job.name);
         expect(running).toBe(1);
       });
 
       await waitFor(async () => {
-        const [{ running }] = await jobRepository.find({ name: job.name });
+        const running = await executionRepository.executions(job.name);
         expect(running).toBe(0);
       }, jobHandler.duration);
     });
@@ -548,7 +547,7 @@ describe('schedule', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const [{ running }] = await jobRepository.find({ name: job.name });
+        const running = await executionRepository.executions(job.name);
         expect(running).toBe(1);
       }, 1100);
 
@@ -592,7 +591,7 @@ describe('schedule', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const [{ running }] = await jobRepository.find({ name: job.name });
+        const running = await executionRepository.executions(job.name);
         expect(running).toBe(job.concurrency);
       }, 1100);
     });
@@ -600,7 +599,7 @@ describe('schedule', () => {
     it('respects maxRunning when executing concurrently', async () => {
       await mongoSchedule.define({ ...job, maxRunning: 3 });
 
-      await jobRepository.update({ name: job.name }, { running: 1 });
+      await executionRepository.add(job.name, 0);
 
       await mongoSchedule.start();
 

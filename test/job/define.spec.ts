@@ -1,4 +1,4 @@
-import { mockJobRepository } from '../utils/mockJobRepository';
+import { mockRepositories } from '../utils/mockRepositories';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { deepEqual, verify, when } from 'ts-mockito';
 import { define } from '../../src/job/define';
@@ -13,7 +13,7 @@ describe('define', () => {
   let jobRepository: JobRepository;
 
   it('saves a job', async () => {
-    jobRepository = mockJobRepository();
+    jobRepository = mockRepositories().jobRepository;
 
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
 
@@ -23,7 +23,7 @@ describe('define', () => {
   });
 
   it('updates a job', async () => {
-    jobRepository = mockJobRepository();
+    jobRepository = mockRepositories().jobRepository;
 
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([createJobEntity(job)]);
 

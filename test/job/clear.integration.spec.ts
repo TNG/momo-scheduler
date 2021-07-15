@@ -2,7 +2,7 @@ import { clear } from '../../src';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { connect, disconnect } from '../../src/connect';
-import { getJobRepository } from '../../src/repository/getJobRepository';
+import { getJobRepository } from '../../src/repository/getRepository';
 import { createJobEntity } from '../utils/createJobEntity';
 
 describe('clear', () => {

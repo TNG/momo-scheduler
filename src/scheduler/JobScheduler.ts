@@ -7,7 +7,7 @@ import { setIntervalWithDelay, TimeoutHandle } from './setIntervalWithDelay';
 import { calculateDelay } from './calculateDelay';
 import { MomoError } from '../logging/error/MomoError';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getExecutionRepository, getJobRepository } from '../repository/getRepository';
 import { Logger } from '../logging/Logger';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { DateTime } from 'luxon';
@@ -30,15 +30,21 @@ export class JobScheduler {
     return new JobScheduler(job.name, job.immediate, executor, logger);
   }
 
-  public getUnexpectedErrorCount(): number {
+  getUnexpectedErrorCount(): number {
     return this.unexpectedErrorCount;
   }
 
-  public isStarted(): boolean {
+  isStarted(): boolean {
     return this.jobHandle !== undefined;
   }
 
-  public async getJobDescription(): Promise<MomoJobDescription | undefined> {
+  async getJobDescription(): Promise<MomoJobDescription | undefined> {
+    const executionRepository = getExecutionRepository();
+    const deadCount = await executionRepository.clean(this.jobName);
+    if (deadCount > 0) {
+      this.logger.debug('removed dead executions', { name: this.jobName, count: deadCount });
+    }
+
     const jobEntity = await getJobRepository().findOne({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
@@ -49,12 +55,14 @@ export class JobScheduler {
       );
       return;
     }
-    const schedulerStatus =
-      this.interval !== undefined ? { interval: this.interval, running: jobEntity.running } : undefined;
+
+    const running = await executionRepository.executions(jobEntity.name);
+    const schedulerStatus = this.interval !== undefined ? { interval: this.interval, running } : undefined;
+
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }
 
-  public async start(): Promise<void> {
+  async start(): Promise<void> {
     this.stop();
 
     const jobEntity = await getJobRepository().findOne({ name: this.jobName });
@@ -85,7 +93,7 @@ export class JobScheduler {
     });
   }
 
-  public stop(): void {
+  stop(): void {
     if (this.jobHandle) {
       clearInterval(this.jobHandle.get());
       this.jobHandle = undefined;
@@ -130,9 +138,10 @@ export class JobScheduler {
         return;
       }
 
+      const running = await getExecutionRepository().executions(jobEntity.name);
       const numToExecute =
         jobEntity.maxRunning > 0
-          ? min([jobEntity.concurrency, jobEntity.maxRunning - (jobEntity.running ?? 0)]) ?? jobEntity.concurrency
+          ? min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency
           : jobEntity.concurrency;
       this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
 
@@ -149,7 +158,7 @@ export class JobScheduler {
   private handleUnexpectedError(error: Error): void {
     this.unexpectedErrorCount++;
     this.logger.error(
-      'an unexpected error occurred while running job',
+      'an unexpected error occurred while executing job',
       MomoErrorType.executeJob,
       { name: this.jobName },
       error

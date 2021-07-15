@@ -2,10 +2,6 @@ import { Schedule } from './Schedule';
 import { connect, disconnect, MomoConnectionOptions } from '../connect';
 
 export class MongoSchedule extends Schedule {
-  private constructor() {
-    super();
-  }
-
   /**
    * Creates a MongoSchedule that is connected to the MongoDB with the provided url.
    *

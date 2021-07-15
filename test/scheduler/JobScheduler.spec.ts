@@ -1,15 +1,16 @@
 import { Clock, install } from '@sinonjs/fake-timers';
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
+
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { JobRepository } from '../../src/repository/JobRepository';
+import { ExecutionRepository } from '../../src/repository/ExecutionRepository';
 import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { MomoError, MomoErrorType } from '../../src';
-import { mockJobRepository } from '../utils/mockJobRepository';
+import { mockRepositories } from '../utils/mockRepositories';
 import { loggerForTests } from '../utils/logging';
 import { createJobEntity } from '../utils/createJobEntity';
-import clearAllMocks = jest.clearAllMocks;
 
 describe('JobScheduler', () => {
   const defaultJob = {
@@ -25,15 +26,18 @@ describe('JobScheduler', () => {
 
   let jobExecutor: JobExecutor;
   let jobRepository: JobRepository;
+  let executionRepository: ExecutionRepository;
   let jobScheduler: JobScheduler;
   let clock: Clock;
 
   beforeEach(() => {
-    clearAllMocks();
+    jest.clearAllMocks();
     clock = install();
 
     jobExecutor = mock(JobExecutor);
-    jobRepository = mockJobRepository();
+    const repositories = mockRepositories();
+    jobRepository = repositories.jobRepository;
+    executionRepository = repositories.executionRepository;
 
     when(jobExecutor.execute(anything())).thenResolve();
   });
@@ -44,6 +48,7 @@ describe('JobScheduler', () => {
     const job = { ...defaultJob, ...partialJob };
     jobScheduler = new JobScheduler(job.name, job.immediate, instance(jobExecutor), loggerForTests(errorFn));
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(job));
+    when(executionRepository.executions(job.name)).thenResolve(0);
     return job;
   }
 
@@ -169,9 +174,7 @@ describe('JobScheduler', () => {
 
     it('executes job only twice if it is already running', async () => {
       const job = createJob({ concurrency: 3, maxRunning: 3 });
-      const jobEntity = JobEntity.from(job);
-      jobEntity.running = 1;
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
+      when(executionRepository.executions(job.name)).thenResolve(1);
 
       await jobScheduler.start();
 

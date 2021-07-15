@@ -1,12 +1,11 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getConnection } from 'typeorm';
 
 import { clear, MomoJob, MongoSchedule } from '../../src';
-import { connectionName } from '../../src/connect';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { initLoggingForTests } from '../utils/logging';
+import { getJobRepository } from '../../src/repository/getRepository';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { withDefaults } from '../../src/job/withDefaults';
+import { initLoggingForTests } from '../utils/logging';
 
 describe('MongoSchedule', () => {
   const job: MomoJob = {
@@ -22,7 +21,7 @@ describe('MongoSchedule', () => {
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     mongoSchedule = await MongoSchedule.connect({ url: await mongo.getUri() });
-    jobRepository = getConnection(connectionName).getCustomRepository(JobRepository);
+    jobRepository = getJobRepository();
 
     initLoggingForTests(mongoSchedule);
   });
