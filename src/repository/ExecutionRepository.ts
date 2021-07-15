@@ -36,18 +36,7 @@ export class ExecutionRepository extends MongoRepository<ExecutionEntity> {
   }
 
   async removeExecution(scheduleId: string, name: string): Promise<void> {
-    // TODO findOneAndUpdate
-    const executionEntity = await this.findOne({ scheduleId });
-    if (executionEntity === undefined) {
-      throw new Error(`executionEntity not found for scheduleId=${scheduleId}`);
-    }
-
-    const executions = executionEntity.executions;
-    if (executions[name] === undefined || executions[name] === 0) {
-      throw new Error(`executionEntity not found for scheduleId=${scheduleId}`);
-    }
-    executions[name]--;
-    await this.update({ scheduleId }, { executions });
+    await this.findOneAndUpdate({ scheduleId }, { $inc: { [`executions.${name}`]: -1 } });
   }
 
   async removeJob(scheduleId: string, name: string) {
