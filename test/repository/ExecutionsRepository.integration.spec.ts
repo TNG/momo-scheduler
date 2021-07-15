@@ -36,15 +36,37 @@ describe('ExecutionsRepository', () => {
     });
   });
 
-  describe('executions', () => {
+  describe('with schedule', () => {
     beforeEach(async () => {
       await executionsRepository.addSchedule(scheduleId);
     });
 
-    describe('addExecution', () => {
-      it('can add an execution', async () => {
-        const executionPing = await executionsRepository.addExecution(scheduleId, name, 1);
-        expect(executionPing).toBeDefined();
+    describe('job', () => {
+      it('can add and remove a job', async () => {
+        await executionsRepository.addJob(scheduleId, name);
+
+        const executionsEntity = await executionsRepository.findOne({ scheduleId });
+        expect(executionsEntity?.executions).toEqual({ [name]: 0 });
+
+        await executionsRepository.removeJob(scheduleId, name);
+        const executionsEntity2 = await executionsRepository.findOne({ scheduleId });
+        expect(executionsEntity2?.executions).toEqual({});
+      });
+    });
+
+    describe('execution', () => {
+      it('can add and remove an execution', async () => {
+        const { added, running } = await executionsRepository.addExecution(scheduleId, name, 1);
+        expect(added).toBe(true);
+        expect(running).toBe(0);
+
+        const executionsEntity = await executionsRepository.findOne({ scheduleId });
+        expect(executionsEntity?.executions).toEqual({ [name]: 1 });
+
+        await executionsRepository.removeExecution(scheduleId, name);
+
+        const executionsEntity2 = await executionsRepository.findOne({ scheduleId });
+        expect(executionsEntity2?.executions).toEqual({ [name]: 0 });
       });
 
       it('cannot add an execution when maxRunning is reached', async () => {
@@ -87,6 +109,33 @@ describe('ExecutionsRepository', () => {
         const executionsEntityAfterPing = await executionsRepository.findOne({ scheduleId });
         expect(executionsEntityAfterPing?.timestamp).toBeGreaterThan(executionsEntity!.timestamp);
       });
+    });
+  });
+
+  describe('clean', () => {
+    const deadScheduleId = 'dead schedule';
+
+    it('removes dead schedules', async () => {
+      await executionsRepository.addSchedule(deadScheduleId);
+      await sleep(deadExecutionThreshold);
+
+      const deletedCount = await executionsRepository.clean();
+
+      expect(deletedCount).toBe(1);
+      expect(await executionsRepository.findOne({ scheduleId })).toBeUndefined();
+    });
+
+    it('keeps alive schedules', async () => {
+      await executionsRepository.addSchedule(deadScheduleId);
+      await sleep(deadExecutionThreshold);
+
+      await executionsRepository.addSchedule(scheduleId);
+
+      const deletedCount = await executionsRepository.clean();
+
+      expect(deletedCount).toBe(1);
+      expect(await executionsRepository.findOne({ scheduleId: deadScheduleId })).toBeUndefined();
+      expect(await executionsRepository.findOne({ scheduleId })).toBeDefined();
     });
   });
 });
