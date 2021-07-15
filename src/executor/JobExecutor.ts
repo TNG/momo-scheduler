@@ -51,6 +51,7 @@ export class JobExecutor {
     this.logger.debug('finished job', {
       name: jobEntity.name,
       status: result.status,
+      stopped: this.stopped,
     });
 
     if (!this.stopped) {
