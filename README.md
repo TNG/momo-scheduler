@@ -42,7 +42,7 @@ await mongoSchedule.disconnect();
 | interval    | `string`   | false    |         | Specifies the time interval at which the job is started. Time intervals in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours') are accepted. Check documentation of [human-interval](https://www.npmjs.com/package/human-interval) library for details. | 
 | immediate   | `boolean`  | true     | `false`   | If set to true AND the job was never run before, the job will be started immediately after start. |
 | concurrency | `number`   | true     | `1`       | How many instances of a job are started at a time. |
-| maxRunning  | `number`   | true     | `0`       | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The job will not be started anymore if maxRunning is reached. |
+| maxRunning  | `number`   | true     | `0`       | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded. |
 | handler     | `function` | false    |         | The function to execute. |
 
 ### MongoSchedule
