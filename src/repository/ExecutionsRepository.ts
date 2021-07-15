@@ -2,12 +2,12 @@ import { DateTime } from 'luxon';
 import { EntityRepository, MongoRepository } from 'typeorm';
 
 import { ExecutionsEntity } from './ExecutionsEntity';
-import { pingInterval } from '../schedule/SchedulePing';
-
-export const deadExecutionThreshold = 2 * pingInterval;
+import { defaultInterval } from '../schedule/SchedulePing';
 
 @EntityRepository(ExecutionsEntity)
 export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
+  public static deadScheduleThreshold = 2 * defaultInterval;
+
   async addSchedule(scheduleId: string): Promise<void> {
     await this.save(new ExecutionsEntity(scheduleId, DateTime.now().toMillis(), {}));
   }
@@ -51,7 +51,7 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
   }
 
   async countRunningExecutions(name: string): Promise<number> {
-    const timestamp = DateTime.now().toMillis() - deadExecutionThreshold;
+    const timestamp = DateTime.now().toMillis() - ExecutionsRepository.deadScheduleThreshold;
     return (await this.find({ where: { timestamp: { $gt: timestamp } } }))
       .map((executionsEntity) => executionsEntity.executions[name] ?? 0)
       .reduce((sum, current) => sum + current, 0);
@@ -62,7 +62,7 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
   }
 
   async clean(): Promise<number> {
-    const timestamp = DateTime.now().toMillis() - deadExecutionThreshold;
+    const timestamp = DateTime.now().toMillis() - ExecutionsRepository.deadScheduleThreshold;
     const result = await this.deleteMany({ timestamp: { $lt: timestamp } });
     return result.deletedCount ?? 0;
   }

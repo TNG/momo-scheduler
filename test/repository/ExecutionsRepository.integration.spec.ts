@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { connect, disconnect } from '../../src/connect';
-import { deadExecutionThreshold, ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { getExecutionsRepository } from '../../src/repository/getRepository';
 import { sleep } from '../utils/sleep';
 
@@ -13,6 +13,8 @@ describe('ExecutionsRepository', () => {
   let executionsRepository: ExecutionsRepository;
 
   beforeAll(async () => {
+    ExecutionsRepository.deadScheduleThreshold = 1000;
+
     mongo = await MongoMemoryServer.create();
     await connect({ url: await mongo.getUri() });
     executionsRepository = getExecutionsRepository();
@@ -93,7 +95,7 @@ describe('ExecutionsRepository', () => {
 
       it('does not count dead executions', async () => {
         await executionsRepository.addExecution(scheduleId, name, 1);
-        await sleep(deadExecutionThreshold);
+        await sleep(ExecutionsRepository.deadScheduleThreshold);
 
         const running = await executionsRepository.countRunningExecutions(name);
         expect(running).toBe(0);
@@ -117,7 +119,7 @@ describe('ExecutionsRepository', () => {
 
     it('removes dead schedules', async () => {
       await executionsRepository.addSchedule(deadScheduleId);
-      await sleep(deadExecutionThreshold);
+      await sleep(ExecutionsRepository.deadScheduleThreshold);
 
       const deletedCount = await executionsRepository.clean();
 
@@ -127,7 +129,7 @@ describe('ExecutionsRepository', () => {
 
     it('keeps alive schedules', async () => {
       await executionsRepository.addSchedule(deadScheduleId);
-      await sleep(deadExecutionThreshold);
+      await sleep(ExecutionsRepository.deadScheduleThreshold);
 
       await executionsRepository.addSchedule(scheduleId);
 
