@@ -1,4 +1,3 @@
-import { Clock, install } from '@sinonjs/fake-timers';
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
@@ -11,17 +10,17 @@ import { MomoError, MomoErrorType } from '../../src';
 import { mockRepositories } from '../utils/mockRepositories';
 import { loggerForTests } from '../utils/logging';
 import { createJobEntity } from '../utils/createJobEntity';
+import { sleep } from '../utils/sleep';
 
 describe('JobScheduler', () => {
   const defaultJob = {
     name: 'test',
-    interval: '1 minute',
+    interval: '1 second',
     immediate: false,
     concurrency: 1,
     maxRunning: 0,
     handler: jest.fn(),
   };
-  const oneMinute = 60 * 1000;
   const errorFn = jest.fn();
   const scheduleId = '123';
 
@@ -29,11 +28,9 @@ describe('JobScheduler', () => {
   let jobRepository: JobRepository;
   let executionRepository: ExecutionRepository;
   let jobScheduler: JobScheduler;
-  let clock: Clock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    clock = install();
 
     jobExecutor = mock(JobExecutor);
     const repositories = mockRepositories();
@@ -42,8 +39,6 @@ describe('JobScheduler', () => {
 
     when(jobExecutor.execute(anything())).thenResolve();
   });
-
-  afterEach(() => clock.uninstall());
 
   function createJob(partialJob: Partial<Job> = {}): Job {
     const job = { ...defaultJob, ...partialJob };
@@ -64,7 +59,7 @@ describe('JobScheduler', () => {
       createJob();
       await jobScheduler.start();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).once();
     });
 
@@ -73,7 +68,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      clock.tick(10);
+      await sleep(100);
       verify(await jobExecutor.execute(anything())).once();
     });
 
@@ -81,12 +76,12 @@ describe('JobScheduler', () => {
       createJob();
       await jobScheduler.start();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).once();
 
       await jobScheduler.stop();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).once();
     });
 
@@ -149,10 +144,10 @@ describe('JobScheduler', () => {
       const error = new Error('something unexpected happened');
       when(jobRepository.findOne(deepEqual({ name: job.name }))).thenThrow(error);
 
-      clock.tick(oneMinute);
+      await sleep(1100);
 
       expect(errorFn).toHaveBeenCalledWith(
-        'an unexpected error occurred while running job',
+        'an unexpected error occurred while executing job',
         MomoErrorType.executeJob,
         { name: job.name },
         error
@@ -167,7 +162,7 @@ describe('JobScheduler', () => {
       createJob({ concurrency: 3, maxRunning: 3 });
       await jobScheduler.start();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).thrice();
     });
 
@@ -175,7 +170,7 @@ describe('JobScheduler', () => {
       const job = createJob({ maxRunning: 0, concurrency: 3 });
       await jobScheduler.start();
 
-      clock.tick(2 * oneMinute);
+      await sleep(2100);
       verify(await jobExecutor.execute(anything())).times(2 * job.concurrency);
     });
 
@@ -185,7 +180,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).twice();
     });
   });
