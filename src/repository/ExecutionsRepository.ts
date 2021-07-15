@@ -61,4 +61,10 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
   async ping(scheduleId: string): Promise<void> {
     await this.findOneAndUpdate({ scheduleId }, { $set: { timestamp: DateTime.now().toMillis() } });
   }
+
+  async clean(): Promise<number> {
+    const timestamp = DateTime.now().toMillis() - deadExecutionThreshold;
+    const result = await this.deleteMany({ timestamp: { $lt: timestamp } });
+    return result.deletedCount ?? 0;
+  }
 }

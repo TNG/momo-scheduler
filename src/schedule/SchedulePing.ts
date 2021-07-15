@@ -15,7 +15,11 @@ export class SchedulePing {
     this.logger.debug('start SchedulerPing', { scheduleId: this.scheduleId });
     const executionsRepository = getExecutionsRepository();
     this.handle = setInterval(async () => {
-      await executionRepository.ping(this.scheduleId);
+      await executionsRepository.ping(this.scheduleId);
+      const deletedCount = await executionsRepository.clean();
+      if (deletedCount > 0) {
+        this.logger.debug('removed dead schedule(s) from executions collection', { count: deletedCount });
+      }
     }, pingInterval);
   }
 
