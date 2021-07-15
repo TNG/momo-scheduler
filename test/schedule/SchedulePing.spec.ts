@@ -12,11 +12,12 @@ describe('SchedulePing', () => {
 
   beforeAll(() => (executionsRepository = mockRepositories().executionsRepository));
 
-  it('starts and stops', async () => {
+  it('starts, pings, cleans and stops', async () => {
     executionPing.start();
     await sleep(pingInterval);
 
     verify(executionsRepository.ping(scheduleId)).once();
+    verify(executionsRepository.clean()).once();
 
     await executionPing.stop();
     await sleep(pingInterval);
