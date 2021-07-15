@@ -3,7 +3,7 @@ import { JobEntity } from './JobEntity';
 
 @EntityRepository(JobEntity)
 export class JobRepository extends MongoRepository<JobEntity> {
-  public async updateJob(name: string, update: Partial<JobEntity>): Promise<void> {
+  async updateJob(name: string, update: Partial<JobEntity>): Promise<void> {
     const savedJobs = await this.find({ name });
 
     if (savedJobs.length === 0) {

@@ -29,15 +29,13 @@ describe('Schedule', () => {
 
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
 
-    mongoSchedule = await MongoSchedule.connect({
-      url: 'mongodb://does.not/matter',
-    });
+    mongoSchedule = await MongoSchedule.connect({ url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);
-
-    await mongoSchedule.cancel();
   });
 
-  afterEach(() => mongoSchedule.disconnect());
+  afterEach(async () => {
+    await mongoSchedule.disconnect();
+  });
 
   it('emits logs', async () => {
     let caughtEvent: MomoEvent | undefined;

@@ -12,7 +12,6 @@ export class SchedulePing {
     if (this.handle !== undefined) {
       return;
     }
-    this.logger.debug('start SchedulerPing', { scheduleId: this.scheduleId });
     const executionsRepository = getExecutionsRepository();
     this.handle = setInterval(async () => {
       await executionsRepository.ping(this.scheduleId);

@@ -7,7 +7,7 @@ import { getExecutionsRepository } from '../repository/getRepository';
 export class MongoSchedule extends Schedule {
   private readonly schedulePing: SchedulePing;
 
-  constructor(scheduleId: string) {
+  private constructor(scheduleId: string) {
     super(scheduleId);
     this.schedulePing = new SchedulePing(scheduleId, this.logger);
   }
@@ -20,7 +20,7 @@ export class MongoSchedule extends Schedule {
   public static async connect(connectionOptions: MomoConnectionOptions): Promise<MongoSchedule> {
     const scheduleId = uuid();
     const mongoSchedule = new MongoSchedule(scheduleId);
-    await connect(connectionOptions, mongoSchedule.logger);
+    await connect(connectionOptions);
     await getExecutionsRepository().addSchedule(scheduleId);
     mongoSchedule.schedulePing.start();
     return mongoSchedule;

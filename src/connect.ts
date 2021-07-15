@@ -4,7 +4,6 @@ import { JobRepository } from './repository/JobRepository';
 import { ExecutionsEntity } from './repository/ExecutionsEntity';
 import { ExecutionsRepository } from './repository/ExecutionsRepository';
 import { isConnected } from './isConnected';
-import { Logger } from './logging/Logger';
 
 export const connectionName = 'momo';
 
@@ -12,12 +11,11 @@ export interface MomoConnectionOptions {
   url: string;
 }
 
-export async function connect(connectionOptions: MomoConnectionOptions, logger?: Logger): Promise<Connection> {
+export async function connect(connectionOptions: MomoConnectionOptions): Promise<Connection> {
   if (isConnected()) {
     return getConnection(connectionName);
   }
 
-  logger?.debug('connect to database');
   const connection = await createConnection({
     ...connectionOptions,
     type: 'mongodb',
@@ -26,7 +24,6 @@ export async function connect(connectionOptions: MomoConnectionOptions, logger?:
     entities: [ExecutionsEntity, JobEntity],
   });
 
-  logger?.debug('create indices');
   await connection.getCustomRepository(JobRepository).createCollectionIndex({ name: 1 }, { name: 'job_name_index' });
   await connection
     .getCustomRepository(ExecutionsRepository)
