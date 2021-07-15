@@ -71,6 +71,17 @@ describe('ExecutionsRepository', () => {
         expect(executionsEntity2?.executions).toEqual({ [name]: 0 });
       });
 
+      it('can add an execution when only dead schedule reports executions', async () => {
+        const deadScheduleId = 'dead schedule';
+        await executionsRepository.addSchedule(deadScheduleId);
+        await executionsRepository.addExecution(deadScheduleId, name, 1);
+        await sleep(ExecutionsRepository.deadScheduleThreshold);
+
+        const { added, running } = await executionsRepository.addExecution(scheduleId, name, 1);
+        expect(added).toBe(true);
+        expect(running).toBe(0);
+      });
+
       it('cannot add an execution when maxRunning is reached', async () => {
         await executionsRepository.addExecution(scheduleId, name, 1);
         const { added, running } = await executionsRepository.addExecution(scheduleId, name, 1);
