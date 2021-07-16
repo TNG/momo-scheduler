@@ -5,7 +5,7 @@ UPSTREAM_URL='git@github.com:TNG/momo-scheduler.git'
 DRY_RUN=0
 UPSTREAM_BRANCH=main
 
-set -e
+set -eux
 
 for arg in "$@"; do
   case $arg in
@@ -32,7 +32,7 @@ fi
 
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [[ ! $GIT_BRANCH =~ $UPSTREAM_BRANCH ]]; then
-    echo "You do not seem to be on the main branch!"
+    echo "You do not seem to be on the ${UPSTREAM_BRANCH} branch!"
     exit 1
 fi
 
@@ -53,7 +53,7 @@ else
   echo "Releasing version $VERSION"
 fi
 
-echo "Updating version in package.json ..."
+echo "Updating version in package.json"
 sed -i -e "s/\"version\":.*/\"version\":\ \"$VERSION\"\,/" package.json
 npm install
 
@@ -62,26 +62,26 @@ git add package.json
 git add package-lock.json
 git commit --signoff -m "Update version to $VERSION"
 
-echo "Linting, building and testing:"
+echo "Linting, building and testing"
 npm run lint
 npm run build
 npm run test
 
-echo "Creating Tag ..."
+echo "Creating Tag"
 git tag -a -m "$VERSION_PREFIXED" "$VERSION_PREFIXED"
 
 if [[ $DRY_RUN ]]; then
-  echo "Pushing version and tag to GitHub repository (dry-run):"
+  echo "Pushing version and tag to GitHub repository (dry-run)"
   git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH" --dry-run
   git push "$UPSTREAM_URL" "$VERSION_PREFIXED" --dry-run
 
-  echo "Publish to npmjs (dry-run):"
+  echo "Publish to npmjs (dry-run)"
   npm publish --access public --registry https://registry.npmjs.org/ --dry-run
 else
-  echo "Pushing version and tag to GitHub repository:"
+  echo "Pushing version and tag to GitHub repository"
   git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH"
   git push "$UPSTREAM_URL" "$VERSION_PREFIXED"
 
-  echo "Publish to npmjs:"
+  echo "Publish to npmjs"
   npm publish --access public --registry https://registry.npmjs.org/
 fi
