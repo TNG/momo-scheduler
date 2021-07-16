@@ -1,4 +1,7 @@
 .github/
 .idea/
-THIRD_PARTY_NOTICE
+ort/
 test/
+THIRD_PARTY_NOTICE
+release.sh
+test-report.json
