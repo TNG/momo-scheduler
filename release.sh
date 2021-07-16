@@ -49,7 +49,7 @@ if [ ! -n "$(sed -n -e "/\"version\": \"${VERSION}\"/ p" package.json)" ]; then
     exit 1
 fi
 
-if [[ $DRY_RUN ]]; then
+if [[ $DRY_RUN = 1 ]]; then
   echo "Releasing version $VERSION (dry-run)"
 else
   echo "Releasing version $VERSION"
@@ -62,7 +62,7 @@ npm run lint
 npm run build
 npm run test
 
-if [[ $DRY_RUN ]]; then
+if [[ $DRY_RUN = 1 ]]; then
   echo "Publish to npmjs (dry-run)"
   npm publish --access public --registry https://registry.npmjs.org/ --dry-run
 else
