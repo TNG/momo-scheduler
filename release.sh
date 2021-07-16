@@ -35,7 +35,7 @@ if [[ ! $GIT_BRANCH =~ main ]]; then
     exit 1
 fi
 
-git pull
+git pull "${UPSTREAM_URL}" main
 
 RELEASE_BRANCH="temp-release-branch-${VERSION_PREFIXED}"
 git branch "$RELEASE_BRANCH"
@@ -47,16 +47,19 @@ else
   echo "Releasing version $VERSION"
 fi
 
+if [ ! -n "$(git status --porcelain)" ]; then
+    echo "You have local changes!"
+    exit 1
+fi
+
 echo "Updating version in package.json ..."
 sed -i -e "s/\"version\":.*/\"version\":\ \"$VERSION\"\,/" package.json
 npm install
 
-if [ -n "$(git status --porcelain)" ]; then
-    echo Commiting version change
-    git add package.json
-    git add package-lock.json
-    git commit --signoff -m "Update version to $VERSION"
-fi
+echo "Commiting version change"
+git add package.json
+git add package-lock.json
+git commit --signoff -m "Update version to $VERSION"
 
 echo "Linting, building and testing:"
 npm run lint
@@ -73,7 +76,6 @@ if [[ $DRY_RUN ]]; then
 
   echo "Publish to npmjs (dry-run):"
   npm publish --access public --registry https://registry.npmjs.org/ --dry-run
-
 else
   echo "Pushing version and tag to GitHub repository:"
   git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH"
@@ -81,5 +83,4 @@ else
 
   echo "Publish to npmjs:"
   npm publish --access public --registry https://registry.npmjs.org/
-
 fi
