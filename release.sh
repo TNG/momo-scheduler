@@ -3,6 +3,7 @@
 UPSTREAM_URL='git@github.com:TNG/momo-scheduler.git'
 # default: not dry-run
 DRY_RUN=0
+UPSTREAM_BRANCH=main
 
 set -e
 
@@ -30,14 +31,14 @@ if [[ ! $VERSION =~ ^[0-9]*\.[0-9]*\.[0-9]*(-[A-Z0-9]*)?$ ]]; then
 fi
 
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [[ ! $GIT_BRANCH =~ main ]]; then
+if [[ ! $GIT_BRANCH =~ $UPSTREAM_BRANCH ]]; then
     echo "You do not seem to be on the main branch!"
     exit 1
 fi
 
-git pull "${UPSTREAM_URL}" main
+git pull "${UPSTREAM_URL}" "${UPSTREAM_BRANCH}"
 
-RELEASE_BRANCH="temp-release-branch-${VERSION_PREFIXED}"
+RELEASE_BRANCH="${VERSION_PREFIXED}-release"
 git branch "$RELEASE_BRANCH"
 git checkout "$RELEASE_BRANCH"
 
