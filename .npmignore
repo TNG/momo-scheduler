@@ -4,4 +4,5 @@ ort/
 test/
 THIRD_PARTY_NOTICE
 release.sh
+prepare_release.sh
 test-report.json
