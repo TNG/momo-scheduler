@@ -5,7 +5,7 @@ UPSTREAM_URL='git@github.com:TNG/momo-scheduler.git'
 DRY_RUN=0
 UPSTREAM_BRANCH=main
 
-set -eux
+set -eu
 
 for arg in "$@"; do
   case $arg in
@@ -44,7 +44,7 @@ fi
 git pull "${UPSTREAM_URL}" "${UPSTREAM_BRANCH}"
 
 echo "Checking version in package.json"
-if [ ! -n "$(sed -n -e '/\"version\": \"$VERSION\"/ p' package.json)" ]; then
+if [ ! -n "$(sed -n -e "/\"version\": \"${VERSION}\"/ p" package.json)" ]; then
     echo "Version in package.json is not $VERSION!"
     exit 1
 fi
