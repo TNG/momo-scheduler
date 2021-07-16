@@ -5,7 +5,7 @@ UPSTREAM_URL='git@github.com:TNG/momo-scheduler.git'
 DRY_RUN=0
 UPSTREAM_BRANCH=main
 
-set -eux
+set -eu
 
 for arg in "$@"; do
   case $arg in
