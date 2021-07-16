@@ -43,29 +43,41 @@ fi
 
 git pull "${UPSTREAM_URL}" "${UPSTREAM_BRANCH}"
 
-echo "Checking version in package.json"
-if [ ! -n "$(sed -n -e "/\"version\": \"${VERSION}\"/ p" package.json)" ]; then
-    echo "Version in package.json is not $VERSION!"
-    exit 1
-fi
+RELEASE_BRANCH="${VERSION_PREFIXED}-release"
+git branch "$RELEASE_BRANCH"
+git checkout "$RELEASE_BRANCH"
 
 if [[ $DRY_RUN ]]; then
-  echo "Releasing version $VERSION (dry-run)"
+  echo "Preparing release of version $VERSION (dry-run)"
 else
-  echo "Releasing version $VERSION"
+  echo "Preparing release of version $VERSION"
 fi
 
-npm ci
+echo "Updating version in package.json"
+sed -i -e "s/\"version\":.*/\"version\":\ \"$VERSION\"\,/" package.json
+npm install
+
+echo "Committing version change"
+git add package.json
+git add package-lock.json
+git commit --signoff -m "Update version to $VERSION"
 
 echo "Linting, building and testing"
 npm run lint
 npm run build
 npm run test
 
+echo "Creating Tag"
+git tag -a -m "$VERSION_PREFIXED" "$VERSION_PREFIXED"
+
 if [[ $DRY_RUN ]]; then
-  echo "Publish to npmjs (dry-run)"
-  npm publish --access public --registry https://registry.npmjs.org/ --dry-run
+  echo "Pushing version and tag to GitHub repository (dry-run)"
+  git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH" --dry-run
+  git push "$UPSTREAM_URL" "$VERSION_PREFIXED" --dry-run
 else
-  echo "Publish to npmjs"
-  npm publish --access public --registry https://registry.npmjs.org/
+  echo "Pushing version and tag to GitHub repository"
+  git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH"
+  git push "$UPSTREAM_URL" "$VERSION_PREFIXED"
 fi
+
+echo "Please merge $RELEASE_BRANCH into $UPSTREAM_BRANCH"
