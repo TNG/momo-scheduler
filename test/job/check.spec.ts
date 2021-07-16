@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { deepEqual, when } from 'ts-mockito';
 
-import { mockJobRepository } from '../utils/mockJobRepository';
+import { mockRepositories } from '../utils/mockRepositories';
 import { check, ExecutionInfo, ExecutionStatus } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 
@@ -11,7 +11,7 @@ describe('check', () => {
   afterEach(() => jest.resetAllMocks());
 
   it('returns executionInfo', async () => {
-    const jobRepository = mockJobRepository();
+    const jobRepository = mockRepositories().jobRepository;
 
     const executionInfo: ExecutionInfo = {
       lastStarted: DateTime.now().toISO(),
@@ -26,7 +26,7 @@ describe('check', () => {
   });
 
   it('returns nothing if job not found', async () => {
-    mockJobRepository();
+    mockRepositories().jobRepository;
     expect(await check(name)).toBeUndefined();
   });
 

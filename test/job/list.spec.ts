@@ -1,13 +1,13 @@
 import { when } from 'ts-mockito';
 
-import { mockJobRepository } from '../utils/mockJobRepository';
+import { mockRepositories } from '../utils/mockRepositories';
 import { ExecutionInfo, list } from '../../src';
 
 describe('list', () => {
   afterEach(() => jest.resetAllMocks());
 
   it('returns jobs', async () => {
-    const jobRepository = mockJobRepository();
+    const jobRepository = mockRepositories().jobRepository;
 
     const job1 = {
       name: 'job1',

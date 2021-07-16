@@ -1,5 +1,5 @@
 import { MomoJobStatus } from './Job';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getJobRepository } from '../repository/getRepository';
 import { isConnected } from '../isConnected';
 
 /**

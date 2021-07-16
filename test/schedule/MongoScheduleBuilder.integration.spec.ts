@@ -2,7 +2,6 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { clear, MomoConnectionOptions, MomoJob, MongoSchedule } from '../../src';
 import { MongoScheduleBuilder } from '../../src/schedule/MongoScheduleBuilder';
-import { initLoggingForTests } from '../utils/logging';
 
 describe('MongoScheduleBuilder', () => {
   const job1: MomoJob = {
@@ -24,55 +23,54 @@ describe('MongoScheduleBuilder', () => {
   };
 
   let mongo: MongoMemoryServer;
-  let mongoSchedule: MongoSchedule;
   let connectionOptions: MomoConnectionOptions;
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     connectionOptions = { url: await mongo.getUri() };
-    mongoSchedule = await MongoSchedule.connect(connectionOptions);
-
-    initLoggingForTests(mongoSchedule);
   });
 
-  beforeEach(async () => {
-    mongoSchedule.cancel();
+  afterEach(async () => {
     await clear();
   });
 
   afterAll(async () => {
-    await mongoSchedule.disconnect();
     await mongo.stop();
   });
 
-  it('can build with one job and a connection', async () => {
-    const mongoSchedule: MongoSchedule = await new MongoScheduleBuilder()
-      .withJob(job1)
-      .withConnection(connectionOptions)
-      .build();
+  describe('build a mongoSchedule', () => {
+    let mongoSchedule: MongoSchedule;
 
-    const jobList = await mongoSchedule.list();
-    expect(jobList).toHaveLength(1);
-    expect(jobList[0].name).toEqual(job1.name);
-    expect(jobList[0].interval).toEqual(job1.interval);
-  });
+    afterEach(async () => {
+      await mongoSchedule.disconnect();
+    });
 
-  it('can build with multiple jobs and a connection', async () => {
-    const mongoSchedule: MongoSchedule = await new MongoScheduleBuilder()
-      .withJob(job1)
-      .withJob(job2)
-      .withJob(job3)
-      .withConnection(connectionOptions)
-      .build();
+    it('can build with one job and a connection', async () => {
+      mongoSchedule = await new MongoScheduleBuilder().withJob(job1).withConnection(connectionOptions).build();
 
-    const jobList = await mongoSchedule.list();
-    expect(jobList).toHaveLength(3);
-    expect(jobList[0].name).toEqual(job1.name);
-    expect(jobList[0].interval).toEqual(job1.interval);
-    expect(jobList[1].name).toEqual(job2.name);
-    expect(jobList[1].interval).toEqual(job2.interval);
-    expect(jobList[2].name).toEqual(job3.name);
-    expect(jobList[2].interval).toEqual(job3.interval);
+      const jobList = await mongoSchedule.list();
+      expect(jobList).toHaveLength(1);
+      expect(jobList[0].name).toEqual(job1.name);
+      expect(jobList[0].interval).toEqual(job1.interval);
+    });
+
+    it('can build with multiple jobs and a connection', async () => {
+      mongoSchedule = await new MongoScheduleBuilder()
+        .withJob(job1)
+        .withJob(job2)
+        .withJob(job3)
+        .withConnection(connectionOptions)
+        .build();
+
+      const jobList = await mongoSchedule.list();
+      expect(jobList).toHaveLength(3);
+      expect(jobList[0].name).toEqual(job1.name);
+      expect(jobList[0].interval).toEqual(job1.interval);
+      expect(jobList[1].name).toEqual(job2.name);
+      expect(jobList[1].interval).toEqual(job2.interval);
+      expect(jobList[2].name).toEqual(job3.name);
+      expect(jobList[2].interval).toEqual(job3.interval);
+    });
   });
 
   it('throws an error when built with no connection', async () => {

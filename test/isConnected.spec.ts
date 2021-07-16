@@ -1,11 +1,11 @@
-import { mockJobRepository } from './utils/mockJobRepository';
+import { mockRepositories } from './utils/mockRepositories';
 import { isConnected } from '../src';
 
 describe('isConnected', () => {
   beforeEach(() => jest.restoreAllMocks());
 
   it('reports connection', () => {
-    mockJobRepository();
+    mockRepositories();
     expect(isConnected()).toBe(true);
   });
 

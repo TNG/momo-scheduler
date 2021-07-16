@@ -1,5 +1,5 @@
 import { JobEntity } from '../repository/JobEntity';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getJobRepository } from '../repository/getRepository';
 import { findLatest } from './findLatest';
 import { Logger } from '../logging/Logger';
 

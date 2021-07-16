@@ -3,21 +3,35 @@ import { DateTime } from 'luxon';
 import { JobEntity } from '../repository/JobEntity';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
 import { Logger } from '../logging/Logger';
 import { Handler } from '../job/MomoJob';
 
 export class JobExecutor {
-  constructor(private readonly handler: Handler, private readonly logger: Logger) {}
+  private stopped = false;
 
-  public async execute(jobEntity: JobEntity): Promise<JobResult> {
-    const jobRepository = getJobRepository();
+  constructor(
+    private readonly handler: Handler,
+    private readonly scheduleId: string,
+    private readonly logger: Logger
+  ) {}
 
-    const incremented = await jobRepository.incrementRunning(jobEntity.name, jobEntity.maxRunning);
-    if (!incremented) {
+  stop(): void {
+    this.stopped = true;
+  }
+
+  async execute(jobEntity: JobEntity): Promise<JobResult> {
+    const executionsRepository = getExecutionsRepository();
+
+    const { added, running } = await executionsRepository.addExecution(
+      this.scheduleId,
+      jobEntity.name,
+      jobEntity.maxRunning
+    );
+    if (!added) {
       this.logger.debug('maxRunning reached, skip', {
         name: jobEntity.name,
-        running: jobEntity.maxRunning,
+        running,
       });
       return {
         status: ExecutionStatus.maxRunningReached,
@@ -37,9 +51,12 @@ export class JobExecutor {
     this.logger.debug('finished job', {
       name: jobEntity.name,
       status: result.status,
+      stopped: this.stopped,
     });
 
-    await jobRepository.decrementRunning(jobEntity.name);
+    if (!this.stopped) {
+      await executionsRepository.removeExecution(this.scheduleId, jobEntity.name);
+    }
 
     return result;
   }
@@ -53,7 +70,7 @@ export class JobExecutor {
       const data = await this.handler();
       result = {
         status: ExecutionStatus.finished,
-        handlerResult: data !== undefined ? data : undefined,
+        handlerResult: data !== undefined ? data : 'finished',
       };
     } catch (e) {
       this.logger.error('job failed', MomoErrorType.executeJob, { name: jobEntity.name }, e);

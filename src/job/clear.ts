@@ -1,5 +1,5 @@
 import { isConnected } from '../index';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getJobRepository } from '../repository/getRepository';
 
 /**
  * Removes all jobs from the database.

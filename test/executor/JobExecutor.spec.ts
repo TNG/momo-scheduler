@@ -1,13 +1,16 @@
 import { anything, capture, verify, when } from 'ts-mockito';
+
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
+import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
 import { ExecutionStatus, MomoErrorType } from '../../src';
-import { mockJobRepository } from '../utils/mockJobRepository';
+import { mockRepositories } from '../utils/mockRepositories';
 import { loggerForTests } from '../utils/logging';
 
 describe('JobExecutor', () => {
+  const scheduleId = '123';
   const handler = jest.fn();
   const job: Job = {
     name: 'test',
@@ -21,15 +24,21 @@ describe('JobExecutor', () => {
 
   const errorFn = jest.fn();
   let jobRepository: JobRepository;
+  let executionsRepository: ExecutionsRepository;
   let jobExecutor: JobExecutor;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    jobRepository = mockJobRepository();
-    when(jobRepository.incrementRunning(job.name, job.maxRunning)).thenResolve(true);
+    const repositories = mockRepositories();
+    jobRepository = repositories.jobRepository;
+    executionsRepository = repositories.executionsRepository;
+    when(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).thenResolve({
+      added: true,
+      running: 0,
+    });
 
-    jobExecutor = new JobExecutor(job.handler, loggerForTests(errorFn));
+    jobExecutor = new JobExecutor(job.handler, scheduleId, loggerForTests(errorFn));
   });
 
   it('executes job', async () => {
@@ -39,22 +48,24 @@ describe('JobExecutor', () => {
 
     verify(jobRepository.updateJob(job.name, anything())).once();
     const [, update] = capture(jobRepository.updateJob).last();
-    expect(update.executionInfo?.lastResult).toEqual({ status: ExecutionStatus.finished });
+    expect(update.executionInfo?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
 
-    verify(jobRepository.incrementRunning(job.name, job.maxRunning)).once();
-    verify(jobRepository.decrementRunning(job.name)).once();
+    verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
+    verify(executionsRepository.removeExecution(scheduleId, job.name)).once();
   });
 
   it('does not execute job when mongo entity could not be updated', async () => {
-    when(jobRepository.incrementRunning(job.name, job.maxRunning)).thenResolve(false);
+    when(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).thenResolve({
+      added: false,
+      running: 0,
+    });
 
     await jobExecutor.execute(savedJob);
 
     expect(errorFn).not.toHaveBeenCalled();
     expect(job.handler).not.toHaveBeenCalled();
 
-    verify(jobRepository.incrementRunning(job.name, job.maxRunning)).once();
-    verify(jobRepository.decrementRunning(job.name)).never();
+    verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
   });
 
   it('reports job error', async () => {
@@ -67,8 +78,8 @@ describe('JobExecutor', () => {
 
     expect(errorFn).toHaveBeenCalledWith('job failed', MomoErrorType.executeJob, { name: job.name }, error);
 
-    verify(jobRepository.incrementRunning(job.name, job.maxRunning)).once();
-    verify(jobRepository.decrementRunning(job.name)).once();
+    verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
+    verify(executionsRepository.removeExecution(scheduleId, job.name)).once();
   });
 
   it('writes result to mongo', async () => {
@@ -83,7 +94,7 @@ describe('JobExecutor', () => {
     const [, update] = capture(jobRepository.updateJob).last();
     expect(update.executionInfo?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult });
 
-    verify(jobRepository.incrementRunning(job.name, job.maxRunning)).once();
-    verify(jobRepository.decrementRunning(job.name)).once();
+    verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
+    verify(executionsRepository.removeExecution(scheduleId, job.name)).once();
   });
 });

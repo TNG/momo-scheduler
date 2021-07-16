@@ -1,6 +1,6 @@
 import { Job } from './Job';
 import { JobEntity } from '../repository/JobEntity';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getJobRepository } from '../repository/getRepository';
 import { keepLatest } from './keepLatest';
 import { Logger } from '../logging/Logger';
 

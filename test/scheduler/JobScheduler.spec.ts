@@ -1,49 +1,60 @@
-import { Clock, install } from '@sinonjs/fake-timers';
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
+
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { JobRepository } from '../../src/repository/JobRepository';
+import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { MomoError, MomoErrorType } from '../../src';
-import { mockJobRepository } from '../utils/mockJobRepository';
+import { mockRepositories } from '../utils/mockRepositories';
 import { loggerForTests } from '../utils/logging';
 import { createJobEntity } from '../utils/createJobEntity';
-import clearAllMocks = jest.clearAllMocks;
+import { sleep } from '../utils/sleep';
 
 describe('JobScheduler', () => {
   const defaultJob = {
     name: 'test',
-    interval: '1 minute',
+    interval: '1 second',
     immediate: false,
     concurrency: 1,
     maxRunning: 0,
     handler: jest.fn(),
   };
-  const oneMinute = 60 * 1000;
   const errorFn = jest.fn();
+  const scheduleId = '123';
 
   let jobExecutor: JobExecutor;
   let jobRepository: JobRepository;
+  let executionsRepository: ExecutionsRepository;
   let jobScheduler: JobScheduler;
-  let clock: Clock;
 
   beforeEach(() => {
-    clearAllMocks();
-    clock = install();
+    jest.clearAllMocks();
 
     jobExecutor = mock(JobExecutor);
-    jobRepository = mockJobRepository();
+    const repositories = mockRepositories();
+    jobRepository = repositories.jobRepository;
+    executionsRepository = repositories.executionsRepository;
 
     when(jobExecutor.execute(anything())).thenResolve();
   });
 
-  afterEach(() => clock.uninstall());
+  afterEach(async () => {
+    await jobScheduler.stop();
+  });
 
   function createJob(partialJob: Partial<Job> = {}): Job {
     const job = { ...defaultJob, ...partialJob };
-    jobScheduler = new JobScheduler(job.name, job.immediate, instance(jobExecutor), loggerForTests(errorFn));
+    jobScheduler = new JobScheduler(
+      job.name,
+      job.immediate,
+      instance(jobExecutor),
+      scheduleId,
+      loggerForTests(errorFn)
+    );
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(job));
+    when(executionsRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
 
@@ -52,7 +63,7 @@ describe('JobScheduler', () => {
       createJob();
       await jobScheduler.start();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).once();
     });
 
@@ -61,7 +72,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      clock.tick(10);
+      await sleep(100);
       verify(await jobExecutor.execute(anything())).once();
     });
 
@@ -69,12 +80,12 @@ describe('JobScheduler', () => {
       createJob();
       await jobScheduler.start();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).once();
 
       await jobScheduler.stop();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).once();
     });
 
@@ -137,10 +148,10 @@ describe('JobScheduler', () => {
       const error = new Error('something unexpected happened');
       when(jobRepository.findOne(deepEqual({ name: job.name }))).thenThrow(error);
 
-      clock.tick(oneMinute);
+      await sleep(1100);
 
       expect(errorFn).toHaveBeenCalledWith(
-        'an unexpected error occurred while running job',
+        'an unexpected error occurred while executing job',
         MomoErrorType.executeJob,
         { name: job.name },
         error
@@ -155,7 +166,7 @@ describe('JobScheduler', () => {
       createJob({ concurrency: 3, maxRunning: 3 });
       await jobScheduler.start();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).thrice();
     });
 
@@ -163,19 +174,17 @@ describe('JobScheduler', () => {
       const job = createJob({ maxRunning: 0, concurrency: 3 });
       await jobScheduler.start();
 
-      clock.tick(2 * oneMinute);
+      await sleep(2100);
       verify(await jobExecutor.execute(anything())).times(2 * job.concurrency);
     });
 
     it('executes job only twice if it is already running', async () => {
       const job = createJob({ concurrency: 3, maxRunning: 3 });
-      const jobEntity = JobEntity.from(job);
-      jobEntity.running = 1;
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
+      when(executionsRepository.countRunningExecutions(job.name)).thenResolve(1);
 
       await jobScheduler.start();
 
-      clock.tick(oneMinute);
+      await sleep(1100);
       verify(await jobExecutor.execute(anything())).twice();
     });
   });

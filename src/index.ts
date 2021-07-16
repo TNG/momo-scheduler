@@ -1,5 +1,5 @@
 export { MongoSchedule } from './schedule/MongoSchedule';
-export { MomoConnectionOptions } from './connect';
+export { connect, MomoConnectionOptions } from './connect';
 export { MomoError } from './logging/error/MomoError';
 export { MomoErrorType } from './logging/error/MomoErrorType';
 export { MomoEvent, MomoErrorEvent, MomoEventData } from './logging/MomoEvents';
@@ -11,9 +11,3 @@ export { isConnected } from './isConnected';
 export { check } from './job/check';
 export { clear } from './job/clear';
 export { list } from './job/list';
-
-import { connect as connectInternal, MomoConnectionOptions } from './connect';
-
-export async function connect(options: MomoConnectionOptions): Promise<void> {
-  await connectInternal(options);
-}

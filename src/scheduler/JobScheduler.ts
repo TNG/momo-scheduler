@@ -7,7 +7,7 @@ import { setIntervalWithDelay, TimeoutHandle } from './setIntervalWithDelay';
 import { calculateDelay } from './calculateDelay';
 import { MomoError } from '../logging/error/MomoError';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { getJobRepository } from '../repository/getJobRepository';
+import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
 import { Logger } from '../logging/Logger';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { DateTime } from 'luxon';
@@ -22,23 +22,24 @@ export class JobScheduler {
     private readonly jobName: string,
     private readonly immediate: boolean,
     private readonly jobExecutor: JobExecutor,
+    private readonly scheduleId: string,
     private readonly logger: Logger
   ) {}
 
-  static forJob(job: Job, logger: Logger): JobScheduler {
-    const executor = new JobExecutor(job.handler, logger);
-    return new JobScheduler(job.name, job.immediate, executor, logger);
+  static forJob(scheduleId: string, job: Job, logger: Logger): JobScheduler {
+    const executor = new JobExecutor(job.handler, scheduleId, logger);
+    return new JobScheduler(job.name, job.immediate, executor, scheduleId, logger);
   }
 
-  public getUnexpectedErrorCount(): number {
+  getUnexpectedErrorCount(): number {
     return this.unexpectedErrorCount;
   }
 
-  public isStarted(): boolean {
+  isStarted(): boolean {
     return this.jobHandle !== undefined;
   }
 
-  public async getJobDescription(): Promise<MomoJobDescription | undefined> {
+  async getJobDescription(): Promise<MomoJobDescription | undefined> {
     const jobEntity = await getJobRepository().findOne({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
@@ -49,13 +50,15 @@ export class JobScheduler {
       );
       return;
     }
-    const schedulerStatus =
-      this.interval !== undefined ? { interval: this.interval, running: jobEntity.running } : undefined;
+
+    const running = await getExecutionsRepository().countRunningExecutions(jobEntity.name);
+    const schedulerStatus = this.interval !== undefined ? { interval: this.interval, running } : undefined;
+
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }
 
-  public async start(): Promise<void> {
-    this.stop();
+  async start(): Promise<void> {
+    await this.stop();
 
     const jobEntity = await getJobRepository().findOne({ name: this.jobName });
     if (!jobEntity) {
@@ -76,6 +79,7 @@ export class JobScheduler {
     this.interval = jobEntity.interval;
 
     const delay = calculateDelay(interval, this.immediate, jobEntity);
+
     this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
@@ -85,9 +89,11 @@ export class JobScheduler {
     });
   }
 
-  public stop(): void {
+  async stop(): Promise<void> {
     if (this.jobHandle) {
       clearInterval(this.jobHandle.get());
+      this.jobExecutor.stop();
+      await getExecutionsRepository().removeJob(this.scheduleId, this.jobName);
       this.jobHandle = undefined;
       this.interval = undefined;
     }
@@ -130,9 +136,10 @@ export class JobScheduler {
         return;
       }
 
+      const running = await getExecutionsRepository().countRunningExecutions(jobEntity.name);
       const numToExecute =
         jobEntity.maxRunning > 0
-          ? min([jobEntity.concurrency, jobEntity.maxRunning - (jobEntity.running ?? 0)]) ?? jobEntity.concurrency
+          ? min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency
           : jobEntity.concurrency;
       this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
 
@@ -149,7 +156,7 @@ export class JobScheduler {
   private handleUnexpectedError(error: Error): void {
     this.unexpectedErrorCount++;
     this.logger.error(
-      'an unexpected error occurred while running job',
+      'an unexpected error occurred while executing job',
       MomoErrorType.executeJob,
       { name: this.jobName },
       error

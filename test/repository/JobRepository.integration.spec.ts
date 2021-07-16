@@ -4,7 +4,7 @@ import { ExecutionStatus, MomoJob } from '../../src';
 import { connect, disconnect } from '../../src/connect';
 import { createJobEntity } from '../utils/createJobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { getJobRepository } from '../../src/repository/getJobRepository';
+import { getJobRepository } from '../../src/repository/getRepository';
 
 describe('JobRepository', () => {
   const job: MomoJob = {
@@ -44,17 +44,6 @@ describe('JobRepository', () => {
       expect(executionInfo).toEqual(savedJob.executionInfo);
     });
 
-    it('does not overwrite running', async () => {
-      const savedJob = createJobEntity(job);
-      savedJob.running = 1;
-      await jobRepository.save(savedJob);
-
-      await jobRepository.updateJob(job.name, { interval: 'new interval' });
-
-      const [{ running }] = await jobRepository.find({ name: job.name });
-      expect(running).toBe(savedJob.running);
-    });
-
     it('can update maxRunning to 0', async () => {
       const savedJob = createJobEntity({ ...job, maxRunning: 3 });
       await jobRepository.save(savedJob);
@@ -63,74 +52,6 @@ describe('JobRepository', () => {
 
       const [{ maxRunning }] = await jobRepository.find({ name: job.name });
       expect(maxRunning).toBe(0);
-    });
-  });
-
-  describe('incrementRunning', () => {
-    it('increments when maxRunning is not set', async () => {
-      const savedJob = createJobEntity({ ...job, maxRunning: 0 });
-      await jobRepository.save(savedJob);
-
-      const incremented = await jobRepository.incrementRunning(job.name, 0);
-
-      expect(incremented).toBe(true);
-    });
-
-    it('increments when maxRunning is set', async () => {
-      const maxRunning = 2;
-      const savedJob = createJobEntity({ ...job, maxRunning });
-      await jobRepository.save(savedJob);
-
-      const incremented = await jobRepository.incrementRunning(job.name, maxRunning);
-
-      expect(incremented).toBe(true);
-    });
-
-    it('does not increment when maxRunning is reached', async () => {
-      const maxRunning = 2;
-      const savedJob = createJobEntity({ ...job, maxRunning });
-      savedJob.running = 2;
-      await jobRepository.save(savedJob);
-
-      const incremented = await jobRepository.incrementRunning(job.name, maxRunning);
-
-      expect(incremented).toBe(false);
-    });
-
-    it('does not increment when job does not exist', async () => {
-      const incremented = await jobRepository.incrementRunning(job.name, 0);
-
-      expect(incremented).toBe(false);
-      expect(await jobRepository.find({ name: job.name })).toHaveLength(0);
-    });
-  });
-
-  describe('decrementRunning', () => {
-    it('decrements', async () => {
-      const savedJob = createJobEntity(job);
-      savedJob.running = 1;
-      await jobRepository.save(savedJob);
-
-      await jobRepository.decrementRunning(job.name);
-
-      const [{ running }] = await jobRepository.find({ name: job.name });
-      expect(running).toBe(0);
-    });
-
-    it('does not decrement when running is 0', async () => {
-      const savedJob = createJobEntity(job);
-      await jobRepository.save(savedJob);
-
-      await jobRepository.decrementRunning(job.name);
-
-      const [{ running }] = await jobRepository.find({ name: job.name });
-      expect(running).toBe(0);
-    });
-
-    it('does nothing when job does not exist', async () => {
-      await jobRepository.decrementRunning(job.name);
-
-      expect(await jobRepository.find({ name: job.name })).toHaveLength(0);
     });
   });
 });
