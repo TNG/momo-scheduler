@@ -100,7 +100,7 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 |-------|-------------------------|--------------------------|-------------|
 | both  | message                 | `string`                 | Some information about the event that occurred. |
 | both  | data (optional)         | `{ name?: string; ... }` | Contains additional information like the name of the affected job. |
-| error | type                    | `MomoErrorType`          | `'defining job failed'` or `'scheduling job failed'` or `'executing job failed'` |
+| error | type                    | `MomoErrorType`          | `'defining job failed'` or `'scheduling job failed'` or `'executing job failed'` or `'stopping job failed'` |
 | error | error (optional)        | `Error`                  | The root cause of the error. |
 
 ### Other functions
