@@ -47,7 +47,7 @@ RELEASE_BRANCH="${VERSION_PREFIXED}-release"
 git branch "$RELEASE_BRANCH"
 git checkout "$RELEASE_BRANCH"
 
-if [[ $DRY_RUN ]]; then
+if [[ $DRY_RUN = 1 ]]; then
   echo "Preparing release of version $VERSION (dry-run)"
 else
   echo "Preparing release of version $VERSION"
@@ -70,7 +70,7 @@ npm run test
 echo "Creating Tag"
 git tag -a -m "$VERSION_PREFIXED" "$VERSION_PREFIXED"
 
-if [[ $DRY_RUN ]]; then
+if [[ $DRY_RUN = 1 ]]; then
   echo "Pushing version and tag to GitHub repository (dry-run)"
   git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH" --dry-run
   git push "$UPSTREAM_URL" "$VERSION_PREFIXED" --dry-run
