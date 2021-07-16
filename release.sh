@@ -36,6 +36,11 @@ if [[ ! $GIT_BRANCH =~ $UPSTREAM_BRANCH ]]; then
     exit 1
 fi
 
+if [ -n "$(git status --porcelain)" ]; then
+    echo "You have local changes!"
+    exit 1
+fi
+
 git pull "${UPSTREAM_URL}" "${UPSTREAM_BRANCH}"
 
 RELEASE_BRANCH="${VERSION_PREFIXED}-release"
@@ -46,11 +51,6 @@ if [[ $DRY_RUN ]]; then
   echo "Releasing version $VERSION (dry-run)"
 else
   echo "Releasing version $VERSION"
-fi
-
-if [ ! -n "$(git status --porcelain)" ]; then
-    echo "You have local changes!"
-    exit 1
 fi
 
 echo "Updating version in package.json ..."
