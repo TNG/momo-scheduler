@@ -47,7 +47,6 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
     const numbers = (await this.find({ where: { timestamp: { $gt: timestamp } } })).map((executionsEntity) => {
       return executionsEntity.executions[name] ?? 0;
     });
-    console.log(numbers);
     return numbers.reduce((sum, current) => sum + current, 0);
   }
 
