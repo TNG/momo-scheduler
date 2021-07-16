@@ -12,14 +12,6 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
     await this.save(new ExecutionsEntity(scheduleId, DateTime.now().toMillis(), {}));
   }
 
-  async addJob(scheduleId: string, name: string): Promise<void> {
-    const executionsEntity = await this.findOne({ scheduleId });
-    if (executionsEntity === undefined) {
-      throw new Error(`executionsEntity not found for scheduleId=${scheduleId}`);
-    }
-    await this.update({ scheduleId }, { executions: { ...executionsEntity.executions, [name]: 0 } });
-  }
-
   async removeJob(scheduleId: string, name: string) {
     const executionsEntity = await this.findOne({ scheduleId });
     if (executionsEntity === undefined) {
@@ -52,9 +44,11 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
 
   async countRunningExecutions(name: string): Promise<number> {
     const timestamp = DateTime.now().toMillis() - ExecutionsRepository.deadScheduleThreshold;
-    return (await this.find({ where: { timestamp: { $gt: timestamp } } }))
-      .map((executionsEntity) => executionsEntity.executions[name] ?? 0)
-      .reduce((sum, current) => sum + current, 0);
+    const numbers = (await this.find({ where: { timestamp: { $gt: timestamp } } })).map((executionsEntity) => {
+      return executionsEntity.executions[name] ?? 0;
+    });
+    console.log(numbers);
+    return numbers.reduce((sum, current) => sum + current, 0);
   }
 
   async ping(scheduleId: string): Promise<void> {

@@ -43,16 +43,29 @@ describe('ExecutionsRepository', () => {
       await executionsRepository.addSchedule(scheduleId);
     });
 
-    describe('job', () => {
-      it('can add and remove a job', async () => {
-        await executionsRepository.addJob(scheduleId, name);
+    describe('removeJob', () => {
+      it('can remove a job', async () => {
+        await executionsRepository.addExecution(scheduleId, name, 0);
 
         const executionsEntity = await executionsRepository.findOne({ scheduleId });
-        expect(executionsEntity?.executions).toEqual({ [name]: 0 });
+        expect(executionsEntity?.executions).toEqual({ [name]: 1 });
 
         await executionsRepository.removeJob(scheduleId, name);
         const executionsEntity2 = await executionsRepository.findOne({ scheduleId });
         expect(executionsEntity2?.executions).toEqual({});
+      });
+
+      it('keeps other job', async () => {
+        const otherName = 'other job';
+        await executionsRepository.addExecution(scheduleId, name, 0);
+        await executionsRepository.addExecution(scheduleId, otherName, 0);
+
+        const executionsEntity = await executionsRepository.findOne({ scheduleId });
+        expect(executionsEntity?.executions).toEqual({ [name]: 1, [otherName]: 1 });
+
+        await executionsRepository.removeJob(scheduleId, name);
+        const executionsEntity2 = await executionsRepository.findOne({ scheduleId });
+        expect(executionsEntity2?.executions).toEqual({ [otherName]: 1 });
       });
     });
 
@@ -110,6 +123,27 @@ describe('ExecutionsRepository', () => {
 
         const running = await executionsRepository.countRunningExecutions(name);
         expect(running).toBe(0);
+      });
+
+      it('counts executions by different schedules', async () => {
+        const otherScheduleId = 'other schedule';
+        await executionsRepository.addSchedule(otherScheduleId);
+
+        await executionsRepository.addExecution(scheduleId, name, 2);
+        await executionsRepository.addExecution(otherScheduleId, name, 2);
+
+        const running = await executionsRepository.countRunningExecutions(name);
+        expect(running).toBe(2);
+      });
+
+      it('counts executions when other schedule has no entry', async () => {
+        const otherScheduleId = 'other schedule';
+        await executionsRepository.addSchedule(otherScheduleId);
+
+        await executionsRepository.addExecution(scheduleId, name, 2);
+
+        const running = await executionsRepository.countRunningExecutions(name);
+        expect(running).toBe(1);
       });
     });
 
