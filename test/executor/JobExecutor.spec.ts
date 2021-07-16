@@ -48,7 +48,7 @@ describe('JobExecutor', () => {
 
     verify(jobRepository.updateJob(job.name, anything())).once();
     const [, update] = capture(jobRepository.updateJob).last();
-    expect(update.executionInfo?.lastResult).toEqual({ status: ExecutionStatus.finished });
+    expect(update.executionInfo?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
 
     verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
     verify(executionsRepository.removeExecution(scheduleId, job.name)).once();

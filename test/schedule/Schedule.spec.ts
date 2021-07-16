@@ -91,7 +91,7 @@ describe('Schedule', () => {
 
     const result = await mongoSchedule.run(job.name);
 
-    expect(result).toEqual({ status: ExecutionStatus.finished });
+    expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
     expect(job.handler).toHaveBeenCalledTimes(1);
   });
 

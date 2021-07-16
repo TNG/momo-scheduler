@@ -70,7 +70,7 @@ export class JobExecutor {
       const data = await this.handler();
       result = {
         status: ExecutionStatus.finished,
-        handlerResult: data !== undefined ? data : undefined,
+        handlerResult: data !== undefined ? data : 'finished',
       };
     } catch (e) {
       this.logger.error('job failed', MomoErrorType.executeJob, { name: jobEntity.name }, e);
