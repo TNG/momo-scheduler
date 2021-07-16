@@ -78,6 +78,6 @@ else
   echo "Pushing version and tag to GitHub repository"
   git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH"
   git push "$UPSTREAM_URL" "$VERSION_PREFIXED"
-
-  hub pull-request -b "$UPSTREAM_BRANCH" -m "Release version $VERSION"
 fi
+
+echo "Please merge $RELEASE_BRANCH into $UPSTREAM_BRANCH"
