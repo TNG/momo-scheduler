@@ -60,7 +60,7 @@ npm install
 echo "Committing version change"
 git add package.json
 git add package-lock.json
-git commit --signoff -m "Update version to $VERSION"
+git commit --signoff -m "chore: update version to $VERSION"
 
 echo "Linting, building and testing"
 npm run lint
