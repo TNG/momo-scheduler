@@ -21,6 +21,6 @@ describe('MongoSchedule', () => {
 
     await mongoSchedule.disconnect();
 
-    verify(executionsRepository.delete(deepEqual({ scheduleId })));
+    verify(executionsRepository.deleteOne(deepEqual({ scheduleId })));
   });
 });

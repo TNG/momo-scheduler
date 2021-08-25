@@ -170,7 +170,7 @@ export class Schedule extends LogEmitter {
   public async removeJob(name: string): Promise<void> {
     await this.cancelJob(name);
     this.logger.debug('remove', { name });
-    await getJobRepository().delete({ name });
+    await getJobRepository().deleteOne({ name });
   }
 
   /**
@@ -180,7 +180,7 @@ export class Schedule extends LogEmitter {
     const names = Object.keys(this.jobSchedulers);
     await this.cancel();
     this.logger.debug('remove all jobs', { names: names.join(', ') });
-    await getJobRepository().deleteMany({ name: { $in: names } });
+    await getJobRepository().delete({ name: { $in: names } });
   }
 
   /**

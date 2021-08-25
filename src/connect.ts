@@ -1,37 +1,36 @@
-import { Connection, createConnection, getConnection } from 'typeorm';
-import { JobEntity } from './repository/JobEntity';
-import { JobRepository } from './repository/JobRepository';
-import { ExecutionsEntity } from './repository/ExecutionsEntity';
-import { ExecutionsRepository } from './repository/ExecutionsRepository';
-import { isConnected } from './isConnected';
+import { JOBS_COLLECTION_NAME } from './repository/JobRepository';
+import { MongoClient } from 'mongodb';
 
-export const connectionName = 'momo';
+let mongoClient: MongoClient | undefined;
 
 export interface MomoConnectionOptions {
   url: string;
 }
 
-export async function connect(connectionOptions: MomoConnectionOptions): Promise<Connection> {
-  if (isConnected()) {
-    return getConnection(connectionName);
+export function connectForTest(testClient: MongoClient): void {
+  mongoClient = testClient;
+}
+
+export async function connect(connectionOptions: MomoConnectionOptions): Promise<MongoClient> {
+  if (mongoClient !== undefined) {
+    return mongoClient;
   }
 
-  const connection = await createConnection({
-    ...connectionOptions,
-    type: 'mongodb',
-    name: connectionName,
-    useUnifiedTopology: true,
-    entities: [ExecutionsEntity, JobEntity],
-  });
+  mongoClient = await MongoClient.connect(connectionOptions.url);
 
-  await connection.getCustomRepository(JobRepository).createCollectionIndex({ name: 1 }, { name: 'job_name_index' });
-  await connection
-    .getCustomRepository(ExecutionsRepository)
-    .createCollectionIndex({ scheduleId: 1 }, { name: 'schedule_id_index' });
+  await mongoClient.db().collection(JOBS_COLLECTION_NAME).createIndex({ name: 1 }, { name: 'job_name_index' });
+  await mongoClient.db().collection(JOBS_COLLECTION_NAME).createIndex({ scheduleId: 1 }, { name: 'schedule_id_index' });
 
-  return connection;
+  return mongoClient;
 }
 
 export async function disconnect(): Promise<void> {
-  await getConnection(connectionName).close();
+  await mongoClient?.close();
+}
+
+export function getConnection(): MongoClient {
+  if (mongoClient === undefined) {
+    throw new Error('momo is not connected, please call connect() first');
+  }
+  return mongoClient;
 }

@@ -1,8 +1,14 @@
-import { EntityRepository, MongoRepository } from 'typeorm';
+import { MongoClient } from 'mongodb';
 import { JobEntity } from './JobEntity';
+import { Repository } from './Repository';
 
-@EntityRepository(JobEntity)
-export class JobRepository extends MongoRepository<JobEntity> {
+export const JOBS_COLLECTION_NAME = 'jobs';
+
+export class JobRepository extends Repository<JobEntity> {
+  constructor(mongoClient: MongoClient) {
+    super(mongoClient, JOBS_COLLECTION_NAME);
+  }
+
   async updateJob(name: string, update: Partial<JobEntity>): Promise<void> {
     const savedJobs = await this.find({ name });
 

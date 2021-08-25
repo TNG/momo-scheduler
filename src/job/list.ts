@@ -1,12 +1,10 @@
 import { MomoJobStatus } from './Job';
 import { getJobRepository } from '../repository/getRepository';
-import { isConnected } from '../isConnected';
 
 /**
  * Lists all jobs stored in the database.
  */
 export async function list(): Promise<MomoJobStatus[]> {
-  if (!isConnected()) return [];
   const jobs = await getJobRepository().find();
 
   return jobs.map((job) => {

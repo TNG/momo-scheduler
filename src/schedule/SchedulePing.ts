@@ -28,6 +28,6 @@ export class SchedulePing {
       this.logger.debug('stop SchedulerPing', { scheduleId: this.scheduleId });
       clearInterval(this.handle);
     }
-    await getExecutionsRepository().delete({ scheduleId: this.scheduleId });
+    await getExecutionsRepository().deleteOne({ scheduleId: this.scheduleId });
   }
 }

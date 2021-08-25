@@ -7,7 +7,6 @@ export { MomoJob } from './job/MomoJob';
 export { MomoJobDescription, JobSchedulerStatus } from './job/MomoJobDescription';
 export { ExecutionStatus } from './job/ExecutionInfo';
 export { ExecutionInfo } from './job/ExecutionInfo';
-export { isConnected } from './isConnected';
 export { check } from './job/check';
 export { clear } from './job/clear';
 export { list } from './job/list';

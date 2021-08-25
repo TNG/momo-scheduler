@@ -220,7 +220,7 @@ describe('Momo', () => {
       await mongoSchedule.define(job);
 
       await mongoSchedule.start();
-      await jobRepository.clear();
+      await jobRepository.delete();
 
       await sleep(1500);
       expect(jobHandler.count).toBe(0);
@@ -233,7 +233,7 @@ describe('Momo', () => {
 
       const updatedConcurrency = 5;
       const updatedMaxRunning = 10;
-      await jobRepository.update(
+      await jobRepository.updateOne(
         { name: job.name },
         { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning }
       );
@@ -254,7 +254,7 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       const updatedInterval = '2 seconds';
-      await jobRepository.update({ name: job.name }, { interval: updatedInterval });
+      await jobRepository.updateOne({ name: job.name }, { interval: updatedInterval });
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
@@ -546,7 +546,7 @@ describe('Momo', () => {
         expect(running).toBe(1);
       }, 1100);
 
-      await jobRepository.clear();
+      await jobRepository.delete();
 
       await waitFor(async () => {
         expect(await jobRepository.find({ name: job.name })).toHaveLength(0);
@@ -558,7 +558,7 @@ describe('Momo', () => {
 
       await mongoSchedule.start();
 
-      await jobRepository.clear();
+      await jobRepository.delete();
 
       await waitFor(() => {
         expect(receivedError).toEqual({

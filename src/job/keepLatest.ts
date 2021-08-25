@@ -15,7 +15,7 @@ export async function keepLatest(name: string, logger?: Logger): Promise<JobEnti
   logger?.debug('duplicate job, keep latest only', { name, count: jobs.length });
 
   jobs.splice(jobs.indexOf(latest), 1);
-  await jobRepository.remove(jobs);
+  await jobRepository.delete(jobs); // TODO does this work?
 
   return latest;
 }

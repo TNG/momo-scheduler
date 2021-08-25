@@ -1,11 +1,10 @@
 import { DateTime } from 'luxon';
 import { findLatest } from '../../src/job/findLatest';
 import { JobEntity } from '../../src/repository/JobEntity';
-import { Job } from '../../src/job/Job';
 import { ExecutionInfo } from '../../src';
 
 function createJob(lastFinished?: number) {
-  const job = JobEntity.from({ name: 'test' } as Job);
+  const job = { name: 'test' } as JobEntity;
   if (lastFinished) {
     job.executionInfo = { lastFinished: DateTime.fromMillis(lastFinished).toISO() } as ExecutionInfo;
   }

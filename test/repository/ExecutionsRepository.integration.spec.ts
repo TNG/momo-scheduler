@@ -20,7 +20,7 @@ describe('ExecutionsRepository', () => {
     executionsRepository = getExecutionsRepository();
   });
 
-  beforeEach(async () => await executionsRepository.clear());
+  beforeEach(async () => await executionsRepository.delete());
 
   afterAll(async () => {
     await disconnect();

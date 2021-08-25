@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { connect, disconnect } from '../src/connect';
-import { isConnected } from '../src';
+import { getConnection } from '../dist/connect';
 
 describe('connect', () => {
   let mongo: MongoMemoryServer;
@@ -8,7 +8,7 @@ describe('connect', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    url = await mongo.getUri();
+    url = mongo.getUri();
   });
 
   afterAll(async () => await mongo.stop());
@@ -16,13 +16,13 @@ describe('connect', () => {
   it('connects mongo', async () => {
     await connect({ url });
 
-    expect(isConnected()).toBe(true);
+    expect(getConnection()).not.toThrow();
   });
 
   it('disconnects mongo', async () => {
     await connect({ url });
     await disconnect();
 
-    expect(isConnected()).toBe(false);
+    expect(getConnection()).not.toThrow();
   });
 });

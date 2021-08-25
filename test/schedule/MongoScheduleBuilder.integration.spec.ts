@@ -27,7 +27,7 @@ describe('MongoScheduleBuilder', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    connectionOptions = { url: await mongo.getUri() };
+    connectionOptions = { url: mongo.getUri() };
   });
 
   afterEach(async () => {

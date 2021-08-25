@@ -42,7 +42,7 @@ describe('define', () => {
     const newInterval = 'two minutes';
     await define(withDefaults({ ...job, interval: newInterval }));
 
-    verify(jobRepository.remove(deepEqual([duplicate]))).once();
+    verify(jobRepository.delete(deepEqual([duplicate]))).once();
     verify(jobRepository.updateJob(job.name, deepEqual(createJobEntity({ ...job, interval: newInterval })))).once();
   });
 });

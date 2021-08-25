@@ -21,7 +21,7 @@ describe('JobRepository', () => {
     jobRepository = getJobRepository();
   });
 
-  beforeEach(async () => await jobRepository.delete({}));
+  beforeEach(async () => await jobRepository.deleteOne({}));
 
   afterAll(async () => {
     await disconnect();
