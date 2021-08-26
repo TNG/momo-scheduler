@@ -1,8 +1,8 @@
 import { MomoJob } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
-import { withDefaults } from '../../src/job/withDefaults';
+import { fromMomoJob } from '../../src/job/Job';
 
 // TODO remove this?
 export function createJobEntity(job: MomoJob): JobEntity {
-  return withDefaults(job);
+  return fromMomoJob(job);
 }

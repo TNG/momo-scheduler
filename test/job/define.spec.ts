@@ -5,7 +5,7 @@ import { define } from '../../src/job/define';
 import { createJobEntity } from '../utils/createJobEntity';
 import { DateTime } from 'luxon';
 import { ExecutionInfo } from '../../src';
-import { withDefaults } from '../../src/job/withDefaults';
+import { fromMomoJob } from '../../src/job/Job';
 
 describe('define', () => {
   const job = { name: 'test', interval: '1 minute', handler: () => 'finished' };
@@ -17,7 +17,7 @@ describe('define', () => {
 
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
 
-    await define(withDefaults(job));
+    await define(fromMomoJob(job));
 
     verify(jobRepository.save(deepEqual(createJobEntity(job)))).once();
   });
@@ -28,7 +28,7 @@ describe('define', () => {
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([createJobEntity(job)]);
 
     const newInterval = '2 minutes';
-    await define(withDefaults({ ...job, interval: newInterval }));
+    await define(fromMomoJob({ ...job, interval: newInterval }));
 
     verify(jobRepository.updateJob(job.name, deepEqual(createJobEntity({ ...job, interval: newInterval })))).once();
   });
@@ -40,7 +40,7 @@ describe('define', () => {
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([duplicate, latest]);
 
     const newInterval = 'two minutes';
-    await define(withDefaults({ ...job, interval: newInterval }));
+    await define(fromMomoJob({ ...job, interval: newInterval }));
 
     verify(jobRepository.delete(deepEqual([duplicate]))).once();
     verify(jobRepository.updateJob(job.name, deepEqual(createJobEntity({ ...job, interval: newInterval })))).once();

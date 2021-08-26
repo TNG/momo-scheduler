@@ -1,7 +1,6 @@
 import { sum } from 'lodash';
 import { JobScheduler } from '../scheduler/JobScheduler';
 import { MomoJob } from '../job/MomoJob';
-import { withDefaults } from '../job/withDefaults';
 import { validate } from '../job/validate';
 import { define } from '../job/define';
 import { LogEmitter } from '../logging/LogEmitter';
@@ -9,6 +8,7 @@ import { getJobRepository } from '../repository/getRepository';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { MomoJobDescription } from '../job/MomoJobDescription';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
+import { fromMomoJob } from '../job/Job';
 
 export class Schedule extends LogEmitter {
   private jobSchedulers: { [name: string]: JobScheduler } = {};
@@ -48,7 +48,7 @@ export class Schedule extends LogEmitter {
    * @param momoJob the job to define
    */
   public async define(momoJob: MomoJob): Promise<void> {
-    const job = withDefaults(momoJob);
+    const job = fromMomoJob(momoJob);
 
     if (!validate(job, this.logger)) {
       return;
