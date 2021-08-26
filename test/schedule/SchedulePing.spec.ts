@@ -1,18 +1,26 @@
-import { deepEqual, verify } from 'ts-mockito';
+import { deepEqual, instance, verify, mock } from 'ts-mockito';
 
 import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { sleep } from '../utils/sleep';
-import { mockRepositories } from '../utils/mockRepositories';
+import { JobRepository } from '../../src/repository/JobRepository';
+
+let jobRepository: JobRepository;
+let executionsRepository: ExecutionsRepository;
+jest.mock('../../src/repository/getRepository', () => {
+  return {
+    getJobRepository: () => instance(jobRepository),
+    getExecutionsRepository: () => instance(executionsRepository),
+  };
+});
 
 describe('SchedulePing', () => {
   const scheduleId = '123';
   const schedulePing = new SchedulePing(scheduleId, { debug: jest.fn(), error: jest.fn() });
-  let executionsRepository: ExecutionsRepository;
 
   beforeAll(() => {
     SchedulePing.interval = 1000;
-    executionsRepository = mockRepositories().executionsRepository;
+    executionsRepository = mock(ExecutionsRepository);
   });
 
   it('starts, pings, cleans and stops', async () => {

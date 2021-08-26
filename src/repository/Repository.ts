@@ -11,7 +11,7 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
     await this.collection.insertOne(entity);
   }
 
-  async updateOne(filter: Filter<ENTITY>, update: UpdateFilter<ENTITY> | Partial<ENTITY>): Promise<void> {
+  async updateOne(filter: Filter<ENTITY>, update: UpdateFilter<ENTITY>): Promise<void> {
     await this.collection.updateOne(filter, update);
   }
 

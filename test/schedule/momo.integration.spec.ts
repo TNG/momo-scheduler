@@ -235,7 +235,7 @@ describe('Momo', () => {
       const updatedMaxRunning = 10;
       await jobRepository.updateOne(
         { name: job.name },
-        { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning }
+        { $set: { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning } }
       );
 
       await waitFor(async () => {
@@ -254,7 +254,7 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       const updatedInterval = '2 seconds';
-      await jobRepository.updateOne({ name: job.name }, { interval: updatedInterval });
+      await jobRepository.updateOne({ name: job.name }, { $set: { interval: updatedInterval } });
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
 

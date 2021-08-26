@@ -1,7 +1,8 @@
 import { Handler } from './MomoJob';
-import { ExecutionInfo } from './ExecutionInfo';
+import { WithoutId } from 'mongodb';
+import { JobEntity } from '../repository/JobEntity';
 
-export type MomoJobStatus = JobDefinition & { executionInfo?: ExecutionInfo };
+export type MomoJobStatus = WithoutId<JobEntity>;
 
 export interface JobDefinition {
   name: string;

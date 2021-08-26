@@ -1,13 +1,20 @@
-import { anything, capture, verify, when } from 'ts-mockito';
+import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
 import { JobExecutor } from '../../src/executor/JobExecutor';
-import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
 import { ExecutionStatus, MomoErrorType } from '../../src';
-import { mockRepositories } from '../utils/mockRepositories';
 import { loggerForTests } from '../utils/logging';
+
+let jobRepository: JobRepository;
+let executionsRepository: ExecutionsRepository;
+jest.mock('../../src/repository/getRepository', () => {
+  return {
+    getJobRepository: () => instance(jobRepository),
+    getExecutionsRepository: () => instance(executionsRepository),
+  };
+});
 
 describe('JobExecutor', () => {
   const scheduleId = '123';
@@ -20,19 +27,15 @@ describe('JobExecutor', () => {
     maxRunning: 0,
     handler,
   };
-  const savedJob = JobEntity.from(job);
 
   const errorFn = jest.fn();
-  let jobRepository: JobRepository;
-  let executionsRepository: ExecutionsRepository;
   let jobExecutor: JobExecutor;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    const repositories = mockRepositories();
-    jobRepository = repositories.jobRepository;
-    executionsRepository = repositories.executionsRepository;
+    jobRepository = mock(JobRepository);
+    executionsRepository = mock(ExecutionsRepository);
     when(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).thenResolve({
       added: true,
       running: 0,
@@ -42,7 +45,7 @@ describe('JobExecutor', () => {
   });
 
   it('executes job', async () => {
-    await jobExecutor.execute(savedJob);
+    await jobExecutor.execute(job);
 
     expect(job.handler).toHaveBeenCalled();
 
@@ -60,7 +63,7 @@ describe('JobExecutor', () => {
       running: 0,
     });
 
-    await jobExecutor.execute(savedJob);
+    await jobExecutor.execute(job);
 
     expect(errorFn).not.toHaveBeenCalled();
     expect(job.handler).not.toHaveBeenCalled();
@@ -74,7 +77,7 @@ describe('JobExecutor', () => {
       throw error;
     });
 
-    await jobExecutor.execute(savedJob);
+    await jobExecutor.execute(job);
 
     expect(errorFn).toHaveBeenCalledWith('job failed', MomoErrorType.executeJob, { name: job.name }, error);
 
@@ -88,7 +91,7 @@ describe('JobExecutor', () => {
       return handlerResult;
     });
 
-    await jobExecutor.execute(savedJob);
+    await jobExecutor.execute(job);
 
     verify(jobRepository.updateJob(job.name, anything())).once();
     const [, update] = capture(jobRepository.updateJob).last();

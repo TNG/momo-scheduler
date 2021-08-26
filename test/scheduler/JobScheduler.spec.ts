@@ -5,12 +5,19 @@ import { JobRepository } from '../../src/repository/JobRepository';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
-import { JobEntity } from '../../src/repository/JobEntity';
 import { MomoError, MomoErrorType } from '../../src';
-import { mockRepositories } from '../utils/mockRepositories';
 import { loggerForTests } from '../utils/logging';
 import { createJobEntity } from '../utils/createJobEntity';
 import { sleep } from '../utils/sleep';
+
+let jobRepository: JobRepository;
+let executionsRepository: ExecutionsRepository;
+jest.mock('../../src/repository/getRepository', () => {
+  return {
+    getJobRepository: () => instance(jobRepository),
+    getExecutionsRepository: () => instance(executionsRepository),
+  };
+});
 
 describe('JobScheduler', () => {
   const defaultJob = {
@@ -25,17 +32,14 @@ describe('JobScheduler', () => {
   const scheduleId = '123';
 
   let jobExecutor: JobExecutor;
-  let jobRepository: JobRepository;
-  let executionsRepository: ExecutionsRepository;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
     jobExecutor = mock(JobExecutor);
-    const repositories = mockRepositories();
-    jobRepository = repositories.jobRepository;
-    executionsRepository = repositories.executionsRepository;
+    jobRepository = mock(JobRepository);
+    executionsRepository = mock(ExecutionsRepository);
 
     when(jobExecutor.execute(anything())).thenResolve();
   });
@@ -53,7 +57,7 @@ describe('JobScheduler', () => {
       scheduleId,
       loggerForTests(errorFn)
     );
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(job));
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(job);
     when(executionsRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }

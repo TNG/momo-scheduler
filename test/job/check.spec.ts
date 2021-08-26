@@ -1,18 +1,31 @@
 import { DateTime } from 'luxon';
-import { deepEqual, when } from 'ts-mockito';
+import { anyString, deepEqual, instance, mock, when } from 'ts-mockito';
 
-import { mockRepositories } from '../utils/mockRepositories';
-import { check, ExecutionInfo, ExecutionStatus } from '../../src';
+import { check, clear, ExecutionInfo, ExecutionStatus } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
+import { JobRepository } from '../../src/repository/JobRepository';
+
+let jobRepository: JobRepository;
+jest.mock('../../src/repository/getRepository', () => {
+  return {
+    getJobRepository: () => instance(jobRepository),
+  };
+});
 
 describe('check', () => {
   const name = 'test';
 
-  afterEach(() => jest.resetAllMocks());
+  beforeEach(() => {
+    jobRepository = mock(JobRepository);
+    when(jobRepository.findOne(anyString())).thenResolve(undefined);
+  });
+
+  afterEach(async () => {
+    jest.resetAllMocks();
+    await clear();
+  });
 
   it('returns executionInfo', async () => {
-    const jobRepository = mockRepositories().jobRepository;
-
     const executionInfo: ExecutionInfo = {
       lastStarted: DateTime.now().toISO(),
       lastFinished: DateTime.now().toISO(),
@@ -26,11 +39,6 @@ describe('check', () => {
   });
 
   it('returns nothing if job not found', async () => {
-    mockRepositories().jobRepository;
-    expect(await check(name)).toBeUndefined();
-  });
-
-  it('returns nothing if not connected', async () => {
     expect(await check(name)).toBeUndefined();
   });
 });

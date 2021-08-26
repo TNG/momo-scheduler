@@ -50,7 +50,7 @@ export class ExecutionsRepository extends Repository<ExecutionsEntity> {
 
   async countRunningExecutions(name: string): Promise<number> {
     const timestamp = DateTime.now().toMillis() - ExecutionsRepository.deadScheduleThreshold;
-    const numbers = (await this.find({ where: { timestamp: { $gt: timestamp } } })).map((executionsEntity) => {
+    const numbers = (await this.find({ timestamp: { $gt: timestamp } })).map((executionsEntity) => {
       return executionsEntity.executions[name] ?? 0;
     });
     return numbers.reduce((sum, current) => sum + current, 0);

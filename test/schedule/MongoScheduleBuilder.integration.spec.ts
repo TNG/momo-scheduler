@@ -30,10 +30,6 @@ describe('MongoScheduleBuilder', () => {
     connectionOptions = { url: mongo.getUri() };
   });
 
-  afterEach(async () => {
-    await clear();
-  });
-
   afterAll(async () => {
     await mongo.stop();
   });
@@ -42,6 +38,7 @@ describe('MongoScheduleBuilder', () => {
     let mongoSchedule: MongoSchedule;
 
     afterEach(async () => {
+      await clear();
       await mongoSchedule.disconnect();
     });
 

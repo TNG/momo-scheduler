@@ -1,13 +1,21 @@
-import { anyString, deepEqual, verify, when } from 'ts-mockito';
+import { anyString, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
 import { ExecutionStatus, MomoEvent, MomoJob, MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { JobEntity } from '../../src/repository/JobEntity';
-import { Job } from '../../src/job/Job';
 import { initLoggingForTests } from '../utils/logging';
-import { mockRepositories } from '../utils/mockRepositories';
 import { createJobEntity } from '../utils/createJobEntity';
+import { connectForTest } from '../../src/connect';
+import { MongoClient } from 'mongodb';
+
+let jobRepository: JobRepository;
+let executionsRepository: ExecutionsRepository;
+jest.mock('../../src/repository/getRepository', () => {
+  return {
+    getJobRepository: () => instance(jobRepository),
+    getExecutionsRepository: () => instance(executionsRepository),
+  };
+});
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -16,19 +24,17 @@ describe('Schedule', () => {
     handler: jest.fn(),
   };
 
-  let jobRepository: JobRepository;
-  let executionsRepository: ExecutionsRepository;
   let mongoSchedule: MongoSchedule;
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
-    const repositories = mockRepositories();
-    jobRepository = repositories.jobRepository;
-    executionsRepository = repositories.executionsRepository;
+    jobRepository = mock(JobRepository);
+    executionsRepository = mock(ExecutionsRepository);
 
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
 
+    connectForTest(instance(mock(MongoClient)));
     mongoSchedule = await MongoSchedule.connect({ url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);
   });
@@ -49,9 +55,7 @@ describe('Schedule', () => {
   it('does not report error when concurrency > maxRunning but maxRunning is not set', async () => {
     await mongoSchedule.define({ ...job, concurrency: 3 });
 
-    verify(
-      jobRepository.save(deepEqual(JobEntity.from({ ...job, maxRunning: 0, concurrency: 3, immediate: false } as Job)))
-    ).once();
+    verify(jobRepository.save(deepEqual({ ...job, maxRunning: 0, concurrency: 3, immediate: false }))).once();
   });
 
   it('counts jobs', async () => {

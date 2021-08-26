@@ -3,7 +3,6 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { clear, MomoJob, MongoSchedule } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { getJobRepository } from '../../src/repository/getRepository';
-import { JobEntity } from '../../src/repository/JobEntity';
 import { withDefaults } from '../../src/job/withDefaults';
 import { initLoggingForTests } from '../utils/logging';
 
@@ -63,13 +62,11 @@ describe('Schedule', () => {
 
   it('lists jobs on the schedule', async () => {
     await jobRepository.save(
-      JobEntity.from(
-        withDefaults({
-          name: 'some job that is in the database but not on the schedule',
-          handler: jest.fn(),
-          interval: 'one minute',
-        })
-      )
+      withDefaults({
+        name: 'some job that is in the database but not on the schedule',
+        handler: jest.fn(),
+        interval: 'one minute',
+      })
     );
 
     await mongoSchedule.define(job);

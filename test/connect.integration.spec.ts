@@ -1,6 +1,5 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { connect, disconnect } from '../src/connect';
-import { getConnection } from '../dist/connect';
+import { connect, disconnect, getConnection } from '../src/connect';
 
 describe('connect', () => {
   let mongo: MongoMemoryServer;
