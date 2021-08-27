@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { v4 as uuid } from 'uuid';
 
-import { clear, ExecutionStatus, MomoError, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
+import { clear, ExecutionStatus, momoError, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { getExecutionsRepository, getJobRepository } from '../../src/repository/getRepository';
@@ -30,7 +30,7 @@ describe('Momo', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    mongoSchedule = await MongoSchedule.connect({ url: await mongo.getUri() });
+    mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
     jobRepository = getJobRepository();
     executionsRepository = getExecutionsRepository();
 
@@ -119,8 +119,8 @@ describe('Momo', () => {
       await sleep(500);
       await mongoSchedule.define(job);
 
-      const [{ executionInfo }] = await jobRepository.find({ name: job.name });
-      expect(executionInfo).toEqual(jobEntity.executionInfo);
+      const jobs = await jobRepository.find({ name: job.name });
+      expect(jobs[0]?.executionInfo).toEqual(jobEntity.executionInfo);
 
       await mongoSchedule.start();
 
@@ -130,19 +130,21 @@ describe('Momo', () => {
     it('saves executionInfo in mongo', async () => {
       await mongoSchedule.define(job);
 
-      const [{ executionInfo: info1 }] = await jobRepository.find({ name: job.name });
-      expect(info1).toBeUndefined();
+      const jobs1 = await jobRepository.find({ name: job.name });
+      expect(jobs1[0]!.executionInfo).toBeUndefined();
 
       await mongoSchedule.start();
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
-      const [{ executionInfo: info2 }] = await jobRepository.find({ name: job.name });
-      expect(info2).toBeDefined();
-      if (!info2) throw new Error('should be defined');
-      expect(DateTime.fromISO(info2.lastFinished).toMillis()).toBeGreaterThan(
-        DateTime.fromISO(info2.lastStarted).toMillis()
+      const jobs2 = await jobRepository.find({ name: job.name });
+
+      const executionInfo = jobs2[0]?.executionInfo;
+      expect(executionInfo).toBeDefined();
+
+      expect(DateTime.fromISO(executionInfo!.lastFinished).toMillis()).toBeGreaterThan(
+        DateTime.fromISO(executionInfo!.lastStarted).toMillis()
       );
-      expect(info2?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: jobHandler.result });
+      expect(executionInfo!.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: jobHandler.result });
     });
 
     it('updates and reports failing job in mongo', async () => {
@@ -153,11 +155,13 @@ describe('Momo', () => {
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
       const executionInfo = await waitFor(async () => {
-        const [{ executionInfo }] = await jobRepository.find({ name: job.name });
+        const jobs = await jobRepository.find({ name: job.name });
+        const executionInfo = jobs[0]?.executionInfo;
         expect(executionInfo?.lastFinished).toBeDefined();
-        return executionInfo;
+        return executionInfo!;
       }, 100);
-      expect(executionInfo?.lastResult).toEqual({ status: ExecutionStatus.failed, handlerResult: jobHandler.message });
+
+      expect(executionInfo.lastResult).toEqual({ status: ExecutionStatus.failed, handlerResult: jobHandler.message });
       expect(receivedError).toEqual({
         message: 'job failed',
         type: MomoErrorType.executeJob,
@@ -173,15 +177,21 @@ describe('Momo', () => {
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
       await waitFor(async () => {
-        const [{ executionInfo: info1 }] = await jobRepository.find({ name: job.name });
-        expect(info1?.lastResult).toEqual({ status: ExecutionStatus.failed, handlerResult: jobHandler.message });
+        const jobs = await jobRepository.find({ name: job.name });
+        expect(jobs[0]?.executionInfo?.lastResult).toEqual({
+          status: ExecutionStatus.failed,
+          handlerResult: jobHandler.message,
+        });
       }, 100);
 
       jobHandler.failJob = false;
       await waitFor(() => expect(jobHandler.count).toBe(2));
       await waitFor(async () => {
-        const [{ executionInfo: info2 }] = await jobRepository.find({ name: job.name });
-        expect(info2?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: jobHandler.result });
+        const jobs = await jobRepository.find({ name: job.name });
+        expect(jobs[0]?.executionInfo?.lastResult).toEqual({
+          status: ExecutionStatus.finished,
+          handlerResult: jobHandler.result,
+        });
       }, 100);
     });
 
@@ -239,9 +249,9 @@ describe('Momo', () => {
       );
 
       await waitFor(async () => {
-        const [updatedJob] = await mongoSchedule.list();
-        expect(updatedJob.concurrency).toEqual(updatedConcurrency);
-        expect(updatedJob.maxRunning).toEqual(updatedMaxRunning);
+        const updatedJobs = await mongoSchedule.list();
+        expect(updatedJobs[0]?.concurrency).toEqual(updatedConcurrency);
+        expect(updatedJobs[0]?.maxRunning).toEqual(updatedMaxRunning);
       });
 
       await sleep(1100);
@@ -258,7 +268,8 @@ describe('Momo', () => {
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
-      const [{ interval, schedulerStatus }] = await mongoSchedule.list();
+      const updatedJobs = await mongoSchedule.list();
+      const { interval, schedulerStatus } = updatedJobs[0]!;
       expect(interval).toEqual(updatedInterval);
       expect(schedulerStatus?.interval).toBe(job.interval);
       expect(schedulerStatus?.running).toBeGreaterThanOrEqual(0);
@@ -355,7 +366,7 @@ describe('Momo', () => {
 
       const jobs = await jobRepository.find();
       expect(jobs).toHaveLength(1);
-      expect(jobs[0].name).toEqual(job2.name);
+      expect(jobs[0]?.name).toEqual(job2.name);
     });
 
     it('does not fail when trying to remove a non existent job', async () => {
@@ -465,9 +476,9 @@ describe('Momo', () => {
       await waitFor(() => expect(jobHandler.count).toBe(1), jobHandler.duration + 1000);
 
       const { executionInfo } = await waitFor(async () => {
-        const savedJob = (await jobRepository.find({ name: job.name }))[0];
-        expect(savedJob.executionInfo?.lastFinished).toBeDefined();
-        return savedJob;
+        const savedJobs = await jobRepository.find({ name: job.name });
+        expect(savedJobs[0]?.executionInfo?.lastFinished).toBeDefined();
+        return savedJobs[0]!;
       });
 
       expect(executionInfo).toBeDefined();
@@ -565,7 +576,7 @@ describe('Momo', () => {
           message: 'job not found, skip execution',
           type: MomoErrorType.executeJob,
           data: { name: job.name },
-          error: MomoError.jobNotFound,
+          error: momoError.jobNotFound,
         });
       });
     });

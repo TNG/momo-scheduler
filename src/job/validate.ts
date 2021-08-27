@@ -1,12 +1,12 @@
 import humanInterval from 'human-interval';
 import { Job } from './Job';
-import { MomoError } from '../logging/error/MomoError';
+import { momoError } from '../logging/error/MomoError';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { Logger } from '../logging/Logger';
 
 export function validate({ name, interval, concurrency, maxRunning }: Job, logger?: Logger): boolean {
   if (maxRunning < 0) {
-    logger?.error('job cannot be defined', MomoErrorType.defineJob, { name, maxRunning }, MomoError.invalidMaxRunning);
+    logger?.error('job cannot be defined', MomoErrorType.defineJob, { name, maxRunning }, momoError.invalidMaxRunning);
     return false;
   }
 
@@ -15,7 +15,7 @@ export function validate({ name, interval, concurrency, maxRunning }: Job, logge
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name, concurrency },
-      MomoError.invalidConcurrency
+      momoError.invalidConcurrency
     );
     return false;
   }
@@ -25,14 +25,14 @@ export function validate({ name, interval, concurrency, maxRunning }: Job, logge
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name, concurrency, maxRunning },
-      MomoError.invalidConcurrency
+      momoError.invalidConcurrency
     );
     return false;
   }
 
   const parsedInterval = humanInterval(interval);
-  if (!parsedInterval || isNaN(parsedInterval) || parsedInterval <= 0) {
-    logger?.error('job cannot be defined', MomoErrorType.defineJob, { name, interval }, MomoError.nonParsableInterval);
+  if (parsedInterval === undefined || isNaN(parsedInterval) || parsedInterval <= 0) {
+    logger?.error('job cannot be defined', MomoErrorType.defineJob, { name, interval }, momoError.nonParsableInterval);
     return false;
   }
 

@@ -6,7 +6,7 @@ import { ExecutionInfo } from '../../src';
 
 function createJob(lastFinished?: number) {
   const job = JobEntity.from({ name: 'test' } as Job);
-  if (lastFinished) {
+  if (lastFinished !== undefined) {
     job.executionInfo = { lastFinished: DateTime.fromMillis(lastFinished).toISO() } as ExecutionInfo;
   }
   return job;

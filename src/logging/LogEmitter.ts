@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
+
 import { MomoEvents } from './MomoEvents';
 import { debug, error, Logger } from './Logger';
 

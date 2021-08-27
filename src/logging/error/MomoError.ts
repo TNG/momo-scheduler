@@ -1,4 +1,4 @@
-export const MomoError = {
+export const momoError = {
   nonParsableInterval: new Error('non-parsable job interval'),
   invalidConcurrency: new Error('concurrency must be at least 1'),
   invalidMaxRunning: new Error('maxRunning must be at least 0'),

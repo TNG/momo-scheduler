@@ -16,11 +16,11 @@ describe('ExecutionsRepository', () => {
     ExecutionsRepository.deadScheduleThreshold = 1000;
 
     mongo = await MongoMemoryServer.create();
-    await connect({ url: await mongo.getUri() });
+    await connect({ url: mongo.getUri() });
     executionsRepository = getExecutionsRepository();
   });
 
-  beforeEach(async () => await executionsRepository.clear());
+  beforeEach(async () => executionsRepository.clear());
 
   afterAll(async () => {
     await disconnect();
@@ -34,7 +34,7 @@ describe('ExecutionsRepository', () => {
       const entities = await executionsRepository.find({});
 
       expect(entities).toHaveLength(1);
-      expect(entities[0].scheduleId).toEqual(scheduleId);
+      expect(entities[0]?.scheduleId).toEqual(scheduleId);
     });
   });
 

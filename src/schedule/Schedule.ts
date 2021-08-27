@@ -29,7 +29,7 @@ export class Schedule extends LogEmitter {
    * Returns 0 if no job with this name is scheduled.
    */
   public getUnexpectedErrorCount(name?: string): number {
-    if (name) {
+    if (name !== undefined) {
       return this.jobSchedulers[name]?.getUnexpectedErrorCount() ?? 0;
     }
     return sum(Object.values(this.jobSchedulers).map((jobScheduler) => jobScheduler.getUnexpectedErrorCount()));
@@ -87,7 +87,7 @@ export class Schedule extends LogEmitter {
    */
   public async start(): Promise<void> {
     this.logger.debug('start all jobs', { count: this.count() });
-    await Promise.all(Object.values(this.jobSchedulers).map((jobScheduler) => jobScheduler.start()));
+    await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.start()));
   }
 
   /**
@@ -134,7 +134,7 @@ export class Schedule extends LogEmitter {
   public async stop(): Promise<void> {
     this.logger.debug('stop all jobs', { count: this.count() });
     try {
-      await Promise.all(Object.values(this.jobSchedulers).map((jobScheduler) => jobScheduler.stop()));
+      await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.stop()));
     } catch (error) {
       this.logger.error('message failed to stop jobs', MomoErrorType.stopJob, { count: this.count() }, error);
     }
@@ -199,7 +199,7 @@ export class Schedule extends LogEmitter {
    */
   public async list(): Promise<MomoJobDescription[]> {
     return (
-      await Promise.all(Object.values(this.jobSchedulers).map((jobScheduler) => jobScheduler.getJobDescription()))
+      await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.getJobDescription()))
     ).filter((jobDescription): jobDescription is MomoJobDescription => jobDescription !== undefined);
   }
 

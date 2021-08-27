@@ -3,9 +3,9 @@ import { JobEntity } from '../repository/JobEntity';
 
 function compareLastFinished(left: JobEntity, right: JobEntity): JobEntity {
   const r = right.executionInfo?.lastFinished;
-  if (!r) return left;
+  if (r === undefined) return left;
   const l = left.executionInfo?.lastFinished;
-  if (!l) return right;
+  if (l === undefined) return right;
   return DateTime.fromISO(r).toMillis() > DateTime.fromISO(l).toMillis() ? right : left;
 }
 

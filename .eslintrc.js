@@ -83,7 +83,7 @@ module.exports = {
     '@typescript-eslint/promise-function-async': 'error',
     '@typescript-eslint/quotes': 'off',
     '@typescript-eslint/restrict-plus-operands': 'error',
-    '@typescript-eslint/no-unnecessary-condition': 'error',
+    '@typescript-eslint/no-unnecessary-condition': ['error', {}],
     '@typescript-eslint/semi': ['off', null],
     '@typescript-eslint/strict-boolean-expressions': [
       'error',
@@ -107,7 +107,7 @@ module.exports = {
     'brace-style': ['off', 'off'],
     'comma-dangle': 'off',
     complexity: 'off',
-    'constructor-super': 'error',
+    'constructor-super': 'off',
     'eol-last': 'off',
     eqeqeq: ['error', 'smart'],
     'guard-for-in': 'error',
