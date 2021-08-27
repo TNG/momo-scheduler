@@ -20,7 +20,24 @@ jobs:
       - run: npm install
       - run: npm run build
 
-  lint-and-test:
+  lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [14, 16]
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install
+      - run: npm run lint
+
+  test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -35,6 +52,5 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: npm install
-      - run: npm run lint
       - run: npm run test
       - run: npm run test:integration
