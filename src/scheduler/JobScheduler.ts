@@ -1,17 +1,17 @@
-import humanInterval from 'human-interval';
+import { DateTime } from 'luxon';
 import { min } from 'lodash';
+import humanInterval from 'human-interval';
 
+import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { Job } from '../job/Job';
 import { JobExecutor } from '../executor/JobExecutor';
-import { setIntervalWithDelay, TimeoutHandle } from './setIntervalWithDelay';
-import { calculateDelay } from './calculateDelay';
-import { momoError } from '../logging/error/MomoError';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
 import { Logger } from '../logging/Logger';
-import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { DateTime } from 'luxon';
-import { jobDescriptionFromEntity, MomoJobDescription } from '../job/MomoJobDescription';
+import { MomoErrorType } from '../logging/error/MomoErrorType';
+import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
+import { TimeoutHandle, setIntervalWithDelay } from './setIntervalWithDelay';
+import { calculateDelay } from './calculateDelay';
+import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
+import { momoError } from '../logging/error/MomoError';
 
 export class JobScheduler {
   private jobHandle?: TimeoutHandle;

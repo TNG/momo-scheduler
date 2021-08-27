@@ -1,7 +1,8 @@
 import { v4 as uuid } from 'uuid';
+
+import { MomoConnectionOptions, connect, disconnect } from '../connect';
 import { Schedule } from './Schedule';
 import { SchedulePing } from './SchedulePing';
-import { connect, disconnect, MomoConnectionOptions } from '../connect';
 import { getExecutionsRepository } from '../repository/getRepository';
 
 export class MongoSchedule extends Schedule {

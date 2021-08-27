@@ -1,4 +1,5 @@
 import { EntityRepository, MongoRepository } from 'typeorm';
+
 import { JobEntity } from './JobEntity';
 
 @EntityRepository(JobEntity)

@@ -1,9 +1,9 @@
 import { deepEqual, verify } from 'ts-mockito';
 
-import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { sleep } from '../utils/sleep';
+import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { mockRepositories } from '../utils/mockRepositories';
+import { sleep } from '../utils/sleep';
 
 describe('SchedulePing', () => {
   const scheduleId = '123';

@@ -1,11 +1,11 @@
 import { DateTime } from 'luxon';
 import { anything, capture, deepEqual, verify, when } from 'ts-mockito';
 
+import { ExecutionInfo } from '../../src';
+import { Job } from '../../src/job/Job';
+import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { keepLatest } from '../../src/job/keepLatest';
-import { JobEntity } from '../../src/repository/JobEntity';
-import { Job } from '../../src/job/Job';
-import { ExecutionInfo } from '../../src';
 import { mockRepositories } from '../utils/mockRepositories';
 
 describe('keepLatest', () => {

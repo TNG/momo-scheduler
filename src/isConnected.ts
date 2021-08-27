@@ -1,4 +1,5 @@
 import { getConnection } from 'typeorm';
+
 import { connectionName } from './connect';
 
 /**

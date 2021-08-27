@@ -1,11 +1,11 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { clear, MomoJob, MongoSchedule } from '../../src';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { getJobRepository } from '../../src/repository/getRepository';
 import { JobEntity } from '../../src/repository/JobEntity';
-import { withDefaults } from '../../src/job/withDefaults';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { MomoJob, MongoSchedule, clear } from '../../src';
+import { getJobRepository } from '../../src/repository/getRepository';
 import { initLoggingForTests } from '../utils/logging';
+import { withDefaults } from '../../src/job/withDefaults';
 
 describe('Schedule', () => {
   const job: MomoJob = {

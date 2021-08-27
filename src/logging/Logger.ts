@@ -1,6 +1,7 @@
 import TypedEmitter from 'typed-emitter';
-import { MomoEventData, MomoEvents } from './MomoEvents';
+
 import { MomoErrorType } from './error/MomoErrorType';
+import { MomoEventData, MomoEvents } from './MomoEvents';
 
 export interface Logger {
   debug: (message: string, data?: MomoEventData) => void;

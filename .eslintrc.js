@@ -9,7 +9,13 @@ module.exports = {
     project: 'tsconfig.eslint.json',
     sourceType: 'module',
   },
-  plugins: ['eslint-plugin-import', 'eslint-plugin-jsdoc', 'eslint-plugin-prefer-arrow', '@typescript-eslint'],
+  plugins: [
+    'eslint-plugin-import',
+    'eslint-plugin-jsdoc',
+    'eslint-plugin-prefer-arrow',
+    'sort-imports-es6-autofix',
+    '@typescript-eslint',
+  ],
   rules: {
     'jest/expect-expect': [
       'error',
@@ -17,6 +23,7 @@ module.exports = {
         assertFunctionNames: ['expect*', 'verify*'],
       },
     ],
+    'sort-imports-es6-autofix/sort-imports-es6': 'error',
     '@typescript-eslint/adjacent-overload-signatures': 'error',
     '@typescript-eslint/array-type': [
       'error',
@@ -83,7 +90,7 @@ module.exports = {
     '@typescript-eslint/promise-function-async': 'error',
     '@typescript-eslint/quotes': 'off',
     '@typescript-eslint/restrict-plus-operands': 'error',
-    '@typescript-eslint/no-unnecessary-condition': ['error', {}],
+    '@typescript-eslint/no-unnecessary-condition': 'error',
     '@typescript-eslint/semi': ['off', null],
     '@typescript-eslint/strict-boolean-expressions': [
       'error',
@@ -127,7 +134,12 @@ module.exports = {
     'import/no-deprecated': 'error',
     'import/no-extraneous-dependencies': 'off',
     'import/no-internal-modules': 'off',
-    'import/order': 'off',
+    'import/order': [
+      'error',
+      {
+        groups: ['builtin', 'external', 'object'],
+      },
+    ],
     'jsdoc/check-alignment': 'error',
     'jsdoc/check-indentation': 'error',
     'jsdoc/newline-after-description': 'error',
@@ -173,6 +185,7 @@ module.exports = {
     'react/jsx-curly-spacing': 'off',
     'react/jsx-equals-spacing': 'off',
     'react/jsx-wrap-multilines': 'off',
+    'sort-imports': ['error', { allowSeparatedGroups: true, ignoreDeclarationSort: true }],
     'space-before-function-paren': 'off',
     'space-in-parens': ['off', 'never'],
     'spaced-comment': [

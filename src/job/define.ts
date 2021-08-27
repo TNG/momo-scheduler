@@ -1,8 +1,8 @@
 import { Job } from './Job';
 import { JobEntity } from '../repository/JobEntity';
+import { Logger } from '../logging/Logger';
 import { getJobRepository } from '../repository/getRepository';
 import { keepLatest } from './keepLatest';
-import { Logger } from '../logging/Logger';
 
 export async function define(job: Job, logger?: Logger): Promise<void> {
   const { name, interval, concurrency, maxRunning } = job;
