@@ -5,7 +5,7 @@ import { Job } from '../../src/job/Job';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { findLatest } from '../../src/job/findLatest';
 
-function createJob(lastFinished?: number) {
+function createJob(lastFinished?: number): JobEntity {
   const job = JobEntity.from({ name: 'test' } as Job);
   if (lastFinished !== undefined) {
     job.executionInfo = { lastFinished: DateTime.fromMillis(lastFinished).toISO() } as ExecutionInfo;

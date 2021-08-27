@@ -8,7 +8,7 @@ import { MomoEventData, MomoEvents } from '../../src/logging/MomoEvents';
 const logger = Pino();
 const errorLogger = Pino({ level: 'error' });
 
-export function initLoggingForTests(eventEmitter: TypedEmitter<MomoEvents>) {
+export function initLoggingForTests(eventEmitter: TypedEmitter<MomoEvents>): void {
   eventEmitter.on('debug', (event) => {
     logger.info(event);
   });

@@ -16,7 +16,10 @@ export class JobRepository extends MongoRepository<JobEntity> {
   }
 }
 
-function merge(savedJob: JobEntity, { interval, concurrency, maxRunning, executionInfo }: Partial<JobEntity>) {
+function merge(
+  savedJob: JobEntity,
+  { interval, concurrency, maxRunning, executionInfo }: Partial<JobEntity>
+): JobEntity {
   if (interval !== undefined) {
     savedJob.interval = interval;
   }
