@@ -1,12 +1,11 @@
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { Job } from '../../src/job/Job';
+import { Job, toJobDefinition } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { MomoErrorType, momoError } from '../../src';
-import { createJobEntity } from '../../src/repository/createJobEntity';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 
@@ -88,7 +87,7 @@ describe('JobScheduler', () => {
     it('returns job description', async () => {
       const job = createJob();
 
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(toJobDefinition(job));
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
@@ -103,7 +102,7 @@ describe('JobScheduler', () => {
       const job = createJob();
       await jobScheduler.start();
 
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(toJobDefinition(job));
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({

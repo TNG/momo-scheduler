@@ -8,7 +8,7 @@ import { LogEmitter } from '../logging/LogEmitter';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { MomoJob } from '../job/MomoJob';
 import { MomoJobDescription } from '../job/MomoJobDescription';
-import { fromMomoJob } from '../job/Job';
+import { toJob } from '../job/Job';
 import { validate } from '../job/validate';
 
 export class Schedule extends LogEmitter {
@@ -54,7 +54,7 @@ export class Schedule extends LogEmitter {
    * @returns true if jobs was defined, false if the job was invalid
    */
   public async define(momoJob: MomoJob): Promise<boolean> {
-    const job = fromMomoJob(momoJob);
+    const job = toJob(momoJob);
 
     if (!validate(job, this.logger)) {
       return false;

@@ -1,11 +1,10 @@
 import { MongoClient } from 'mongodb';
 
 import { ExecutionInfo } from '../job/ExecutionInfo';
-import { Job, MomoJobStatus } from '../job/Job';
+import { Job, MomoJobStatus, toJobDefinition } from '../job/Job';
 import { JobEntity } from './JobEntity';
 import { Logger } from '../logging/Logger';
 import { Repository } from './Repository';
-import { createJobEntity } from './createJobEntity';
 import { findLatest } from '../job/findLatest';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
@@ -26,6 +25,7 @@ export class JobRepository extends Repository<JobEntity> {
 
   async define(job: Job, logger?: Logger): Promise<void> {
     const { name, interval, concurrency, maxRunning } = job;
+    const jobDefinition = toJobDefinition(job);
 
     logger?.debug('define job', { name, concurrency, interval, maxRunning });
 
@@ -33,12 +33,12 @@ export class JobRepository extends Repository<JobEntity> {
 
     if (old) {
       logger?.debug('update job in database', { name });
-      await this.updateJob(name, createJobEntity(job));
+      await this.updateJob(name, jobDefinition);
       return;
     }
 
     logger?.debug('save job to database', { name });
-    await this.save(createJobEntity(job));
+    await this.save(jobDefinition);
   }
 
   private async keepLatest(name: string, logger?: Logger): Promise<JobEntity | undefined> {

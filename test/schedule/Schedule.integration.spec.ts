@@ -3,8 +3,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection } from '../../src/Connection';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { MomoJob, MongoSchedule } from '../../src';
-import { fromMomoJob } from '../../src/job/Job';
 import { initLoggingForTests } from '../utils/logging';
+import { toJob } from '../../src/job/Job';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -66,7 +66,7 @@ describe('Schedule', () => {
 
   it('lists jobs on the schedule', async () => {
     await jobRepository.save(
-      fromMomoJob({
+      toJob({
         name: 'some job that is in the database but not on the schedule',
         handler: jest.fn(),
         interval: 'one minute',

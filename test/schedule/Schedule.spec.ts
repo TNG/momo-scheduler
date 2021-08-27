@@ -3,8 +3,9 @@ import { anyString, deepEqual, instance, mock, when } from 'ts-mockito';
 import { ExecutionStatus, MomoConnectionOptions, MomoEvent, MomoJob, MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { createJobEntity } from '../../src/repository/createJobEntity';
+import { fromMomoJob } from '../../dist/job/Job';
 import { initLoggingForTests } from '../utils/logging';
+import { toJobDefinition } from '../../src/job/Job';
 
 const executionsRepository = mock(ExecutionsRepository);
 const jobRepository = mock(JobRepository);
@@ -24,18 +25,19 @@ jest.mock('../../src/Connection', () => {
 });
 
 describe('Schedule', () => {
-  const job: MomoJob = {
+  const momoJob: MomoJob = {
     name: 'test job',
     interval: 'one minute',
     handler: jest.fn(),
   };
+  const jobDefinition = toJobDefinition(fromMomoJob(momoJob));
 
   let mongoSchedule: MongoSchedule;
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
-    when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
+    when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
 
     mongoSchedule = await MongoSchedule.connect({ url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);
@@ -55,13 +57,13 @@ describe('Schedule', () => {
   });
 
   it('does not report error when concurrency > maxRunning but maxRunning is not set', async () => {
-    const defined = await mongoSchedule.define({ ...job, concurrency: 3 });
+    const defined = await mongoSchedule.define({ ...momoJob, concurrency: 3 });
 
     expect(defined).toBe(true);
   });
 
   it('counts jobs', async () => {
-    await mongoSchedule.define(job);
+    await mongoSchedule.define(momoJob);
 
     expect(mongoSchedule.count()).toBe(1);
   });
@@ -70,13 +72,13 @@ describe('Schedule', () => {
     const name = 'not started';
     when(jobRepository.find(deepEqual({ name }))).thenResolve([]);
 
-    const notStartedJob = { ...job, name };
+    const notStartedJob = { ...momoJob, name };
     await mongoSchedule.define(notStartedJob);
-    await mongoSchedule.define(job);
+    await mongoSchedule.define(momoJob);
 
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(jobDefinition);
 
-    await mongoSchedule.startJob(job.name);
+    await mongoSchedule.startJob(momoJob.name);
 
     expect(mongoSchedule.count()).toBe(2);
     expect(mongoSchedule.count(true)).toBe(1);
@@ -90,15 +92,15 @@ describe('Schedule', () => {
   });
 
   it('runs a job once', async () => {
-    await mongoSchedule.define(job);
+    await mongoSchedule.define(momoJob);
 
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
-    when(executionsRepository.addExecution(anyString(), job.name, 0)).thenResolve({ added: true, running: 0 });
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(jobDefinition);
+    when(executionsRepository.addExecution(anyString(), momoJob.name, 0)).thenResolve({ added: true, running: 0 });
 
-    const result = await mongoSchedule.run(job.name);
+    const result = await mongoSchedule.run(momoJob.name);
 
     expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
-    expect(job.handler).toHaveBeenCalledTimes(1);
+    expect(momoJob.handler).toHaveBeenCalledTimes(1);
   });
 
   it('skips running job once when job is not found', async () => {
@@ -108,27 +110,27 @@ describe('Schedule', () => {
   });
 
   it('skips running job once when job is not found in repository', async () => {
-    await mongoSchedule.define(job);
+    await mongoSchedule.define(momoJob);
 
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(undefined);
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(undefined);
 
-    const result = await mongoSchedule.run(job.name);
+    const result = await mongoSchedule.run(momoJob.name);
 
     expect(result).toEqual({ status: ExecutionStatus.notFound });
   });
 
   it('skips running job once when maxRunning is reached', async () => {
-    await mongoSchedule.define(job);
+    await mongoSchedule.define(momoJob);
 
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
-    when(executionsRepository.addExecution(anyString(), job.name, 0)).thenResolve({
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(jobDefinition);
+    when(executionsRepository.addExecution(anyString(), momoJob.name, 0)).thenResolve({
       added: false,
       running: 0,
     });
 
-    const result = await mongoSchedule.run(job.name);
+    const result = await mongoSchedule.run(momoJob.name);
 
     expect(result).toEqual({ status: ExecutionStatus.maxRunningReached });
-    expect(job.handler).toHaveBeenCalledTimes(0);
+    expect(momoJob.handler).toHaveBeenCalledTimes(0);
   });
 });

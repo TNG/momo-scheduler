@@ -17,6 +17,15 @@ export interface Job extends JobDefinition {
   handler: Handler;
 }
 
-export function fromMomoJob(job: MomoJob): Job {
+export function toJob(job: MomoJob): Job {
   return { immediate: false, concurrency: 1, maxRunning: 0, ...job };
+}
+
+export function toJobDefinition(job: Job): JobDefinition {
+  return {
+    name: job.name,
+    interval: job.interval,
+    maxRunning: job.maxRunning,
+    concurrency: job.concurrency,
+  };
 }

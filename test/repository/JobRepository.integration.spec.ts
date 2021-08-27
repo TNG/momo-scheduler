@@ -2,18 +2,19 @@ import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { Connection } from '../../src/Connection';
-import { ExecutionInfo, ExecutionStatus, MomoJob } from '../../src';
+import { ExecutionInfo, ExecutionStatus } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { createJobEntity } from '../../src/repository/createJobEntity';
-import { fromMomoJob } from '../../src/job/Job';
+import { toJob, toJobDefinition } from '../../src/job/Job';
 
 describe('JobRepository', () => {
-  const job: MomoJob = {
+  const job = toJob({
     name: 'test job',
     interval: 'one minute',
     handler: () => undefined,
-  };
+  });
+  const jobDefinition = toJobDefinition(job);
+
   let mongo: MongoMemoryServer;
   let connection: Connection;
   let jobRepository: JobRepository;
@@ -24,7 +25,7 @@ describe('JobRepository', () => {
     jobRepository = connection.getJobRepository();
   });
 
-  beforeEach(async () => jobRepository.deleteOne({}));
+  beforeEach(async () => jobRepository.delete());
 
   afterAll(async () => {
     await connection.disconnect();
@@ -54,39 +55,39 @@ describe('JobRepository', () => {
 
   describe('define', () => {
     jest.setTimeout(1000000);
-    const job: MomoJob = { name: 'test', interval: '1 minute', handler: () => 'finished' };
 
     it('saves a job', async () => {
-      await jobRepository.define(fromMomoJob(job));
+      await jobRepository.define(job);
 
-      expect(await jobRepository.find({ name: job.name })).toEqual([
-        { ...createJobEntity(job), _id: expect.anything() },
-      ]);
+      expect(await jobRepository.find({ name: job.name })).toEqual([{ ...jobDefinition, _id: expect.anything() }]);
     });
 
     it('updates a job', async () => {
-      await jobRepository.save(createJobEntity(job));
+      await jobRepository.save(jobDefinition);
 
       const newInterval = '2 minutes';
-      await jobRepository.define(fromMomoJob({ ...job, interval: newInterval }));
+      await jobRepository.define({ ...job, interval: newInterval });
 
       expect(await jobRepository.find({ name: job.name })).toEqual([
-        { ...createJobEntity(job), interval: newInterval, _id: expect.anything() },
+        { ...jobDefinition, interval: newInterval, _id: expect.anything() },
       ]);
     });
 
     it('cleans up duplicate jobs but keeps latest job', async () => {
-      const duplicate = createJobEntity(job);
-      const latest = createJobEntity(job);
-      latest.executionInfo = { lastFinished: DateTime.now().toISO() } as ExecutionInfo;
-      await jobRepository.save(duplicate);
+      const latest = { ...jobDefinition, executionInfo: { lastFinished: DateTime.now().toISO() } as ExecutionInfo };
+      await jobRepository.save(jobDefinition);
       await jobRepository.save(latest);
 
       const newInterval = 'two minutes';
-      await jobRepository.define(fromMomoJob({ ...job, interval: newInterval }));
+      await jobRepository.define({ ...job, interval: newInterval });
 
-      expect(await jobRepository.find({ name: job.name })).toEqual([
-        { ...createJobEntity(job), interval: newInterval, executionInfo: latest.executionInfo, _id: expect.anything() },
+      const actual = await jobRepository.find({ name: job.name });
+      expect(actual).toEqual([
+        {
+          ...latest,
+          interval: newInterval,
+          _id: expect.anything(),
+        },
       ]);
     });
   });
@@ -135,11 +136,13 @@ describe('JobRepository', () => {
 
   describe('updateJob', () => {
     it('does not overwrite executionInfo', async () => {
-      const savedJob = createJobEntity(job);
-      savedJob.executionInfo = {
-        lastStarted: DateTime.now().toISO(),
-        lastFinished: DateTime.now().toISO(),
-        lastResult: { status: ExecutionStatus.finished, handlerResult: 'I was executed' },
+      const savedJob = {
+        ...jobDefinition,
+        executionInfo: {
+          lastStarted: DateTime.now().toISO(),
+          lastFinished: DateTime.now().toISO(),
+          lastResult: { status: ExecutionStatus.finished, handlerResult: 'I was executed' },
+        },
       };
       await jobRepository.save(savedJob);
 
@@ -150,7 +153,7 @@ describe('JobRepository', () => {
     });
 
     it('can update maxRunning to 0', async () => {
-      const savedJob = createJobEntity({ ...job, maxRunning: 3 });
+      const savedJob = toJobDefinition({ ...job, maxRunning: 3 });
       await jobRepository.save(savedJob);
 
       await jobRepository.updateJob(job.name, { maxRunning: 0 });
