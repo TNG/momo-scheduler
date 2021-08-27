@@ -15,13 +15,13 @@ describe('connect', () => {
   it('connects mongo', async () => {
     await connect({ url });
 
-    expect(getConnection()).not.toThrow();
+    expect(getConnection).not.toThrow();
   });
 
   it('disconnects mongo', async () => {
     await connect({ url });
     await disconnect();
 
-    expect(getConnection()).not.toThrow();
+    expect(getConnection).not.toThrow();
   });
 });

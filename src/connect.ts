@@ -13,6 +13,7 @@ export function connectForTest(testClient: MongoClient): void {
 
 export async function connect(connectionOptions: MomoConnectionOptions): Promise<MongoClient> {
   if (mongoClient !== undefined) {
+    console.log('mongoClient already defined', mongoClient);
     return mongoClient;
   }
 
@@ -25,7 +26,9 @@ export async function connect(connectionOptions: MomoConnectionOptions): Promise
 }
 
 export async function disconnect(): Promise<void> {
+  console.log('disconnect momo');
   await mongoClient?.close();
+  mongoClient = undefined;
 }
 
 export function getConnection(): MongoClient {

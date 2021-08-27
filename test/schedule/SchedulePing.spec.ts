@@ -1,15 +1,12 @@
-import { deepEqual, instance, verify, mock } from 'ts-mockito';
+import { deepEqual, instance, mock, verify } from 'ts-mockito';
 
 import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { sleep } from '../utils/sleep';
-import { JobRepository } from '../../src/repository/JobRepository';
 
-let jobRepository: JobRepository;
 let executionsRepository: ExecutionsRepository;
 jest.mock('../../src/repository/getRepository', () => {
   return {
-    getJobRepository: () => instance(jobRepository),
     getExecutionsRepository: () => instance(executionsRepository),
   };
 });

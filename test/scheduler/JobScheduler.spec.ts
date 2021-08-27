@@ -1,23 +1,15 @@
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
+import { mockRepositories } from '../utils/mockRepositories';
+const { executionsRepository, jobRepository } = mockRepositories();
+
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { MomoError, MomoErrorType } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { createJobEntity } from '../utils/createJobEntity';
 import { sleep } from '../utils/sleep';
-
-let jobRepository: JobRepository;
-let executionsRepository: ExecutionsRepository;
-jest.mock('../../src/repository/getRepository', () => {
-  return {
-    getJobRepository: () => instance(jobRepository),
-    getExecutionsRepository: () => instance(executionsRepository),
-  };
-});
 
 describe('JobScheduler', () => {
   const defaultJob = {
@@ -38,9 +30,6 @@ describe('JobScheduler', () => {
     jest.clearAllMocks();
 
     jobExecutor = mock(JobExecutor);
-    jobRepository = mock(JobRepository);
-    executionsRepository = mock(ExecutionsRepository);
-
     when(jobExecutor.execute(anything())).thenResolve();
   });
 

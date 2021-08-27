@@ -2,6 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { clear, MomoConnectionOptions, MomoJob, MongoSchedule } from '../../src';
 import { MongoScheduleBuilder } from '../../src/schedule/MongoScheduleBuilder';
+import { getExecutionsRepository } from '../../src/repository/getRepository';
 
 describe('MongoScheduleBuilder', () => {
   const job1: MomoJob = {
@@ -39,6 +40,7 @@ describe('MongoScheduleBuilder', () => {
 
     afterEach(async () => {
       await clear();
+      await getExecutionsRepository().delete();
       await mongoSchedule.disconnect();
     });
 

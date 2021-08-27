@@ -1,19 +1,28 @@
 import { anyString, deepEqual, instance, mock, verify, when } from 'ts-mockito';
-
-import { ExecutionStatus, MomoEvent, MomoJob, MongoSchedule } from '../../src';
-import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { JobRepository } from '../../src/repository/JobRepository';
+import { MongoClient } from 'mongodb';
+import { ExecutionStatus, MomoConnectionOptions, MomoEvent, MomoJob, MongoSchedule } from '../../src';
 import { initLoggingForTests } from '../utils/logging';
 import { createJobEntity } from '../utils/createJobEntity';
-import { connectForTest } from '../../src/connect';
-import { MongoClient } from 'mongodb';
+import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { JobRepository } from '../../src/repository/JobRepository';
 
-let jobRepository: JobRepository;
-let executionsRepository: ExecutionsRepository;
+const mongoClient = mock(MongoClient);
+
+jest.mock('../../src/connect', () => {
+  return {
+    connect: (_momoConnectionOptions: MomoConnectionOptions) => undefined,
+    disconnect: () => undefined,
+    getConnection: () => instance(mongoClient),
+  };
+});
+
+const executionsRepository = mock(ExecutionsRepository);
+const jobRepository = mock(JobRepository);
+
 jest.mock('../../src/repository/getRepository', () => {
   return {
-    getJobRepository: () => instance(jobRepository),
     getExecutionsRepository: () => instance(executionsRepository),
+    getJobRepository: () => instance(jobRepository),
   };
 });
 
@@ -29,12 +38,8 @@ describe('Schedule', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
 
-    jobRepository = mock(JobRepository);
-    executionsRepository = mock(ExecutionsRepository);
-
     when(jobRepository.find(deepEqual({ name: job.name }))).thenResolve([]);
 
-    connectForTest(instance(mock(MongoClient)));
     mongoSchedule = await MongoSchedule.connect({ url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);
   });
