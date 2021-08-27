@@ -11,11 +11,11 @@ describe('clear', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    await connect({ url: await mongo.getUri() });
+    await connect({ url: mongo.getUri() });
     jobRepository = getJobRepository();
   });
 
-  beforeEach(async () => await jobRepository.delete({}));
+  beforeEach(async () => jobRepository.delete({}));
 
   afterAll(async () => {
     await disconnect();

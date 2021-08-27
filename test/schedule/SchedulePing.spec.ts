@@ -26,6 +26,6 @@ describe('SchedulePing', () => {
     await sleep(SchedulePing.interval);
 
     verify(executionsRepository.ping(scheduleId)).once();
-    verify(executionsRepository.delete(deepEqual({ scheduleId: scheduleId }))).once();
+    verify(executionsRepository.delete(deepEqual({ scheduleId }))).once();
   });
 });

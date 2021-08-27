@@ -26,7 +26,7 @@ describe('check', () => {
   });
 
   it('returns nothing if job not found', async () => {
-    mockRepositories().jobRepository;
+    mockRepositories();
     expect(await check(name)).toBeUndefined();
   });
 

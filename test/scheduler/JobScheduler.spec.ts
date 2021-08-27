@@ -6,7 +6,7 @@ import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository'
 import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobEntity } from '../../src/repository/JobEntity';
-import { MomoError, MomoErrorType } from '../../src';
+import { momoError, MomoErrorType } from '../../src';
 import { mockRepositories } from '../utils/mockRepositories';
 import { loggerForTests } from '../utils/logging';
 import { createJobEntity } from '../utils/createJobEntity';
@@ -124,7 +124,7 @@ describe('JobScheduler', () => {
     it('throws on non-parsable interval', async () => {
       createJob({ interval: 'not an interval' });
 
-      await expect(async () => jobScheduler.start()).rejects.toThrow(MomoError.nonParsableInterval);
+      await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableInterval);
     });
 
     it('reports error when job was removed before scheduling', async () => {
@@ -137,7 +137,7 @@ describe('JobScheduler', () => {
         'cannot schedule job',
         MomoErrorType.scheduleJob,
         { name: job.name },
-        MomoError.jobNotFound
+        momoError.jobNotFound
       );
     });
 
