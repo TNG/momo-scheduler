@@ -1,17 +1,17 @@
-import humanInterval from 'human-interval';
+import { DateTime } from 'luxon';
 import { min } from 'lodash';
+import humanInterval from 'human-interval';
 
+import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { Job } from '../job/Job';
 import { JobExecutor } from '../executor/JobExecutor';
-import { setIntervalWithDelay, TimeoutHandle } from './setIntervalWithDelay';
-import { calculateDelay } from './calculateDelay';
-import { MomoError } from '../logging/error/MomoError';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
 import { Logger } from '../logging/Logger';
-import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { DateTime } from 'luxon';
-import { jobDescriptionFromEntity, MomoJobDescription } from '../job/MomoJobDescription';
+import { MomoErrorType } from '../logging/error/MomoErrorType';
+import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
+import { TimeoutHandle, setIntervalWithDelay } from './setIntervalWithDelay';
+import { calculateDelay } from './calculateDelay';
+import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
+import { momoError } from '../logging/error/MomoError';
 
 export class JobScheduler {
   private jobHandle?: TimeoutHandle;
@@ -46,7 +46,7 @@ export class JobScheduler {
         'get job description - job not found',
         MomoErrorType.scheduleJob,
         { name: this.jobName },
-        MomoError.jobNotFound
+        momoError.jobNotFound
       );
       return;
     }
@@ -66,14 +66,14 @@ export class JobScheduler {
         'cannot schedule job',
         MomoErrorType.scheduleJob,
         { name: this.jobName },
-        MomoError.jobNotFound
+        momoError.jobNotFound
       );
       return;
     }
 
     const interval = humanInterval(jobEntity.interval);
-    if (!interval || isNaN(interval)) {
-      throw MomoError.nonParsableInterval;
+    if (interval === undefined || isNaN(interval)) {
+      throw momoError.nonParsableInterval;
     }
 
     this.interval = jobEntity.interval;
@@ -107,7 +107,7 @@ export class JobScheduler {
           'job not found, skip execution',
           MomoErrorType.executeJob,
           { name: this.jobName },
-          MomoError.jobNotFound
+          momoError.jobNotFound
         );
         return {
           status: ExecutionStatus.notFound,
@@ -131,7 +131,7 @@ export class JobScheduler {
           'job not found, skip execution',
           MomoErrorType.executeJob,
           { name: this.jobName },
-          MomoError.jobNotFound
+          momoError.jobNotFound
         );
         return;
       }
@@ -144,6 +144,7 @@ export class JobScheduler {
       this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
 
       for (let i = 0; i < numToExecute; i++) {
+        // eslint-disable-next-line no-void
         void this.jobExecutor.execute(jobEntity).catch((e) => {
           this.handleUnexpectedError(e);
         });

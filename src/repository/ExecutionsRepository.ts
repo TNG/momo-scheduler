@@ -12,7 +12,7 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
     await this.save(new ExecutionsEntity(scheduleId, DateTime.now().toMillis(), {}));
   }
 
-  async removeJob(scheduleId: string, name: string) {
+  async removeJob(scheduleId: string, name: string): Promise<void> {
     const executionsEntity = await this.findOne({ scheduleId });
     if (executionsEntity === undefined) {
       throw new Error(`executionsEntity not found for scheduleId=${scheduleId}`);

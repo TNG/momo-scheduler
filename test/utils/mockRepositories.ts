@@ -1,8 +1,9 @@
-import { instance, mock } from 'ts-mockito';
 import * as typeorm from 'typeorm';
 import { Connection, MongoRepository } from 'typeorm';
-import { JobRepository } from '../../src/repository/JobRepository';
+import { instance, mock } from 'ts-mockito';
+
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { JobRepository } from '../../src/repository/JobRepository';
 
 export function mockRepositories(): { jobRepository: JobRepository; executionsRepository: ExecutionsRepository } {
   const jobRepository = mock(JobRepository);

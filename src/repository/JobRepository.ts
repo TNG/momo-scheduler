@@ -1,4 +1,5 @@
 import { EntityRepository, MongoRepository } from 'typeorm';
+
 import { JobEntity } from './JobEntity';
 
 @EntityRepository(JobEntity)
@@ -6,28 +7,30 @@ export class JobRepository extends MongoRepository<JobEntity> {
   async updateJob(name: string, update: Partial<JobEntity>): Promise<void> {
     const savedJobs = await this.find({ name });
 
-    if (savedJobs.length === 0) {
+    if (savedJobs[0] === undefined) {
       return;
     }
-    const updatedJob = merge(savedJobs, update);
+    const updatedJob = merge(savedJobs[0], update);
 
     await this.save(updatedJob);
   }
 }
 
-function merge(savedJobs: JobEntity[], { interval, concurrency, maxRunning, executionInfo }: Partial<JobEntity>) {
-  const updatedJob = savedJobs[0];
+function merge(
+  savedJob: JobEntity,
+  { interval, concurrency, maxRunning, executionInfo }: Partial<JobEntity>
+): JobEntity {
   if (interval !== undefined) {
-    updatedJob.interval = interval;
+    savedJob.interval = interval;
   }
   if (concurrency !== undefined) {
-    updatedJob.concurrency = concurrency;
+    savedJob.concurrency = concurrency;
   }
   if (maxRunning !== undefined) {
-    updatedJob.maxRunning = maxRunning;
+    savedJob.maxRunning = maxRunning;
   }
   if (executionInfo !== undefined) {
-    updatedJob.executionInfo = executionInfo;
+    savedJob.executionInfo = executionInfo;
   }
-  return updatedJob;
+  return savedJob;
 }

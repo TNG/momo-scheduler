@@ -1,7 +1,7 @@
 import { anyString, capture, deepEqual, verify } from 'ts-mockito';
 
-import { MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { MongoSchedule } from '../../src';
 import { mockRepositories } from '../utils/mockRepositories';
 
 describe('MongoSchedule', () => {

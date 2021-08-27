@@ -1,11 +1,11 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { clear, MomoJob, MongoSchedule } from '../../src';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { getJobRepository } from '../../src/repository/getRepository';
 import { JobEntity } from '../../src/repository/JobEntity';
-import { withDefaults } from '../../src/job/withDefaults';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { MomoJob, MongoSchedule, clear } from '../../src';
+import { getJobRepository } from '../../src/repository/getRepository';
 import { initLoggingForTests } from '../utils/logging';
+import { withDefaults } from '../../src/job/withDefaults';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -20,7 +20,7 @@ describe('Schedule', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    mongoSchedule = await MongoSchedule.connect({ url: await mongo.getUri() });
+    mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
     jobRepository = getJobRepository();
 
     initLoggingForTests(mongoSchedule);
@@ -96,7 +96,7 @@ describe('Schedule', () => {
 
     const jobs = await mongoSchedule.list();
     expect(jobs).toHaveLength(1);
-    expect(jobs[0].name).toEqual(jobToKeep.name);
+    expect(jobs[0]?.name).toEqual(jobToKeep.name);
 
     const jobEntities = await jobRepository.find({});
     expect(jobEntities).toHaveLength(2);
@@ -122,6 +122,6 @@ describe('Schedule', () => {
 
     const jobEntities = await jobRepository.find({});
     expect(jobEntities).toHaveLength(1);
-    expect(jobEntities[0].name).toEqual(jobToKeep.name);
+    expect(jobEntities[0]?.name).toEqual(jobToKeep.name);
   });
 });

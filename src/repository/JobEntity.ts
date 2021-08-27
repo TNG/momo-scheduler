@@ -1,6 +1,7 @@
 import { Column, Entity, Index, ObjectID, ObjectIdColumn } from 'typeorm';
-import { Job } from '../job/Job';
+
 import { ExecutionInfo } from '../job/ExecutionInfo';
+import { Job } from '../job/Job';
 
 @Entity({ name: 'jobs' })
 export class JobEntity {

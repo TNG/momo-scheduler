@@ -1,4 +1,5 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
+
 import { connect, disconnect } from '../src/connect';
 import { isConnected } from '../src';
 
@@ -11,7 +12,7 @@ describe('connect', () => {
     url = await mongo.getUri();
   });
 
-  afterAll(async () => await mongo.stop());
+  afterAll(async () => mongo.stop());
 
   it('connects mongo', async () => {
     await connect({ url });

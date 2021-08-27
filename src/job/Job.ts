@@ -1,5 +1,5 @@
-import { Handler } from './MomoJob';
 import { ExecutionInfo } from './ExecutionInfo';
+import { Handler } from './MomoJob';
 
 export type MomoJobStatus = JobDefinition & { executionInfo?: ExecutionInfo };
 

@@ -1,13 +1,14 @@
 import TypedEmitter from 'typed-emitter';
-import { MomoEventData, MomoEvents } from './MomoEvents';
+
 import { MomoErrorType } from './error/MomoErrorType';
+import { MomoEventData, MomoEvents } from './MomoEvents';
 
 export interface Logger {
   debug: (message: string, data?: MomoEventData) => void;
   error: (message: string, type: MomoErrorType, data?: MomoEventData, error?: Error) => void;
 }
 
-export function debug(this: TypedEmitter<MomoEvents>, message: string, data?: MomoEventData) {
+export function debug(this: TypedEmitter<MomoEvents>, message: string, data?: MomoEventData): void {
   this.emit('debug', { message, data });
 }
 
@@ -17,6 +18,6 @@ export function error(
   type: MomoErrorType,
   data?: MomoEventData,
   error?: Error
-) {
+): void {
   this.emit('error', { message, type, data, error });
 }

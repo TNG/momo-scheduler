@@ -1,9 +1,10 @@
-import { clear } from '../../src';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+
 import { JobRepository } from '../../src/repository/JobRepository';
+import { clear } from '../../src';
 import { connect, disconnect } from '../../src/connect';
-import { getJobRepository } from '../../src/repository/getRepository';
 import { createJobEntity } from '../utils/createJobEntity';
+import { getJobRepository } from '../../src/repository/getRepository';
 
 describe('clear', () => {
   let mongo: MongoMemoryServer;
@@ -11,11 +12,11 @@ describe('clear', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    await connect({ url: await mongo.getUri() });
+    await connect({ url: mongo.getUri() });
     jobRepository = getJobRepository();
   });
 
-  beforeEach(async () => await jobRepository.delete({}));
+  beforeEach(async () => jobRepository.delete({}));
 
   afterAll(async () => {
     await disconnect();

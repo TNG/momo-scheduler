@@ -1,10 +1,11 @@
-import { mockRepositories } from '../utils/mockRepositories';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { deepEqual, verify, when } from 'ts-mockito';
-import { define } from '../../src/job/define';
-import { createJobEntity } from '../utils/createJobEntity';
 import { DateTime } from 'luxon';
+import { deepEqual, verify, when } from 'ts-mockito';
+
 import { ExecutionInfo } from '../../src';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { createJobEntity } from '../utils/createJobEntity';
+import { define } from '../../src/job/define';
+import { mockRepositories } from '../utils/mockRepositories';
 import { withDefaults } from '../../src/job/withDefaults';
 
 describe('define', () => {

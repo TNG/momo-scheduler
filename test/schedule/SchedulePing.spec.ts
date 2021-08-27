@@ -1,9 +1,9 @@
 import { deepEqual, verify } from 'ts-mockito';
 
-import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { sleep } from '../utils/sleep';
+import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { mockRepositories } from '../utils/mockRepositories';
+import { sleep } from '../utils/sleep';
 
 describe('SchedulePing', () => {
   const scheduleId = '123';
@@ -26,6 +26,6 @@ describe('SchedulePing', () => {
     await sleep(SchedulePing.interval);
 
     verify(executionsRepository.ping(scheduleId)).once();
-    verify(executionsRepository.delete(deepEqual({ scheduleId: scheduleId }))).once();
+    verify(executionsRepository.delete(deepEqual({ scheduleId }))).once();
   });
 });

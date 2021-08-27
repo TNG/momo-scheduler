@@ -1,12 +1,13 @@
 import { DateTime } from 'luxon';
-import { findLatest } from '../../src/job/findLatest';
-import { JobEntity } from '../../src/repository/JobEntity';
-import { Job } from '../../src/job/Job';
-import { ExecutionInfo } from '../../src';
 
-function createJob(lastFinished?: number) {
+import { ExecutionInfo } from '../../src';
+import { Job } from '../../src/job/Job';
+import { JobEntity } from '../../src/repository/JobEntity';
+import { findLatest } from '../../src/job/findLatest';
+
+function createJob(lastFinished?: number): JobEntity {
   const job = JobEntity.from({ name: 'test' } as Job);
-  if (lastFinished) {
+  if (lastFinished !== undefined) {
     job.executionInfo = { lastFinished: DateTime.fromMillis(lastFinished).toISO() } as ExecutionInfo;
   }
   return job;

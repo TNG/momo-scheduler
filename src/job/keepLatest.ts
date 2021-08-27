@@ -1,7 +1,7 @@
 import { JobEntity } from '../repository/JobEntity';
-import { getJobRepository } from '../repository/getRepository';
-import { findLatest } from './findLatest';
 import { Logger } from '../logging/Logger';
+import { findLatest } from './findLatest';
+import { getJobRepository } from '../repository/getRepository';
 
 export async function keepLatest(name: string, logger?: Logger): Promise<JobEntity | undefined> {
   const jobRepository = getJobRepository();

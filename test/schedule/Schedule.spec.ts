@@ -2,12 +2,12 @@ import { anyString, deepEqual, verify, when } from 'ts-mockito';
 
 import { ExecutionStatus, MomoEvent, MomoJob, MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { JobEntity } from '../../src/repository/JobEntity';
 import { Job } from '../../src/job/Job';
+import { JobEntity } from '../../src/repository/JobEntity';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { createJobEntity } from '../utils/createJobEntity';
 import { initLoggingForTests } from '../utils/logging';
 import { mockRepositories } from '../utils/mockRepositories';
-import { createJobEntity } from '../utils/createJobEntity';
 
 describe('Schedule', () => {
   const job: MomoJob = {

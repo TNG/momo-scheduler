@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon';
 import { deepEqual, when } from 'ts-mockito';
 
-import { mockRepositories } from '../utils/mockRepositories';
-import { check, ExecutionInfo, ExecutionStatus } from '../../src';
+import { ExecutionInfo, ExecutionStatus, check } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
+import { mockRepositories } from '../utils/mockRepositories';
 
 describe('check', () => {
   const name = 'test';
@@ -26,7 +26,7 @@ describe('check', () => {
   });
 
   it('returns nothing if job not found', async () => {
-    mockRepositories().jobRepository;
+    mockRepositories();
     expect(await check(name)).toBeUndefined();
   });
 
