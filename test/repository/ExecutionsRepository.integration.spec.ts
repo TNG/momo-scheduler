@@ -20,7 +20,7 @@ describe('ExecutionsRepository', () => {
     executionsRepository = connection.getExecutionsRepository();
   });
 
-  beforeEach(async () => await executionsRepository.delete());
+  beforeEach(async () => executionsRepository.delete());
 
   afterAll(async () => {
     await connection.disconnect();
@@ -34,7 +34,7 @@ describe('ExecutionsRepository', () => {
       const entities = await executionsRepository.find({});
 
       expect(entities).toHaveLength(1);
-      expect(entities[0].scheduleId).toEqual(scheduleId);
+      expect(entities[0]?.scheduleId).toEqual(scheduleId);
     });
   });
 

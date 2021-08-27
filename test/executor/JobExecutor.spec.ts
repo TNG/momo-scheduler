@@ -1,10 +1,10 @@
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
-import { JobExecutor } from '../../src/executor/JobExecutor';
-import { JobRepository } from '../../src/repository/JobRepository';
+import { ExecutionStatus, MomoErrorType } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
-import { ExecutionStatus, MomoErrorType } from '../../src';
+import { JobExecutor } from '../../src/executor/JobExecutor';
+import { JobRepository } from '../../src/repository/JobRepository';
 import { loggerForTests } from '../utils/logging';
 
 describe('JobExecutor', () => {

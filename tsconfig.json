@@ -10,6 +10,7 @@
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "dist",
@@ -17,6 +18,7 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
+    "strictNullChecks": true,
     "target": "es6",
     "types": [
       "jest",

@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { ExecutionInfo, ExecutionStatus, MomoJob } from '../../src';
+
 import { Connection } from '../../src/Connection';
-import { createJobEntity } from '../../src/repository/createJobEntity';
-import { JobRepository } from '../../src/repository/JobRepository';
+import { ExecutionInfo, ExecutionStatus, MomoJob } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { createJobEntity } from '../../src/repository/createJobEntity';
 import { fromMomoJob } from '../../src/job/Job';
 
 describe('JobRepository', () => {
@@ -23,7 +24,7 @@ describe('JobRepository', () => {
     jobRepository = connection.getJobRepository();
   });
 
-  beforeEach(async () => await jobRepository.deleteOne({}));
+  beforeEach(async () => jobRepository.deleteOne({}));
 
   afterAll(async () => {
     await connection.disconnect();
@@ -144,8 +145,8 @@ describe('JobRepository', () => {
 
       await jobRepository.updateJob(job.name, { interval: 'new interval' });
 
-      const [{ executionInfo }] = await jobRepository.find({ name: job.name });
-      expect(executionInfo).toEqual(savedJob.executionInfo);
+      const jobs = await jobRepository.find({ name: job.name });
+      expect(jobs[0]?.executionInfo).toEqual(savedJob.executionInfo);
     });
 
     it('can update maxRunning to 0', async () => {
@@ -154,8 +155,8 @@ describe('JobRepository', () => {
 
       await jobRepository.updateJob(job.name, { maxRunning: 0 });
 
-      const [{ maxRunning }] = await jobRepository.find({ name: job.name });
-      expect(maxRunning).toBe(0);
+      const jobs = await jobRepository.find({ name: job.name });
+      expect(jobs[0]?.maxRunning).toBe(0);
     });
   });
 });

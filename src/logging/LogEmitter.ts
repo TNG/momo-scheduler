@@ -1,7 +1,8 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
+
+import { Logger, debug, error } from './Logger';
 import { MomoEvents } from './MomoEvents';
-import { debug, error, Logger } from './Logger';
 
 export class LogEmitter extends (EventEmitter as new () => TypedEmitter<MomoEvents>) {
   protected readonly logger: Logger;

@@ -1,9 +1,10 @@
 import { v4 as uuid } from 'uuid';
+
+import { Connection, MomoConnectionOptions } from '../Connection';
+import { ExecutionsRepository } from '../repository/ExecutionsRepository';
+import { JobRepository } from '../repository/JobRepository';
 import { Schedule } from './Schedule';
 import { SchedulePing } from './SchedulePing';
-import { Connection, MomoConnectionOptions } from '../Connection';
-import { JobRepository } from '../repository/JobRepository';
-import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 
 export class MongoSchedule extends Schedule {
   private readonly schedulePing: SchedulePing;

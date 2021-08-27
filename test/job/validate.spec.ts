@@ -1,7 +1,7 @@
-import { validate } from '../../src/job/validate';
-import { fromMomoJob, Job } from '../../src/job/Job';
+import { Job, fromMomoJob } from '../../src/job/Job';
 import { Logger } from '../../src/logging/Logger';
-import { MomoError, MomoErrorType } from '../../src';
+import { MomoErrorType, momoError } from '../../src';
+import { validate } from '../../src/job/validate';
 
 describe('validate', () => {
   const logger: Logger = {
@@ -25,7 +25,7 @@ describe('validate', () => {
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name: job.name, interval: job.interval },
-      MomoError.nonParsableInterval
+      momoError.nonParsableInterval
     );
   });
 
@@ -38,7 +38,7 @@ describe('validate', () => {
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name: job.name, interval: job.interval },
-      MomoError.nonParsableInterval
+      momoError.nonParsableInterval
     );
   });
 
@@ -51,7 +51,7 @@ describe('validate', () => {
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name: job.name, maxRunning: -1 },
-      MomoError.invalidMaxRunning
+      momoError.invalidMaxRunning
     );
   });
 
@@ -64,7 +64,7 @@ describe('validate', () => {
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name: job.name, concurrency: job.concurrency },
-      MomoError.invalidConcurrency
+      momoError.invalidConcurrency
     );
   });
 
@@ -83,7 +83,7 @@ describe('validate', () => {
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name: job.name, concurrency: job.concurrency, maxRunning: job.maxRunning },
-      MomoError.invalidConcurrency
+      momoError.invalidConcurrency
     );
   });
 });

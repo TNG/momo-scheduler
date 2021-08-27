@@ -1,4 +1,4 @@
-export type Handler = () => Promise<string | void> | string | void;
+export type Handler = () => Promise<string | undefined | void> | string | undefined | void;
 
 export interface MomoJob {
   immediate?: boolean;

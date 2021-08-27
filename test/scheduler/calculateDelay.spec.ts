@@ -1,8 +1,9 @@
 import { Clock, install } from '@sinonjs/fake-timers';
 import { DateTime } from 'luxon';
+
+import { ExecutionInfo } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { calculateDelay } from '../../src/scheduler/calculateDelay';
-import { ExecutionInfo } from '../../src';
 
 describe('calculateDelay', () => {
   let job: JobEntity;

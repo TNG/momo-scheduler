@@ -34,15 +34,15 @@ export class MomoJobBuilder {
   }
 
   build(): MomoJob {
-    if (!this.momoJob.name) {
+    if (this.momoJob.name === undefined) {
       throw Error('Error: Job must have a specified name');
     }
 
-    if (!this.momoJob.interval) {
+    if (this.momoJob.interval === undefined) {
       throw Error('Error: Job must have a specified interval');
     }
 
-    if (!this.momoJob.handler) {
+    if (this.momoJob.handler === undefined) {
       throw Error('Error: Job must have a specified handler');
     }
 

@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon';
+import { MongoClient } from 'mongodb';
 
 import { ExecutionsEntity } from './ExecutionsEntity';
-import { defaultInterval } from '../schedule/SchedulePing';
-import { MongoClient } from 'mongodb';
 import { Repository } from './Repository';
+import { defaultInterval } from '../schedule/SchedulePing';
 
 export const EXECUTIONS_COLLECTION_NAME = 'executions';
 
@@ -18,7 +18,7 @@ export class ExecutionsRepository extends Repository<ExecutionsEntity> {
     await this.save({ scheduleId, timestamp: DateTime.now().toMillis(), executions: {} });
   }
 
-  async removeJob(scheduleId: string, name: string) {
+  async removeJob(scheduleId: string, name: string): Promise<void> {
     const executionsEntity = await this.findOne({ scheduleId });
     if (executionsEntity === undefined) {
       throw new Error(`executionsEntity not found for scheduleId=${scheduleId}`);

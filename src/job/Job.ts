@@ -1,5 +1,6 @@
-import { Handler, MomoJob } from './MomoJob';
 import { WithoutId } from 'mongodb';
+
+import { Handler, MomoJob } from './MomoJob';
 import { JobEntity } from '../repository/JobEntity';
 
 export type MomoJobStatus = WithoutId<JobEntity>;

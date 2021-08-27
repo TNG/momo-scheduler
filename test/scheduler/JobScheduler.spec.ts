@@ -1,14 +1,14 @@
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
-import { JobScheduler } from '../../src/scheduler/JobScheduler';
+import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
-import { MomoError, MomoErrorType } from '../../src';
-import { loggerForTests } from '../utils/logging';
-import { createJobEntity } from '../../src/repository/createJobEntity';
-import { sleep } from '../utils/sleep';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { JobScheduler } from '../../src/scheduler/JobScheduler';
+import { MomoErrorType, momoError } from '../../src';
+import { createJobEntity } from '../../src/repository/createJobEntity';
+import { loggerForTests } from '../utils/logging';
+import { sleep } from '../utils/sleep';
 
 describe('JobScheduler', () => {
   const defaultJob = {
@@ -120,7 +120,7 @@ describe('JobScheduler', () => {
     it('throws on non-parsable interval', async () => {
       createJob({ interval: 'not an interval' });
 
-      await expect(async () => jobScheduler.start()).rejects.toThrow(MomoError.nonParsableInterval);
+      await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableInterval);
     });
 
     it('reports error when job was removed before scheduling', async () => {
@@ -133,7 +133,7 @@ describe('JobScheduler', () => {
         'cannot schedule job',
         MomoErrorType.scheduleJob,
         { name: job.name },
-        MomoError.jobNotFound
+        momoError.jobNotFound
       );
     });
 

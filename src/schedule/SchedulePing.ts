@@ -1,5 +1,5 @@
-import { Logger } from '../logging/Logger';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
+import { Logger } from '../logging/Logger';
 
 export const defaultInterval = 60 * 1000;
 

@@ -1,6 +1,7 @@
-import { JobRepository, JOBS_COLLECTION_NAME } from './repository/JobRepository';
 import { MongoClient } from 'mongodb';
+
 import { ExecutionsRepository } from './repository/ExecutionsRepository';
+import { JOBS_COLLECTION_NAME, JobRepository } from './repository/JobRepository';
 
 export interface MomoConnectionOptions {
   url: string;
@@ -28,17 +29,17 @@ export class Connection {
     if (this.executionsRepository === undefined) {
       this.executionsRepository = new ExecutionsRepository(this.mongoClient);
     }
-    return this.executionsRepository!;
+    return this.executionsRepository;
   }
 
   getJobRepository(): JobRepository {
     if (this.jobRepository === undefined) {
       this.jobRepository = new JobRepository(this.mongoClient);
     }
-    return this.jobRepository!;
+    return this.jobRepository;
   }
 
-  async disconnect() {
+  async disconnect(): Promise<void> {
     await this.mongoClient.close();
   }
 

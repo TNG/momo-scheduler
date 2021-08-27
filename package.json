@@ -16,8 +16,8 @@
     "test": "jest --detectOpenHandles --forceExit",
     "test:unit": "npm run test \"^((?!\\.integration\\.).)*$\"",
     "test:integration": "npm run test integration",
-    "lint": "prettier --check \"**/*.{ts,tsx}\" --ignore-path \".gitignore\" && eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx}\" --ignore-path \".gitignore\" && eslint . --fix"
+    "lint": "prettier --check \"**/*.ts\"  && eslint --ext .ts,.js,.json .",
+    "format": "prettier --write \"**/*.ts\" && eslint --fix --ext .ts,.js,.json ."
   },
   "dependencies": {
     "human-interval": "2.0.1",
@@ -46,6 +46,7 @@
     "eslint-plugin-markdown": "2.2.0",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-prettier": "3.4.0",
+    "eslint-plugin-sort-imports-es6-autofix": "0.6.0",
     "jest": "27.0.6",
     "mongodb-memory-server": "7.2.1",
     "pino": "6.12.0",

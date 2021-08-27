@@ -1,10 +1,10 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { MomoJob, MongoSchedule } from '../../src';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { initLoggingForTests } from '../utils/logging';
-import { fromMomoJob } from '../../src/job/Job';
 import { Connection } from '../../src/Connection';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { MomoJob, MongoSchedule } from '../../src';
+import { fromMomoJob } from '../../src/job/Job';
+import { initLoggingForTests } from '../utils/logging';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -97,7 +97,7 @@ describe('Schedule', () => {
 
     const jobs = await mongoSchedule.list();
     expect(jobs).toHaveLength(1);
-    expect(jobs[0].name).toEqual(jobToKeep.name);
+    expect(jobs[0]?.name).toEqual(jobToKeep.name);
 
     const jobEntities = await jobRepository.find({});
     expect(jobEntities).toHaveLength(2);
@@ -123,6 +123,6 @@ describe('Schedule', () => {
 
     const jobEntities = await jobRepository.find({});
     expect(jobEntities).toHaveLength(1);
-    expect(jobEntities[0].name).toEqual(jobToKeep.name);
+    expect(jobEntities[0]?.name).toEqual(jobToKeep.name);
   });
 });

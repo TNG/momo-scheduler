@@ -1,8 +1,8 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
+import { Connection } from '../../src/Connection';
 import { MomoConnectionOptions, MomoJob, MongoSchedule } from '../../src';
 import { MongoScheduleBuilder } from '../../src/schedule/MongoScheduleBuilder';
-import { Connection } from '../../src/Connection';
 
 describe('MongoScheduleBuilder', () => {
   const job1: MomoJob = {
@@ -52,8 +52,8 @@ describe('MongoScheduleBuilder', () => {
 
       const jobList = await mongoSchedule.list();
       expect(jobList).toHaveLength(1);
-      expect(jobList[0].name).toEqual(job1.name);
-      expect(jobList[0].interval).toEqual(job1.interval);
+      expect(jobList[0]?.name).toEqual(job1.name);
+      expect(jobList[0]?.interval).toEqual(job1.interval);
     });
 
     it('can build with multiple jobs and a connection', async () => {
@@ -66,12 +66,12 @@ describe('MongoScheduleBuilder', () => {
 
       const jobList = await mongoSchedule.list();
       expect(jobList).toHaveLength(3);
-      expect(jobList[0].name).toEqual(job1.name);
-      expect(jobList[0].interval).toEqual(job1.interval);
-      expect(jobList[1].name).toEqual(job2.name);
-      expect(jobList[1].interval).toEqual(job2.interval);
-      expect(jobList[2].name).toEqual(job3.name);
-      expect(jobList[2].interval).toEqual(job3.interval);
+      expect(jobList[0]?.name).toEqual(job1.name);
+      expect(jobList[0]?.interval).toEqual(job1.interval);
+      expect(jobList[1]?.name).toEqual(job2.name);
+      expect(jobList[1]?.interval).toEqual(job2.interval);
+      expect(jobList[2]?.name).toEqual(job3.name);
+      expect(jobList[2]?.interval).toEqual(job3.interval);
     });
   });
 

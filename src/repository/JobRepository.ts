@@ -1,11 +1,12 @@
 import { MongoClient } from 'mongodb';
-import { JobEntity } from './JobEntity';
-import { Repository } from './Repository';
+
 import { ExecutionInfo } from '../job/ExecutionInfo';
 import { Job, MomoJobStatus } from '../job/Job';
+import { JobEntity } from './JobEntity';
 import { Logger } from '../logging/Logger';
-import { findLatest } from '../job/findLatest';
+import { Repository } from './Repository';
 import { createJobEntity } from './createJobEntity';
+import { findLatest } from '../job/findLatest';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
 
