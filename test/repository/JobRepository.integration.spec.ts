@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+
 import { ExecutionStatus, MomoJob } from '../../src';
+import { JobRepository } from '../../src/repository/JobRepository';
 import { connect, disconnect } from '../../src/connect';
 import { createJobEntity } from '../utils/createJobEntity';
-import { JobRepository } from '../../src/repository/JobRepository';
 import { getJobRepository } from '../../src/repository/getRepository';
 
 describe('JobRepository', () => {

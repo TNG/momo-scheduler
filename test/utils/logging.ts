@@ -1,8 +1,9 @@
-import TypedEmitter from 'typed-emitter';
 import Pino from 'pino';
-import { MomoEventData, MomoEvents } from '../../src/logging/MomoEvents';
+import TypedEmitter from 'typed-emitter';
+
 import { Logger } from '../../src/logging/Logger';
 import { MomoErrorType } from '../../src';
+import { MomoEventData, MomoEvents } from '../../src/logging/MomoEvents';
 
 const logger = Pino();
 const errorLogger = Pino({ level: 'error' });

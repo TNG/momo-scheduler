@@ -1,8 +1,9 @@
 import humanInterval from 'human-interval';
+
 import { Job } from './Job';
-import { momoError } from '../logging/error/MomoError';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { Logger } from '../logging/Logger';
+import { MomoErrorType } from '../logging/error/MomoErrorType';
+import { momoError } from '../logging/error/MomoError';
 
 export function validate({ name, interval, concurrency, maxRunning }: Job, logger?: Logger): boolean {
   if (maxRunning < 0) {

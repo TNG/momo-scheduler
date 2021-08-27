@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+
 import { JobEntity } from '../repository/JobEntity';
 
 function compareLastFinished(left: JobEntity, right: JobEntity): JobEntity {

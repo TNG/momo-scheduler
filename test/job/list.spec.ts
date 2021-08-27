@@ -1,7 +1,7 @@
 import { when } from 'ts-mockito';
 
-import { mockRepositories } from '../utils/mockRepositories';
 import { ExecutionInfo, list } from '../../src';
+import { mockRepositories } from '../utils/mockRepositories';
 
 describe('list', () => {
   afterEach(() => jest.resetAllMocks());

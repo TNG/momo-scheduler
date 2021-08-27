@@ -1,8 +1,8 @@
-import { validate } from '../../src/job/validate';
-import { withDefaults } from '../../src/job/withDefaults';
 import { Job } from '../../src/job/Job';
 import { Logger } from '../../src/logging/Logger';
-import { momoError, MomoErrorType } from '../../src';
+import { MomoErrorType, momoError } from '../../src';
+import { validate } from '../../src/job/validate';
+import { withDefaults } from '../../src/job/withDefaults';
 
 describe('validate', () => {
   const logger: Logger = {

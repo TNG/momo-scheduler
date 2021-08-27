@@ -1,13 +1,13 @@
 import { anything, capture, verify, when } from 'ts-mockito';
 
-import { JobExecutor } from '../../src/executor/JobExecutor';
-import { JobEntity } from '../../src/repository/JobEntity';
-import { JobRepository } from '../../src/repository/JobRepository';
+import { ExecutionStatus, MomoErrorType } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job } from '../../src/job/Job';
-import { ExecutionStatus, MomoErrorType } from '../../src';
-import { mockRepositories } from '../utils/mockRepositories';
+import { JobEntity } from '../../src/repository/JobEntity';
+import { JobExecutor } from '../../src/executor/JobExecutor';
+import { JobRepository } from '../../src/repository/JobRepository';
 import { loggerForTests } from '../utils/logging';
+import { mockRepositories } from '../utils/mockRepositories';
 
 describe('JobExecutor', () => {
   const scheduleId = '123';

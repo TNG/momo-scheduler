@@ -1,8 +1,9 @@
 import { Connection, createConnection, getConnection } from 'typeorm';
-import { JobEntity } from './repository/JobEntity';
-import { JobRepository } from './repository/JobRepository';
+
 import { ExecutionsEntity } from './repository/ExecutionsEntity';
 import { ExecutionsRepository } from './repository/ExecutionsRepository';
+import { JobEntity } from './repository/JobEntity';
+import { JobRepository } from './repository/JobRepository';
 import { isConnected } from './isConnected';
 
 export const connectionName = 'momo';

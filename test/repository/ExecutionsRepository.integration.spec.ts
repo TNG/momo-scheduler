@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { connect, disconnect } from '../../src/connect';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { connect, disconnect } from '../../src/connect';
 import { getExecutionsRepository } from '../../src/repository/getRepository';
 import { sleep } from '../utils/sleep';
 

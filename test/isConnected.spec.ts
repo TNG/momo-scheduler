@@ -1,5 +1,5 @@
-import { mockRepositories } from './utils/mockRepositories';
 import { isConnected } from '../src';
+import { mockRepositories } from './utils/mockRepositories';
 
 describe('isConnected', () => {
   beforeEach(() => jest.restoreAllMocks());

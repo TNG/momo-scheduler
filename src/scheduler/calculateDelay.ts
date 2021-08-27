@@ -1,6 +1,7 @@
-import { JobEntity } from '../repository/JobEntity';
 import { DateTime } from 'luxon';
 import { max } from 'lodash';
+
+import { JobEntity } from '../repository/JobEntity';
 
 export function calculateDelay(millisecondsInterval: number, immediate: boolean, job: JobEntity): number {
   const nextStart = calculateNextStart(millisecondsInterval, job);
