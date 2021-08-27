@@ -65,6 +65,8 @@ If the parameter is omitted, all jobs are started/stopped/cancelled/removed.
 | removeJob  | `string`              | Stops and removes the job with the provided name (if on the schedule) from both the schedule and the database. |
 | count      | `boolean` (optional)  | Returns the number of jobs on the schedule. Only started jobs are counted if parameter is set to true. |
 | list       |                       | Returns descriptions of all jobs on the schedule. |
+| check      | `string`              | Returns execution information of the job with the provided name from the database. This also works if the job is not on the schedule. |
+| clear      |                       | Removes all jobs from the database. This also removes jobs that are not on this schedule, but were defined by other schedules. However, does NOT stop job executions - this will cause currently running jobs to fail. Consider using stop/cancel/remove methods instead! |
 | get        | `string`              | Returns a description of the job. Returns undefined if no job with the provided name is defined. |
 | run        | `string`              | Runs the job with the provided name once, immediately. Note that `maxRunning` is respected, ie. the execution is skipped if the job is already running `maxRunning` times. |
 | on         | `'debug'` or `'error'`, `function` | Define a callback for debug or error events. |
@@ -102,18 +104,6 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 | both  | data (optional)         | `{ name?: string; ... }` | Contains additional information like the name of the affected job. |
 | error | type                    | `MomoErrorType`          | `'defining job failed'` or `'scheduling job failed'` or `'executing job failed'` or `'stopping job failed'` |
 | error | error (optional)        | `Error`                  | The root cause of the error. |
-
-### Other functions
-
-momo-scheduler also includes some utility functions to retrieve information on momo jobs from its database:
-
-| function      | parameter | description |
-|---------------|-----------|-------------|
-| `connect`     | `{ url: string }` | Establishes a connection with MongoDB. If you want to schedule jobs, you should use `MongoSchedule.connect` instead to create a connected schedule. |
-| `isConnected` |           | Returns true if a connection to MongoDB was established and false otherwise. | 
-| `check`       | `string`  | Retrieves information on the last job execution. Returns undefined if job cannot be found or was never executed. |
-| `list`        |           | Lists all jobs. |
-| `clear`       |           | Removes all jobs from the database. Do not use this if MongoSchedule has already been started. Subsequent execution of all jobs will fail! | 
 
 ## License
 

@@ -2,14 +2,14 @@ import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { v4 as uuid } from 'uuid';
 
-import { clear, ExecutionStatus, MomoError, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
+import { ExecutionStatus, MomoError, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { getExecutionsRepository, getJobRepository } from '../../src/repository/getRepository';
 import { sleep } from '../utils/sleep';
 import { waitFor } from '../utils/waitFor';
 import { initLoggingForTests } from '../utils/logging';
-import { createJobEntity } from '../utils/createJobEntity';
+import { createJobEntity } from '../../src/repository/createJobEntity';
+import { Connection } from '../../src/Connection';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -27,12 +27,16 @@ describe('Momo', () => {
   let jobRepository: JobRepository;
   let executionsRepository: ExecutionsRepository;
   let mongoSchedule: MongoSchedule;
+  let connection: Connection;
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    mongoSchedule = await MongoSchedule.connect({ url: await mongo.getUri() });
-    jobRepository = getJobRepository();
-    executionsRepository = getExecutionsRepository();
+
+    connection = await Connection.create({ url: mongo.getUri() });
+    jobRepository = connection.getJobRepository();
+    executionsRepository = connection.getExecutionsRepository();
+
+    mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
 
     initLoggingForTests(mongoSchedule);
 
@@ -44,11 +48,12 @@ describe('Momo', () => {
     // eslint-disable-next-line jest/no-standalone-expect
     expect(mongoSchedule.getUnexpectedErrorCount()).toBe(0);
     await mongoSchedule.cancel();
-    await clear();
+    await mongoSchedule.clear();
   });
 
   afterAll(async () => {
     await mongoSchedule.disconnect();
+    await connection.disconnect();
     await mongo.stop();
   });
 

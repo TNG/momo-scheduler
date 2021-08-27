@@ -2,26 +2,27 @@ import { anyString, capture, deepEqual, instance, mock, verify } from 'ts-mockit
 
 import { MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { MomoConnectionOptions } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { connectForTest } from '../../src/connect';
-import { MongoClient } from 'mongodb';
 
-let jobRepository: JobRepository;
-let executionsRepository: ExecutionsRepository;
-jest.mock('../../src/repository/getRepository', () => {
+const executionsRepository = mock(ExecutionsRepository);
+jest.mock('../../src/Connection', () => {
   return {
-    getJobRepository: () => instance(jobRepository),
-    getExecutionsRepository: () => instance(executionsRepository),
+    Connection: {
+      create: async (_options: MomoConnectionOptions) => {
+        return {
+          getJobRepository: () => instance(mock(JobRepository)),
+          getExecutionsRepository: () => instance(executionsRepository),
+          disconnect: async () => undefined,
+        };
+      },
+    },
   };
 });
 
 describe('MongoSchedule', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
-
-    connectForTest(instance(mock(MongoClient)));
-    jobRepository = mock(JobRepository);
-    executionsRepository = mock(ExecutionsRepository);
   });
 
   it('connects and starts the ping and disconnects and stops the ping', async () => {

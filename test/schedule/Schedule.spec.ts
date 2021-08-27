@@ -1,28 +1,23 @@
-import { anyString, deepEqual, instance, mock, verify, when } from 'ts-mockito';
-import { MongoClient } from 'mongodb';
+import { anyString, deepEqual, instance, mock, when } from 'ts-mockito';
 import { ExecutionStatus, MomoConnectionOptions, MomoEvent, MomoJob, MongoSchedule } from '../../src';
 import { initLoggingForTests } from '../utils/logging';
-import { createJobEntity } from '../utils/createJobEntity';
+import { createJobEntity } from '../../src/repository/createJobEntity';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 
-const mongoClient = mock(MongoClient);
-
-jest.mock('../../src/connect', () => {
-  return {
-    connect: (_momoConnectionOptions: MomoConnectionOptions) => undefined,
-    disconnect: () => undefined,
-    getConnection: () => instance(mongoClient),
-  };
-});
-
 const executionsRepository = mock(ExecutionsRepository);
 const jobRepository = mock(JobRepository);
-
-jest.mock('../../src/repository/getRepository', () => {
+jest.mock('../../src/Connection', () => {
   return {
-    getExecutionsRepository: () => instance(executionsRepository),
-    getJobRepository: () => instance(jobRepository),
+    Connection: {
+      create: async (_options: MomoConnectionOptions) => {
+        return {
+          getJobRepository: () => instance(jobRepository),
+          getExecutionsRepository: () => instance(executionsRepository),
+          disconnect: async () => undefined,
+        };
+      },
+    },
   };
 });
 
@@ -58,9 +53,9 @@ describe('Schedule', () => {
   });
 
   it('does not report error when concurrency > maxRunning but maxRunning is not set', async () => {
-    await mongoSchedule.define({ ...job, concurrency: 3 });
+    const defined = await mongoSchedule.define({ ...job, concurrency: 3 });
 
-    verify(jobRepository.save(deepEqual({ ...job, maxRunning: 0, concurrency: 3, immediate: false }))).once();
+    expect(defined).toBe(true);
   });
 
   it('counts jobs', async () => {

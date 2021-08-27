@@ -4,21 +4,19 @@ import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { sleep } from '../utils/sleep';
 
-let executionsRepository: ExecutionsRepository;
-jest.mock('../../src/repository/getRepository', () => {
-  return {
-    getExecutionsRepository: () => instance(executionsRepository),
-  };
-});
-
 describe('SchedulePing', () => {
   const scheduleId = '123';
-  const schedulePing = new SchedulePing(scheduleId, { debug: jest.fn(), error: jest.fn() });
+
+  let executionsRepository: ExecutionsRepository;
+  let schedulePing: SchedulePing;
 
   beforeAll(() => {
     SchedulePing.interval = 1000;
     executionsRepository = mock(ExecutionsRepository);
+    schedulePing = new SchedulePing(scheduleId, instance(executionsRepository), { debug: jest.fn(), error: jest.fn() });
   });
+
+  beforeEach(jest.clearAllMocks);
 
   it('starts, pings, cleans and stops', async () => {
     schedulePing.start();

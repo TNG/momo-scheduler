@@ -1,10 +1,10 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { clear, MomoJob, MongoSchedule } from '../../src';
+import { MomoJob, MongoSchedule } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { getJobRepository } from '../../src/repository/getRepository';
 import { initLoggingForTests } from '../utils/logging';
 import { fromMomoJob } from '../../src/job/Job';
+import { Connection } from '../../src/Connection';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -14,24 +14,28 @@ describe('Schedule', () => {
   };
 
   let mongo: MongoMemoryServer;
+  let connection: Connection;
   let jobRepository: JobRepository;
   let mongoSchedule: MongoSchedule;
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    mongoSchedule = await MongoSchedule.connect({ url: await mongo.getUri() });
-    jobRepository = getJobRepository();
+    connection = await Connection.create({ url: mongo.getUri() });
+    jobRepository = connection.getJobRepository();
+
+    mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
 
     initLoggingForTests(mongoSchedule);
   });
 
   beforeEach(async () => {
     await mongoSchedule.cancel();
-    await clear();
+    await mongoSchedule.clear();
   });
 
   afterAll(async () => {
     await mongoSchedule.disconnect();
+    await connection.disconnect();
     await mongo.stop();
   });
 

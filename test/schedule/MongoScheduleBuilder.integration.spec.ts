@@ -1,8 +1,8 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { clear, MomoConnectionOptions, MomoJob, MongoSchedule } from '../../src';
+import { MomoConnectionOptions, MomoJob, MongoSchedule } from '../../src';
 import { MongoScheduleBuilder } from '../../src/schedule/MongoScheduleBuilder';
-import { getExecutionsRepository } from '../../src/repository/getRepository';
+import { Connection } from '../../src/Connection';
 
 describe('MongoScheduleBuilder', () => {
   const job1: MomoJob = {
@@ -25,22 +25,25 @@ describe('MongoScheduleBuilder', () => {
 
   let mongo: MongoMemoryServer;
   let connectionOptions: MomoConnectionOptions;
+  let connection: Connection;
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     connectionOptions = { url: mongo.getUri() };
+    connection = await Connection.create(connectionOptions);
   });
 
   afterAll(async () => {
     await mongo.stop();
+    await connection.disconnect();
   });
 
   describe('build a mongoSchedule', () => {
     let mongoSchedule: MongoSchedule;
 
     afterEach(async () => {
-      await clear();
-      await getExecutionsRepository().delete();
+      await connection.getJobRepository().delete();
+      await connection.getExecutionsRepository().delete();
       await mongoSchedule.disconnect();
     });
 

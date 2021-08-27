@@ -7,17 +7,9 @@ import { Job } from '../../src/job/Job';
 import { ExecutionStatus, MomoErrorType } from '../../src';
 import { loggerForTests } from '../utils/logging';
 
-let jobRepository: JobRepository;
-let executionsRepository: ExecutionsRepository;
-jest.mock('../../src/repository/getRepository', () => {
-  return {
-    getJobRepository: () => instance(jobRepository),
-    getExecutionsRepository: () => instance(executionsRepository),
-  };
-});
-
 describe('JobExecutor', () => {
   const scheduleId = '123';
+  const errorFn = jest.fn();
   const handler = jest.fn();
   const job: Job = {
     name: 'test',
@@ -28,7 +20,8 @@ describe('JobExecutor', () => {
     handler,
   };
 
-  const errorFn = jest.fn();
+  let jobRepository: JobRepository;
+  let executionsRepository: ExecutionsRepository;
   let jobExecutor: JobExecutor;
 
   beforeEach(() => {
@@ -36,12 +29,19 @@ describe('JobExecutor', () => {
 
     jobRepository = mock(JobRepository);
     executionsRepository = mock(ExecutionsRepository);
+
     when(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).thenResolve({
       added: true,
       running: 0,
     });
 
-    jobExecutor = new JobExecutor(job.handler, scheduleId, loggerForTests(errorFn));
+    jobExecutor = new JobExecutor(
+      job.handler,
+      scheduleId,
+      instance(executionsRepository),
+      instance(jobRepository),
+      loggerForTests(errorFn)
+    );
   });
 
   it('executes job', async () => {

@@ -1,5 +1,5 @@
 import { MomoJob } from '../job/MomoJob';
-import { MomoConnectionOptions } from '../connect';
+import { MomoConnectionOptions } from '../Connection';
 import { MongoSchedule } from './MongoSchedule';
 
 export class MongoScheduleBuilder {

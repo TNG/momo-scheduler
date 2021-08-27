@@ -2,18 +2,22 @@ import { sum } from 'lodash';
 import { JobScheduler } from '../scheduler/JobScheduler';
 import { MomoJob } from '../job/MomoJob';
 import { validate } from '../job/validate';
-import { define } from '../job/define';
 import { LogEmitter } from '../logging/LogEmitter';
-import { getJobRepository } from '../repository/getRepository';
-import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
+import { ExecutionInfo, ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { MomoJobDescription } from '../job/MomoJobDescription';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { fromMomoJob } from '../job/Job';
+import { JobRepository } from '../repository/JobRepository';
+import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 
 export class Schedule extends LogEmitter {
   private jobSchedulers: { [name: string]: JobScheduler } = {};
 
-  constructor(private readonly scheduleId: string) {
+  constructor(
+    private readonly scheduleId: string,
+    private readonly executionsRepository: ExecutionsRepository,
+    private readonly jobRepository: JobRepository
+  ) {
     super();
   }
 
@@ -46,18 +50,27 @@ export class Schedule extends LogEmitter {
    * the scheduler has to be started again to pick up the change.
    *
    * @param momoJob the job to define
+   * @returns true if jobs was defined, false if the job was invalid
    */
-  public async define(momoJob: MomoJob): Promise<void> {
+  public async define(momoJob: MomoJob): Promise<boolean> {
     const job = fromMomoJob(momoJob);
 
     if (!validate(job, this.logger)) {
-      return;
+      return false;
     }
     await this.stopJob(job.name);
 
-    await define(job, this.logger);
+    await this.jobRepository.define(job, this.logger);
 
-    this.jobSchedulers[job.name] = JobScheduler.forJob(this.scheduleId, job, this.logger);
+    this.jobSchedulers[job.name] = JobScheduler.forJob(
+      this.scheduleId,
+      job,
+      this.logger,
+      this.executionsRepository,
+      this.jobRepository
+    );
+
+    return true;
   }
 
   /**
@@ -170,7 +183,7 @@ export class Schedule extends LogEmitter {
   public async removeJob(name: string): Promise<void> {
     await this.cancelJob(name);
     this.logger.debug('remove', { name });
-    await getJobRepository().deleteOne({ name });
+    await this.jobRepository.deleteOne({ name });
   }
 
   /**
@@ -180,7 +193,7 @@ export class Schedule extends LogEmitter {
     const names = Object.keys(this.jobSchedulers);
     await this.cancel();
     this.logger.debug('remove all jobs', { names: names.join(', ') });
-    await getJobRepository().delete({ name: { $in: names } });
+    await this.jobRepository.delete({ name: { $in: names } });
   }
 
   /**
@@ -201,6 +214,26 @@ export class Schedule extends LogEmitter {
     return (
       await Promise.all(Object.values(this.jobSchedulers).map((jobScheduler) => jobScheduler.getJobDescription()))
     ).filter((jobDescription): jobDescription is MomoJobDescription => jobDescription !== undefined);
+  }
+  /**
+   * Retrieves execution information about the job from the database. Returns undefined if the job cannot be found or was never executed.
+   *
+   * @param name the job to check
+   */
+  public async check(name: string): Promise<ExecutionInfo | undefined> {
+    return this.jobRepository.check(name);
+  }
+
+  /**
+   * Removes all jobs from the database.
+   *
+   * NOTE:
+   * This also removes jobs that are not on this schedule, but were defined by other schedules.
+   * However, does NOT stop job executions - this will cause currently running jobs to fail.
+   * Consider using stop/cancel/remove methods instead!
+   */
+  public async clear(): Promise<void> {
+    await this.jobRepository.delete();
   }
 
   /**
