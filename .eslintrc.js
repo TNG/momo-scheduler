@@ -185,5 +185,5 @@ module.exports = {
     'use-isnan': 'error',
     'valid-typeof': 'off',
   },
-  ignorePatterns: ['dist', 'tsconfig.json', 'tsconfig.eslint.json'],
+  ignorePatterns: ['dist', 'tsconfig.json', 'tsconfig.eslint.json', 'package.json', 'package-lock.json', 'ort'],
 };
