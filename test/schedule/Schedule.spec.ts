@@ -3,9 +3,8 @@ import { anyString, deepEqual, instance, mock, when } from 'ts-mockito';
 import { ExecutionStatus, MomoConnectionOptions, MomoEvent, MomoJob, MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { fromMomoJob } from '../../dist/job/Job';
+import { toJob, toJobDefinition } from '../../src/job/Job';
 import { initLoggingForTests } from '../utils/logging';
-import { toJobDefinition } from '../../src/job/Job';
 
 const executionsRepository = mock(ExecutionsRepository);
 const jobRepository = mock(JobRepository);
@@ -30,7 +29,7 @@ describe('Schedule', () => {
     interval: 'one minute',
     handler: jest.fn(),
   };
-  const jobDefinition = toJobDefinition(fromMomoJob(momoJob));
+  const jobDefinition = toJobDefinition(toJob(momoJob));
 
   let mongoSchedule: MongoSchedule;
 

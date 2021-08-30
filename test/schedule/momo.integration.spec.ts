@@ -6,10 +6,9 @@ import { Connection } from '../../src/Connection';
 import { ExecutionStatus, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule, momoError } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { fromMomoJob } from '../../dist/job/Job';
+import { toJob, toJobDefinition } from '../../src/job/Job';
 import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
-import { toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
 
 interface TestJobHandler {
@@ -115,7 +114,7 @@ describe('Momo', () => {
 
     it('executes job that was executed before', async () => {
       const jobEntity = {
-        ...toJobDefinition(fromMomoJob(momoJob)),
+        ...toJobDefinition(toJob(momoJob)),
         executionInfo: {
           lastStarted: DateTime.now().toISO(),
           lastFinished: DateTime.now().toISO(),
