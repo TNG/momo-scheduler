@@ -3,8 +3,8 @@ import { anyString, deepEqual, instance, mock, when } from 'ts-mockito';
 import { ExecutionStatus, MomoConnectionOptions, MomoEvent, MomoJob, MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { toJob, toJobDefinition } from '../../src/job/Job';
 import { initLoggingForTests } from '../utils/logging';
+import { toJob, toJobDefinition } from '../../src/job/Job';
 
 const executionsRepository = mock(ExecutionsRepository);
 const jobRepository = mock(JobRepository);

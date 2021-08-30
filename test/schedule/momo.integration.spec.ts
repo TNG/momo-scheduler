@@ -6,9 +6,9 @@ import { Connection } from '../../src/Connection';
 import { ExecutionStatus, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule, momoError } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { toJob, toJobDefinition } from '../../src/job/Job';
 import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
+import { toJob, toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
 
 interface TestJobHandler {

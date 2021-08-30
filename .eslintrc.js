@@ -6,13 +6,7 @@ module.exports = {
     project: 'tsconfig.eslint.json',
     sourceType: 'module',
   },
-  plugins: [
-    '@typescript-eslint',
-    'eslint-plugin-import',
-    'eslint-plugin-jsdoc',
-    'eslint-plugin-prefer-arrow',
-    'sort-imports-es6-autofix',
-  ],
+  plugins: ['@typescript-eslint', 'eslint-plugin-import', 'eslint-plugin-jsdoc', 'eslint-plugin-prefer-arrow'],
   rules: {
     '@typescript-eslint/adjacent-overload-signatures': 'error',
     '@typescript-eslint/array-type': [
@@ -192,7 +186,6 @@ module.exports = {
     radix: 'error',
     semi: 'off', // use @typescript-eslint/semi instead
     'sort-imports': ['error', { allowSeparatedGroups: true, ignoreDeclarationSort: true }],
-    'sort-imports-es6-autofix/sort-imports-es6': 'error',
     'space-before-function-paren': 'off',
     'space-in-parens': ['error', 'never'],
     'spaced-comment': [
