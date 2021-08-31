@@ -1,21 +1,19 @@
 import { v4 as uuid } from 'uuid';
 
 import { Connection, MomoConnectionOptions } from '../Connection';
-import { ExecutionsRepository } from '../repository/ExecutionsRepository';
-import { JobRepository } from '../repository/JobRepository';
 import { Schedule } from './Schedule';
 import { SchedulePing } from './SchedulePing';
 
 export class MongoSchedule extends Schedule {
   private readonly schedulePing: SchedulePing;
+  private readonly disconnectFct: () => Promise<void>;
 
-  private constructor(
-    scheduleId: string,
-    private readonly disconnectFct: () => Promise<void>,
-    executionsRepository: ExecutionsRepository,
-    jobRepository: JobRepository
-  ) {
+  private constructor(scheduleId: string, connection: Connection) {
+    const executionsRepository = connection.getExecutionsRepository();
+    const jobRepository = connection.getJobRepository();
+
     super(scheduleId, executionsRepository, jobRepository);
+    this.disconnectFct = connection.disconnect.bind(connection);
     this.schedulePing = new SchedulePing(scheduleId, executionsRepository, this.logger);
   }
 
@@ -28,17 +26,11 @@ export class MongoSchedule extends Schedule {
     const connection = await Connection.create(connectionOptions);
 
     const executionsRepository = connection.getExecutionsRepository();
-    const jobRepository = connection.getJobRepository();
 
     const scheduleId = uuid();
     await executionsRepository.addSchedule(scheduleId);
 
-    const mongoSchedule = new MongoSchedule(
-      scheduleId,
-      connection.disconnect.bind(connection),
-      executionsRepository,
-      jobRepository
-    );
+    const mongoSchedule = new MongoSchedule(scheduleId, connection);
 
     mongoSchedule.schedulePing.start();
 
