@@ -54,8 +54,6 @@ describe('JobRepository', () => {
   });
 
   describe('define', () => {
-    jest.setTimeout(1000000);
-
     it('saves a job', async () => {
       await jobRepository.define(job);
 
