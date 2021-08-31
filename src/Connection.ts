@@ -14,15 +14,11 @@ export class Connection {
   constructor(private readonly mongoClient: MongoClient) {}
 
   static async create(connectionOptions: MomoConnectionOptions): Promise<Connection> {
-    const mongoClient = await MongoClient.connect(connectionOptions.url);
+    const connection = new Connection(new MongoClient(connectionOptions.url));
 
-    await mongoClient.db().collection(JOBS_COLLECTION_NAME).createIndex({ name: 1 }, { name: 'job_name_index' });
-    await mongoClient
-      .db()
-      .collection(JOBS_COLLECTION_NAME)
-      .createIndex({ scheduleId: 1 }, { name: 'schedule_id_index' });
+    await connection.connect();
 
-    return new Connection(mongoClient);
+    return connection;
   }
 
   getExecutionsRepository(): ExecutionsRepository {
@@ -43,5 +39,13 @@ export class Connection {
     await this.mongoClient.close();
   }
 
-  // TODO connection instance unusable after calling disconnect
+  async connect(): Promise<void> {
+    await this.mongoClient.connect();
+
+    await this.mongoClient.db().collection(JOBS_COLLECTION_NAME).createIndex({ name: 1 }, { name: 'job_name_index' });
+    await this.mongoClient
+      .db()
+      .collection(JOBS_COLLECTION_NAME)
+      .createIndex({ scheduleId: 1 }, { name: 'schedule_id_index' });
+  }
 }
