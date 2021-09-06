@@ -13,6 +13,9 @@ export class MongoSchedule extends Schedule {
     const jobRepository = connection.getJobRepository();
 
     super(scheduleId, executionsRepository, jobRepository);
+
+    jobRepository.setLogger(this.logger);
+
     this.disconnectFct = connection.disconnect.bind(connection);
     this.schedulePing = new SchedulePing(scheduleId, executionsRepository, this.logger);
   }

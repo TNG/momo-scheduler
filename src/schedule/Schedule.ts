@@ -60,7 +60,7 @@ export class Schedule extends LogEmitter {
     }
     await this.stopJob(job.name);
 
-    await this.jobRepository.define(job, this.logger);
+    await this.jobRepository.define(job);
 
     this.jobSchedulers[job.name] = JobScheduler.forJob(
       this.scheduleId,

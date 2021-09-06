@@ -10,8 +10,14 @@ import { findLatest } from '../job/findLatest';
 export const JOBS_COLLECTION_NAME = 'jobs';
 
 export class JobRepository extends Repository<JobEntity> {
+  private logger: Logger | undefined;
+
   constructor(mongoClient: MongoClient) {
     super(mongoClient, JOBS_COLLECTION_NAME);
+  }
+
+  setLogger(logger: Logger): void {
+    this.logger = logger;
   }
 
   async check(name: string): Promise<ExecutionInfo | undefined> {
@@ -23,25 +29,25 @@ export class JobRepository extends Repository<JobEntity> {
     await this.delete();
   }
 
-  async define(job: Job, logger?: Logger): Promise<void> {
+  async define(job: Job): Promise<void> {
     const { name, interval, concurrency, maxRunning } = job;
     const jobDefinition = toJobDefinition(job);
 
-    logger?.debug('define job', { name, concurrency, interval, maxRunning });
+    this.logger?.debug('define job', { name, concurrency, interval, maxRunning });
 
-    const old = await this.keepLatest(name, logger);
+    const old = await this.keepLatest(name);
 
     if (old) {
-      logger?.debug('update job in database', { name });
+      this.logger?.debug('update job in database', { name });
       await this.updateJob(name, jobDefinition);
       return;
     }
 
-    logger?.debug('save job to database', { name });
+    this.logger?.debug('save job to database', { name });
     await this.save(jobDefinition);
   }
 
-  private async keepLatest(name: string, logger?: Logger): Promise<JobEntity | undefined> {
+  private async keepLatest(name: string): Promise<JobEntity | undefined> {
     const jobs = await this.find({ name });
 
     if (jobs.length === 1) return jobs[0];
@@ -49,7 +55,7 @@ export class JobRepository extends Repository<JobEntity> {
     const latest = findLatest(jobs);
     if (!latest) return undefined;
 
-    logger?.debug('duplicate job, keep latest only', { name, count: jobs.length });
+    this.logger?.debug('duplicate job, keep latest only', { name, count: jobs.length });
 
     jobs.splice(jobs.indexOf(latest), 1);
     await this.delete({ _id: { $in: jobs.map(({ _id }) => _id) } });
