@@ -1,11 +1,10 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { JobEntity } from '../../src/repository/JobEntity';
+import { Connection } from '../../src/Connection';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { MomoJob, MongoSchedule, clear } from '../../src';
-import { getJobRepository } from '../../src/repository/getRepository';
+import { MomoJob, MongoSchedule } from '../../src';
 import { initLoggingForTests } from '../utils/logging';
-import { withDefaults } from '../../src/job/withDefaults';
+import { toJob } from '../../src/job/Job';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -15,24 +14,28 @@ describe('Schedule', () => {
   };
 
   let mongo: MongoMemoryServer;
+  let connection: Connection;
   let jobRepository: JobRepository;
   let mongoSchedule: MongoSchedule;
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
+    connection = await Connection.create({ url: mongo.getUri() });
+    jobRepository = connection.getJobRepository();
+
     mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
-    jobRepository = getJobRepository();
 
     initLoggingForTests(mongoSchedule);
   });
 
   beforeEach(async () => {
     await mongoSchedule.cancel();
-    await clear();
+    await mongoSchedule.clear();
   });
 
   afterAll(async () => {
     await mongoSchedule.disconnect();
+    await connection.disconnect();
     await mongo.stop();
   });
 
@@ -63,13 +66,11 @@ describe('Schedule', () => {
 
   it('lists jobs on the schedule', async () => {
     await jobRepository.save(
-      JobEntity.from(
-        withDefaults({
-          name: 'some job that is in the database but not on the schedule',
-          handler: jest.fn(),
-          interval: 'one minute',
-        })
-      )
+      toJob({
+        name: 'some job that is in the database but not on the schedule',
+        handler: jest.fn(),
+        interval: 'one minute',
+      })
     );
 
     await mongoSchedule.define(job);

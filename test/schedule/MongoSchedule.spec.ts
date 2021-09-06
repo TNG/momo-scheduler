@@ -1,16 +1,28 @@
-import { anyString, capture, deepEqual, verify } from 'ts-mockito';
+import { anyString, capture, deepEqual, instance, mock, verify } from 'ts-mockito';
 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { MongoSchedule } from '../../src';
-import { mockRepositories } from '../utils/mockRepositories';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { MomoConnectionOptions, MongoSchedule } from '../../src';
+
+const executionsRepository = mock(ExecutionsRepository);
+jest.mock('../../src/Connection', () => {
+  return {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    Connection: {
+      create: async (_options: MomoConnectionOptions) => {
+        return {
+          getJobRepository: () => instance(mock(JobRepository)),
+          getExecutionsRepository: () => instance(executionsRepository),
+          disconnect: async () => undefined,
+        };
+      },
+    },
+  };
+});
 
 describe('MongoSchedule', () => {
-  let executionsRepository: ExecutionsRepository;
-
   beforeEach(async () => {
     jest.clearAllMocks();
-
-    executionsRepository = mockRepositories().executionsRepository;
   });
 
   it('connects and starts the ping and disconnects and stops the ping', async () => {
@@ -21,6 +33,6 @@ describe('MongoSchedule', () => {
 
     await mongoSchedule.disconnect();
 
-    verify(executionsRepository.delete(deepEqual({ scheduleId })));
+    verify(executionsRepository.deleteOne(deepEqual({ scheduleId })));
   });
 });

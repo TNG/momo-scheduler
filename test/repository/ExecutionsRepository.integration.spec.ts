@@ -1,8 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
+import { Connection } from '../../src/Connection';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { connect, disconnect } from '../../src/connect';
-import { getExecutionsRepository } from '../../src/repository/getRepository';
 import { sleep } from '../utils/sleep';
 
 describe('ExecutionsRepository', () => {
@@ -10,20 +9,21 @@ describe('ExecutionsRepository', () => {
   const name = 'test job';
 
   let mongo: MongoMemoryServer;
+  let connection: Connection;
   let executionsRepository: ExecutionsRepository;
 
   beforeAll(async () => {
     ExecutionsRepository.deadScheduleThreshold = 1000;
 
     mongo = await MongoMemoryServer.create();
-    await connect({ url: mongo.getUri() });
-    executionsRepository = getExecutionsRepository();
+    connection = await Connection.create({ url: mongo.getUri() });
+    executionsRepository = connection.getExecutionsRepository();
   });
 
-  beforeEach(async () => executionsRepository.clear());
+  beforeEach(async () => executionsRepository.delete());
 
   afterAll(async () => {
-    await disconnect();
+    await connection.disconnect();
     await mongo.stop();
   });
 

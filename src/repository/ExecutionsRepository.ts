@@ -1,15 +1,21 @@
 import { DateTime } from 'luxon';
-import { EntityRepository, MongoRepository } from 'typeorm';
+import { MongoClient } from 'mongodb';
 
 import { ExecutionsEntity } from './ExecutionsEntity';
+import { Repository } from './Repository';
 import { defaultInterval } from '../schedule/SchedulePing';
 
-@EntityRepository(ExecutionsEntity)
-export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
+export const EXECUTIONS_COLLECTION_NAME = 'executions';
+
+export class ExecutionsRepository extends Repository<ExecutionsEntity> {
   public static deadScheduleThreshold = 2 * defaultInterval;
 
+  constructor(mongoClient: MongoClient) {
+    super(mongoClient, EXECUTIONS_COLLECTION_NAME);
+  }
+
   async addSchedule(scheduleId: string): Promise<void> {
-    await this.save(new ExecutionsEntity(scheduleId, DateTime.now().toMillis(), {}));
+    await this.save({ scheduleId, timestamp: DateTime.now().toMillis(), executions: {} });
   }
 
   async removeJob(scheduleId: string, name: string): Promise<void> {
@@ -20,7 +26,7 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
 
     const executions = executionsEntity.executions;
     delete executions[name];
-    await this.update({ scheduleId }, { executions });
+    await this.updateOne({ scheduleId }, { $set: { executions } });
   }
 
   async addExecution(
@@ -33,30 +39,29 @@ export class ExecutionsRepository extends MongoRepository<ExecutionsEntity> {
       return { added: false, running };
     }
 
-    await this.findOneAndUpdate({ scheduleId }, { $inc: { [`executions.${name}`]: 1 } });
+    await this.updateOne({ scheduleId }, { $inc: { [`executions.${name}`]: 1 } });
 
     return { added: true, running };
   }
 
   async removeExecution(scheduleId: string, name: string): Promise<void> {
-    await this.findOneAndUpdate({ scheduleId }, { $inc: { [`executions.${name}`]: -1 } });
+    await this.updateOne({ scheduleId }, { $inc: { [`executions.${name}`]: -1 } });
   }
 
   async countRunningExecutions(name: string): Promise<number> {
     const timestamp = DateTime.now().toMillis() - ExecutionsRepository.deadScheduleThreshold;
-    const numbers = (await this.find({ where: { timestamp: { $gt: timestamp } } })).map((executionsEntity) => {
+    const numbers = (await this.find({ timestamp: { $gt: timestamp } })).map((executionsEntity) => {
       return executionsEntity.executions[name] ?? 0;
     });
     return numbers.reduce((sum, current) => sum + current, 0);
   }
 
   async ping(scheduleId: string): Promise<void> {
-    await this.findOneAndUpdate({ scheduleId }, { $set: { timestamp: DateTime.now().toMillis() } });
+    await this.updateOne({ scheduleId }, { $set: { timestamp: DateTime.now().toMillis() } });
   }
 
   async clean(): Promise<number> {
     const timestamp = DateTime.now().toMillis() - ExecutionsRepository.deadScheduleThreshold;
-    const result = await this.deleteMany({ timestamp: { $lt: timestamp } });
-    return result.deletedCount ?? 0;
+    return this.delete({ timestamp: { $lt: timestamp } });
   }
 }

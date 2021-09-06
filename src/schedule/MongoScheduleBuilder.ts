@@ -1,4 +1,4 @@
-import { MomoConnectionOptions } from '../connect';
+import { MomoConnectionOptions } from '../Connection';
 import { MomoJob } from '../job/MomoJob';
 import { MongoSchedule } from './MongoSchedule';
 

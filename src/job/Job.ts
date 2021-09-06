@@ -1,7 +1,9 @@
-import { ExecutionInfo } from './ExecutionInfo';
-import { Handler } from './MomoJob';
+import { WithoutId } from 'mongodb';
 
-export type MomoJobStatus = JobDefinition & { executionInfo?: ExecutionInfo };
+import { Handler, MomoJob } from './MomoJob';
+import { JobEntity } from '../repository/JobEntity';
+
+export type MomoJobStatus = WithoutId<JobEntity>;
 
 export interface JobDefinition {
   name: string;
@@ -13,4 +15,17 @@ export interface JobDefinition {
 export interface Job extends JobDefinition {
   immediate: boolean;
   handler: Handler;
+}
+
+export function toJob(job: MomoJob): Job {
+  return { immediate: false, concurrency: 1, maxRunning: 0, ...job };
+}
+
+export function toJobDefinition(job: Job): JobDefinition {
+  return {
+    name: job.name,
+    interval: job.interval,
+    maxRunning: job.maxRunning,
+    concurrency: job.concurrency,
+  };
 }

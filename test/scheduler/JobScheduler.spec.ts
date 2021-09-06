@@ -1,15 +1,12 @@
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { Job } from '../../src/job/Job';
-import { JobEntity } from '../../src/repository/JobEntity';
+import { Job, toJobDefinition } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { MomoErrorType, momoError } from '../../src';
-import { createJobEntity } from '../utils/createJobEntity';
 import { loggerForTests } from '../utils/logging';
-import { mockRepositories } from '../utils/mockRepositories';
 import { sleep } from '../utils/sleep';
 
 describe('JobScheduler', () => {
@@ -24,19 +21,15 @@ describe('JobScheduler', () => {
   const errorFn = jest.fn();
   const scheduleId = '123';
 
-  let jobExecutor: JobExecutor;
-  let jobRepository: JobRepository;
   let executionsRepository: ExecutionsRepository;
+  let jobRepository: JobRepository;
+  let jobExecutor: JobExecutor;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
+    executionsRepository = mock(ExecutionsRepository);
+    jobRepository = mock(JobRepository);
     jobExecutor = mock(JobExecutor);
-    const repositories = mockRepositories();
-    jobRepository = repositories.jobRepository;
-    executionsRepository = repositories.executionsRepository;
-
     when(jobExecutor.execute(anything())).thenResolve();
   });
 
@@ -51,9 +44,11 @@ describe('JobScheduler', () => {
       job.immediate,
       instance(jobExecutor),
       scheduleId,
+      instance(executionsRepository),
+      instance(jobRepository),
       loggerForTests(errorFn)
     );
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(JobEntity.from(job));
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(job);
     when(executionsRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
@@ -92,7 +87,7 @@ describe('JobScheduler', () => {
     it('returns job description', async () => {
       const job = createJob();
 
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(toJobDefinition(job));
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
@@ -107,7 +102,7 @@ describe('JobScheduler', () => {
       const job = createJob();
       await jobScheduler.start();
 
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(createJobEntity(job));
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(toJobDefinition(job));
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({

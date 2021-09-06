@@ -2,7 +2,6 @@ import { Clock, install } from '@sinonjs/fake-timers';
 import { DateTime } from 'luxon';
 
 import { ExecutionInfo } from '../../src';
-import { Job } from '../../src/job/Job';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { calculateDelay } from '../../src/scheduler/calculateDelay';
 
@@ -11,7 +10,12 @@ describe('calculateDelay', () => {
   let clock: Clock;
 
   beforeEach(() => {
-    job = JobEntity.from({ name: 'test', interval: 'one second' } as Job);
+    job = {
+      name: 'test',
+      interval: 'one second',
+      concurrency: 0,
+      maxRunning: 1,
+    };
     clock = install();
   });
 

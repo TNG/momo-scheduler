@@ -1,19 +1,22 @@
-import { deepEqual, verify } from 'ts-mockito';
+import { deepEqual, instance, mock, verify } from 'ts-mockito';
 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { SchedulePing } from '../../src/schedule/SchedulePing';
-import { mockRepositories } from '../utils/mockRepositories';
 import { sleep } from '../utils/sleep';
 
 describe('SchedulePing', () => {
   const scheduleId = '123';
-  const schedulePing = new SchedulePing(scheduleId, { debug: jest.fn(), error: jest.fn() });
+
   let executionsRepository: ExecutionsRepository;
+  let schedulePing: SchedulePing;
 
   beforeAll(() => {
     SchedulePing.interval = 1000;
-    executionsRepository = mockRepositories().executionsRepository;
+    executionsRepository = mock(ExecutionsRepository);
+    schedulePing = new SchedulePing(scheduleId, instance(executionsRepository), { debug: jest.fn(), error: jest.fn() });
   });
+
+  beforeEach(jest.clearAllMocks);
 
   it('starts, pings, cleans and stops', async () => {
     schedulePing.start();
@@ -26,6 +29,6 @@ describe('SchedulePing', () => {
     await sleep(SchedulePing.interval);
 
     verify(executionsRepository.ping(scheduleId)).once();
-    verify(executionsRepository.delete(deepEqual({ scheduleId }))).once();
+    verify(executionsRepository.deleteOne(deepEqual({ scheduleId }))).once();
   });
 });

@@ -1,11 +1,12 @@
 import { DateTime } from 'luxon';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
+import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 import { Handler } from '../job/MomoJob';
 import { JobEntity } from '../repository/JobEntity';
+import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
 
 export class JobExecutor {
   private stopped = false;
@@ -13,6 +14,8 @@ export class JobExecutor {
   constructor(
     private readonly handler: Handler,
     private readonly scheduleId: string,
+    private readonly executionsRepository: ExecutionsRepository,
+    private readonly jobRepository: JobRepository,
     private readonly logger: Logger
   ) {}
 
@@ -21,9 +24,7 @@ export class JobExecutor {
   }
 
   async execute(jobEntity: JobEntity): Promise<JobResult> {
-    const executionsRepository = getExecutionsRepository();
-
-    const { added, running } = await executionsRepository.addExecution(
+    const { added, running } = await this.executionsRepository.addExecution(
       this.scheduleId,
       jobEntity.name,
       jobEntity.maxRunning
@@ -40,7 +41,7 @@ export class JobExecutor {
 
     const { started, result } = await this.executeHandler(jobEntity);
 
-    await getJobRepository().updateJob(jobEntity.name, {
+    await this.jobRepository.updateJob(jobEntity.name, {
       executionInfo: {
         lastStarted: started.toISO(),
         lastFinished: DateTime.now().toISO(),
@@ -55,7 +56,7 @@ export class JobExecutor {
     });
 
     if (!this.stopped) {
-      await executionsRepository.removeExecution(this.scheduleId, jobEntity.name);
+      await this.executionsRepository.removeExecution(this.scheduleId, jobEntity.name);
     }
 
     return result;

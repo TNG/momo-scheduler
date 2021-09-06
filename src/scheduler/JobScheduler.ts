@@ -3,14 +3,15 @@ import { min } from 'lodash';
 import humanInterval from 'human-interval';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
+import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 import { Job } from '../job/Job';
 import { JobExecutor } from '../executor/JobExecutor';
+import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
 import { TimeoutHandle, setIntervalWithDelay } from './setIntervalWithDelay';
 import { calculateDelay } from './calculateDelay';
-import { getExecutionsRepository, getJobRepository } from '../repository/getRepository';
 import { momoError } from '../logging/error/MomoError';
 
 export class JobScheduler {
@@ -23,12 +24,20 @@ export class JobScheduler {
     private readonly immediate: boolean,
     private readonly jobExecutor: JobExecutor,
     private readonly scheduleId: string,
+    private readonly executionsRepository: ExecutionsRepository,
+    private readonly jobRepository: JobRepository,
     private readonly logger: Logger
   ) {}
 
-  static forJob(scheduleId: string, job: Job, logger: Logger): JobScheduler {
-    const executor = new JobExecutor(job.handler, scheduleId, logger);
-    return new JobScheduler(job.name, job.immediate, executor, scheduleId, logger);
+  static forJob(
+    scheduleId: string,
+    job: Job,
+    logger: Logger,
+    executionsRepository: ExecutionsRepository,
+    jobRepository: JobRepository
+  ): JobScheduler {
+    const executor = new JobExecutor(job.handler, scheduleId, executionsRepository, jobRepository, logger);
+    return new JobScheduler(job.name, job.immediate, executor, scheduleId, executionsRepository, jobRepository, logger);
   }
 
   getUnexpectedErrorCount(): number {
@@ -40,7 +49,7 @@ export class JobScheduler {
   }
 
   async getJobDescription(): Promise<MomoJobDescription | undefined> {
-    const jobEntity = await getJobRepository().findOne({ name: this.jobName });
+    const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
         'get job description - job not found',
@@ -51,7 +60,7 @@ export class JobScheduler {
       return;
     }
 
-    const running = await getExecutionsRepository().countRunningExecutions(jobEntity.name);
+    const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
     const schedulerStatus = this.interval !== undefined ? { interval: this.interval, running } : undefined;
 
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
@@ -60,7 +69,7 @@ export class JobScheduler {
   async start(): Promise<void> {
     await this.stop();
 
-    const jobEntity = await getJobRepository().findOne({ name: this.jobName });
+    const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
         'cannot schedule job',
@@ -93,7 +102,7 @@ export class JobScheduler {
     if (this.jobHandle) {
       clearInterval(this.jobHandle.get());
       this.jobExecutor.stop();
-      await getExecutionsRepository().removeJob(this.scheduleId, this.jobName);
+      await this.executionsRepository.removeJob(this.scheduleId, this.jobName);
       this.jobHandle = undefined;
       this.interval = undefined;
     }
@@ -101,7 +110,7 @@ export class JobScheduler {
 
   async executeOnce(): Promise<JobResult> {
     try {
-      const jobEntity = await getJobRepository().findOne({ name: this.jobName });
+      const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
       if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
@@ -125,7 +134,7 @@ export class JobScheduler {
 
   async executeConcurrently(): Promise<void> {
     try {
-      const jobEntity = await getJobRepository().findOne({ name: this.jobName });
+      const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
       if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
@@ -136,7 +145,7 @@ export class JobScheduler {
         return;
       }
 
-      const running = await getExecutionsRepository().countRunningExecutions(jobEntity.name);
+      const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
       const numToExecute =
         jobEntity.maxRunning > 0
           ? min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency
