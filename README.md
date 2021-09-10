@@ -1,6 +1,8 @@
 # momo-scheduler <img src="momo_logo.svg" align="right" />
 
-momo is a light-weight, easy-to-use scheduler that persists jobs in a MongoDB.
+momo is a light-weight, easy-to-use interval-based scheduler that persists jobs in a MongoDB.
+
+In essence, it provides an easy way to tell your application to "run that job every five minutes".
 
 ## Features
 
