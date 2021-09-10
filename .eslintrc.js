@@ -198,7 +198,15 @@ module.exports = {
     'use-isnan': 'error',
     'valid-typeof': 'error',
   },
-  ignorePatterns: ['dist', 'tsconfig.json', 'tsconfig.eslint.json', 'package.json', 'package-lock.json', 'ort'],
+  ignorePatterns: [
+    'dist',
+    'tsconfig.json',
+    'tsconfig.eslint.json',
+    'package.json',
+    'package-lock.json',
+    'renovate.json',
+    'ort',
+  ],
   settings: {
     'import/resolver': {
       node: {
