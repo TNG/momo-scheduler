@@ -4,7 +4,6 @@
   "commitBody": "Signed-off-by: {{{gitAuthor}}}",
   "packageRules": [
     {
-      "depTypeList": ["devDependencies"],
       "packagePatterns": ["^eslint"],
       "automerge": true,
       "automergeType": "branch",
@@ -13,6 +12,7 @@
     },
     {
       "depTypeList": ["devDependencies"],
+      "excludePackagePrefixes": ["eslint"],
       "automerge": true,
       "automergeType": "branch",
       "groupName":  "Dev dependencies",
@@ -22,7 +22,8 @@
       "depTypeList": ["dependencies"],
       "automerge": true,
       "automergeType": "branch",
-      "updateTypes": ["minor", "patch", "pin", "digest"]
+      "updateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName":  "Prod dependencies"
     }
   ]
 }
