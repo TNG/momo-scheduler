@@ -1,0 +1,16 @@
+name: Update THIRD_PARTY_NOTICE
+
+on:
+  push:
+    branches:
+      - '*-3rd-party-notice'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update third party notice
+        uses: actions/checkout@v2
+      - shell: bash
+        run: ./update_notice.sh --dry-run
