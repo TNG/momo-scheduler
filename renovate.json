@@ -11,8 +11,15 @@
       "updateTypes": ["minor", "patch", "pin", "digest"]
     },
     {
+      "packagePatterns": ["^@types"],
+      "automerge": true,
+      "automergeType": "branch",
+      "groupName": "Types",
+      "updateTypes": ["minor", "patch", "pin", "digest"]
+    },
+    {
       "depTypeList": ["devDependencies"],
-      "excludePackagePrefixes": ["eslint"],
+      "excludePackagePrefixes": ["eslint", "@types"],
       "automerge": true,
       "automergeType": "branch",
       "groupName":  "Dev dependencies",
