@@ -13,7 +13,7 @@ export interface MomoErrorEvent {
   message: string;
   type: MomoErrorType;
   data?: MomoEventData;
-  error?: Error;
+  error?: unknown;
 }
 
 export interface MomoEvents {
