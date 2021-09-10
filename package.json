@@ -8,6 +8,14 @@
     "type": "git",
     "url": "https://github.com/TNG/momo-scheduler.git"
   },
+  "keywords": [
+    "job",
+    "jobs",
+    "delayed",
+    "scheduler",
+    "task",
+    "recurrent"
+  ],
   "private": false,
   "license": "Apache-2.0",
   "scripts": {
