@@ -13,11 +13,12 @@
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "npx rimraf dist",
-    "test": "jest --detectOpenHandles --forceExit",
-    "test:unit": "npm run test \"^((?!\\.integration\\.).)*$\"",
-    "test:integration": "npm run test integration",
+    "format": "prettier --write \"**/*.ts\" && eslint --fix --ext .ts,.js,.json .",
     "lint": "prettier --check \"**/*.ts\"  && eslint --ext .ts,.js,.json .",
-    "format": "prettier --write \"**/*.ts\" && eslint --fix --ext .ts,.js,.json ."
+    "prepare": "husky install",
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:integration": "npm run test integration",
+    "test:unit": "npm run test \"^((?!\\.integration\\.).)*$\""
   },
   "dependencies": {
     "human-interval": "2.0.1",
@@ -28,6 +29,8 @@
     "uuid": "8.3.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "13.1.0",
+    "@commitlint/config-conventional": "13.1.0",
     "@sinonjs/fake-timers": "7.1.2",
     "@types/human-interval": "1.0.0",
     "@types/jest": "26.0.24",
@@ -46,6 +49,7 @@
     "eslint-plugin-markdown": "2.2.0",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-prettier": "3.4.0",
+    "husky": "7.0.2",
     "jest": "27.0.6",
     "mongodb-memory-server": "7.2.1",
     "pino": "6.12.0",
