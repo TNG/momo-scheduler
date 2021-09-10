@@ -1,5 +1,11 @@
 {
-  "extends": [
-    "config:base"
+  "extends": ["config:base", ":gitSignOff"],
+  "rangeStrategy": "pin",
+  "commitBody": "Signed-off-by: {{{gitAuthor}}}",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    }
   ]
 }
