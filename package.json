@@ -9,9 +9,11 @@
     "url": "https://github.com/TNG/momo-scheduler.git"
   },
   "keywords": [
+    "delayed",
+    "interval",
     "job",
     "jobs",
-    "delayed",
+    "runner",
     "scheduler",
     "task",
     "recurrent"
