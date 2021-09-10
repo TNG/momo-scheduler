@@ -270,7 +270,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: acorn:8.4.1
+Package: acorn:8.5.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -348,6 +348,31 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ----
 
 Package: acorn-walk:7.2.0
+
+The following copyrights and licenses were found in the source code of this package:
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: acorn-walk:8.2.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -795,7 +820,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: async-mutex:0.3.1
+Package: async-mutex:0.3.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -876,7 +901,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: babel-jest:27.0.6
+Package: babel-jest:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -1198,7 +1223,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: browserslist:4.16.6
+Package: browserslist:4.17.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -1672,11 +1697,11 @@ Copyright (C) Christian Amor Kvalheim
 
 ----
 
-Package: bson:4.4.1
+Package: bson:4.5.1
 
 The following copyrights and licenses were found in the source code of this package:
 
-Copyright (C) Christian Amor Kvalheim
+Copyright (C) The MongoDB NodeJS Team
 
                                  Apache License
                            Version 2.0, January 2004
@@ -1936,7 +1961,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: buffer-from:1.1.1
+Package: buffer-from:1.1.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -2069,7 +2094,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: caniuse-lite:1.0.30001245
+Package: caniuse-lite:1.0.30001255
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -2498,7 +2523,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: chalk:4.1.1
+Package: chalk:4.1.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -2863,7 +2888,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: colorette:1.2.2
+Package: colorette:1.4.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -2917,7 +2942,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: comment-parser:1.1.6-beta.0
+Package: comment-parser:1.2.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3025,7 +3050,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: core-util-is:1.0.2
+Package: core-util-is:1.0.3
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3372,7 +3397,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: deep-is:0.1.3
+Package: deep-is:0.1.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3478,7 +3503,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: denque:1.5.0
+Package: denque:1.5.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3743,31 +3768,6 @@ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
 HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-----
-
-Package: diff-sequences:26.6.2
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
@@ -4266,7 +4266,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: electron-to-chromium:1.3.778
+Package: electron-to-chromium:1.3.835
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4419,7 +4419,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: es-abstract:1.18.3
+Package: es-abstract:1.18.6
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4608,7 +4608,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: eslint:7.30.0
+Package: eslint:7.32.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4662,7 +4662,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint-import-resolver-node:0.3.4
+Package: eslint-import-resolver-node:0.3.6
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4689,7 +4689,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint-module-utils:2.6.1
+Package: eslint-module-utils:2.6.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4716,7 +4716,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint-plugin-import:2.23.4
+Package: eslint-plugin-import:2.24.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4743,7 +4743,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint-plugin-jest:24.3.6
+Package: eslint-plugin-jest:24.4.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4770,7 +4770,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint-plugin-jsdoc:35.4.3
+Package: eslint-plugin-jsdoc:36.1.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4857,7 +4857,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint-plugin-prettier:3.4.0
+Package: eslint-plugin-prettier:4.0.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -5638,7 +5638,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: expect:27.0.6
+Package: expect:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -5900,7 +5900,7 @@ Copyright (C) Jason Chen
 
 ----
 
-Package: fast-glob:3.2.5
+Package: fast-glob:3.2.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -5981,7 +5981,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: fast-redact:3.0.1
+Package: fast-redact:3.0.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6008,7 +6008,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: fast-safe-stringify:2.0.8
+Package: fast-safe-stringify:2.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6035,7 +6035,34 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: fastq:1.11.0
+Package: fastify-warning:0.2.0
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Tomas Della Vedova
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: fastq:1.12.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6346,7 +6373,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: find-cache-dir:3.3.1
+Package: find-cache-dir:3.3.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6479,7 +6506,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: flatted:3.2.1
+Package: flatted:3.2.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6807,6 +6834,33 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
+Package: get-symbol-description:1.0.0
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Jordan Harband
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
 Package: glob:7.1.7
 
 The following copyrights and licenses were found in the source code of this package:
@@ -6874,7 +6928,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: globals:13.10.0
+Package: globals:13.11.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6901,7 +6955,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: globby:11.0.3
+Package: globby:11.0.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6928,7 +6982,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: graceful-fs:4.2.6
+Package: graceful-fs:4.2.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -7055,6 +7109,33 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ----
 
 Package: has-symbols:1.0.2
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Jordan Harband
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: has-tostringtag:1.0.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -7679,6 +7760,33 @@ THIS SOFTWARE.
 
 ----
 
+Package: internal-slot:1.0.3
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Jordan Harband
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
 Package: is-alphabetical:1.0.4
 
 The following copyrights and licenses were found in the source code of this package:
@@ -7760,7 +7868,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-bigint:1.0.2
+Package: is-bigint:1.0.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -7787,7 +7895,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-boolean-object:1.1.1
+Package: is-boolean-object:1.1.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -7814,7 +7922,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-callable:1.2.3
+Package: is-callable:1.2.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -7868,7 +7976,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-core-module:2.5.0
+Package: is-core-module:2.6.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -7895,7 +8003,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-date-object:1.0.4
+Package: is-date-object:1.0.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8138,7 +8246,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-number-object:1.0.5
+Package: is-number-object:1.0.6
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8192,7 +8300,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-regex:1.1.3
+Package: is-regex:1.1.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8219,7 +8327,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-stream:2.0.0
+Package: is-stream:2.0.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8246,7 +8354,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: is-string:1.0.6
+Package: is-string:1.0.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8539,7 +8647,7 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: jest:27.0.6
+Package: jest:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8564,7 +8672,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-changed-files:27.0.6
+Package: jest-changed-files:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8589,7 +8697,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-circus:27.0.6
+Package: jest-circus:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8614,7 +8722,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-cli:27.0.6
+Package: jest-cli:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8639,7 +8747,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-config:27.0.6
+Package: jest-config:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8664,32 +8772,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-diff:26.6.2
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: jest-diff:27.0.6
+Package: jest-diff:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8739,7 +8822,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-each:27.0.6
+Package: jest-each:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8766,7 +8849,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-environment-jsdom:27.0.6
+Package: jest-environment-jsdom:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8791,32 +8874,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-environment-node:27.0.6
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: jest-get-type:26.3.0
+Package: jest-environment-node:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8866,7 +8924,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-haste-map:27.0.6
+Package: jest-haste-map:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8891,7 +8949,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-jasmine2:27.0.6
+Package: jest-jasmine2:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8916,7 +8974,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-leak-detector:27.0.6
+Package: jest-leak-detector:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8941,7 +8999,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-matcher-utils:27.0.6
+Package: jest-matcher-utils:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8966,7 +9024,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-message-util:27.0.6
+Package: jest-message-util:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8991,7 +9049,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-mock:27.0.6
+Package: jest-mock:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9066,7 +9124,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-resolve:27.0.6
+Package: jest-resolve:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9091,7 +9149,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-resolve-dependencies:27.0.6
+Package: jest-resolve-dependencies:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9116,7 +9174,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-runner:27.0.6
+Package: jest-runner:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9141,7 +9199,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-runtime:27.0.6
+Package: jest-runtime:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9191,7 +9249,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-snapshot:27.0.6
+Package: jest-snapshot:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9216,7 +9274,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-util:27.0.6
+Package: jest-util:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9241,7 +9299,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-validate:27.0.6
+Package: jest-validate:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9266,7 +9324,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-watcher:27.0.6
+Package: jest-watcher:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9291,7 +9349,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jest-worker:27.0.6
+Package: jest-worker:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9370,7 +9428,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jsdoc-type-pratt-parser:1.0.4
+Package: jsdoc-type-pratt-parser:1.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9397,7 +9455,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: jsdom:16.6.0
+Package: jsdom:16.7.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9535,6 +9593,33 @@ Package: json-stable-stringify-without-jsonify:1.0.1
 The following copyrights and licenses were found in the source code of this package:
 
 Copyright (C) James Halliday
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: json5:1.0.1
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Aseem Kishore
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -9901,7 +9986,7 @@ THIS SOFTWARE.
 
 ----
 
-Package: luxon:2.0.1
+Package: luxon:2.0.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10220,7 +10305,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: mime-db:1.48.0
+Package: mime-db:1.49.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10245,7 +10330,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: mime-types:2.1.31
+Package: mime-types:2.1.32
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10369,7 +10454,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: mongodb:3.6.11
+Package: mongodb:3.7.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10579,7 +10664,7 @@ Copyright (C) The MongoDB NodeJS Team
 
 ----
 
-Package: mongodb:4.1.0
+Package: mongodb:4.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10789,7 +10874,7 @@ Copyright (C) The MongoDB NodeJS Team
 
 ----
 
-Package: mongodb-connection-string-url:1.1.2
+Package: mongodb-connection-string-url:2.0.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10997,7 +11082,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: mongodb-memory-server:7.2.1
+Package: mongodb-memory-server:7.4.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -11022,7 +11107,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: mongodb-memory-server-core:7.2.1
+Package: mongodb-memory-server-core:7.4.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -11205,7 +11290,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: node-releases:1.1.73
+Package: node-releases:1.1.75
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -12355,7 +12440,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: pino:6.12.0
+Package: pino:6.13.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -12571,7 +12656,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: prettier:2.3.2
+Package: prettier:2.4.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -12623,34 +12708,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: pretty-format:26.6.2
-
-The following copyrights and licenses were found in the source code of this package:
-
-Copyright (C) James Kyle
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: pretty-format:27.0.6
+Package: pretty-format:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -13520,33 +13578,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: safe-buffer:5.2.1
-
-The following copyrights and licenses were found in the source code of this package:
-
-Copyright (C) Feross Aboukhadijeh
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
 Package: safer-buffer:2.1.2
 
 The following copyrights and licenses were found in the source code of this package:
@@ -13729,6 +13760,33 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
+Package: side-channel:1.0.4
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Jordan Harband
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
 Package: signal-exit:3.0.3
 
 The following copyrights and licenses were found in the source code of this package:
@@ -13855,6 +13913,33 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
+Package: sonic-boom:2.2.3
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Matteo Collina
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
 Package: source-map:0.5.7
 
 The following copyrights and licenses were found in the source code of this package:
@@ -13954,7 +14039,7 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: source-map-support:0.5.19
+Package: source-map-support:0.5.20
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -14571,7 +14656,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: spdx-license-ids:3.0.9
+Package: spdx-license-ids:3.0.10
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -15352,7 +15437,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: tmpl:1.0.4
+Package: tmpl:1.0.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -15499,7 +15584,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: ts-jest:27.0.3
+Package: ts-jest:27.0.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -15553,7 +15638,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: ts-node:10.1.0
+Package: ts-node:10.2.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -15580,7 +15665,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: tsconfig-paths:3.10.1
+Package: tsconfig-paths:3.11.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -15626,7 +15711,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ----
 
-Package: tslib:2.3.0
+Package: tslib:2.3.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -16113,7 +16198,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: typescript:4.3.5
+Package: typescript:4.4.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17143,6 +17228,33 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
+Package: whatwg-url:9.1.0
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Sebastian Mayr
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
 Package: which:2.0.2
 
 The following copyrights and licenses were found in the source code of this package:
@@ -17284,7 +17396,7 @@ THIS SOFTWARE.
 
 ----
 
-Package: ws:7.5.3
+Package: ws:7.5.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17613,7 +17725,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: yargs-parser:20.2.7
+Package: yargs-parser:20.2.9
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17741,7 +17853,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:compat-data:7.14.7
+Package: @babel:compat-data:7.15.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17768,7 +17880,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:core:7.14.6
+Package: @babel:core:7.15.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17795,7 +17907,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:generator:7.14.5
+Package: @babel:generator:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17822,7 +17934,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-compilation-targets:7.14.5
+Package: @babel:helper-compilation-targets:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17849,7 +17961,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-function-name:7.14.5
+Package: @babel:helper-function-name:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17876,7 +17988,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-get-function-arity:7.14.5
+Package: @babel:helper-get-function-arity:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17903,7 +18015,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-hoist-variables:7.14.5
+Package: @babel:helper-hoist-variables:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17930,7 +18042,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-member-expression-to-functions:7.14.7
+Package: @babel:helper-member-expression-to-functions:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17957,7 +18069,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-module-imports:7.14.5
+Package: @babel:helper-module-imports:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17984,7 +18096,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-module-transforms:7.14.5
+Package: @babel:helper-module-transforms:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18011,7 +18123,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-optimise-call-expression:7.14.5
+Package: @babel:helper-optimise-call-expression:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18065,7 +18177,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-replace-supers:7.14.5
+Package: @babel:helper-replace-supers:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18092,7 +18204,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-simple-access:7.14.5
+Package: @babel:helper-simple-access:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18119,7 +18231,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-split-export-declaration:7.14.5
+Package: @babel:helper-split-export-declaration:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18146,7 +18258,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-validator-identifier:7.14.5
+Package: @babel:helper-validator-identifier:7.14.9
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18200,7 +18312,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helpers:7.14.6
+Package: @babel:helpers:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18254,7 +18366,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:parser:7.14.7
+Package: @babel:parser:7.15.6
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18610,7 +18722,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:template:7.14.5
+Package: @babel:template:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18637,7 +18749,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:traverse:7.14.7
+Package: @babel:traverse:7.15.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18664,7 +18776,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:types:7.14.5
+Package: @babel:types:7.15.6
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18718,7 +18830,65 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @es-joy:jsdoccomment:0.9.0-alpha.1
+Package: @cspotcode:source-map-consumer:0.8.0
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Andrew Bradley
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+Neither the name of the ORGANIZATION nor the names of its contributors may be
+used to endorse or promote products derived from this software without specific
+prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----
+
+Package: @cspotcode:source-map-support:0.6.1
+
+The following copyrights and licenses were found in the source code of this package:
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: @es-joy:jsdoccomment:0.10.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18745,7 +18915,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @eslint:eslintrc:0.4.2
+Package: @eslint:eslintrc:0.4.3
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19060,7 +19230,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:console:27.0.6
+Package: @jest:console:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19085,7 +19255,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:core:27.0.6
+Package: @jest:core:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19110,7 +19280,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:environment:27.0.6
+Package: @jest:environment:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19135,7 +19305,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:fake-timers:27.0.6
+Package: @jest:fake-timers:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19160,7 +19330,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:globals:27.0.6
+Package: @jest:globals:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19185,7 +19355,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:reporters:27.0.6
+Package: @jest:reporters:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19235,7 +19405,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:test-result:27.0.6
+Package: @jest:test-result:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19260,7 +19430,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:test-sequencer:27.0.6
+Package: @jest:test-sequencer:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19285,7 +19455,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:transform:27.0.6
+Package: @jest:transform:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19310,32 +19480,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jest:types:26.6.2
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: @jest:types:27.0.6
+Package: @jest:types:27.1.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19410,7 +19555,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @nodelib:fs.walk:1.2.7
+Package: @nodelib:fs.walk:1.2.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19601,7 +19746,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @tsconfig:node16:1.0.1
+Package: @tsconfig:node16:1.0.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19626,7 +19771,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:babel__core:7.1.15
+Package: @types:babel__core:7.1.16
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19851,7 +19996,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:jest:26.0.24
+Package: @types:jest:27.0.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19876,7 +20021,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:json-schema:7.0.7
+Package: @types:json-schema:7.0.9
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19901,7 +20046,34 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:lodash:4.14.171
+Package: @types:json5:0.0.29
+
+The following copyrights and licenses were found in the source code of this package:
+
+Copyright (C) Jason Swearingen
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: @types:lodash:4.14.172
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19926,7 +20098,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:luxon:1.27.1
+Package: @types:luxon:2.0.3
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19976,7 +20148,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:node:16.3.2
+Package: @types:node:16.9.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20001,7 +20173,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:pino:6.3.9
+Package: @types:pino:6.3.11
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20077,31 +20249,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ----
 
 Package: @types:prettier:2.3.2
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: @types:sonic-boom:0.7.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20276,31 +20423,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:yargs:15.0.14
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
 Package: @types:yargs:16.0.4
 
 The following copyrights and licenses were found in the source code of this package:
@@ -20351,7 +20473,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:eslint-plugin:4.28.3
+Package: @typescript-eslint:eslint-plugin:4.31.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20376,7 +20498,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:experimental-utils:4.14.2
+Package: @typescript-eslint:experimental-utils:4.31.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20401,32 +20523,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:experimental-utils:4.28.3
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: @typescript-eslint:parser:4.28.3
+Package: @typescript-eslint:parser:4.31.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20453,7 +20550,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: @typescript-eslint:scope-manager:4.14.2
+Package: @typescript-eslint:scope-manager:4.31.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20478,7 +20575,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:scope-manager:4.28.3
+Package: @typescript-eslint:types:4.31.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20503,57 +20600,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:types:4.14.2
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: @typescript-eslint:types:4.28.3
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: @typescript-eslint:typescript-estree:4.14.2
+Package: @typescript-eslint:typescript-estree:4.31.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20580,59 +20627,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: @typescript-eslint:typescript-estree:4.28.3
-
-The following copyrights and licenses were found in the source code of this package:
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-Redistributions of source code must retain the above copyright notice, this list
-of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright notice, this
-list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-----
-
-Package: @typescript-eslint:visitor-keys:4.14.2
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: @typescript-eslint:visitor-keys:4.28.3
+Package: @typescript-eslint:visitor-keys:4.31.0
 
 The following copyrights and licenses were found in the source code of this package:
 
