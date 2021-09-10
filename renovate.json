@@ -4,8 +4,25 @@
   "commitBody": "Signed-off-by: {{{gitAuthor}}}",
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+      "depTypeList": ["devDependencies"],
+      "packagePatterns": ["^eslint"],
+      "automerge": true,
+      "automergeType": "branch",
+      "groupName": "ESLint packages",
+      "updateTypes": ["minor", "patch", "pin", "digest"]
+    },
+    {
+      "depTypeList": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "branch",
+      "groupName":  "Dev dependencies",
+      "updateTypes": ["minor", "patch", "pin", "digest"]
+    },
+    {
+      "depTypeList": ["dependencies"],
+      "automerge": true,
+      "automergeType": "branch",
+      "updateTypes": ["minor", "patch", "pin", "digest"]
     }
   ]
 }
