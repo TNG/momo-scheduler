@@ -1,6 +1,8 @@
 # momo-scheduler <img src="momo_logo.svg" align="right" />
 
-momo is a scheduler that persists jobs in MongoDB.
+momo is a light-weight, easy-to-use interval-based scheduler that persists jobs in a MongoDB.
+
+In essence, it provides an easy way to tell your application to "run that job every five minutes".
 
 ## Features
 
@@ -11,9 +13,25 @@ momo is a scheduler that persists jobs in MongoDB.
 * allows updating jobs during runtime
 * supports cluster mode (e.g. several services using the same job database)
 
-## Usage
+## Installation
+
+Install via npm:
 
 ```
+npm install @tngtech/momo-scheduler
+```
+
+or yarn:
+
+```
+yarn add @tngtech/momo-scheduler
+```
+
+You're all set!
+
+## Usage
+
+```typescript
 import { MongoSchedule, MomoJob, MomoErrorEvent, MomoEvent } from 'momo-scheduler';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
@@ -86,7 +104,7 @@ The job description returned by the `list` and `get`functions contains the follo
 The MongoSchedule is an EventEmitter, emitting `'debug'` and `'error'` events.
 You can define callbacks to handle them:
 
-```
+```typescript
 mongoSchedule.on('error', ({ error, data, message, type }: MomoErrorEvent) => {
   console.log(`An error of type ${type} occurred`, { error, data, message });
 });
