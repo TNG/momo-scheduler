@@ -21,6 +21,8 @@ If you want to submit a contribution, please follow the following workflow:
 
 ### Commits
 
+Commit messages should adhere to the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) 
+specification. There is a pre-commit hook that will prevent commits that do not do so. 
 Commit messages should be clear and fully elaborate the context and the reason of a change.
 If your commit refers to an issue, please post-fix it with the issue number, e.g.
 
