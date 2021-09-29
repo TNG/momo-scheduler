@@ -4,8 +4,7 @@ All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
 ## v0.3.0 (2021-09-29)
-- removed typeorm dependency
-- create a reusable database connection with `Connection`
+- Feature: compatibility with mongodb v4 (removed typeorm dependency)
 - Breaking: moved utility functions into classes
     - `check` and `clear` are now part of the `Schedule`
 
