@@ -13,8 +13,8 @@ export class MomoJobBuilder {
     return this;
   }
 
-  withDelay(delay: number): this {
-    this.momoJob.delay = delay;
+  withFirstRunAfter(firstRunAfter: number): this {
+    this.momoJob.firstRunAfter = firstRunAfter;
     return this;
   }
 

@@ -5,9 +5,14 @@ import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { momoError } from '../logging/error/MomoError';
 
-export function validate({ name, interval, delay, concurrency, maxRunning }: Job, logger?: Logger): boolean {
-  if (delay !== undefined && delay < 0) {
-    logger?.error('job cannot be defined', MomoErrorType.defineJob, { name, delay }, momoError.invalidDelay);
+export function validate({ name, interval, firstRunAfter, concurrency, maxRunning }: Job, logger?: Logger): boolean {
+  if (firstRunAfter !== undefined && firstRunAfter < 0) {
+    logger?.error(
+      'job cannot be defined',
+      MomoErrorType.defineJob,
+      { name, firstRunAfter },
+      momoError.invalidFirstRunAfter
+    );
     return false;
   }
 

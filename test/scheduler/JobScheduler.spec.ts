@@ -60,8 +60,8 @@ describe('JobScheduler', () => {
       verify(await jobExecutor.execute(anything())).once();
     });
 
-    it('executes a job with delay 0 immediately', async () => {
-      createJob({ delay: 0 });
+    it('executes a job with firstRunAfter=0 immediately', async () => {
+      createJob({ firstRunAfter: 0 });
 
       await jobScheduler.start();
 

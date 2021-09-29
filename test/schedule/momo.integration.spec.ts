@@ -104,7 +104,7 @@ describe('Momo', () => {
     });
 
     it('executes an immediate job periodically', async () => {
-      await mongoSchedule.define({ ...momoJob, delay: 0 });
+      await mongoSchedule.define({ ...momoJob, firstRunAfter: 0 });
 
       await mongoSchedule.start();
 

@@ -95,7 +95,7 @@ describe('JobRepository', () => {
       const job1: JobEntity = {
         name: 'job1',
         interval: '1 minute',
-        delay: 0,
+        firstRunAfter: 0,
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
         maxRunning: 3,
@@ -103,7 +103,7 @@ describe('JobRepository', () => {
       const job2: JobEntity = {
         name: 'job2',
         interval: '2 minutes',
-        delay: 0,
+        firstRunAfter: 0,
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
         maxRunning: 0,
@@ -117,7 +117,7 @@ describe('JobRepository', () => {
         {
           name: job1.name,
           interval: job1.interval,
-          delay: job1.delay,
+          firstRunAfter: job1.firstRunAfter,
           concurrency: job1.concurrency,
           maxRunning: job1.maxRunning,
           executionInfo: {},
@@ -125,7 +125,7 @@ describe('JobRepository', () => {
         {
           name: job2.name,
           interval: job2.interval,
-          delay: job1.delay,
+          firstRunAfter: job1.firstRunAfter,
           concurrency: job2.concurrency,
           maxRunning: job2.maxRunning,
           executionInfo: {},

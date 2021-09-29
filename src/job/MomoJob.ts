@@ -4,7 +4,7 @@ export interface MomoJob {
   handler: Handler;
   name: string;
   interval: string;
-  delay?: number;
+  firstRunAfter?: number;
   concurrency?: number;
   maxRunning?: number;
 }

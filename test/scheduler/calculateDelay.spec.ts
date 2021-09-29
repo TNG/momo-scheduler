@@ -38,7 +38,7 @@ describe('calculateDelay', () => {
     const job: JobEntity = {
       name: 'test',
       interval: 'one second',
-      delay: 500,
+      firstRunAfter: 500,
       concurrency: 0,
       maxRunning: 1,
     };
@@ -46,7 +46,7 @@ describe('calculateDelay', () => {
     it('uses configured delay if job was never started before', () => {
       const delay = calculateDelay(1000, job);
 
-      expect(delay).toBe(job.delay);
+      expect(delay).toBe(job.firstRunAfter);
     });
 
     it('calculates delay based on lastStarted', () => {
