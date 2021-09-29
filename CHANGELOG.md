@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v0.3.0 (2021-09-29)
+- removed typeorm dependency
+- create a reusable database connection with `Connection`
+- Breaking: moved utility functions into classes
+    - `check` and `clear` are now part of the `Schedule`
+
 ## v0.2.0 (2021-07-16)
 - Feature: builder pattern for schedules and jobs
 - Fix: remove stale executions from db
