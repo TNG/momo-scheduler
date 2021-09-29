@@ -163,7 +163,7 @@ export class JobScheduler {
     }
   }
 
-  private handleUnexpectedError(error: Error): void {
+  private handleUnexpectedError(error: unknown): void {
     this.unexpectedErrorCount++;
     this.logger.error(
       'an unexpected error occurred while executing job',

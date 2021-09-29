@@ -5,7 +5,7 @@ import { MomoEventData, MomoEvents } from './MomoEvents';
 
 export interface Logger {
   debug: (message: string, data?: MomoEventData) => void;
-  error: (message: string, type: MomoErrorType, data?: MomoEventData, error?: Error) => void;
+  error: (message: string, type: MomoErrorType, data?: MomoEventData, error?: unknown) => void;
 }
 
 export function debug(this: TypedEmitter<MomoEvents>, message: string, data?: MomoEventData): void {
@@ -17,7 +17,7 @@ export function error(
   message: string,
   type: MomoErrorType,
   data?: MomoEventData,
-  error?: Error
+  error?: unknown
 ): void {
   this.emit('error', { message, type, data, error });
 }
