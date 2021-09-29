@@ -62,8 +62,7 @@ await mongoSchedule.disconnect();
 | ----------- | ---------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | name        | `string`   | false    |         | The name of the job. Used as a unique identifier.                                                                                                                                                                                                                                                              |
 | interval    | `string`   | false    |         | Specifies the time interval at which the job is started. Time intervals in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours') are accepted. Check documentation of [human-interval](https://www.npmjs.com/package/human-interval) library for details.                      |
-| immediate   | `boolean`  | true     | `false` | If set to true AND the job was never run before, the job will be started after `delay` milliseconds.                                                                                                                                                                                                           |
-| delay       | `number`   | true     | `0`     | If immediate is set to true AND the job was never run before, the job will be started after `delay` milliseconds.                                                                                                                                                                                              |
+| delay       | `number`   | true     |         | If set AND the job was never run before, first job execution will be started after `delay` milliseconds. Set to `0` to run the job immediately after the start.                                                                                                                                                |
 | concurrency | `number`   | true     | `1`     | How many instances of a job are started at a time.                                                                                                                                                                                                                                                             |
 | maxRunning  | `number`   | true     | `0`     | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded. |
 | handler     | `function` | false    |         | The function to execute.                                                                                                                                                                                                                                                                                       |
@@ -134,14 +133,13 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 const example1: MomoJob = {
   name: 'example 1',
   interval: '5 minutes',
-  immediate: true,
+  delay: 0,
   handler: () => console.log('This is momo'),
 };
 
 const example2: MomoJob = {
   name: 'example 2',
   interval: '5 minutes',
-  immediate: false,
   handler: () => console.log('This is momo'),
 };
 
@@ -149,23 +147,13 @@ const example3: MomoJob = {
   name: 'example 3',
   interval: '5 minutes',
   delay: 60 * 1000, // 1 minute
-  immediate: true,
   handler: () => console.log('This is momo'),
 };
 
 const example4: MomoJob = {
   name: 'example 4',
   interval: '5 minutes',
-  delay: 60 * 1000, // 1 minute
-  immediate: false,
-  handler: () => console.log('This is momo'),
-};
-
-const example5: MomoJob = {
-  name: 'example 5',
-  interval: '5 minutes',
   delay: 10 * 60 * 1000, // 10 minutes
-  immediate: true,
   handler: () => console.log('This is momo'),
 };
 ```
@@ -175,16 +163,14 @@ Assume it is 12:00 AM when the MongoSchedule with these four example jobs is sta
 - `example 1` will be run immediately, at 12:00, and then every five minutes.
 - `example 2` will be run after 5 minutes (the configured interval), at 12:05, and then every five minutes.
 - `example 3` will be run after 1 minute (the configured delay), at 12:01, and then every five minutes.
-- `example 4` will be run after 5 minutes (the configured interval), at 12:05, and then every five minutes. The configured delay is ignored because `immediate` is set to `false`.
-- `example 5` will be run after 10 minutes (the configured delay), at 12:10, and then every five minutes.
+- `example 4` will be run after 10 minutes (the configured delay), at 12:10, and then every five minutes.
 
 Now assume the MongoSchedule is stopped at 12:02 and then immediately started again.
 
 - `example 1` will be run after 5 minutes (the configured interval) after the last execution, at 12:05. The job is not run immediately because it already ran before.
 - `example 2` will be run after 5 minutes (the configured interval) after the start, at 12:07.
 - `example 3` will be run after 5 minutes (the configured interval) after the last execution, at 12:06. The job is not run immediately because it already ran before.
-- `example 4` will be run after 5 minutes (the configured interval) after the start at 12:05.
-- `example 5` will be run after 10 minutes (the configured delay), at 12:12, and then every five minutes.
+- `example 4` will be run after 10 minutes (the configured delay), at 12:12, and then every five minutes.
 
 ## License
 

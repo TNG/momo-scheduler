@@ -13,8 +13,8 @@ export class MomoJobBuilder {
     return this;
   }
 
-  withImmediate(immediate: boolean): this {
-    this.momoJob.immediate = immediate;
+  withDelay(delay: number): this {
+    this.momoJob.delay = delay;
     return this;
   }
 

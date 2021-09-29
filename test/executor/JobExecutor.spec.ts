@@ -14,8 +14,6 @@ describe('JobExecutor', () => {
   const job: Job = {
     name: 'test',
     interval: '1 minute',
-    delay: 0,
-    immediate: false,
     concurrency: 1,
     maxRunning: 0,
     handler,

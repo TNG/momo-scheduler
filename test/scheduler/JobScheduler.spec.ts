@@ -10,11 +10,9 @@ import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 
 describe('JobScheduler', () => {
-  const defaultJob = {
+  const defaultJob: Job = {
     name: 'test',
     interval: '1 second',
-    delay: 0,
-    immediate: false,
     concurrency: 1,
     maxRunning: 0,
     handler: jest.fn(),
@@ -42,7 +40,6 @@ describe('JobScheduler', () => {
     const job = { ...defaultJob, ...partialJob };
     jobScheduler = new JobScheduler(
       job.name,
-      job.immediate,
       instance(jobExecutor),
       scheduleId,
       instance(executionsRepository),
@@ -63,8 +60,8 @@ describe('JobScheduler', () => {
       verify(await jobExecutor.execute(anything())).once();
     });
 
-    it('executes an immediate job', async () => {
-      createJob({ immediate: true });
+    it('executes a job with delay 0 immediately', async () => {
+      createJob({ delay: 0 });
 
       await jobScheduler.start();
 

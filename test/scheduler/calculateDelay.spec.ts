@@ -6,25 +6,20 @@ import { JobEntity } from '../../src/repository/JobEntity';
 import { calculateDelay } from '../../src/scheduler/calculateDelay';
 
 describe('calculateDelay', () => {
-  let job: JobEntity;
-  let clock: Clock;
+  const clock: Clock = install();
 
-  beforeEach(() => {
-    job = {
+  afterAll(() => clock.uninstall());
+
+  describe('with undefined delay', () => {
+    const job: JobEntity = {
       name: 'test',
       interval: 'one second',
-      delay: 100,
       concurrency: 0,
       maxRunning: 1,
     };
-    clock = install();
-  });
 
-  afterEach(() => clock.uninstall());
-
-  describe('immediate=false', () => {
-    it('calculates delay if job was never started before (ignores configured delay)', () => {
-      const delay = calculateDelay(1000, false, job);
+    it('calculates delay if job was never started before', () => {
+      const delay = calculateDelay(1000, job);
 
       expect(delay).toBe(1000);
     });
@@ -34,14 +29,22 @@ describe('calculateDelay', () => {
 
       clock.tick(500);
 
-      const delay = calculateDelay(1000, false, job);
+      const delay = calculateDelay(1000, job);
       expect(delay).toBe(500);
     });
   });
 
-  describe('immediate=true', () => {
+  describe('with delay', () => {
+    const job: JobEntity = {
+      name: 'test',
+      interval: 'one second',
+      delay: 500,
+      concurrency: 0,
+      maxRunning: 1,
+    };
+
     it('uses configured delay if job was never started before', () => {
-      const delay = calculateDelay(1000, true, job);
+      const delay = calculateDelay(1000, job);
 
       expect(delay).toBe(job.delay);
     });
@@ -51,7 +54,7 @@ describe('calculateDelay', () => {
 
       clock.tick(500);
 
-      const delay = calculateDelay(1000, true, job);
+      const delay = calculateDelay(1000, job);
       expect(delay).toBe(500);
     });
   });

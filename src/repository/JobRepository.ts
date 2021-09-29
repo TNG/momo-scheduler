@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { Filter, MongoClient } from 'mongodb';
 
 import { ExecutionInfo } from '../job/ExecutionInfo';
 import { Job, MomoJobStatus, toJobDefinition } from '../job/Job';
@@ -8,6 +8,13 @@ import { Repository } from './Repository';
 import { findLatest } from '../job/findLatest';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
+
+function mapNullToUndefined(entity: JobEntity) {
+  return {
+    ...entity,
+    delay: entity.delay === null ? undefined : entity.delay,
+  };
+}
 
 export class JobRepository extends Repository<JobEntity> {
   private logger: Logger | undefined;
@@ -61,6 +68,16 @@ export class JobRepository extends Repository<JobEntity> {
     await this.delete({ _id: { $in: jobs.map(({ _id }) => _id) } });
 
     return latest;
+  }
+
+  async findOne(filter: Filter<JobEntity> = {}): Promise<JobEntity | undefined> {
+    const entity = await super.findOne(filter);
+    return entity ? mapNullToUndefined(entity) : undefined;
+  }
+
+  async find(filter: Filter<JobEntity> = {}): Promise<JobEntity[]> {
+    const entities = await super.find(filter);
+    return entities.map(mapNullToUndefined);
   }
 
   async list(): Promise<MomoJobStatus[]> {
