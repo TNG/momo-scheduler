@@ -24,7 +24,7 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
 
   async findOne(filter: Filter<ENTITY> = {}): Promise<ENTITY | undefined> {
     const entity = await this.collection.findOne(filter);
-    return entity === undefined ? undefined : this.mapNullToUndefined(entity);
+    return entity === null ? undefined : this.mapNullToUndefined(entity);
   }
 
   async delete(filter: Filter<ENTITY> = {}): Promise<number> {
