@@ -172,6 +172,10 @@ Now assume the MongoSchedule is stopped at 12:02 and then immediately started ag
 - `example 3` will be run after 5 minutes (the configured interval) after the last execution, at 12:06. The job is not run immediately because it already ran before.
 - `example 4` will be run after 10 minutes (the configured delay), at 12:12, and then every five minutes.
 
+## Supported Node Versions
+
+momo-scheduler supports node 12, 14 and 16.
+
 ## License
 
 This project is open source and licensed under [Apache 2.0](LICENSE).
