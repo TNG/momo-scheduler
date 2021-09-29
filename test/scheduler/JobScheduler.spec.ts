@@ -13,6 +13,7 @@ describe('JobScheduler', () => {
   const defaultJob = {
     name: 'test',
     interval: '1 second',
+    delay: 0,
     immediate: false,
     concurrency: 1,
     maxRunning: 0,

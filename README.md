@@ -54,13 +54,14 @@ await mongoSchedule.disconnect();
 
 ### MomoJob
 
-| property    | type     | optional | default | description |
-|-------------|----------|----------|---------|-------------|
+| property    | type       | optional | default | description |
+|-------------|------------|----------|---------|-------------|
 | name        | `string`   | false    |         | The name of the job. Used as a unique identifier. |
 | interval    | `string`   | false    |         | Specifies the time interval at which the job is started. Time intervals in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours') are accepted. Check documentation of [human-interval](https://www.npmjs.com/package/human-interval) library for details. | 
-| immediate   | `boolean`  | true     | `false`   | If set to true AND the job was never run before, the job will be started immediately after start. |
-| concurrency | `number`   | true     | `1`       | How many instances of a job are started at a time. |
-| maxRunning  | `number`   | true     | `0`       | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded. |
+| immediate   | `boolean`  | true     | `false` | If set to true AND the job was never run before, the job will be started after `delay` milliseconds. | 
+| delay       | `number`   | true     | `0`     | If immediate is set to true AND the job was never run before, the job will be started after `delay` milliseconds. | 
+| concurrency | `number`   | true     | `1`     | How many instances of a job are started at a time. |
+| maxRunning  | `number`   | true     | `0`     | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded. |
 | handler     | `function` | false    |         | The function to execute. |
 
 ### MongoSchedule
@@ -91,7 +92,7 @@ If the parameter is omitted, all jobs are started/stopped/cancelled/removed.
 
 ### MomoJobDescription
 
-The job description returned by the `list` and `get`functions contains the following properties:
+The job description returned by the `list` and `get` functions contains the following properties:
 
 | property    | type     | optional | description |
 |-------------|----------|----------|-------------|
