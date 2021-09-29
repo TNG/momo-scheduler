@@ -48,10 +48,10 @@ describe('validate', () => {
 
     expect(logger.error).toHaveBeenCalledTimes(1);
     expect(logger.error).toHaveBeenCalledWith(
-        'job cannot be defined',
-        MomoErrorType.defineJob,
-        { name: job.name, delay: -1 },
-        momoError.invalidDelay
+      'job cannot be defined',
+      MomoErrorType.defineJob,
+      { name: job.name, delay: -1 },
+      momoError.invalidDelay
     );
   });
 

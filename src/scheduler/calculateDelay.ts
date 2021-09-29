@@ -6,7 +6,7 @@ import { JobEntity } from '../repository/JobEntity';
 export function calculateDelay(millisecondsInterval: number, job: JobEntity): number {
   const nextStart = calculateNextStart(millisecondsInterval, job);
   if (nextStart === undefined) {
-    return  job.delay ?? millisecondsInterval;
+    return job.delay ?? millisecondsInterval;
   }
 
   return max([nextStart - DateTime.now().toMillis(), 0]) ?? 0;

@@ -9,7 +9,9 @@ import { findLatest } from '../job/findLatest';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
 
-function mapNullToUndefined(entity: JobEntity) {
+// mongodb returns null instead of undefined for optional fields
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapNullToUndefined(entity: any): JobEntity {
   return {
     ...entity,
     delay: entity.delay === null ? undefined : entity.delay,
