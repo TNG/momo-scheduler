@@ -13,8 +13,8 @@ export class MomoJobBuilder {
     return this;
   }
 
-  withImmediate(immediate: boolean): this {
-    this.momoJob.immediate = immediate;
+  withFirstRunAfter(firstRunAfter: number): this {
+    this.momoJob.firstRunAfter = firstRunAfter;
     return this;
   }
 

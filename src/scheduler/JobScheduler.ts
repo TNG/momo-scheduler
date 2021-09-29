@@ -21,7 +21,6 @@ export class JobScheduler {
 
   constructor(
     private readonly jobName: string,
-    private readonly immediate: boolean,
     private readonly jobExecutor: JobExecutor,
     private readonly scheduleId: string,
     private readonly executionsRepository: ExecutionsRepository,
@@ -37,7 +36,7 @@ export class JobScheduler {
     jobRepository: JobRepository
   ): JobScheduler {
     const executor = new JobExecutor(job.handler, scheduleId, executionsRepository, jobRepository, logger);
-    return new JobScheduler(job.name, job.immediate, executor, scheduleId, executionsRepository, jobRepository, logger);
+    return new JobScheduler(job.name, executor, scheduleId, executionsRepository, jobRepository, logger);
   }
 
   getUnexpectedErrorCount(): number {
@@ -87,7 +86,7 @@ export class JobScheduler {
 
     this.interval = jobEntity.interval;
 
-    const delay = calculateDelay(interval, this.immediate, jobEntity);
+    const delay = calculateDelay(interval, jobEntity);
 
     this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
 

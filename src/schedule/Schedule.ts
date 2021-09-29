@@ -1,4 +1,5 @@
 import { sum } from 'lodash';
+
 import { ExecutionInfo, ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 import { JobRepository } from '../repository/JobRepository';

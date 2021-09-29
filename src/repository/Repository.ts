@@ -18,11 +18,13 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
   }
 
   async find(filter: Filter<ENTITY> = {}): Promise<ENTITY[]> {
-    return this.collection.find(filter).toArray();
+    const entities = await this.collection.find(filter).toArray();
+    return entities.map(this.mapNullToUndefined);
   }
 
   async findOne(filter: Filter<ENTITY> = {}): Promise<ENTITY | undefined> {
-    return this.collection.findOne(filter);
+    const entity = await this.collection.findOne(filter);
+    return entity === null ? undefined : this.mapNullToUndefined(entity);
   }
 
   async delete(filter: Filter<ENTITY> = {}): Promise<number> {
@@ -32,5 +34,13 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
 
   async deleteOne(filter: Filter<ENTITY>): Promise<void> {
     await this.collection.deleteOne(filter);
+  }
+
+  // mongodb returns null instead of undefined for optional fields
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private mapNullToUndefined(entity: any): ENTITY {
+    const keys = Object.keys(entity);
+    const entries = keys.map((key) => [key, entity[key] ?? undefined]);
+    return Object.fromEntries(entries) as ENTITY;
   }
 }

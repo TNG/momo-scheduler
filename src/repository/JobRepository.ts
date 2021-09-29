@@ -66,15 +66,7 @@ export class JobRepository extends Repository<JobEntity> {
   async list(): Promise<MomoJobStatus[]> {
     const jobs = await this.find();
 
-    return jobs.map((job) => {
-      return {
-        name: job.name,
-        interval: job.interval,
-        concurrency: job.concurrency,
-        maxRunning: job.maxRunning,
-        executionInfo: job.executionInfo,
-      };
-    });
+    return jobs.map((job) => ({ ...toJobDefinition(job), executionInfo: job.executionInfo }));
   }
 
   async updateJob(name: string, update: Partial<JobEntity>): Promise<void> {
