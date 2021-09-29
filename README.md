@@ -167,9 +167,9 @@ Assume it is 12:00 AM when the MongoSchedule with these four example jobs is sta
 
 Now assume the MongoSchedule is stopped at 12:02 and then immediately started again.
 
-- `example 1` will be run after 5 minutes (the configured interval) after the last execution, at 12:05. The job is not run immediately because it already ran before.
-- `example 2` will be run after 5 minutes (the configured interval) after the start, at 12:07.
-- `example 3` will be run after 5 minutes (the configured interval) after the last execution, at 12:06. The job is not run immediately because it already ran before.
+- `example 1` will be run 5 minutes (the configured interval) after the last execution, at 12:05. The job is not run immediately because it already ran before.
+- `example 2` will be run 5 minutes (the configured interval) after the start, at 12:07.
+- `example 3` will be run 5 minutes (the configured interval) after the last execution, at 12:06. The job is not run immediately because it already ran before.
 - `example 4` will be run after 10 minutes (the configured delay), at 12:12, and then every five minutes.
 
 ## Supported Node Versions
