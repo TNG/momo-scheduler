@@ -101,7 +101,7 @@ export class Schedule extends LogEmitter {
    * automatically from the database, EXCEPT for changes to the interval.
    * Start the scheduler again to change a job's interval.
    *
-   * @throws if an interval cannot be parsed or the database throws
+   * @throws if the database throws
    */
   public async start(): Promise<void> {
     this.logger.debug('start all jobs', { count: this.count() });
@@ -117,7 +117,7 @@ export class Schedule extends LogEmitter {
    * Start the scheduler again to change a job's interval.
    *
    * @param name the job to start
-   * @throws if the jobs interval cannot be parsed or the database throws
+   * @throws if the database throws
    */
   public async startJob(name: string): Promise<void> {
     const jobScheduler = this.jobSchedulers[name];
