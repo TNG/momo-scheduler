@@ -6,27 +6,32 @@ import { sleep } from '../utils/sleep';
 
 describe('SchedulePing', () => {
   const scheduleId = '123';
+  const interval = 1000;
 
   let executionsRepository: ExecutionsRepository;
   let schedulePing: SchedulePing;
 
   beforeAll(() => {
-    SchedulePing.interval = 1000;
     executionsRepository = mock(ExecutionsRepository);
-    schedulePing = new SchedulePing(scheduleId, instance(executionsRepository), { debug: jest.fn(), error: jest.fn() });
+    schedulePing = new SchedulePing(
+      scheduleId,
+      instance(executionsRepository),
+      { debug: jest.fn(), error: jest.fn() },
+      interval
+    );
   });
 
   beforeEach(jest.clearAllMocks);
 
   it('starts, pings, cleans and stops', async () => {
     schedulePing.start();
-    await sleep(SchedulePing.interval);
+    await sleep(interval);
 
     verify(executionsRepository.ping(scheduleId)).once();
     verify(executionsRepository.clean()).once();
 
     await schedulePing.stop();
-    await sleep(SchedulePing.interval);
+    await sleep(interval);
 
     verify(executionsRepository.ping(scheduleId)).once();
     verify(executionsRepository.deleteOne(deepEqual({ scheduleId }))).once();

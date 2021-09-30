@@ -1,5 +1,4 @@
-export { MongoSchedule } from './schedule/MongoSchedule';
-export { MomoConnectionOptions } from './Connection';
+export { MomoOptions, MongoSchedule } from './schedule/MongoSchedule';
 export { momoError } from './logging/error/MomoError';
 export { MomoErrorType } from './logging/error/MomoErrorType';
 export { MomoEvent, MomoErrorEvent, MomoEventData } from './logging/MomoEvents';

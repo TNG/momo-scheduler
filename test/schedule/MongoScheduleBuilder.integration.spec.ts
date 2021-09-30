@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { Connection } from '../../src/Connection';
-import { MomoConnectionOptions, MomoJob, MongoSchedule } from '../../src';
+import { MomoJob, MomoOptions, MongoSchedule } from '../../src';
 import { MongoScheduleBuilder } from '../../src/schedule/MongoScheduleBuilder';
 
 describe('MongoScheduleBuilder', () => {
@@ -24,7 +24,7 @@ describe('MongoScheduleBuilder', () => {
   };
 
   let mongo: MongoMemoryServer;
-  let connectionOptions: MomoConnectionOptions;
+  let connectionOptions: MomoOptions;
   let connection: Connection;
 
   beforeAll(async () => {

@@ -6,6 +6,7 @@ import { sleep } from '../utils/sleep';
 
 describe('ExecutionsRepository', () => {
   const scheduleId = '123';
+  const deadScheduleThreshold = 1000;
   const name = 'test job';
 
   let mongo: MongoMemoryServer;
@@ -13,11 +14,9 @@ describe('ExecutionsRepository', () => {
   let executionsRepository: ExecutionsRepository;
 
   beforeAll(async () => {
-    ExecutionsRepository.deadScheduleThreshold = 1000;
-
     mongo = await MongoMemoryServer.create();
     connection = await Connection.create({ url: mongo.getUri() });
-    executionsRepository = connection.getExecutionsRepository();
+    executionsRepository = connection.getExecutionsRepository(deadScheduleThreshold);
   });
 
   beforeEach(async () => executionsRepository.delete());
@@ -88,7 +87,7 @@ describe('ExecutionsRepository', () => {
         const deadScheduleId = 'dead schedule';
         await executionsRepository.addSchedule(deadScheduleId);
         await executionsRepository.addExecution(deadScheduleId, name, 1);
-        await sleep(ExecutionsRepository.deadScheduleThreshold);
+        await sleep(deadScheduleThreshold);
 
         const { added, running } = await executionsRepository.addExecution(scheduleId, name, 1);
         expect(added).toBe(true);
@@ -119,7 +118,7 @@ describe('ExecutionsRepository', () => {
 
       it('does not count dead executions', async () => {
         await executionsRepository.addExecution(scheduleId, name, 1);
-        await sleep(ExecutionsRepository.deadScheduleThreshold);
+        await sleep(deadScheduleThreshold);
 
         const running = await executionsRepository.countRunningExecutions(name);
         expect(running).toBe(0);
@@ -164,7 +163,7 @@ describe('ExecutionsRepository', () => {
 
     it('removes dead schedules', async () => {
       await executionsRepository.addSchedule(deadScheduleId);
-      await sleep(ExecutionsRepository.deadScheduleThreshold);
+      await sleep(deadScheduleThreshold);
 
       const deletedCount = await executionsRepository.clean();
 
@@ -174,7 +173,7 @@ describe('ExecutionsRepository', () => {
 
     it('keeps alive schedules', async () => {
       await executionsRepository.addSchedule(deadScheduleId);
-      await sleep(ExecutionsRepository.deadScheduleThreshold);
+      await sleep(deadScheduleThreshold);
 
       await executionsRepository.addSchedule(scheduleId);
 

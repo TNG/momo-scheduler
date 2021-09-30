@@ -1,6 +1,6 @@
 import { anyString, deepEqual, instance, mock, when } from 'ts-mockito';
 
-import { ExecutionStatus, MomoConnectionOptions, MomoEvent, MomoJob, MongoSchedule } from '../../src';
+import { ExecutionStatus, MomoEvent, MomoJob, MomoOptions, MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
@@ -12,7 +12,7 @@ jest.mock('../../src/Connection', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     Connection: {
-      create: async (_options: MomoConnectionOptions) => {
+      create: async (_options: MomoOptions) => {
         return {
           getJobRepository: () => instance(jobRepository),
           getExecutionsRepository: () => instance(executionsRepository),

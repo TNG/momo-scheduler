@@ -1,17 +1,16 @@
-import { MomoConnectionOptions } from '../Connection';
 import { MomoJob } from '../job/MomoJob';
-import { MongoSchedule } from './MongoSchedule';
+import { MomoOptions, MongoSchedule } from './MongoSchedule';
 
 export class MongoScheduleBuilder {
   private momoJobs?: MomoJob[];
-  private momoConnectionOptions?: MomoConnectionOptions;
+  private momoConnectionOptions?: MomoOptions;
 
   withJob(momoJob: MomoJob): this {
     this.momoJobs = this.momoJobs ? this.momoJobs.concat(momoJob) : [momoJob];
     return this;
   }
 
-  withConnection(momoConnectionOptions: MomoConnectionOptions): this {
+  withConnection(momoConnectionOptions: MomoOptions): this {
     this.momoConnectionOptions = momoConnectionOptions;
     return this;
   }

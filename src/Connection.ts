@@ -5,11 +5,11 @@ import { JOBS_COLLECTION_NAME, JobRepository } from './repository/JobRepository'
 
 export interface MomoConnectionOptions {
   /**
-   * the mongodb connection string
+   * The mongodb connection string.
    */
   url: string;
   /**
-   * used to prefix all mongodb collections created by momo
+   * Used to prefix all mongodb collections created by Momo.
    */
   collectionsPrefix?: string;
 }
@@ -28,9 +28,13 @@ export class Connection {
     return connection;
   }
 
-  getExecutionsRepository(): ExecutionsRepository {
+  getExecutionsRepository(deadExecutionsThreshold = 60 * 1000): ExecutionsRepository {
     if (this.executionsRepository === undefined) {
-      this.executionsRepository = new ExecutionsRepository(this.mongoClient, this.collectionsPrefix);
+      this.executionsRepository = new ExecutionsRepository(
+        this.mongoClient,
+        deadExecutionsThreshold,
+        this.collectionsPrefix
+      );
     }
     return this.executionsRepository;
   }

@@ -2,14 +2,14 @@ import { anyString, capture, deepEqual, instance, mock, verify } from 'ts-mockit
 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { MomoConnectionOptions, MongoSchedule } from '../../src';
+import { MomoOptions, MongoSchedule } from '../../src';
 
 const executionsRepository = mock(ExecutionsRepository);
 jest.mock('../../src/Connection', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     Connection: {
-      create: async (_options: MomoConnectionOptions) => {
+      create: async (_options: MomoOptions) => {
         return {
           getJobRepository: () => instance(mock(JobRepository)),
           getExecutionsRepository: () => instance(executionsRepository),
