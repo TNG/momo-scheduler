@@ -10,8 +10,8 @@ export const EXECUTIONS_COLLECTION_NAME = 'executions';
 export class ExecutionsRepository extends Repository<ExecutionsEntity> {
   public static deadScheduleThreshold = 2 * defaultInterval;
 
-  constructor(mongoClient: MongoClient) {
-    super(mongoClient, EXECUTIONS_COLLECTION_NAME);
+  constructor(mongoClient: MongoClient, collectionPrefix?: string) {
+    super(mongoClient, EXECUTIONS_COLLECTION_NAME, collectionPrefix);
   }
 
   async addSchedule(scheduleId: string): Promise<void> {

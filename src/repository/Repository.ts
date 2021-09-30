@@ -4,8 +4,9 @@ import { cloneDeep } from 'lodash';
 export class Repository<ENTITY extends { _id?: ObjectId }> {
   private readonly collection: Collection<ENTITY>;
 
-  constructor(mongoClient: MongoClient, collectionName: string) {
-    this.collection = mongoClient.db().collection(collectionName);
+  constructor(mongoClient: MongoClient, collectionName: string, collectionPrefix?: string) {
+    const prefixedCollectionName = collectionPrefix !== undefined ? `${collectionPrefix}_` : '' + collectionName;
+    this.collection = mongoClient.db().collection(prefixedCollectionName);
   }
 
   async save(entity: OptionalId<ENTITY>): Promise<void> {
