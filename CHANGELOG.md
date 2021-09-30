@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## Next release
+- Feature: schedule a job to run with delay
+
 ## v0.3.0 (2021-09-29)
 - Feature: compatibility with mongodb v4 (removed typeorm dependency)
 - Breaking: moved utility functions into classes

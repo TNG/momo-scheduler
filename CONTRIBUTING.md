@@ -2,11 +2,32 @@
 
 Contributions are very welcome. The following will provide some helpful guidelines.
 
-## How to build the project
+## Getting started
 
+Create a clone of the project and navigate into the directory.
+
+### Install all dependencies
+
+```shell
+npm i
 ```
-$ cd /path/to/git/clone/of/Momo
-$ npm run build
+
+### Build the project
+
+```shell
+npm run build
+```
+
+### Run tests
+
+```shell
+npm run test
+```
+
+### Format the code
+
+```shell
+npm run format
 ```
 
 ## How to contribute
@@ -16,7 +37,8 @@ If you want to submit a contribution, please follow the following workflow:
 * Fork the project
 * Create a feature branch
 * Add your contribution
-* When you're completely done, build the project and run all tests via `npm run test`
+* Make sure that the project successfully builds and all tests are green
+* Please format your code
 * Create a Pull Request
 
 ### Commits
@@ -37,11 +59,3 @@ If your Pull Request resolves an issue, please add a respective line to the end,
 ```
 Resolves #123
 ```
-
-### Formatting
-
-Please adjust your code formatter to the general style of the project or use
-```
-npm run format
-```
-to format the code.
