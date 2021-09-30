@@ -6,11 +6,21 @@ on:
       - '*-3rd-party-notice'
 
 jobs:
-  build:
+  update-notice:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Update third party notice
-        uses: actions/checkout@v2
-      - shell: bash
-        run: ./update_notice.sh --dry-run
+      - uses: actions/checkout@v2
+      - name: Update THIRD_PARTY_NOTICE
+        run: |
+          echo "*** Running ORT analyzer ***"
+          docker run -v "$(pwd)":/project philipssoftware/ort --info analyze -f JSON -i /project -o /project/ort
+          echo "*** Creating ORT report ***"
+          docker run -v "$(pwd)":/project philipssoftware/ort --info report -f StaticHtml,WebApp,Excel,NoticeTemplate,SPDXDocument,GitLabLicensemodel,AsciiDocTemplate,CycloneDx,EvaluatedModel -i /project/ort/analyzer-result.json -o /project/ort
+          cp ort/NOTICE_default THIRD_PARTY_NOTICE
+      - name: Commit THIRD_PARTY_NOTICE
+        run: |
+          git config --global user.name 'Ute Weiss'
+          git config --global user.email 'ute.weiss@tngtech.com'
+          git add THIRD_PARTY_NOTICE
+          git commit -sam "chore: update THIRD_PARTY_NOTICE"
+          git push
