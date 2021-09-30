@@ -77,13 +77,17 @@ export class Schedule extends LogEmitter {
   }
 
   /**
-   * Triggers a defined job to run immediately.
+   * Triggers a defined job to run once independently from the schedule.
    * Does nothing if no job with this name exists.
    *
+   * Note that the returned promise will not be resolved until the job execution finished.
+   * You might not want to await the promise if your specified delay is big.
+   *
    * @param name the job to run
+   * @param delay the job will be run after delay milliseconds
    * @returns the return value of the job's handler or one of: 'finished', 'max running reached' (job could not be executed), 'not found', 'failed'
    */
-  public async run(name: string): Promise<JobResult> {
+  public async run(name: string, delay = 0): Promise<JobResult> {
     const jobScheduler = this.jobSchedulers[name];
 
     if (!jobScheduler) {
@@ -91,7 +95,11 @@ export class Schedule extends LogEmitter {
       return { status: ExecutionStatus.notFound };
     }
 
-    return jobScheduler.executeOnce();
+    if (delay <= 0) {
+      return jobScheduler.executeOnce();
+    }
+
+    return new Promise((resolve) => setTimeout(async () => resolve(await jobScheduler.executeOnce()), delay));
   }
 
   /**
