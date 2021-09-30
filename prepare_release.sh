@@ -13,6 +13,9 @@ for arg in "$@"; do
       VERSION="${1#*=}"
       VERSION_PREFIXED="v${1#*=}"
       ;;
+    --upstream=*)
+      UPSTREAM_URL="${1#*=}"
+      ;;
     --dry-run)
       DRY_RUN=1
       ;;
@@ -57,15 +60,15 @@ echo "Updating version in package.json"
 sed -i -e "s/\"version\":.*/\"version\":\ \"$VERSION\"\,/" package.json
 npm install
 
-echo "Committing version change"
-git add package.json
-git add package-lock.json
-git commit --signoff -m "chore: update version to $VERSION"
-
 echo "Linting, building and testing"
 npm run lint
 npm run build
 npm run test
+
+echo "Committing version change"
+git add package.json
+git add package-lock.json
+git commit --signoff -m "chore: update version to $VERSION"
 
 echo "Creating Tag"
 git tag -a -m "$VERSION_PREFIXED" "$VERSION_PREFIXED"
