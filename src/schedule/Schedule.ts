@@ -78,6 +78,9 @@ export class Schedule extends LogEmitter {
    * Triggers a defined job to run once independently from the schedule.
    * Does nothing if no job with this name exists.
    *
+   * Note that the returned promise will not be resolved until the job execution finished.
+   * You might not want to await the promise if your specified delay is big.
+   *
    * @param name the job to run
    * @param delay the job will be run after delay milliseconds
    * @returns the return value of the job's handler or one of: 'finished', 'max running reached' (job could not be executed), 'not found', 'failed'
