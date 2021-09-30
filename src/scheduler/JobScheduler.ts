@@ -81,6 +81,7 @@ export class JobScheduler {
 
     const interval = humanInterval(jobEntity.interval);
     if (interval === undefined || isNaN(interval)) {
+      // the interval was already validated when the job was defined
       throw momoError.nonParsableInterval;
     }
 

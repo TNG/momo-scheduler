@@ -52,6 +52,8 @@ export class Schedule extends LogEmitter {
    *
    * @param momoJob the job to define
    * @returns true if jobs was defined, false if the job was invalid
+   *
+   * @throws if the database throws
    */
   public async define(momoJob: MomoJob): Promise<boolean> {
     const job = toJob(momoJob);
@@ -98,6 +100,8 @@ export class Schedule extends LogEmitter {
    * Updates made to jobs after starting the scheduler are picked up
    * automatically from the database, EXCEPT for changes to the interval.
    * Start the scheduler again to change a job's interval.
+   *
+   * @throws if the database throws
    */
   public async start(): Promise<void> {
     this.logger.debug('start all jobs', { count: this.count() });
@@ -113,6 +117,7 @@ export class Schedule extends LogEmitter {
    * Start the scheduler again to change a job's interval.
    *
    * @param name the job to start
+   * @throws if the database throws
    */
   public async startJob(name: string): Promise<void> {
     const jobScheduler = this.jobSchedulers[name];
@@ -180,6 +185,8 @@ export class Schedule extends LogEmitter {
    * Does nothing if no job with the given name exists.
    *
    * @param name the job to remove
+   *
+   * @throws if the database throws
    */
   public async removeJob(name: string): Promise<void> {
     await this.cancelJob(name);
@@ -189,6 +196,8 @@ export class Schedule extends LogEmitter {
 
   /**
    * Stops all scheduled jobs and removes them from the schedule and the database.
+   *
+   * @throws if the database throws
    */
   public async remove(): Promise<void> {
     const names = Object.keys(this.jobSchedulers);
@@ -210,6 +219,8 @@ export class Schedule extends LogEmitter {
 
   /**
    * Returns descriptions of all jobs on the schedule.
+   *
+   * @throws if the database throws
    */
   public async list(): Promise<MomoJobDescription[]> {
     return (
@@ -220,6 +231,8 @@ export class Schedule extends LogEmitter {
    * Retrieves execution information about the job from the database. Returns undefined if the job cannot be found or was never executed.
    *
    * @param name the job to check
+   *
+   * @throws if the database throws
    */
   public async check(name: string): Promise<ExecutionInfo | undefined> {
     return this.jobRepository.check(name);
@@ -232,6 +245,8 @@ export class Schedule extends LogEmitter {
    * This also removes jobs that are not on this schedule, but were defined by other schedules.
    * However, does NOT stop job executions - this will cause currently running jobs to fail.
    * Consider using stop/cancel/remove methods instead!
+   *
+   * @throws if the database throws
    */
   public async clear(): Promise<void> {
     await this.jobRepository.delete();
@@ -241,6 +256,8 @@ export class Schedule extends LogEmitter {
    * Returns the description of a job or undefined if no job with the given name is on the schedule.
    *
    * @param name the name of the job to return
+   *
+   * @throws if the database throws
    */
   public async get(name: string): Promise<MomoJobDescription | undefined> {
     return this.jobSchedulers[name]?.getJobDescription();
