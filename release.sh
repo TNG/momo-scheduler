@@ -44,7 +44,7 @@ fi
 git pull "${UPSTREAM_URL}" "${UPSTREAM_BRANCH}"
 
 echo "Checking version in package.json"
-if [ ! -n "$(sed -n -e "/\"version\": \"${VERSION}\"/ p" package.json)" ]; then
+if [ -z "$(sed -n -e "/\"version\": \"${VERSION}\"/ p" package.json)" ]; then
     echo "Version in package.json is not $VERSION!"
     exit 1
 fi
