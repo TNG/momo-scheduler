@@ -102,6 +102,18 @@ describe('Schedule', () => {
     expect(momoJob.handler).toHaveBeenCalledTimes(1);
   });
 
+  it('runs a job once after delay', async () => {
+    await mongoSchedule.define(momoJob);
+
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(jobDefinition);
+    when(executionsRepository.addExecution(anyString(), momoJob.name, 0)).thenResolve({ added: true, running: 0 });
+
+    const result = await mongoSchedule.run(momoJob.name, 500);
+
+    expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
+    expect(momoJob.handler).toHaveBeenCalledTimes(1);
+  });
+
   it('skips running job once when job is not found', async () => {
     const result = await mongoSchedule.run('not defined');
 

@@ -75,7 +75,7 @@ export class JobExecutor {
       };
     } catch (e) {
       this.logger.error('job failed', MomoErrorType.executeJob, { name: jobEntity.name }, e);
-      result = { status: ExecutionStatus.failed, handlerResult: e.message };
+      result = { status: ExecutionStatus.failed, handlerResult: (e as Error).message };
     }
     return { started, result };
   }

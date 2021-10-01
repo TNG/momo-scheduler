@@ -3,10 +3,10 @@ import { max } from 'lodash';
 
 import { JobEntity } from '../repository/JobEntity';
 
-export function calculateDelay(millisecondsInterval: number, immediate: boolean, job: JobEntity): number {
+export function calculateDelay(millisecondsInterval: number, job: JobEntity): number {
   const nextStart = calculateNextStart(millisecondsInterval, job);
   if (nextStart === undefined) {
-    return immediate ? 0 : millisecondsInterval;
+    return job.firstRunAfter ?? millisecondsInterval;
   }
 
   return max([nextStart - DateTime.now().toMillis(), 0]) ?? 0;

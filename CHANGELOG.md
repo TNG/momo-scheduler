@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## Next release
+- Feature: schedule a job to run with delay (option `firstRunAfter`)
+- Breaking: `immediate` was removed; instead, set `firstRunAfter` to `0` for immediate execution
+
+## v0.3.0 (2021-09-29)
+- Feature: compatibility with mongodb v4 (removed typeorm dependency)
+- Breaking: moved utility functions into classes
+    - `check` and `clear` are now part of the `Schedule`
+
 ## v0.2.0 (2021-07-16)
 - Feature: builder pattern for schedules and jobs
 - Fix: remove stale executions from db

@@ -5,7 +5,7 @@ describe('MomoJobBuilder', () => {
     const momoJob = new MomoJobBuilder()
       .withName('name')
       .withInterval('one minute')
-      .withImmediate(true)
+      .withFirstRunAfter(0)
       .withConcurrency(1)
       .withMaxRunning(1)
       .withHandler(jest.fn())
@@ -13,7 +13,7 @@ describe('MomoJobBuilder', () => {
 
     expect(momoJob.name).toEqual('name');
     expect(momoJob.interval).toEqual('one minute');
-    expect(momoJob.immediate).toEqual(true);
+    expect(momoJob.firstRunAfter).toEqual(0);
     expect(momoJob.concurrency).toEqual(1);
     expect(momoJob.maxRunning).toEqual(1);
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
@@ -24,7 +24,7 @@ describe('MomoJobBuilder', () => {
 
     expect(momoJob.name).toEqual('name');
     expect(momoJob.interval).toEqual('one minute');
-    expect(momoJob.immediate).toBeUndefined();
+    expect(momoJob.firstRunAfter).toBeUndefined();
     expect(momoJob.concurrency).toBeUndefined();
     expect(momoJob.maxRunning).toBeUndefined();
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());

@@ -1,0 +1,26 @@
+name: Update THIRD_PARTY_NOTICE
+
+on:
+  push:
+    branches:
+      - '*-release'
+
+jobs:
+  update-notice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Update THIRD_PARTY_NOTICE
+        run: |
+          echo "*** Running ORT analyzer ***"
+          docker run -v "$(pwd)":/project philipssoftware/ort --info analyze -f JSON -i /project -o /project/ort
+          echo "*** Creating ORT report ***"
+          docker run -v "$(pwd)":/project philipssoftware/ort --info report -f NoticeTemplate -i /project/ort/analyzer-result.json -o /project/ort
+          cp ort/NOTICE_default THIRD_PARTY_NOTICE
+      - name: Commit THIRD_PARTY_NOTICE
+        run: |
+          git config --global user.name 'Ute Weiss'
+          git config --global user.email 'ute.weiss@tngtech.com'
+          git add THIRD_PARTY_NOTICE
+          git commit -sam "chore: update THIRD_PARTY_NOTICE"
+          git push
