@@ -8,7 +8,7 @@ import { calculateDelay } from '../../src/scheduler/calculateDelay';
 describe('calculateDelay', () => {
   const clock: Clock = install();
 
-  afterAll(() => clock.uninstall());
+  afterAll(() => clock.reset());
 
   describe('with undefined delay', () => {
     const job: JobEntity = {

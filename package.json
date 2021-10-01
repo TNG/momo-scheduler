@@ -38,13 +38,14 @@
     "uuid": "8.3.2"
   },
   "devDependencies": {
-    "@sinonjs/fake-timers": "7.1.2",
+    "@sinonjs/fake-timers": "8.0.1",
     "@types/human-interval": "1.0.0",
     "@types/jest": "27.0.2",
     "@types/lodash": "4.14.175",
     "@types/luxon": "2.0.4",
     "@types/node": "16.9.1",
     "@types/pino": "6.3.11",
+    "@types/sinonjs__fake-timers": "6.0.4",
     "@types/uuid": "8.3.1",
     "@typescript-eslint/eslint-plugin": "4.32.0",
     "@typescript-eslint/parser": "4.32.0",
