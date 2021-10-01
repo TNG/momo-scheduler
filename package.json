@@ -38,7 +38,7 @@
     "uuid": "8.3.2"
   },
   "devDependencies": {
-    "@sinonjs/fake-timers": "7.1.2",
+    "@sinonjs/fake-timers": "8.0.1",
     "@types/human-interval": "1.0.0",
     "@types/jest": "27.0.2",
     "@types/lodash": "4.14.175",
