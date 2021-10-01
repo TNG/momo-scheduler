@@ -85,5 +85,5 @@ fi
 echo "Please merge $RELEASE_BRANCH into $UPSTREAM_BRANCH"
 
 if [[ $DRY_RUN = 1 ]]; then
-  echo "Run these commands to clean up: git co $UPSTREAM_BRANCH && git branch -D $RELEASE_BRANCH && git tag -d $VERSION_PREFIXED"
+  echo "Run these commands to clean up: git checkout $UPSTREAM_BRANCH && git branch -D $RELEASE_BRANCH && git tag -d $VERSION_PREFIXED"
 fi
