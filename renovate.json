@@ -1,0 +1,40 @@
+{
+  "extends": ["config:base", ":gitSignOff"],
+  "rangeStrategy": "pin",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "automergeType": "branch"
+  },
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["^eslint"],
+      "automerge": true,
+      "automergeType": "branch",
+      "groupName": "ESLint packages",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
+    },
+    {
+      "matchPackagePatterns": ["^@types"],
+      "automerge": true,
+      "automergeType": "branch",
+      "groupName": "Types",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "excludePackagePrefixes": ["eslint", "@types"],
+      "automerge": true,
+      "automergeType": "branch",
+      "groupName":  "Dev dependencies",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
+    },
+    {
+      "matchDepTypes": ["dependencies"],
+      "automerge": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName":  "Prod dependencies"
+    }
+  ]
+}
