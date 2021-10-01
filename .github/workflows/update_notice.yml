@@ -19,8 +19,8 @@ jobs:
           cp ort/NOTICE_default THIRD_PARTY_NOTICE
       - name: Commit THIRD_PARTY_NOTICE
         run: |
-          git config --global user.name 'Ute Weiss'
-          git config --global user.email 'ute.weiss@tngtech.com'
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git add THIRD_PARTY_NOTICE
           git commit -sam "chore: update THIRD_PARTY_NOTICE"
           git push

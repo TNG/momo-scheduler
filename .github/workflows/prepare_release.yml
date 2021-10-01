@@ -21,7 +21,7 @@ jobs:
 
       - name: Run script
         run: |
-          git config --global user.name 'Ute Weiss'
-          git config --global user.email 'ute.weiss@tngtech.com'
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           VERSION=${{ github.event.inputs.version }}
           ./prepare_release.sh --version=$VERSION --upstream=https://github.com/${{ github.repository }}
