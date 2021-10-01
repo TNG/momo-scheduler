@@ -1,35 +1,39 @@
 {
   "extends": ["config:base", ":gitSignOff"],
   "rangeStrategy": "pin",
-  "commitBody": "Signed-off-by: {{{gitAuthor}}}",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "automergeType": "branch"
+  },
   "packageRules": [
     {
-      "packagePatterns": ["^eslint"],
+      "matchPackagePatterns": ["^eslint"],
       "automerge": true,
       "automergeType": "branch",
       "groupName": "ESLint packages",
-      "updateTypes": ["minor", "patch", "pin", "digest"]
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
     },
     {
-      "packagePatterns": ["^@types"],
+      "matchPackagePatterns": ["^@types"],
       "automerge": true,
       "automergeType": "branch",
       "groupName": "Types",
-      "updateTypes": ["minor", "patch", "pin", "digest"]
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
     },
     {
-      "depTypeList": ["devDependencies"],
+      "matchDepTypes": ["devDependencies"],
       "excludePackagePrefixes": ["eslint", "@types"],
       "automerge": true,
       "automergeType": "branch",
       "groupName":  "Dev dependencies",
-      "updateTypes": ["minor", "patch", "pin", "digest"]
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
     },
     {
-      "depTypeList": ["dependencies"],
+      "matchDepTypes": ["dependencies"],
       "automerge": true,
       "automergeType": "branch",
-      "updateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName":  "Prod dependencies"
     }
   ]
