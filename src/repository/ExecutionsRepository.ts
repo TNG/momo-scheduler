@@ -3,15 +3,12 @@ import { MongoClient } from 'mongodb';
 
 import { ExecutionsEntity } from './ExecutionsEntity';
 import { Repository } from './Repository';
-import { defaultInterval } from '../schedule/SchedulePing';
 
 export const EXECUTIONS_COLLECTION_NAME = 'executions';
 
 export class ExecutionsRepository extends Repository<ExecutionsEntity> {
-  public static deadScheduleThreshold = 2 * defaultInterval;
-
-  constructor(mongoClient: MongoClient) {
-    super(mongoClient, EXECUTIONS_COLLECTION_NAME);
+  constructor(mongoClient: MongoClient, private readonly deadScheduleThreshold: number, collectionPrefix?: string) {
+    super(mongoClient, EXECUTIONS_COLLECTION_NAME, collectionPrefix);
   }
 
   async addSchedule(scheduleId: string): Promise<void> {
@@ -49,7 +46,7 @@ export class ExecutionsRepository extends Repository<ExecutionsEntity> {
   }
 
   async countRunningExecutions(name: string): Promise<number> {
-    const timestamp = DateTime.now().toMillis() - ExecutionsRepository.deadScheduleThreshold;
+    const timestamp = DateTime.now().toMillis() - this.deadScheduleThreshold;
     const numbers = (await this.find({ timestamp: { $gt: timestamp } })).map((executionsEntity) => {
       return executionsEntity.executions[name] ?? 0;
     });
@@ -61,7 +58,7 @@ export class ExecutionsRepository extends Repository<ExecutionsEntity> {
   }
 
   async clean(): Promise<number> {
-    const timestamp = DateTime.now().toMillis() - ExecutionsRepository.deadScheduleThreshold;
+    const timestamp = DateTime.now().toMillis() - this.deadScheduleThreshold;
     return this.delete({ timestamp: { $lt: timestamp } });
   }
 }

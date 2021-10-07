@@ -76,6 +76,7 @@ If the parameter is omitted, all jobs are started/stopped/cancelled/removed.
 
 | function  | parameters                         | description                                                                                                                                                                                                                                                               |
 | --------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| connect   | `MomoConnectionOptions`            | Creates a new MongoSchedule connected to your database. See below for the available options.                                                                                                                                                                              |
 | define    | `MomoJob`                          | Creates a new MomoJob on the schedule.                                                                                                                                                                                                                                    |
 | start     |                                    | Starts jobs that are on the schedule.                                                                                                                                                                                                                                     |
 | stop      |                                    | Stops jobs, but does not remove them from either the schedule or the database.                                                                                                                                                                                            |
@@ -93,7 +94,15 @@ If the parameter is omitted, all jobs are started/stopped/cancelled/removed.
 | run       | `string`, `number` (default: `0`)  | Runs the job with the provided name once, independently from the schedule, after the specified delay. Note that `maxRunning` is respected, ie. the execution is skipped if the job is already running `maxRunning` times.                                                 |
 | on        | `'debug'` or `'error'`, `function` | Define a callback for debug or error events.                                                                                                                                                                                                                              |
 
-### MomoJobDescription
+#### MomoConnectionOptions
+
+| property          | type     | optional | default   | description                                                                                                                                                                                                                                                                          |
+| ----------------- | -------- | -------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| url               | `string` | false    |           | The connection string of your database.                                                                                                                                                                                                                                              |
+| collectionsPrefix | `string` | true     | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                                                        |
+| pingInterval      | number   | true     | `60`      | The keep alive ping interval of the schedule, in seconds. After twice the amount of time has elapsed without a ping of your Momo instance, stale job executions are considered dead. You might want to reduce this if you have jobs running on very short intervals. |
+
+#### MomoJobDescription
 
 The job description returned by the `list` and `get` functions of the `MongoSchedule` contains the following properties:
 

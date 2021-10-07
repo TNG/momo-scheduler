@@ -1,16 +1,14 @@
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 import { Logger } from '../logging/Logger';
 
-export const defaultInterval = 60 * 1000;
-
 export class SchedulePing {
-  public static interval = defaultInterval;
   private handle?: NodeJS.Timeout;
 
   constructor(
     private readonly scheduleId: string,
     private readonly executionsRepository: ExecutionsRepository,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly interval: number
   ) {}
 
   start(): void {
@@ -23,7 +21,7 @@ export class SchedulePing {
       if (deletedCount > 0) {
         this.logger.debug('removed dead executions', { schedules: deletedCount });
       }
-    }, SchedulePing.interval);
+    }, this.interval);
   }
 
   async stop(): Promise<void> {

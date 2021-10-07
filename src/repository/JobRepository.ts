@@ -12,8 +12,8 @@ export const JOBS_COLLECTION_NAME = 'jobs';
 export class JobRepository extends Repository<JobEntity> {
   private logger: Logger | undefined;
 
-  constructor(mongoClient: MongoClient) {
-    super(mongoClient, JOBS_COLLECTION_NAME);
+  constructor(mongoClient: MongoClient, collectionPrefix?: string) {
+    super(mongoClient, JOBS_COLLECTION_NAME, collectionPrefix);
   }
 
   setLogger(logger: Logger): void {
