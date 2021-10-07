@@ -13,6 +13,9 @@ for arg in "$@"; do
       VERSION="${1#*=}"
       VERSION_PREFIXED="v${1#*=}"
       ;;
+    --upstream=*)
+      UPSTREAM_URL="${1#*=}"
+      ;;
     --dry-run)
       DRY_RUN=1
       ;;
@@ -32,18 +35,20 @@ fi
 
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [[ ! $GIT_BRANCH =~ $UPSTREAM_BRANCH ]]; then
-    echo "You do not seem to be on the ${UPSTREAM_BRANCH} branch!"
+    echo "You do not seem to be on the $UPSTREAM_BRANCH branch!"
     exit 1
 fi
 
 if [ -n "$(git status --porcelain)" ]; then
     echo "You have local changes!"
-    exit 1
+    if [[ $DRY_RUN = 0 ]]; then
+      exit 1
+    fi
 fi
 
-git pull "${UPSTREAM_URL}" "${UPSTREAM_BRANCH}"
+git pull "$UPSTREAM_URL" "$UPSTREAM_BRANCH"
 
-RELEASE_BRANCH="${VERSION_PREFIXED}-release"
+RELEASE_BRANCH="$VERSION_PREFIXED-release"
 git branch "$RELEASE_BRANCH"
 git checkout "$RELEASE_BRANCH"
 
@@ -57,18 +62,15 @@ echo "Updating version in package.json"
 sed -i -e "s/\"version\":.*/\"version\":\ \"$VERSION\"\,/" package.json
 npm install
 
-echo "Committing version change"
-git add package.json
-git add package-lock.json
-git commit --signoff -m "chore: update version to $VERSION"
-
 echo "Linting, building and testing"
 npm run lint
 npm run build
 npm run test
 
-echo "Creating Tag"
-git tag -a -m "$VERSION_PREFIXED" "$VERSION_PREFIXED"
+echo "Committing version change and creating tag"
+git add package.json package-lock.json
+git commit -sm "chore: update version to $VERSION"
+git tag -am "$VERSION_PREFIXED" "$VERSION_PREFIXED"
 
 if [[ $DRY_RUN = 1 ]]; then
   echo "Pushing version and tag to GitHub repository (dry-run)"
@@ -81,3 +83,7 @@ else
 fi
 
 echo "Please merge $RELEASE_BRANCH into $UPSTREAM_BRANCH"
+
+if [[ $DRY_RUN = 1 ]]; then
+  echo "Run these commands to clean up: git checkout $UPSTREAM_BRANCH && git branch -D $RELEASE_BRANCH && git tag -d $VERSION_PREFIXED"
+fi

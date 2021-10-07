@@ -32,16 +32,18 @@ fi
 
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [[ ! $GIT_BRANCH =~ $UPSTREAM_BRANCH ]]; then
-    echo "You do not seem to be on the ${UPSTREAM_BRANCH} branch!"
+    echo "You do not seem to be on the $UPSTREAM_BRANCH branch!"
     exit 1
 fi
 
 if [ -n "$(git status --porcelain)" ]; then
     echo "You have local changes!"
-    exit 1
+    if [[ $DRY_RUN = 0 ]]; then
+      exit 1
+    fi
 fi
 
-git pull "${UPSTREAM_URL}" "${UPSTREAM_BRANCH}"
+git pull "$UPSTREAM_URL" "$UPSTREAM_BRANCH"
 
 echo "Checking version in package.json"
 if [ -z "$(sed -n -e "/\"version\": \"${VERSION}\"/ p" package.json)" ]; then

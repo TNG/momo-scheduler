@@ -1,0 +1,27 @@
+name: Prepare Release From main
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'release version, e.g. 0.14.0'
+        required: true
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Setup node 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Run script
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          VERSION=${{ github.event.inputs.version }}
+          ./prepare_release.sh --version=$VERSION --upstream=https://github.com/${{ github.repository }}
