@@ -41,7 +41,7 @@
     "@sinonjs/fake-timers": "8.0.1",
     "@types/human-interval": "1.0.0",
     "@types/jest": "27.0.2",
-    "@types/lodash": "4.14.175",
+    "@types/lodash": "4.14.176",
     "@types/luxon": "2.0.5",
     "@types/node": "16.9.1",
     "@types/pino": "6.3.12",
