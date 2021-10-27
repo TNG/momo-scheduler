@@ -10,7 +10,7 @@ import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
-import { TimeoutHandle, setIntervalWithDelay } from './setIntervalWithDelay';
+import { TimeoutHandle, setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
 import { calculateDelay } from './calculateDelay';
 import { momoError } from '../logging/error/MomoError';
 
@@ -89,7 +89,7 @@ export class JobScheduler {
 
     const delay = calculateDelay(interval, jobEntity);
 
-    this.jobHandle = setIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay);
+    this.jobHandle = setSafeIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay, this.logger);
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
       name: this.jobName,

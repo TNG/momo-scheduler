@@ -1,4 +1,4 @@
-import { deepEqual, instance, mock, verify } from 'ts-mockito';
+import { deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { SchedulePing } from '../../src/schedule/SchedulePing';
@@ -35,5 +35,18 @@ describe('SchedulePing', () => {
 
     verify(executionsRepository.ping(scheduleId)).once();
     verify(executionsRepository.deleteOne(deepEqual({ scheduleId }))).once();
+  });
+
+  it('handles mongo errors', async () => {
+    try {
+      when(executionsRepository.ping(scheduleId)).thenReject({ message: 'I am dead' } as Error);
+
+      schedulePing.start();
+      await sleep(interval);
+
+      verify(executionsRepository.ping(scheduleId)).once();
+    } finally {
+      await schedulePing.stop();
+    }
   });
 });

@@ -10,6 +10,7 @@ import { MomoJob } from '../job/MomoJob';
 import { MomoJobDescription } from '../job/MomoJobDescription';
 import { toJob } from '../job/Job';
 import { validate } from '../job/validate';
+import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class Schedule extends LogEmitter {
   private jobSchedulers: { [name: string]: JobScheduler } = {};
@@ -99,7 +100,9 @@ export class Schedule extends LogEmitter {
       return jobScheduler.executeOnce();
     }
 
-    return new Promise((resolve) => setTimeout(async () => resolve(await jobScheduler.executeOnce()), delay));
+    return new Promise((resolve) =>
+      setSafeTimeout(async () => resolve(await jobScheduler.executeOnce()), delay, this.logger)
+    );
   }
 
   /**
