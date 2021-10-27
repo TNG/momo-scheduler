@@ -11,7 +11,7 @@ describe('SchedulePing', () => {
   let executionsRepository: ExecutionsRepository;
   let schedulePing: SchedulePing;
 
-  beforeAll(() => {
+  beforeEach(() => {
     executionsRepository = mock(ExecutionsRepository);
     schedulePing = new SchedulePing(
       scheduleId,
@@ -21,25 +21,29 @@ describe('SchedulePing', () => {
     );
   });
 
-  beforeEach(jest.clearAllMocks);
-
   it('starts, pings, cleans and stops', async () => {
-    schedulePing.start();
-    await sleep(interval);
+    try {
+      schedulePing.start();
+      await sleep(interval);
 
-    verify(executionsRepository.ping(scheduleId)).once();
-    verify(executionsRepository.clean()).once();
+      verify(executionsRepository.ping(scheduleId)).once();
+      verify(executionsRepository.clean()).once();
 
-    await schedulePing.stop();
-    await sleep(interval);
+      await schedulePing.stop();
+      await sleep(interval);
 
-    verify(executionsRepository.ping(scheduleId)).once();
-    verify(executionsRepository.deleteOne(deepEqual({ scheduleId }))).once();
+      verify(executionsRepository.ping(scheduleId)).once();
+      verify(executionsRepository.deleteOne(deepEqual({ scheduleId }))).once();
+    } finally {
+      await schedulePing.stop();
+    }
   });
 
   it('handles mongo errors', async () => {
     try {
-      when(executionsRepository.ping(scheduleId)).thenReject({ message: 'I am dead' } as Error);
+      when(executionsRepository.ping(scheduleId)).thenReject({
+        message: 'I am an error that should be caught',
+      } as Error);
 
       schedulePing.start();
       await sleep(interval);
