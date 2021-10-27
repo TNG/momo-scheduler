@@ -25,7 +25,8 @@ export class SchedulePing {
         }
       },
       this.interval,
-      this.logger
+      this.logger,
+      'Pinging or cleaning the Executions repository failed'
     );
   }
 

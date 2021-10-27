@@ -133,7 +133,7 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 | ----- | ---------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | both  | message          | `string`                 | Some information about the event that occurred.                                                                                              |
 | both  | data (optional)  | `{ name?: string; ... }` | Contains additional information like the name of the affected job.                                                                           |
-| error | type             | `MomoErrorType`          | one of: `'defining job failed'`, `'scheduling job failed'`, `'executing job failed'`, `'stopping job failed'`, `'an internal error occured'` |
+| error | type             | `MomoErrorType`          | one of: `'defining job failed'`, `'scheduling job failed'`, `'executing job failed'`, `'stopping job failed'`, `'an internal error occurred'` |
 | error | error (optional) | `Error`                  | The root cause of the error.                                                                                                                 |
 
 ### Job Examples

@@ -9,23 +9,25 @@ export function setSafeIntervalWithDelay(
   callback: () => Promise<void>,
   interval: number,
   delay: number,
-  logger: Logger
+  logger: Logger,
+  errorMessage: string
 ): TimeoutHandle {
-  const intervalWithDelay = new IntervalWithDelay(callback, interval, delay, logger);
+  const intervalWithDelay = new IntervalWithDelay(callback, interval, delay, logger, errorMessage);
   return { get: () => intervalWithDelay.timeout };
 }
 
 class IntervalWithDelay {
   public timeout: NodeJS.Timeout;
 
-  constructor(callback: () => Promise<void>, interval: number, delay: number, logger: Logger) {
+  constructor(callback: () => Promise<void>, interval: number, delay: number, logger: Logger, errorMessage: string) {
     this.timeout = setSafeTimeout(
       async () => {
-        this.timeout = setSafeInterval(callback, interval, logger);
+        this.timeout = setSafeInterval(callback, interval, logger, errorMessage);
         await callback();
       },
       delay,
-      logger
+      logger,
+      errorMessage
     );
   }
 }

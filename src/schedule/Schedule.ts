@@ -101,7 +101,12 @@ export class Schedule extends LogEmitter {
     }
 
     return new Promise((resolve) =>
-      setSafeTimeout(async () => resolve(await jobScheduler.executeOnce()), delay, this.logger)
+      setSafeTimeout(
+        async () => resolve(await jobScheduler.executeOnce()),
+        delay,
+        this.logger,
+        'Single execution failed'
+      )
     );
   }
 

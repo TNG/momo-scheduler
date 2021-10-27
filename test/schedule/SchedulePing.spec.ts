@@ -7,18 +7,15 @@ import { sleep } from '../utils/sleep';
 describe('SchedulePing', () => {
   const scheduleId = '123';
   const interval = 1000;
+  let error: jest.Mock;
 
   let executionsRepository: ExecutionsRepository;
   let schedulePing: SchedulePing;
 
   beforeEach(() => {
     executionsRepository = mock(ExecutionsRepository);
-    schedulePing = new SchedulePing(
-      scheduleId,
-      instance(executionsRepository),
-      { debug: jest.fn(), error: jest.fn() },
-      interval
-    );
+    error = jest.fn();
+    schedulePing = new SchedulePing(scheduleId, instance(executionsRepository), { debug: jest.fn(), error }, interval);
   });
 
   it('starts, pings, cleans and stops', async () => {
@@ -49,6 +46,12 @@ describe('SchedulePing', () => {
       await sleep(interval);
 
       verify(executionsRepository.ping(scheduleId)).once();
+      expect(error).toHaveBeenCalledWith(
+        'Pinging or cleaning the Executions repository failed',
+        'an internal error occurred',
+        {},
+        { message: 'I am an error that should be caught' }
+      );
     } finally {
       await schedulePing.stop();
     }

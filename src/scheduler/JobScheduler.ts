@@ -89,7 +89,13 @@ export class JobScheduler {
 
     const delay = calculateDelay(interval, jobEntity);
 
-    this.jobHandle = setSafeIntervalWithDelay(this.executeConcurrently.bind(this), interval, delay, this.logger);
+    this.jobHandle = setSafeIntervalWithDelay(
+      this.executeConcurrently.bind(this),
+      interval,
+      delay,
+      this.logger,
+      'Concurrent execution failed'
+    );
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
       name: this.jobName,
