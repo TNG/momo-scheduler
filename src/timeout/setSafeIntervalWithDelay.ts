@@ -21,8 +21,8 @@ class IntervalWithDelay {
   constructor(callback: () => Promise<void>, interval: number, delay: number, logger: Logger) {
     this.timeout = setSafeTimeout(
       async () => {
-        await callback();
         this.timeout = setSafeInterval(callback, interval, logger);
+        await callback();
       },
       delay,
       logger
