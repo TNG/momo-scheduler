@@ -129,12 +129,12 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 
 ### MomoEvent and MomoErrorEvent
 
-| event | property         | type                     | description                                                                                                 |
-| ----- | ---------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| both  | message          | `string`                 | Some information about the event that occurred.                                                             |
-| both  | data (optional)  | `{ name?: string; ... }` | Contains additional information like the name of the affected job.                                          |
-| error | type             | `MomoErrorType`          | `'defining job failed'` or `'scheduling job failed'` or `'executing job failed'` or `'stopping job failed'` |
-| error | error (optional) | `Error`                  | The root cause of the error.                                                                                |
+| event | property         | type                     | description                                                                                                                                  |
+| ----- | ---------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| both  | message          | `string`                 | Some information about the event that occurred.                                                                                              |
+| both  | data (optional)  | `{ name?: string; ... }` | Contains additional information like the name of the affected job.                                                                           |
+| error | type             | `MomoErrorType`          | one of: `'defining job failed'`, `'scheduling job failed'`, `'executing job failed'`, `'stopping job failed'`, `'an internal error occured'` |
+| error | error (optional) | `Error`                  | The root cause of the error.                                                                                                                 |
 
 ### Job Examples
 
