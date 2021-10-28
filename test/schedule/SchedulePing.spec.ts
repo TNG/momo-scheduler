@@ -18,42 +18,37 @@ describe('SchedulePing', () => {
     schedulePing = new SchedulePing(scheduleId, instance(executionsRepository), { debug: jest.fn(), error }, interval);
   });
 
+  afterEach(async () => schedulePing.stop());
+
   it('starts, pings, cleans and stops', async () => {
-    try {
-      schedulePing.start();
-      await sleep(interval);
+    schedulePing.start();
+    await sleep(interval);
 
-      verify(executionsRepository.ping(scheduleId)).once();
-      verify(executionsRepository.clean()).once();
+    verify(executionsRepository.ping(scheduleId)).once();
+    verify(executionsRepository.clean()).once();
 
-      await schedulePing.stop();
-      await sleep(interval);
+    await schedulePing.stop();
+    await sleep(interval);
 
-      verify(executionsRepository.ping(scheduleId)).once();
-      verify(executionsRepository.deleteOne(deepEqual({ scheduleId }))).once();
-    } finally {
-      await schedulePing.stop();
-    }
+    verify(executionsRepository.ping(scheduleId)).once();
+    verify(executionsRepository.deleteOne(deepEqual({ scheduleId }))).once();
   });
 
   it('handles mongo errors', async () => {
-    try {
-      when(executionsRepository.ping(scheduleId)).thenReject({
-        message: 'I am an error that should be caught',
-      } as Error);
+    const message = 'I am an error that should be caught';
+    when(executionsRepository.ping(scheduleId)).thenReject({
+      message,
+    } as Error);
 
-      schedulePing.start();
-      await sleep(interval);
+    schedulePing.start();
+    await sleep(interval);
 
-      verify(executionsRepository.ping(scheduleId)).once();
-      expect(error).toHaveBeenCalledWith(
-        'Pinging or cleaning the Executions repository failed',
-        'an internal error occurred',
-        {},
-        { message: 'I am an error that should be caught' }
-      );
-    } finally {
-      await schedulePing.stop();
-    }
+    verify(executionsRepository.ping(scheduleId)).once();
+    expect(error).toHaveBeenCalledWith(
+      'Pinging or cleaning the Executions repository failed',
+      'an internal error occurred',
+      {},
+      { message }
+    );
   });
 });
