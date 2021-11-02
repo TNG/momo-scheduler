@@ -5,6 +5,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## Next release
 
+## v0.4.1 (2021-11-02)
+- Fix: catch exceptions thrown by momo's internal ping
+
 ## v0.4.0 (2021-10-07)
 - Feature: schedule a job to run with delay (option `firstRunAfter`)
 - Feature: offer configuration for a prefix of all used collections (`collectionsPrefix`)
