@@ -1,6 +1,6 @@
 {
   "name": "@tngtech/momo-scheduler",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "momo is a scheduler that persists jobs in mongodb",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
