@@ -43,7 +43,7 @@
     "@types/jest": "27.0.2",
     "@types/lodash": "4.14.176",
     "@types/luxon": "2.0.6",
-    "@types/node": "16.11.6",
+    "@types/node": "16.11.7",
     "@types/pino": "6.3.12",
     "@types/sinonjs__fake-timers": "6.0.4",
     "@types/uuid": "8.3.1",
