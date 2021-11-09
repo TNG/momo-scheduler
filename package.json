@@ -32,7 +32,7 @@
   "dependencies": {
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
-    "luxon": "2.1.0",
+    "luxon": "2.1.1",
     "mongodb": "4.1.4",
     "typed-emitter": "1.4.0",
     "uuid": "8.3.2"
