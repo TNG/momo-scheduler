@@ -45,7 +45,7 @@
     "@types/luxon": "2.0.7",
     "@types/node": "16.11.7",
     "@types/pino": "6.3.12",
-    "@types/sinonjs__fake-timers": "6.0.4",
+    "@types/sinonjs__fake-timers": "8.1.0",
     "@types/uuid": "8.3.1",
     "@typescript-eslint/eslint-plugin": "5.3.1",
     "@typescript-eslint/parser": "5.3.1",
