@@ -1,4 +1,4 @@
-import { Collection, Filter, MongoClient, ObjectId, OptionalId, UpdateFilter } from 'mongodb';
+import { Collection, Filter, MongoClient, ObjectId, OptionalId, UpdateFilter, WithId } from 'mongodb';
 import { cloneDeep } from 'lodash';
 
 export class Repository<ENTITY extends { _id?: ObjectId }> {
@@ -18,7 +18,7 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
     await this.collection.updateOne(filter, update);
   }
 
-  async find(filter: Filter<ENTITY> = {}): Promise<ENTITY[]> {
+  async find(filter: Filter<WithId<ENTITY>> = {}): Promise<ENTITY[]> {
     const entities = await this.collection.find(filter).toArray();
     return entities.map(this.mapNullToUndefined);
   }
