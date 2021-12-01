@@ -57,7 +57,7 @@
     "eslint-plugin-markdown": "2.2.1",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-prettier": "4.0.0",
-    "jest": "27.4.2",
+    "jest": "27.4.3",
     "mongodb-memory-server": "8.0.4",
     "pino": "7.5.1",
     "prettier": "2.5.0",
