@@ -1,5 +1,6 @@
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
+import { ObjectId } from 'mongodb';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { Job, toJobDefinition } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
@@ -46,7 +47,10 @@ describe('JobScheduler', () => {
       instance(jobRepository),
       loggerForTests(errorFn)
     );
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(job);
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve({
+      ...toJobDefinition(job),
+      _id: new ObjectId(),
+    });
     when(executionsRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
@@ -85,8 +89,6 @@ describe('JobScheduler', () => {
     it('returns job description', async () => {
       const job = createJob();
 
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(toJobDefinition(job));
-
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
         name: job.name,
@@ -99,8 +101,6 @@ describe('JobScheduler', () => {
     it('returns job description for started job', async () => {
       const job = createJob();
       await jobScheduler.start();
-
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(toJobDefinition(job));
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
