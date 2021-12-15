@@ -18,12 +18,12 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
     await this.collection.updateOne(filter, update);
   }
 
-  async find(filter: Filter<WithId<ENTITY>> = {}): Promise<ENTITY[]> {
+  async find(filter: Filter<ENTITY> = {}): Promise<WithId<ENTITY>[]> {
     const entities = await this.collection.find(filter).toArray();
     return entities.map(this.mapNullToUndefined);
   }
 
-  async findOne(filter: Filter<ENTITY> = {}): Promise<ENTITY | undefined> {
+  async findOne(filter: Filter<ENTITY> = {}): Promise<WithId<ENTITY> | undefined> {
     const entity = await this.collection.findOne(filter);
     return entity === null ? undefined : this.mapNullToUndefined(entity);
   }
@@ -38,10 +38,10 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
   }
 
   // mongodb returns null instead of undefined for optional fields
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private mapNullToUndefined(entity: any): ENTITY {
+  private mapNullToUndefined(entity: WithId<ENTITY>): WithId<ENTITY> {
     const keys = Object.keys(entity);
-    const entries = keys.map((key) => [key, entity[key] ?? undefined]);
-    return Object.fromEntries(entries) as ENTITY;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const entries = keys.map((key) => [key, (entity as any)[key] ?? undefined]);
+    return Object.fromEntries(entries) as WithId<ENTITY>;
   }
 }

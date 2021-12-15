@@ -1,5 +1,6 @@
 import { anyString, deepEqual, instance, mock, when } from 'ts-mockito';
 
+import { ObjectId } from 'mongodb';
 import { ExecutionStatus, MomoEvent, MomoJob, MomoOptions, MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
@@ -29,7 +30,7 @@ describe('Schedule', () => {
     interval: 'one minute',
     handler: jest.fn(),
   };
-  const jobDefinition = toJobDefinition(toJob(momoJob));
+  const entityWithId = { _id: new ObjectId(), ...toJobDefinition(toJob(momoJob)) };
 
   let mongoSchedule: MongoSchedule;
 
@@ -75,7 +76,7 @@ describe('Schedule', () => {
     await mongoSchedule.define(notStartedJob);
     await mongoSchedule.define(momoJob);
 
-    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(jobDefinition);
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
 
     await mongoSchedule.startJob(momoJob.name);
 
@@ -93,7 +94,7 @@ describe('Schedule', () => {
   it('runs a job once', async () => {
     await mongoSchedule.define(momoJob);
 
-    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(jobDefinition);
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
     when(executionsRepository.addExecution(anyString(), momoJob.name, 0)).thenResolve({ added: true, running: 0 });
 
     const result = await mongoSchedule.run(momoJob.name);
@@ -105,7 +106,7 @@ describe('Schedule', () => {
   it('runs a job once after delay', async () => {
     await mongoSchedule.define(momoJob);
 
-    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(jobDefinition);
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
     when(executionsRepository.addExecution(anyString(), momoJob.name, 0)).thenResolve({ added: true, running: 0 });
 
     const result = await mongoSchedule.run(momoJob.name, 500);
@@ -133,7 +134,7 @@ describe('Schedule', () => {
   it('skips running job once when maxRunning is reached', async () => {
     await mongoSchedule.define(momoJob);
 
-    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(jobDefinition);
+    when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
     when(executionsRepository.addExecution(anyString(), momoJob.name, 0)).thenResolve({
       added: false,
       running: 0,
