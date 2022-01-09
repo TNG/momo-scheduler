@@ -42,7 +42,7 @@
     "@types/human-interval": "1.0.0",
     "@types/jest": "27.4.0",
     "@types/lodash": "4.14.178",
-    "@types/luxon": "2.0.8",
+    "@types/luxon": "2.0.9",
     "@types/node": "16.11.19",
     "@types/pino": "7.0.4",
     "@types/sinonjs__fake-timers": "8.1.1",
