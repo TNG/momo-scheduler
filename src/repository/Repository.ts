@@ -1,4 +1,4 @@
-import { Collection, Filter, MongoClient, ObjectId, OptionalId, UpdateFilter, WithId } from 'mongodb';
+import { Collection, Filter, MongoClient, ObjectId, OptionalUnlessRequiredId, UpdateFilter, WithId } from 'mongodb';
 import { cloneDeep } from 'lodash';
 
 export class Repository<ENTITY extends { _id?: ObjectId }> {
@@ -9,7 +9,7 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
     this.collection = mongoClient.db().collection(prefixedCollectionName);
   }
 
-  async save(entity: OptionalId<ENTITY>): Promise<void> {
+  async save(entity: OptionalUnlessRequiredId<ENTITY>): Promise<void> {
     // insertOne mutates the entity and adds an _id, so we use cloneDeep
     await this.collection.insertOne(cloneDeep(entity));
   }
