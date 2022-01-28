@@ -16,7 +16,7 @@ export interface MomoErrorEvent {
   error?: unknown;
 }
 
-export interface MomoEvents {
+export type MomoEvents = {
   debug: (info: MomoEvent) => void;
   error: (error: MomoErrorEvent) => void;
-}
+};
