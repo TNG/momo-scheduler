@@ -34,7 +34,7 @@
     "lodash": "4.17.21",
     "luxon": "2.3.0",
     "mongodb": "4.3.1",
-    "typed-emitter": "1.4.0",
+    "typed-emitter": "2.1.0",
     "uuid": "8.3.2"
   },
   "devDependencies": {
