@@ -8,7 +8,7 @@ export type MomoJobStatus = WithoutId<JobEntity>;
 export interface JobDefinition {
   name: string;
   interval: string;
-  firstRunAfter?: number;
+  firstRunAfter: number;
   concurrency: number;
   maxRunning: number;
 }
@@ -18,7 +18,8 @@ export interface Job extends JobDefinition {
 }
 
 export function toJob(job: MomoJob): Job {
-  return { concurrency: 1, maxRunning: 0, ...job };
+  const firstRunAfter = job.firstRunAfter ?? 0;
+  return { concurrency: 1, maxRunning: 0, firstRunAfter, ...job };
 }
 
 export function toJobDefinition<T extends JobDefinition>(job: T): JobDefinition {

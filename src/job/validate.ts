@@ -6,7 +6,7 @@ import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { momoError } from '../logging/error/MomoError';
 
 export function validate({ name, interval, firstRunAfter, concurrency, maxRunning }: Job, logger?: Logger): boolean {
-  if (firstRunAfter !== undefined && firstRunAfter < 0) {
+  if (firstRunAfter < 0) {
     logger?.error(
       'job cannot be defined',
       MomoErrorType.defineJob,

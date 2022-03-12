@@ -14,6 +14,7 @@ describe('JobScheduler', () => {
   const defaultJob: Job = {
     name: 'test',
     interval: '1 second',
+    firstRunAfter: 1000,
     concurrency: 1,
     maxRunning: 0,
     handler: jest.fn(),
