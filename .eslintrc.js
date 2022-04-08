@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 module.exports = {
   env: { es6: true, node: true },
   extends: ['plugin:jest/recommended', 'plugin:prettier/recommended'],
