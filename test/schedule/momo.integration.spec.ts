@@ -93,22 +93,22 @@ describe('Momo', () => {
       momoJob = createTestJob(jobHandler);
     });
 
-    it('executes job periodically', async () => {
+    it('executes a job periodically', async () => {
       await mongoSchedule.define(momoJob);
+
+      await mongoSchedule.start();
+
+      await waitFor(() => expect(jobHandler.count).toBe(1), 100);
+      await waitFor(() => expect(jobHandler.count).toBe(2), 1000);
+    });
+
+    it('executes job periodically after firstRunAfter', async () => {
+      await mongoSchedule.define({ ...momoJob, firstRunAfter: 1000 });
 
       await mongoSchedule.start();
 
       expect(jobHandler.count).toBe(0);
       await waitFor(() => expect(jobHandler.count).toBe(1), 1100);
-      await waitFor(() => expect(jobHandler.count).toBe(2), 1000);
-    });
-
-    it('executes an immediate job periodically', async () => {
-      await mongoSchedule.define({ ...momoJob, firstRunAfter: 0 });
-
-      await mongoSchedule.start();
-
-      await waitFor(() => expect(jobHandler.count).toBe(1), 100);
       await waitFor(() => expect(jobHandler.count).toBe(2), 1000);
     });
 
@@ -125,13 +125,13 @@ describe('Momo', () => {
 
       await sleep(500);
       await mongoSchedule.define(momoJob);
+      await mongoSchedule.start();
 
+      await sleep(100);
       const jobs = await jobRepository.find({ name: momoJob.name });
       expect(jobs[0]?.executionInfo).toEqual(jobEntity.executionInfo);
 
-      await mongoSchedule.start();
-
-      await waitFor(() => expect(jobHandler.count).toBe(1), 600);
+      await waitFor(() => expect(jobHandler.count).toBe(1), 500);
     });
 
     it('saves executionInfo in mongo', async () => {
@@ -239,14 +239,12 @@ describe('Momo', () => {
       await mongoSchedule.start();
       await jobRepository.delete();
 
-      await sleep(1500);
+      await sleep(500);
       expect(jobHandler.count).toBe(0);
     });
 
     it('updates maxRunning and concurrency from mongo', async () => {
       await mongoSchedule.define(momoJob);
-
-      await mongoSchedule.start();
 
       const updatedConcurrency = 5;
       const updatedMaxRunning = 10;
@@ -261,7 +259,9 @@ describe('Momo', () => {
         expect(updatedJobs[0]?.maxRunning).toEqual(updatedMaxRunning);
       });
 
-      await sleep(1100);
+      await mongoSchedule.start();
+
+      await sleep(100);
       expect(jobHandler.count).toBe(updatedConcurrency);
     });
 
@@ -315,7 +315,7 @@ describe('Momo', () => {
 
       await mongoSchedule.stop();
 
-      await sleep(2500);
+      await sleep(2100);
       expect(jobHandler1.count).toBe(2);
       expect(jobHandler2.count).toBe(3);
     });
@@ -325,7 +325,7 @@ describe('Momo', () => {
 
       await mongoSchedule.start();
 
-      await sleep(1100);
+      await sleep(100);
       expect(jobHandler1.count).toBe(1);
       await mongoSchedule.define(job2);
 
@@ -333,7 +333,7 @@ describe('Momo', () => {
 
       await sleep(1100);
       expect(jobHandler1.count).toBe(2);
-      expect(jobHandler2.count).toBe(1);
+      expect(jobHandler2.count).toBe(2);
     });
 
     it('stops one of two jobs', async () => {
@@ -349,7 +349,7 @@ describe('Momo', () => {
 
       await mongoSchedule.stopJob(job1.name);
 
-      await sleep(1500);
+      await sleep(1100);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(2);
     });
@@ -367,7 +367,7 @@ describe('Momo', () => {
 
       await mongoSchedule.removeJob(job1.name);
 
-      await sleep(1500);
+      await sleep(1100);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(2);
 
@@ -393,7 +393,7 @@ describe('Momo', () => {
 
       await mongoSchedule.cancelJob(job1.name);
 
-      await sleep(1500);
+      await sleep(1100);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(2);
     });
@@ -404,7 +404,7 @@ describe('Momo', () => {
 
       await mongoSchedule.startJob(job1.name);
 
-      await sleep(1500);
+      await sleep(100);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(0);
     });
@@ -421,7 +421,7 @@ describe('Momo', () => {
 
       await mongoSchedule.stop();
 
-      await sleep(1500);
+      await sleep(1100);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(1);
     });
@@ -438,7 +438,7 @@ describe('Momo', () => {
 
       await mongoSchedule.cancel();
 
-      await sleep(1500);
+      await sleep(1100);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(1);
     });
@@ -456,7 +456,7 @@ describe('Momo', () => {
 
       await mongoSchedule.remove();
 
-      await sleep(1500);
+      await sleep(1100);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(1);
 
