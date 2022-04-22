@@ -58,14 +58,14 @@ await mongoSchedule.disconnect();
 
 ### MomoJob
 
-| property      | type       | optional | default | description                                                                                                                                                                                                                                                                                                   |
-| ------------- | ---------- | -------- |---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| name          | `string`   | false    |         | The name of the job. Used as a unique identifier.                                                                                                                                                                                                                                                             |
-| interval      | `string`   | false    |         | Specifies the time interval at which the job is started. Time intervals in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours') are accepted. Check documentation of [human-interval](https://www.npmjs.com/package/human-interval) library for details.                     |
-| firstRunAfter | `number`   | true     | `0`     | If the job never ran before, the job will run after `firstRunAfter` milliseconds for the first time.                                                    |
-| concurrency   | `number`   | true     | `1`     | How many instances of a job are started at a time.                                                                                                                                                                                                                                                            |
+| property      | type       | optional | default | description                                                                                                                                                                                                                                                                                                    |
+| ------------- | ---------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name          | `string`   | false    |         | The name of the job. Used as a unique identifier.                                                                                                                                                                                                                                                              |
+| interval      | `string`   | false    |         | Specifies the time interval at which the job is started. Time intervals in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours') are accepted. Check documentation of [human-interval](https://www.npmjs.com/package/human-interval) library for details.                      |
+| firstRunAfter | `number`   | true     | `0`     | If the job never ran before, the job will run after `firstRunAfter` milliseconds for the first time.                                                                                                                                                                                                           |
+| concurrency   | `number`   | true     | `1`     | How many instances of a job are started at a time.                                                                                                                                                                                                                                                             |
 | maxRunning    | `number`   | true     | `0`     | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded. |
-| handler       | `function` | false    |         | The function to execute.                                                                                                                                                                                                                                                                                      |
+| handler       | `function` | false    |         | The function to execute.                                                                                                                                                                                                                                                                                       |
 
 ### MongoSchedule
 
@@ -96,10 +96,10 @@ If the parameter is omitted, all jobs are started/stopped/cancelled/removed.
 
 #### MomoConnectionOptions
 
-| property          | type     | optional | default   | description                                                                                                                                                                                                                                                                          |
-| ----------------- | -------- | -------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| url               | `string` | false    |           | The connection string of your database.                                                                                                                                                                                                                                              |
-| collectionsPrefix | `string` | true     | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                                                        |
+| property          | type     | optional | default   | description                                                                                                                                                                                                                                                          |
+| ----------------- | -------- | -------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| url               | `string` | false    |           | The connection string of your database.                                                                                                                                                                                                                              |
+| collectionsPrefix | `string` | true     | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                                        |
 | pingInterval      | number   | true     | `60`      | The keep alive ping interval of the schedule, in seconds. After twice the amount of time has elapsed without a ping of your Momo instance, stale job executions are considered dead. You might want to reduce this if you have jobs running on very short intervals. |
 
 #### MomoJobDescription
@@ -129,12 +129,12 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 
 ### MomoEvent and MomoErrorEvent
 
-| event | property         | type                     | description                                                                                                                                  |
-| ----- | ---------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| both  | message          | `string`                 | Some information about the event that occurred.                                                                                              |
-| both  | data (optional)  | `{ name?: string; ... }` | Contains additional information like the name of the affected job.                                                                           |
+| event | property         | type                     | description                                                                                                                                   |
+| ----- | ---------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| both  | message          | `string`                 | Some information about the event that occurred.                                                                                               |
+| both  | data (optional)  | `{ name?: string; ... }` | Contains additional information like the name of the affected job.                                                                            |
 | error | type             | `MomoErrorType`          | one of: `'defining job failed'`, `'scheduling job failed'`, `'executing job failed'`, `'stopping job failed'`, `'an internal error occurred'` |
-| error | error (optional) | `Error`                  | The root cause of the error.                                                                                                                 |
+| error | error (optional) | `Error`                  | The root cause of the error.                                                                                                                  |
 
 ### Job Examples
 
@@ -142,7 +142,7 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 const example1: MomoJob = {
   name: 'example 1',
   interval: '5 minutes',
-  delay: 0,
+  firstRunAfter: 0,
   handler: () => console.log('This is momo'),
 };
 
@@ -155,31 +155,38 @@ const example2: MomoJob = {
 const example3: MomoJob = {
   name: 'example 3',
   interval: '5 minutes',
-  delay: 60 * 1000, // 1 minute
+  firstRunAfter: 60 * 1000, // 1 minute
   handler: () => console.log('This is momo'),
 };
 
 const example4: MomoJob = {
   name: 'example 4',
   interval: '5 minutes',
-  delay: 10 * 60 * 1000, // 10 minutes
+  firstRunAfter: 5 * 60 * 1000, // 5 minutes
+  handler: () => console.log('This is momo'),
+};
+
+const example5: MomoJob = {
+  name: 'example 5',
+  interval: '5 minutes',
+  firstRunAfter: 10 * 60 * 1000, // 10 minutes
   handler: () => console.log('This is momo'),
 };
 ```
 
-Assume it is 12:00 AM when the MongoSchedule with these four example jobs is started.
+Assume it is 12:00 AM when the MongoSchedule with these five example jobs is started.
 
-- `example 1` will be run immediately, at 12:00, and then every five minutes.
-- `example 2` will be run after 5 minutes (the configured interval), at 12:05, and then every five minutes.
-- `example 3` will be run after 1 minute (the configured delay), at 12:01, and then every five minutes.
-- `example 4` will be run after 10 minutes (the configured delay), at 12:10, and then every five minutes.
+- `example 1` and `example 2` are equivalent, since `firstRunAfter` defaults to `0`. They will be run immediately, at 12:00, and then every five minutes.
+- `example 3` will be run after 1 minute (the configured `firstRunAfter`), at 12:01, and then every five minutes.
+- `example 4` will be run after 5 minutes (the configured `firstRunAfter`), at 12:05, and then every five minutes.
+- `example 5` will be run after 10 minutes (the configured `firstRunAfter`), at 12:10, and then every five minutes.
 
 Now assume the MongoSchedule is stopped at 12:02 and then immediately started again.
 
-- `example 1` will be run 5 minutes (the configured interval) after the last execution, at 12:05. The job is not run immediately because it already ran before.
-- `example 2` will be run 5 minutes (the configured interval) after the start, at 12:07.
-- `example 3` will be run 5 minutes (the configured interval) after the last execution, at 12:06. The job is not run immediately because it already ran before.
-- `example 4` will be run after 10 minutes (the configured delay), at 12:12, and then every five minutes.
+- `example 1` and `example 2` will be run 5 minutes (the configured `interval`) after the last execution, at 12:05. They are NOT run immediately because they already ran before.
+- `example 3` will be run 5 minutes (the configured `interval`) after the last execution, at 12:06. The job is NOT run after 1 minute (the configured `firstRunAfter`) because it already ran before.
+- `example 4` will be run 5 minutes (the configured `firstRunAfter`) after the start, at 12:07, because it never ran before, and then every five minutes.
+- `example 5` will be run 10 minutes (the configured `firstRunAfter`)  after the start, at 12:12, because it never ran before, and then every five minutes.
 
 ## Supported Node Versions
 
