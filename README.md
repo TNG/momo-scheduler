@@ -142,51 +142,43 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 const example1: MomoJob = {
   name: 'example 1',
   interval: '5 minutes',
-  firstRunAfter: 0,
   handler: () => console.log('This is momo'),
 };
 
 const example2: MomoJob = {
   name: 'example 2',
   interval: '5 minutes',
+  firstRunAfter: 60 * 1000, // 1 minute
   handler: () => console.log('This is momo'),
 };
 
 const example3: MomoJob = {
   name: 'example 3',
   interval: '5 minutes',
-  firstRunAfter: 60 * 1000, // 1 minute
+  firstRunAfter: 5 * 60 * 1000, // 5 minutes
   handler: () => console.log('This is momo'),
 };
 
 const example4: MomoJob = {
   name: 'example 4',
   interval: '5 minutes',
-  firstRunAfter: 5 * 60 * 1000, // 5 minutes
-  handler: () => console.log('This is momo'),
-};
-
-const example5: MomoJob = {
-  name: 'example 5',
-  interval: '5 minutes',
   firstRunAfter: 10 * 60 * 1000, // 10 minutes
   handler: () => console.log('This is momo'),
 };
 ```
 
-Assume it is 12:00 AM when the MongoSchedule with these five example jobs is started.
+Assume it is 12:00 AM when the MongoSchedule with these four example jobs is started.
 
-- `example 1` and `example 2` are equivalent, since `firstRunAfter` defaults to `0`. They will be run immediately, at 12:00, and then every five minutes.
-- `example 3` will be run after 1 minute (the configured `firstRunAfter`), at 12:01, and then every five minutes.
-- `example 4` will be run after 5 minutes (the configured `firstRunAfter`), at 12:05, and then every five minutes.
-- `example 5` will be run after 10 minutes (the configured `firstRunAfter`), at 12:10, and then every five minutes.
+- `example 1` will be run immediately, at 12:00, and then every five minutes. Adding `firstRunAfter: 0` explicitly is equivalent as this is the default value.
+- `example 2` will be run after 1 minute (the configured `firstRunAfter`), at 12:01, and then every five minutes.
+- `example 3` will be run after 5 minutes (the configured `firstRunAfter`), at 12:05, and then every five minutes.
+- `example 4` will be run after 10 minutes (the configured `firstRunAfter`), at 12:10, and then every five minutes.
 
 Now assume the MongoSchedule is stopped at 12:02 and then immediately started again.
 
-- `example 1` and `example 2` will be run 5 minutes (the configured `interval`) after the last execution, at 12:05. They are NOT run immediately because they already ran before.
-- `example 3` will be run 5 minutes (the configured `interval`) after the last execution, at 12:06. The job is NOT run after 1 minute (the configured `firstRunAfter`) because it already ran before.
-- `example 4` will be run 5 minutes (the configured `firstRunAfter`) after the start, at 12:07, because it never ran before, and then every five minutes.
-- `example 5` will be run 10 minutes (the configured `firstRunAfter`)  after the start, at 12:12, because it never ran before, and then every five minutes.
+- `example 1` will be run 5 minutes (the configured `interval`) after the last execution, at 12:05. The job is NOT run immediately because it already ran before.
+- `example 2` will be run 5 minutes (the configured `interval`) after the last execution, at 12:06. The job is NOT run after 1 minute (the configured `firstRunAfter`) because it already ran before.
+- `example 3` and `example 4` will be run 5 and 10 minutes, respectively, (the configured `firstRunAfter`) after the start, at 12:07 and 12:12, because they never ran before, and then every five minutes.
 
 ## Supported Node Versions
 
