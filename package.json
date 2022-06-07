@@ -57,13 +57,13 @@
     "eslint-plugin-markdown": "2.2.1",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-prettier": "4.0.0",
-    "jest": "28.1.0",
+    "jest": "28.1.1",
     "mongodb-memory-server": "8.6.0",
     "pino": "7.11.0",
     "prettier": "2.6.2",
-    "ts-jest": "28.0.3",
+    "ts-jest": "28.0.4",
     "ts-mockito": "2.6.1",
-    "ts-node": "10.8.0",
-    "typescript": "4.7.2"
+    "ts-node": "10.8.1",
+    "typescript": "4.7.3"
   }
 }
