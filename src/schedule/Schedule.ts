@@ -57,11 +57,12 @@ export class Schedule extends LogEmitter {
    * @throws if the database throws
    */
   public async define(momoJob: MomoJob): Promise<boolean> {
-    const job = toJob(momoJob);
-
-    if (!validate(job, this.logger)) {
+    if (!validate(momoJob, this.logger)) {
       return false;
     }
+
+    const job = toJob(momoJob);
+
     await this.stopJob(job.name);
 
     await this.jobRepository.define(job);

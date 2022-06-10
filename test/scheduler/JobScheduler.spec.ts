@@ -14,6 +14,7 @@ describe('JobScheduler', () => {
   const defaultJob: Job = {
     name: 'test',
     interval: '1 second',
+    parsedInterval: 1000,
     firstRunAfter: 1000,
     concurrency: 1,
     maxRunning: 0,
@@ -115,12 +116,6 @@ describe('JobScheduler', () => {
   });
 
   describe('error cases', () => {
-    it('throws on non-parsable interval', async () => {
-      createJob({ interval: 'not an interval' });
-
-      await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableInterval);
-    });
-
     it('reports error when job was removed before scheduling', async () => {
       const job = createJob();
       when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(undefined);

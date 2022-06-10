@@ -10,6 +10,7 @@ describe('calculateDelay', () => {
   const job: JobEntity = {
     name: 'test',
     interval: 'one second',
+    parsedInterval: 1000,
     firstRunAfter: 500,
     concurrency: 0,
     maxRunning: 1,
@@ -21,12 +22,6 @@ describe('calculateDelay', () => {
     const delay = calculateDelay(1000, job);
 
     expect(delay).toBe(job.firstRunAfter);
-  });
-
-  it('parses configured firstRunAfter if job was never started before', () => {
-    const delay = calculateDelay(1000, { ...job, firstRunAfter: '1 second' });
-
-    expect(delay).toBe(1000);
   });
 
   it('calculates delay based on lastStarted', () => {

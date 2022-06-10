@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon';
 import { min } from 'lodash';
-import humanInterval from 'human-interval';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
@@ -79,19 +78,13 @@ export class JobScheduler {
       return;
     }
 
-    const interval = humanInterval(jobEntity.interval);
-    if (interval === undefined || isNaN(interval)) {
-      // the interval was already validated when the job was defined
-      throw momoError.nonParsableInterval;
-    }
-
     this.interval = jobEntity.interval;
 
-    const delay = calculateDelay(interval, jobEntity);
+    const delay = calculateDelay(jobEntity.parsedInterval, jobEntity);
 
     this.jobHandle = setSafeIntervalWithDelay(
       this.executeConcurrently.bind(this),
-      interval,
+      jobEntity.parsedInterval,
       delay,
       this.logger,
       'Concurrent execution failed'
@@ -99,7 +92,8 @@ export class JobScheduler {
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
       name: this.jobName,
-      interval,
+      interval: this.interval,
+      parsedInterval: jobEntity.parsedInterval,
       delay,
     });
   }
