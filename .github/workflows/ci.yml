@@ -53,3 +53,20 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm install
       - run: npm run test
+
+  check-dependencies:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [16]
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install
+      - run: npm run depcruise
