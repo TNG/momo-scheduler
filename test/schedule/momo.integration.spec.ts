@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { v4 as uuid } from 'uuid';
-
 import { Connection } from '../../src/Connection';
 import { ExecutionStatus, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule, momoError } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
@@ -10,6 +9,7 @@ import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { toJob, toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
+import { JobEntity } from '../../src/repository/JobEntity';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -142,6 +142,24 @@ describe('Momo', () => {
       expect(jobs[0]?.executionInfo).toEqual(jobEntity.executionInfo);
 
       await waitFor(() => expect(jobHandler.count).toBe(1), 500);
+    });
+
+    it('updates and executes job that was saved without parsedInterval before', async () => {
+      const { name, interval } = momoJob;
+      const jobEntity: Omit<JobEntity, 'parsedInterval'> = {
+        name,
+        concurrency: 1,
+        firstRunAfter: 0,
+        interval,
+        maxRunning: 0,
+      };
+      await jobRepository.save(jobEntity as JobEntity);
+
+      await mongoSchedule.define(momoJob);
+      await mongoSchedule.start();
+
+      expect(jobHandler.count).toBe(0);
+      await waitFor(() => expect(jobHandler.count).toBe(1), 1200);
     });
 
     it('saves executionInfo in mongo', async () => {
