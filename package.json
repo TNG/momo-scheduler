@@ -27,7 +27,8 @@
     "test:unit": "npm run test \"^((?!\\.integration\\.).)*$\"",
     "test:integration": "npm run test integration",
     "lint": "prettier --check \"**/*.ts\"  && eslint --ext .ts,.js,.json .",
-    "format": "prettier --write \"**/*.ts\" && eslint --fix --ext .ts,.js,.json ."
+    "format": "prettier --write \"**/*.ts\" && eslint --fix --ext .ts,.js,.json .",
+    "depcruise": "depcruise --config .dependency-cruiser.js src"
   },
   "dependencies": {
     "human-interval": "2.0.1",
@@ -49,6 +50,7 @@
     "@types/uuid": "8.3.4",
     "@typescript-eslint/eslint-plugin": "5.27.1",
     "@typescript-eslint/parser": "5.27.1",
+    "dependency-cruiser": "11.9.0",
     "eslint": "8.17.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-import": "2.26.0",

@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 
 import { ExecutionInfo } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
-import { findLatest } from '../../src/job/findLatest';
+import { findLatest } from '../../src/repository/findLatest';
 
 function createJob(lastFinished?: number): JobEntity {
   const job = { name: 'test' } as JobEntity;

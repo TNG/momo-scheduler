@@ -2,11 +2,11 @@ import { DateTime } from 'luxon';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
-import { Handler } from '../job/MomoJob';
 import { JobEntity } from '../repository/JobEntity';
 import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
+import { Handler } from '../job/Job';
 
 export class JobExecutor {
   private stopped = false;

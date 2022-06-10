@@ -1,9 +1,10 @@
 import { WithoutId } from 'mongodb';
 
-import { Handler, MomoJob } from './MomoJob';
+import { MomoJob } from './MomoJob';
 import { JobEntity } from '../repository/JobEntity';
 
 export type MomoJobStatus = WithoutId<JobEntity>;
+export type Handler = () => Promise<string | undefined | void> | string | undefined | void;
 
 export interface JobDefinition {
   name: string;

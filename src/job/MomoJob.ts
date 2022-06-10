@@ -1,4 +1,4 @@
-export type Handler = () => Promise<string | undefined | void> | string | undefined | void;
+import { Handler } from './Job';
 
 export interface MomoJob {
   handler: Handler;

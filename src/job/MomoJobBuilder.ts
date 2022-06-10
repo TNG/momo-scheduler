@@ -1,4 +1,5 @@
-import { Handler, MomoJob } from './MomoJob';
+import { MomoJob } from './MomoJob';
+import { Handler } from './Job';
 
 export class MomoJobBuilder {
   private momoJob: Partial<MomoJob> = {};
