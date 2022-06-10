@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon';
 import { max } from 'lodash';
-
 import { JobEntity } from '../repository/JobEntity';
 
 export function calculateDelay(millisecondsInterval: number, job: JobEntity): number {

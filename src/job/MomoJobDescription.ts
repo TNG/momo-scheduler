@@ -1,5 +1,3 @@
-import { JobEntity } from '../repository/JobEntity';
-
 /**
  * information about scheduled job
  *
@@ -20,7 +18,11 @@ export interface MomoJobDescription {
   schedulerStatus?: JobSchedulerStatus;
 }
 
-export function jobDescriptionFromEntity(jobEntity: JobEntity): MomoJobDescription {
-  const { name, interval, concurrency, maxRunning } = jobEntity;
+export function toMomoJobDescription<T extends MomoJobDescription>({
+  name,
+  interval,
+  concurrency,
+  maxRunning,
+}: T): MomoJobDescription {
   return { name, interval, concurrency, maxRunning };
 }

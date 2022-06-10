@@ -9,7 +9,7 @@ import { JobExecutor } from '../executor/JobExecutor';
 import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
+import { MomoJobDescription, toMomoJobDescription } from '../job/MomoJobDescription';
 import { TimeoutHandle, setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
 import { calculateDelay } from './calculateDelay';
 import { momoError } from '../logging/error/MomoError';
@@ -62,7 +62,7 @@ export class JobScheduler {
     const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
     const schedulerStatus = this.interval !== undefined ? { interval: this.interval, running } : undefined;
 
-    return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
+    return { ...toMomoJobDescription(jobEntity), schedulerStatus };
   }
 
   async start(): Promise<void> {

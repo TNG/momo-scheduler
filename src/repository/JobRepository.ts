@@ -5,7 +5,7 @@ import { Job, MomoJobStatus, toJobDefinition } from '../job/Job';
 import { JobEntity } from './JobEntity';
 import { Logger } from '../logging/Logger';
 import { Repository } from './Repository';
-import { findLatest } from '../job/findLatest';
+import { findLatest } from './findLatest';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
 
