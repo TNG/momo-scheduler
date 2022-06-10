@@ -8,7 +8,7 @@ export type MomoJobStatus = WithoutId<JobEntity>;
 export interface JobDefinition {
   name: string;
   interval: string;
-  firstRunAfter: number;
+  firstRunAfter: number | string;
   concurrency: number;
   maxRunning: number;
 }

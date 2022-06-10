@@ -6,7 +6,8 @@ import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { momoError } from '../logging/error/MomoError';
 
 export function validate({ name, interval, firstRunAfter, concurrency, maxRunning }: Job, logger?: Logger): boolean {
-  if (firstRunAfter < 0) {
+  const parsedFirstRunAfter = typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
+  if (parsedFirstRunAfter === undefined || isNaN(parsedFirstRunAfter) || parsedFirstRunAfter < 0) {
     logger?.error(
       'job cannot be defined',
       MomoErrorType.defineJob,

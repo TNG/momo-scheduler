@@ -13,7 +13,7 @@ export class MomoJobBuilder {
     return this;
   }
 
-  withFirstRunAfter(firstRunAfter: number): this {
+  withFirstRunAfter(firstRunAfter: number | string): this {
     this.momoJob.firstRunAfter = firstRunAfter;
     return this;
   }

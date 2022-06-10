@@ -58,14 +58,14 @@ await mongoSchedule.disconnect();
 
 ### MomoJob
 
-| property      | type       | optional | default | description                                                                                                                                                                                                                                                                                                    |
-| ------------- | ---------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name          | `string`   | false    |         | The name of the job. Used as a unique identifier.                                                                                                                                                                                                                                                              |
-| interval      | `string`   | false    |         | Specifies the time interval at which the job is started. Time intervals in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours') are accepted. Check documentation of [human-interval](https://www.npmjs.com/package/human-interval) library for details.                      |
-| firstRunAfter | `number`   | true     | `0`     | If the job never ran before, the job will run after `firstRunAfter` milliseconds for the first time.                                                                                                                                                                                                           |
-| concurrency   | `number`   | true     | `1`     | How many instances of a job are started at a time.                                                                                                                                                                                                                                                             |
-| maxRunning    | `number`   | true     | `0`     | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded. |
-| handler       | `function` | false    |         | The function to execute.                                                                                                                                                                                                                                                                                       |
+| property      | type                 | optional | default | description                                                                                                                                                                                                                                                                                                    |
+| ------------- | -------------------- | -------- | ------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| name          | `string`             | false    |         | The name of the job. Used as a unique identifier.                                                                                                                                                                                                                                                              |
+| interval      | `string`             | false    |         | Specifies the time interval at which the job is started. Time intervals in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours') are accepted. Check documentation of [human-interval](https://www.npmjs.com/package/human-interval) library for details.                      |
+| firstRunAfter | `number` or `string` | true     | `0`     | If the job never ran before, the job will run after `firstRunAfter` for the first time. The value can either be provided as a number, in milliseconds, or in human-readable format (like '1 minute').                                                                                                          |
+| concurrency   | `number`             | true     | `1`     | How many instances of a job are started at a time.                                                                                                                                                                                                                                                             |
+| maxRunning    | `number`             | true     | `0`     | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded. |
+| handler       | `function`           | false    |         | The function to execute.                                                                                                                                                                                                                                                                                       |
 
 ### MongoSchedule
 
@@ -148,21 +148,21 @@ const example1: MomoJob = {
 const example2: MomoJob = {
   name: 'example 2',
   interval: '5 minutes',
-  firstRunAfter: 60 * 1000, // 1 minute
+  firstRunAfter: '1 minute',
   handler: () => console.log('This is momo'),
 };
 
 const example3: MomoJob = {
   name: 'example 3',
   interval: '5 minutes',
-  firstRunAfter: 5 * 60 * 1000, // 5 minutes
+  firstRunAfter: '5 minutes',
   handler: () => console.log('This is momo'),
 };
 
 const example4: MomoJob = {
   name: 'example 4',
   interval: '5 minutes',
-  firstRunAfter: 10 * 60 * 1000, // 10 minutes
+  firstRunAfter: '10 minutes',
   handler: () => console.log('This is momo'),
 };
 ```

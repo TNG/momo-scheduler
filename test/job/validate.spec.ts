@@ -55,6 +55,42 @@ describe('validate', () => {
     );
   });
 
+  it('reports error when firstRunAfter cannot be parsed', async () => {
+    const job: Job = toJob({
+      name: 'test',
+      interval: '1 minute',
+      handler: () => 'finished',
+      firstRunAfter: 'not parseable',
+    });
+    expect(validate(job, logger)).toBe(false);
+
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(logger.error).toHaveBeenCalledWith(
+      'job cannot be defined',
+      MomoErrorType.defineJob,
+      { name: job.name, firstRunAfter: 'not parseable' },
+      momoError.invalidFirstRunAfter
+    );
+  });
+
+  it('reports error when firstRunAfter is parseable but invalid', async () => {
+    const job: Job = toJob({
+      name: 'test',
+      interval: '1 minute',
+      handler: () => 'finished',
+      firstRunAfter: '-1 minute',
+    });
+    expect(validate(job, logger)).toBe(false);
+
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(logger.error).toHaveBeenCalledWith(
+      'job cannot be defined',
+      MomoErrorType.defineJob,
+      { name: job.name, firstRunAfter: '-1 minute' },
+      momoError.invalidFirstRunAfter
+    );
+  });
+
   it('reports error when maxRunning is invalid', async () => {
     const job: Job = toJob({ name: 'test', interval: '1 minute', handler: () => 'finished', maxRunning: -1 });
     expect(validate(job, logger)).toBe(false);

@@ -17,10 +17,16 @@ describe('calculateDelay', () => {
 
   afterAll(() => clock.reset());
 
-  it('uses configured delay if job was never started before', () => {
+  it('uses configured firstRunAfter if job was never started before', () => {
     const delay = calculateDelay(1000, job);
 
     expect(delay).toBe(job.firstRunAfter);
+  });
+
+  it('parses configured firstRunAfter if job was never started before', () => {
+    const delay = calculateDelay(1000, { ...job, firstRunAfter: '1 second' });
+
+    expect(delay).toBe(1000);
   });
 
   it('calculates delay based on lastStarted', () => {

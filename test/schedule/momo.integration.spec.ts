@@ -112,6 +112,16 @@ describe('Momo', () => {
       await waitFor(() => expect(jobHandler.count).toBe(2), 1000);
     });
 
+    it('executes job periodically with human-readable firstRunAfter', async () => {
+      await mongoSchedule.define({ ...momoJob, firstRunAfter: '1 second' });
+
+      await mongoSchedule.start();
+
+      expect(jobHandler.count).toBe(0);
+      await waitFor(() => expect(jobHandler.count).toBe(1), 1200);
+      await waitFor(() => expect(jobHandler.count).toBe(2), 1000);
+    });
+
     it('executes job that was executed before', async () => {
       const jobEntity = {
         ...toJobDefinition(toJob(momoJob)),
