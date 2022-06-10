@@ -59,7 +59,7 @@
     "eslint-plugin-prettier": "4.0.0",
     "jest": "28.1.1",
     "mongodb-memory-server": "8.6.0",
-    "pino": "7.11.0",
+    "pino": "8.0.0",
     "prettier": "2.6.2",
     "ts-jest": "28.0.4",
     "ts-mockito": "2.6.1",
