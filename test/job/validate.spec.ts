@@ -11,8 +11,13 @@ describe('validate', () => {
 
   beforeEach(async () => jest.clearAllMocks());
 
-  it('validates a job', () => {
+  it('validates a job with an interval', () => {
     const job: Job = toJob({ name: 'test', interval: '1 minute', handler: () => 'finished' });
+    expect(validate(job, logger)).toBe(true);
+  });
+
+  it('validates a job with a cron schedule', () => {
+    const job: Job = toJob({ name: 'test', cronSchedule: '0 9 * * 1-5', handler: () => 'finished' });
     expect(validate(job, logger)).toBe(true);
   });
 
@@ -39,6 +44,19 @@ describe('validate', () => {
       MomoErrorType.defineJob,
       { name: job.name, interval: job.interval },
       momoError.nonParsableInterval
+    );
+  });
+
+  it('reports error when cron schedule cannot be parsed', () => {
+    const job: Job = toJob({ name: 'test', cronSchedule: 'not a schedule', handler: () => 'finished' });
+    expect(validate(job, logger)).toBe(false);
+
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(logger.error).toHaveBeenCalledWith(
+      'job cannot be defined',
+      MomoErrorType.defineJob,
+      { name: job.name, cronSchedule: job.cronSchedule },
+      momoError.invalidCronSchedule
     );
   });
 

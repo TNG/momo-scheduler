@@ -22,5 +22,6 @@ export interface MomoJobDescription {
 
 export function jobDescriptionFromEntity(jobEntity: JobEntity): MomoJobDescription {
   const { name, interval, concurrency, maxRunning } = jobEntity;
-  return { name, interval, concurrency, maxRunning };
+  // TODO: FIXME
+  return { name, interval: interval ?? '', concurrency, maxRunning };
 }

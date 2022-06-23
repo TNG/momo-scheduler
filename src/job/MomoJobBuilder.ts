@@ -13,6 +13,11 @@ export class MomoJobBuilder {
     return this;
   }
 
+  withCronSchedule(cronSchedule: string): this {
+    this.momoJob.cronSchedule = cronSchedule;
+    return this;
+  }
+
   withFirstRunAfter(firstRunAfter: number): this {
     this.momoJob.firstRunAfter = firstRunAfter;
     return this;
@@ -38,8 +43,12 @@ export class MomoJobBuilder {
       throw Error('Error: Job must have a specified name');
     }
 
-    if (this.momoJob.interval === undefined) {
-      throw Error('Error: Job must have a specified interval');
+    if (this.momoJob.interval === undefined && this.momoJob.cronSchedule === undefined) {
+      throw Error('Error: Job must have either a specified interval or a cron schedule');
+    }
+
+    if (this.momoJob.interval !== undefined && this.momoJob.cronSchedule !== undefined) {
+      throw Error('Error: Job cannot have both an interval and a cron schedule');
     }
 
     if (this.momoJob.handler === undefined) {
