@@ -13,8 +13,7 @@ describe('JobExecutor', () => {
   const handler = jest.fn();
   const job: Job = {
     name: 'test',
-    interval: '1 minute',
-    firstRunAfter: 0,
+    schedule: { interval: '1 minute', firstRunAfter: 0 },
     concurrency: 1,
     maxRunning: 0,
     handler,

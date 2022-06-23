@@ -1,4 +1,5 @@
 import { JobEntity } from '../repository/JobEntity';
+import { CronSchedule, Interval } from './MomoJob';
 
 /**
  * information about scheduled job
@@ -7,15 +8,13 @@ import { JobEntity } from '../repository/JobEntity';
  * running: the number of currently running executions
  */
 export interface JobSchedulerStatus {
-  interval?: string;
-  cronSchedule?: string;
+  schedule?: Interval | CronSchedule;
   running: number;
 }
 
 export interface MomoJobDescription {
   name: string;
-  interval?: string;
-  cronSchedule?: string;
+  schedule: Interval | CronSchedule;
   concurrency: number;
   maxRunning: number;
   /** present only if the job is started */
@@ -23,11 +22,10 @@ export interface MomoJobDescription {
 }
 
 export function jobDescriptionFromEntity(jobEntity: JobEntity): MomoJobDescription {
-  const { name, interval, cronSchedule, concurrency, maxRunning } = jobEntity;
+  const { name, schedule, concurrency, maxRunning } = jobEntity;
   return {
     name,
-    ...(interval !== undefined ? { interval } : {}),
-    ...(cronSchedule !== undefined ? { cronSchedule } : {}),
+    schedule,
     concurrency,
     maxRunning,
   };

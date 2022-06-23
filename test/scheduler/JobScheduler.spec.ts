@@ -13,8 +13,7 @@ import { sleep } from '../utils/sleep';
 describe('JobScheduler', () => {
   const defaultJob: Job = {
     name: 'test',
-    interval: '1 second',
-    firstRunAfter: 1000,
+    schedule: { interval: '1 second', firstRunAfter: 1000 },
     concurrency: 1,
     maxRunning: 0,
     handler: jest.fn(),
@@ -66,7 +65,7 @@ describe('JobScheduler', () => {
     });
 
     it('executes a job with firstRunAfter=0 immediately', async () => {
-      createJob({ firstRunAfter: 0 });
+      createJob({ schedule: { interval: '1 second', firstRunAfter: 0 } });
 
       await jobScheduler.start();
 
@@ -93,8 +92,10 @@ describe('JobScheduler', () => {
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
         name: job.name,
-        interval: job.interval,
-        cronSchedule: job.cronSchedule,
+        schedule: {
+          firstRunAfter: 1000,
+          interval: '1 second',
+        },
         concurrency: job.concurrency,
         maxRunning: job.maxRunning,
       });
@@ -107,18 +108,20 @@ describe('JobScheduler', () => {
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
         name: job.name,
-        interval: job.interval,
-        cronSchedule: job.cronSchedule,
         concurrency: job.concurrency,
         maxRunning: job.maxRunning,
-        schedulerStatus: { interval: job.interval, cronSchedule: job.cronSchedule, running: 0 },
+        schedule: {
+          firstRunAfter: 1000,
+          interval: '1 second',
+        },
+        schedulerStatus: { schedule: job.schedule, running: 0 },
       });
     });
   });
 
   describe('single cron scheduler job', () => {
     function createCronScheduleJob(): Job {
-      return createJob({ interval: undefined, cronSchedule: '*/1 * * * * *' });
+      return createJob({ schedule: { cronSchedule: '*/1 * * * * *' } });
     }
 
     it('executes a job', async () => {
@@ -148,10 +151,9 @@ describe('JobScheduler', () => {
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
         name: job.name,
-        interval: job.interval,
-        cronSchedule: job.cronSchedule,
         concurrency: job.concurrency,
         maxRunning: job.maxRunning,
+        schedule: { cronSchedule: '*/1 * * * * *' },
       });
     });
 
@@ -162,24 +164,23 @@ describe('JobScheduler', () => {
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
         name: job.name,
-        interval: job.interval,
-        cronSchedule: job.cronSchedule,
         concurrency: job.concurrency,
         maxRunning: job.maxRunning,
-        schedulerStatus: { interval: job.interval, cronSchedule: job.cronSchedule, running: 0 },
+        schedule: { cronSchedule: '*/1 * * * * *' },
+        schedulerStatus: { schedule: job.schedule, running: 0 },
       });
     });
   });
 
   describe('error cases', () => {
     it('throws on non-parsable interval', async () => {
-      createJob({ interval: 'not an interval' });
+      createJob({ schedule: { interval: 'not an interval', firstRunAfter: 0 } });
 
       await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableInterval);
     });
 
     it('throws on non-parsable cron schedule', async () => {
-      createJob({ cronSchedule: 'not a schedule', interval: undefined });
+      createJob({ schedule: { cronSchedule: 'not a valid cron string' } });
 
       await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableCronSchedule);
     });

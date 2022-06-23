@@ -9,7 +9,7 @@ import { toJob } from '../../src/job/Job';
 describe('Schedule', () => {
   const job: MomoJob = {
     name: 'test job',
-    interval: 'one minute',
+    schedule: { interval: 'one minute', firstRunAfter: 0 },
     handler: jest.fn(),
   };
 
@@ -44,7 +44,7 @@ describe('Schedule', () => {
 
     expect(await mongoSchedule.get(job.name)).toEqual({
       name: job.name,
-      interval: job.interval,
+      schedule: job.schedule,
       concurrency: 1,
       maxRunning: 0,
     });
@@ -53,12 +53,12 @@ describe('Schedule', () => {
   it('updates job', async () => {
     await mongoSchedule.define(job);
 
-    const newInterval = 'two minutes';
-    await mongoSchedule.define({ ...job, interval: newInterval });
+    const newSchedule = { ...job.schedule, interval: 'two minutes' };
+    await mongoSchedule.define({ ...job, schedule: newSchedule });
 
     expect(await mongoSchedule.get(job.name)).toEqual({
       name: job.name,
-      interval: newInterval,
+      schedule: newSchedule,
       concurrency: 1,
       maxRunning: 0,
     });
@@ -69,14 +69,14 @@ describe('Schedule', () => {
       toJob({
         name: 'some job that is in the database but not on the schedule',
         handler: jest.fn(),
-        interval: 'one minute',
+        schedule: { interval: 'one minute', firstRunAfter: 0 },
       })
     );
 
     await mongoSchedule.define(job);
 
     expect(await mongoSchedule.list()).toEqual([
-      { name: job.name, interval: job.interval, concurrency: 1, maxRunning: 0 },
+      { name: job.name, schedule: job.schedule, concurrency: 1, maxRunning: 0 },
     ]);
   });
 

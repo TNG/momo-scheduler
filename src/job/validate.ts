@@ -5,16 +5,14 @@ import { Job } from './Job';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { momoError } from '../logging/error/MomoError';
+import { isCronSchedule, isInterval } from './MomoJob';
 
-export function validate(
-  { name, interval, cronSchedule, firstRunAfter, concurrency, maxRunning }: Job,
-  logger?: Logger
-): boolean {
-  if (firstRunAfter < 0) {
+export function validate({ name, schedule, concurrency, maxRunning }: Job, logger?: Logger): boolean {
+  if (isInterval(schedule) && schedule.firstRunAfter < 0) {
     logger?.error(
       'job cannot be defined',
       MomoErrorType.defineJob,
-      { name, firstRunAfter },
+      { name, firstRunAfter: schedule.firstRunAfter },
       momoError.invalidFirstRunAfter
     );
     return false;
@@ -45,27 +43,12 @@ export function validate(
     return false;
   }
 
-  if (interval === undefined && cronSchedule === undefined) {
-    logger?.error('job cannot be defined', MomoErrorType.defineJob, { name }, momoError.missingIntervalAndCronSchedule);
-    return false;
+  if (isInterval(schedule)) {
+    return validateInterval(schedule.interval, name, logger);
   }
 
-  if (interval !== undefined && cronSchedule !== undefined) {
-    logger?.error(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name },
-      momoError.conflictingIntervalAndCronSchedule
-    );
-    return false;
-  }
-
-  if (interval !== undefined) {
-    return validateInterval(interval, name, logger);
-  }
-
-  if (cronSchedule !== undefined) {
-    return validateCronSchedule(cronSchedule, name, logger);
+  if (isCronSchedule(schedule)) {
+    return validateCronSchedule(schedule.cronSchedule, name, logger);
   }
 
   return false;

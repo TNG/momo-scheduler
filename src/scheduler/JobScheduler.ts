@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { min } from 'lodash';
 import humanInterval from 'human-interval';
-import { parseCronExpression } from 'cron-schedule';
+import { Cron, parseCronExpression } from 'cron-schedule';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 import { Job } from '../job/Job';
@@ -16,12 +16,12 @@ import { momoError } from '../logging/error/MomoError';
 import { JobEntity } from '../repository/JobEntity';
 import { calculateDelayFromCronSchedule } from './calculateDelayFromCronSchedule';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
+import { CronSchedule, Interval, isInterval } from '../job/MomoJob';
 
 export class JobScheduler {
   private jobHandle?: TimeoutHandle;
   private unexpectedErrorCount = 0;
-  private interval?: string;
-  private cronSchedule?: string;
+  private schedule?: Interval | CronSchedule;
 
   constructor(
     private readonly jobName: string,
@@ -64,14 +64,7 @@ export class JobScheduler {
     }
 
     const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
-    const schedulerStatus =
-      this.interval === undefined && this.cronSchedule === undefined
-        ? undefined
-        : {
-            interval: this.interval,
-            cronSchedule: this.cronSchedule,
-            running,
-          };
+    const schedulerStatus = this.schedule === undefined ? undefined : { schedule: this.schedule, running };
 
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }
@@ -90,29 +83,30 @@ export class JobScheduler {
       return;
     }
 
-    if (jobEntity.interval !== undefined) {
-      this.handleIntervalJob(jobEntity);
-    }
-
-    if (jobEntity.cronSchedule !== undefined) {
-      this.handleCronScheduleJob(jobEntity);
+    if (isInterval(jobEntity.schedule)) {
+      this.handleIntervalJob(jobEntity, this.calculateInterval(jobEntity.schedule), jobEntity.schedule.firstRunAfter);
+    } else {
+      this.handleCronScheduleJob(jobEntity, this.extractCron(jobEntity.schedule));
     }
   }
 
-  private handleIntervalJob(jobEntity: JobEntity): void {
-    const parsedInterval = humanInterval(jobEntity.interval);
+  private calculateInterval(interval: Interval): number {
+    const parsedInterval = humanInterval(interval.interval);
     if (parsedInterval === undefined || isNaN(parsedInterval)) {
       // the interval was already validated when the job was defined
       throw momoError.nonParsableInterval;
     }
+    return parsedInterval;
+  }
 
-    this.interval = jobEntity.interval;
+  private handleIntervalJob(jobEntity: JobEntity, interval: number, firstRunAfter: number): void {
+    this.schedule = jobEntity.schedule;
 
-    const delay = calculateDelayFromInterval(parsedInterval, jobEntity);
+    const delay = calculateDelayFromInterval(interval, jobEntity, firstRunAfter);
 
     this.jobHandle = setSafeIntervalWithDelay(
       this.executeConcurrently.bind(this),
-      parsedInterval,
+      interval,
       delay,
       this.logger,
       'Concurrent execution failed'
@@ -120,27 +114,26 @@ export class JobScheduler {
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
       name: this.jobName,
-      interval: parsedInterval,
+      interval,
       delay,
     });
   }
 
-  private handleCronScheduleJob(jobEntity: JobEntity): void {
-    this.cronSchedule = jobEntity.cronSchedule;
-    let parsedCronSchedule;
-
+  private extractCron(cronSchedule: CronSchedule): Cron {
     try {
-      parsedCronSchedule = parseCronExpression(jobEntity.cronSchedule as string);
+      return parseCronExpression(cronSchedule.cronSchedule);
     } catch {
       // the cron schedule was already validated when the job was defined
       throw momoError.nonParsableCronSchedule;
     }
+  }
 
-    const delay = calculateDelayFromCronSchedule(parsedCronSchedule);
-
+  private handleCronScheduleJob(jobEntity: JobEntity, delayCron: Cron): void {
+    const delay = calculateDelayFromCronSchedule(delayCron);
+    this.schedule = jobEntity.schedule;
     const executeAndReschedule = async (): Promise<void> => {
       await this.executeConcurrently();
-      this.handleCronScheduleJob(jobEntity);
+      this.handleCronScheduleJob(jobEntity, delayCron);
     };
 
     const timeout = setSafeTimeout(executeAndReschedule.bind(this), delay, this.logger, 'Concurrent execution failed');
@@ -154,7 +147,7 @@ export class JobScheduler {
       this.jobExecutor.stop();
       await this.executionsRepository.removeJob(this.scheduleId, this.jobName);
       this.jobHandle = undefined;
-      this.interval = undefined;
+      this.schedule = undefined;
     }
   }
 

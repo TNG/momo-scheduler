@@ -30,14 +30,13 @@ export class JobRepository extends Repository<JobEntity> {
   }
 
   async define(job: Job): Promise<void> {
-    const { name, interval, cronSchedule, concurrency, maxRunning } = job;
+    const { name, schedule, concurrency, maxRunning } = job;
     const jobDefinition = toJobDefinition(job);
 
     this.logger?.debug('define job', {
       name,
       concurrency,
-      interval: interval ?? '',
-      cronSchedule: cronSchedule ?? '',
+      schedule: JSON.stringify(schedule),
       maxRunning,
     });
 

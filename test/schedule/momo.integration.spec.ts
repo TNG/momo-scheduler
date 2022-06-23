@@ -10,6 +10,7 @@ import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { toJob, toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
+import { CronSchedule, Interval, MomoCronJob, MomoIntervalJob } from '../../src/job/MomoJob';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -76,28 +77,33 @@ describe('Momo', () => {
     return jobHandler;
   }
 
-  function createTestJob(
-    jobHandler: TestJobHandler,
-    intervalOrCronSchedule: { interval: string } | { cronSchedule: string }
-  ): MomoJob {
+  function createTestIntervalJob(jobHandler: TestJobHandler, schedule: Interval): MomoIntervalJob {
     return {
       name: `test_job_${uuid()}`,
       handler: jobHandler.handler,
-      ...intervalOrCronSchedule,
+      schedule,
+    };
+  }
+
+  function createTestCronJob(jobHandler: TestJobHandler, schedule: CronSchedule): MomoCronJob {
+    return {
+      name: `test_job_${uuid()}`,
+      handler: jobHandler.handler,
+      schedule,
     };
   }
 
   describe('single job', () => {
     let jobHandler: TestJobHandler;
-    let momoJob: MomoJob;
+    let momoIntervalJob: MomoIntervalJob;
 
     beforeEach(() => {
       jobHandler = createTestJobHandler();
-      momoJob = createTestJob(jobHandler, { interval: '1 second' });
+      momoIntervalJob = createTestIntervalJob(jobHandler, { interval: '1 second', firstRunAfter: 0 });
     });
 
     it('executes a job periodically', async () => {
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
 
       await mongoSchedule.start();
 
@@ -106,7 +112,10 @@ describe('Momo', () => {
     });
 
     it('executes job periodically after firstRunAfter', async () => {
-      await mongoSchedule.define({ ...momoJob, firstRunAfter: 1000 });
+      await mongoSchedule.define({
+        ...momoIntervalJob,
+        schedule: { ...momoIntervalJob.schedule, firstRunAfter: 1000 },
+      });
 
       await mongoSchedule.start();
 
@@ -117,7 +126,7 @@ describe('Momo', () => {
 
     it('executes job that was executed before', async () => {
       const jobEntity = {
-        ...toJobDefinition(toJob(momoJob)),
+        ...toJobDefinition(toJob(momoIntervalJob)),
         executionInfo: {
           lastStarted: DateTime.now().toISO(),
           lastFinished: DateTime.now().toISO(),
@@ -127,26 +136,26 @@ describe('Momo', () => {
       await jobRepository.save(jobEntity);
 
       await sleep(500);
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
       await mongoSchedule.start();
 
       await sleep(200);
-      const jobs = await jobRepository.find({ name: momoJob.name });
+      const jobs = await jobRepository.find({ name: momoIntervalJob.name });
       expect(jobs[0]?.executionInfo).toEqual(jobEntity.executionInfo);
 
       await waitFor(() => expect(jobHandler.count).toBe(1), 500);
     });
 
     it('saves executionInfo in mongo', async () => {
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
 
-      const jobs1 = await jobRepository.find({ name: momoJob.name });
+      const jobs1 = await jobRepository.find({ name: momoIntervalJob.name });
       expect(jobs1[0]!.executionInfo).toBeUndefined();
 
       await mongoSchedule.start();
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
-      const jobs2 = await jobRepository.find({ name: momoJob.name });
+      const jobs2 = await jobRepository.find({ name: momoIntervalJob.name });
 
       const executionInfo = jobs2[0]?.executionInfo;
       expect(executionInfo).toBeDefined();
@@ -159,13 +168,13 @@ describe('Momo', () => {
 
     it('updates and reports failing job in mongo', async () => {
       jobHandler.failJob = true;
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
 
       await mongoSchedule.start();
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
       const executionInfo = await waitFor(async () => {
-        const jobs = await jobRepository.find({ name: momoJob.name });
+        const jobs = await jobRepository.find({ name: momoIntervalJob.name });
         const executionInfo = jobs[0]?.executionInfo;
         expect(executionInfo?.lastFinished).toBeDefined();
         return executionInfo!;
@@ -175,19 +184,19 @@ describe('Momo', () => {
       expect(receivedError).toEqual({
         message: 'job failed',
         type: MomoErrorType.executeJob,
-        data: { name: momoJob.name },
+        data: { name: momoIntervalJob.name },
         error: new Error(jobHandler.message),
       });
     });
 
     it('updates result message when job succeeds', async () => {
       jobHandler.failJob = true;
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
       await mongoSchedule.start();
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
       await waitFor(async () => {
-        const jobs = await jobRepository.find({ name: momoJob.name });
+        const jobs = await jobRepository.find({ name: momoIntervalJob.name });
         expect(jobs[0]?.executionInfo?.lastResult).toEqual({
           status: ExecutionStatus.failed,
           handlerResult: jobHandler.message,
@@ -197,7 +206,7 @@ describe('Momo', () => {
       jobHandler.failJob = false;
       await waitFor(() => expect(jobHandler.count).toBe(2));
       await waitFor(async () => {
-        const jobs = await jobRepository.find({ name: momoJob.name });
+        const jobs = await jobRepository.find({ name: momoIntervalJob.name });
         expect(jobs[0]?.executionInfo?.lastResult).toEqual({
           status: ExecutionStatus.finished,
           handlerResult: jobHandler.result,
@@ -206,7 +215,7 @@ describe('Momo', () => {
     });
 
     it('can be stopped and restarted', async () => {
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
       await mongoSchedule.start();
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
@@ -223,11 +232,14 @@ describe('Momo', () => {
     });
 
     it('updates already started job', async () => {
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
       await mongoSchedule.start();
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
-      await mongoSchedule.define({ ...momoJob, interval: '2 seconds' });
+      await mongoSchedule.define({
+        ...momoIntervalJob,
+        schedule: { ...momoIntervalJob.schedule, interval: '2 seconds' },
+      });
       await mongoSchedule.start(); // pick up the new interval
 
       await sleep(1200);
@@ -237,7 +249,7 @@ describe('Momo', () => {
     });
 
     it('does not execute a job that was removed from mongo', async () => {
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
 
       await mongoSchedule.start();
       await jobRepository.delete();
@@ -247,12 +259,12 @@ describe('Momo', () => {
     });
 
     it('updates maxRunning and concurrency from mongo', async () => {
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
 
       const updatedConcurrency = 5;
       const updatedMaxRunning = 10;
       await jobRepository.updateOne(
-        { name: momoJob.name },
+        { name: momoIntervalJob.name },
         { $set: { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning } }
       );
 
@@ -269,19 +281,19 @@ describe('Momo', () => {
     });
 
     it('does not update interval of started job from mongo', async () => {
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(momoIntervalJob);
 
       await mongoSchedule.start();
 
-      const updatedInterval = '2 seconds';
-      await jobRepository.updateOne({ name: momoJob.name }, { $set: { interval: updatedInterval } });
+      const updatedSchedule = { interval: '2 seconds', firstRunAfter: 0 };
+      await jobRepository.updateOne({ name: momoIntervalJob.name }, { $set: { schedule: updatedSchedule } });
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
       const updatedJobs = await mongoSchedule.list();
-      const { interval, schedulerStatus } = updatedJobs[0]!;
-      expect(interval).toEqual(updatedInterval);
-      expect(schedulerStatus?.interval).toBe(momoJob.interval);
+      const { schedule, schedulerStatus } = updatedJobs[0]!;
+      expect(schedule).toEqual(updatedSchedule);
+      expect(schedulerStatus?.schedule).toEqual(momoIntervalJob.schedule);
       expect(schedulerStatus?.running).toBeGreaterThanOrEqual(0);
     });
   });
@@ -295,8 +307,8 @@ describe('Momo', () => {
     beforeEach(() => {
       jobHandler1 = createTestJobHandler();
       jobHandler2 = createTestJobHandler();
-      job1 = createTestJob(jobHandler1, { interval: '1 second' });
-      job2 = createTestJob(jobHandler2, { cronSchedule: '*/1 * * * * *' });
+      job1 = createTestIntervalJob(jobHandler1, { interval: '1 second', firstRunAfter: 0 });
+      job2 = createTestCronJob(jobHandler2, { cronSchedule: '*/1 * * * * *' });
     });
 
     it('executes, updates and stops with two jobs', async () => {
@@ -310,7 +322,7 @@ describe('Momo', () => {
         expect(jobHandler2.count).toBe(1);
       });
 
-      await mongoSchedule.define({ ...job1, interval: '2 seconds' });
+      await mongoSchedule.define({ ...job1, schedule: { interval: '2 seconds', firstRunAfter: 0 } });
       await mongoSchedule.start();
       await sleep(4000);
       expect(jobHandler1.count).toBe(3);
@@ -476,7 +488,7 @@ describe('Momo', () => {
 
     beforeEach(() => {
       jobHandler = createTestJobHandler(3200);
-      job = createTestJob(jobHandler, { cronSchedule: '*/1 * * * * *' });
+      job = createTestCronJob(jobHandler, { cronSchedule: '*/1 * * * * *' });
     });
 
     it('executes a long running job', async () => {
@@ -620,7 +632,7 @@ describe('Momo', () => {
 
     beforeEach(() => {
       jobHandler = createTestJobHandler(3000);
-      job = { ...createTestJob(jobHandler, { interval: '1 second' }), concurrency: 3 };
+      job = { ...createTestIntervalJob(jobHandler, { interval: '1 second', firstRunAfter: 0 }), concurrency: 3 };
     });
 
     it('executes concurrent job', async () => {

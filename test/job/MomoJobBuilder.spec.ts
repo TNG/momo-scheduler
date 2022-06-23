@@ -12,8 +12,7 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJob.name).toEqual('name');
-    expect(momoJob.interval).toEqual('one minute');
-    expect(momoJob.firstRunAfter).toEqual(0);
+    expect(momoJob.schedule).toEqual({ interval: 'one minute', firstRunAfter: 0 });
     expect(momoJob.concurrency).toEqual(1);
     expect(momoJob.maxRunning).toEqual(1);
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
@@ -23,15 +22,13 @@ describe('MomoJobBuilder', () => {
     const momoJob = new MomoJobBuilder()
       .withName('name')
       .withCronSchedule('0 9 * * 1-5')
-      .withFirstRunAfter(0)
       .withConcurrency(1)
       .withMaxRunning(1)
       .withHandler(jest.fn())
       .build();
 
     expect(momoJob.name).toEqual('name');
-    expect(momoJob.cronSchedule).toEqual('0 9 * * 1-5');
-    expect(momoJob.firstRunAfter).toEqual(0);
+    expect(momoJob.schedule).toEqual({ cronSchedule: '0 9 * * 1-5' });
     expect(momoJob.concurrency).toEqual(1);
     expect(momoJob.maxRunning).toEqual(1);
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
@@ -45,8 +42,7 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJobWithInterval.name).toEqual('name');
-    expect(momoJobWithInterval.interval).toEqual('one minute');
-    expect(momoJobWithInterval.firstRunAfter).toBeUndefined();
+    expect(momoJobWithInterval.schedule).toEqual({ interval: 'one minute', firstRunAfter: 0 });
     expect(momoJobWithInterval.concurrency).toBeUndefined();
     expect(momoJobWithInterval.maxRunning).toBeUndefined();
     expect(momoJobWithInterval.handler.toString()).toEqual(jest.fn().toString());
@@ -58,8 +54,7 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJobWithCronSchedule.name).toEqual('name');
-    expect(momoJobWithCronSchedule.cronSchedule).toEqual('0 9 * * 1-5');
-    expect(momoJobWithCronSchedule.firstRunAfter).toBeUndefined();
+    expect(momoJobWithCronSchedule.schedule).toEqual({ cronSchedule: '0 9 * * 1-5' });
     expect(momoJobWithCronSchedule.concurrency).toBeUndefined();
     expect(momoJobWithCronSchedule.maxRunning).toBeUndefined();
     expect(momoJobWithCronSchedule.handler.toString()).toEqual(jest.fn().toString());
@@ -71,22 +66,10 @@ describe('MomoJobBuilder', () => {
     expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have a specified name');
   });
 
-  it("cannot build if neither 'interval' nor 'cronSchedule' are specified", () => {
+  it('cannot build if schedule is specified', () => {
     const momoJobBuilder = new MomoJobBuilder().withName('name').withHandler(jest.fn());
 
-    expect(() => momoJobBuilder.build()).toThrowError(
-      'Error: Job must have either a specified interval or a cron schedule'
-    );
-  });
-
-  it("cannot build if both 'interval' and 'cronSchedule' are specified", () => {
-    const momoJobBuilder = new MomoJobBuilder()
-      .withName('name')
-      .withInterval('one minute')
-      .withCronSchedule('0 9 * * 1-5')
-      .withHandler(jest.fn());
-
-    expect(() => momoJobBuilder.build()).toThrowError('Error: Job cannot have both an interval and a cron schedule');
+    expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have either a specified schedule');
   });
 
   it("cannot build if 'handler' not specified", () => {
