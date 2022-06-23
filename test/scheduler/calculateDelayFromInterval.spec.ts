@@ -3,9 +3,9 @@ import { DateTime } from 'luxon';
 
 import { ExecutionInfo } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
-import { calculateDelay } from '../../src/scheduler/calculateDelay';
+import { calculateDelayFromInterval } from '../../src/scheduler/calculateDelayFromInterval';
 
-describe('calculateDelay', () => {
+describe('calculateDelayFromInterval', () => {
   const clock: Clock = install();
   const job: JobEntity = {
     name: 'test',
@@ -18,7 +18,7 @@ describe('calculateDelay', () => {
   afterAll(() => clock.reset());
 
   it('uses configured delay if job was never started before', () => {
-    const delay = calculateDelay(1000, job);
+    const delay = calculateDelayFromInterval(1000, job);
 
     expect(delay).toBe(job.firstRunAfter);
   });
@@ -28,7 +28,7 @@ describe('calculateDelay', () => {
 
     clock.tick(500);
 
-    const delay = calculateDelay(1000, job);
+    const delay = calculateDelayFromInterval(1000, job);
     expect(delay).toBe(500);
   });
 });

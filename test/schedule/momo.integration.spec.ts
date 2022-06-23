@@ -76,11 +76,14 @@ describe('Momo', () => {
     return jobHandler;
   }
 
-  function createTestJob(jobHandler: TestJobHandler): MomoJob {
+  function createTestJob(
+    jobHandler: TestJobHandler,
+    intervalOrCronSchedule: { interval: string } | { cronSchedule: string }
+  ): MomoJob {
     return {
       name: `test_job_${uuid()}`,
-      interval: '1 second',
       handler: jobHandler.handler,
+      ...intervalOrCronSchedule,
     };
   }
 
@@ -90,7 +93,7 @@ describe('Momo', () => {
 
     beforeEach(() => {
       jobHandler = createTestJobHandler();
-      momoJob = createTestJob(jobHandler);
+      momoJob = createTestJob(jobHandler, { interval: '1 second' });
     });
 
     it('executes a job periodically', async () => {
@@ -292,8 +295,8 @@ describe('Momo', () => {
     beforeEach(() => {
       jobHandler1 = createTestJobHandler();
       jobHandler2 = createTestJobHandler();
-      job1 = createTestJob(jobHandler1);
-      job2 = createTestJob(jobHandler2);
+      job1 = createTestJob(jobHandler1, { interval: '1 second' });
+      job2 = createTestJob(jobHandler2, { cronSchedule: '*/1 * * * * *' });
     });
 
     it('executes, updates and stops with two jobs', async () => {
@@ -331,8 +334,8 @@ describe('Momo', () => {
 
       await mongoSchedule.start();
 
-      await sleep(1200);
-      expect(jobHandler1.count).toBe(2);
+      await sleep(2000);
+      expect(jobHandler1.count).toBe(3);
       expect(jobHandler2.count).toBe(2);
     });
 
@@ -473,7 +476,7 @@ describe('Momo', () => {
 
     beforeEach(() => {
       jobHandler = createTestJobHandler(3200);
-      job = createTestJob(jobHandler);
+      job = createTestJob(jobHandler, { cronSchedule: '*/1 * * * * *' });
     });
 
     it('executes a long running job', async () => {
@@ -617,7 +620,7 @@ describe('Momo', () => {
 
     beforeEach(() => {
       jobHandler = createTestJobHandler(3000);
-      job = { ...createTestJob(jobHandler), concurrency: 3 };
+      job = { ...createTestJob(jobHandler, { interval: '1 second' }), concurrency: 3 };
     });
 
     it('executes concurrent job', async () => {

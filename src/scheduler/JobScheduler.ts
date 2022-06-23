@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { min } from 'lodash';
 import humanInterval from 'human-interval';
-
+import { parseCronExpression } from 'cron-schedule';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 import { Job } from '../job/Job';
@@ -11,13 +11,17 @@ import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
 import { TimeoutHandle, setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
-import { calculateDelay } from './calculateDelay';
+import { calculateDelayFromInterval } from './calculateDelayFromInterval';
 import { momoError } from '../logging/error/MomoError';
+import { JobEntity } from '../repository/JobEntity';
+import { calculateDelayFromCronSchedule } from './calculateDelayFromCronSchedule';
+import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class JobScheduler {
   private jobHandle?: TimeoutHandle;
   private unexpectedErrorCount = 0;
   private interval?: string;
+  private cronSchedule?: string;
 
   constructor(
     private readonly jobName: string,
@@ -60,7 +64,14 @@ export class JobScheduler {
     }
 
     const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
-    const schedulerStatus = this.interval !== undefined ? { interval: this.interval, running } : undefined;
+    const schedulerStatus =
+      this.interval === undefined && this.cronSchedule === undefined
+        ? undefined
+        : {
+            interval: this.interval,
+            cronSchedule: this.cronSchedule,
+            running,
+          };
 
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }
@@ -79,19 +90,29 @@ export class JobScheduler {
       return;
     }
 
-    const interval = humanInterval(jobEntity.interval);
-    if (interval === undefined || isNaN(interval)) {
+    if (jobEntity.interval !== undefined) {
+      this.handleIntervalJob(jobEntity);
+    }
+
+    if (jobEntity.cronSchedule !== undefined) {
+      this.handleCronScheduleJob(jobEntity);
+    }
+  }
+
+  private handleIntervalJob(jobEntity: JobEntity): void {
+    const parsedInterval = humanInterval(jobEntity.interval);
+    if (parsedInterval === undefined || isNaN(parsedInterval)) {
       // the interval was already validated when the job was defined
       throw momoError.nonParsableInterval;
     }
 
     this.interval = jobEntity.interval;
 
-    const delay = calculateDelay(interval, jobEntity);
+    const delay = calculateDelayFromInterval(parsedInterval, jobEntity);
 
     this.jobHandle = setSafeIntervalWithDelay(
       this.executeConcurrently.bind(this),
-      interval,
+      parsedInterval,
       delay,
       this.logger,
       'Concurrent execution failed'
@@ -99,9 +120,32 @@ export class JobScheduler {
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
       name: this.jobName,
-      interval,
+      interval: parsedInterval,
       delay,
     });
+  }
+
+  private handleCronScheduleJob(jobEntity: JobEntity): void {
+    this.cronSchedule = jobEntity.cronSchedule;
+    let parsedCronSchedule;
+
+    try {
+      parsedCronSchedule = parseCronExpression(jobEntity.cronSchedule as string);
+    } catch {
+      // the cron schedule was already validated when the job was defined
+      throw momoError.nonParsableCronSchedule;
+    }
+
+    const delay = calculateDelayFromCronSchedule(parsedCronSchedule);
+
+    const executeAndReschedule = async (): Promise<void> => {
+      await this.executeConcurrently();
+      this.handleCronScheduleJob(jobEntity);
+    };
+
+    const timeout = setSafeTimeout(executeAndReschedule.bind(this), delay, this.logger, 'Concurrent execution failed');
+
+    this.jobHandle = { get: () => timeout };
   }
 
   async stop(): Promise<void> {

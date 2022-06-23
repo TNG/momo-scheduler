@@ -9,6 +9,7 @@ export interface JobDefinition {
   name: string;
   interval?: string;
   cronSchedule?: string;
+  // TODO: Make sure it's clear in the documentation that this has no impact on cron jobs
   firstRunAfter: number;
   concurrency: number;
   maxRunning: number;

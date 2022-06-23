@@ -56,7 +56,7 @@ describe('JobScheduler', () => {
     return job;
   }
 
-  describe('single job', () => {
+  describe('single interval job', () => {
     it('executes a job', async () => {
       createJob();
       await jobScheduler.start();
@@ -74,7 +74,7 @@ describe('JobScheduler', () => {
       verify(await jobExecutor.execute(anything())).once();
     });
 
-    it('stops', async () => {
+    it('stops a job', async () => {
       createJob();
       await jobScheduler.start();
 
@@ -94,6 +94,7 @@ describe('JobScheduler', () => {
       expect(jobDescription).toEqual({
         name: job.name,
         interval: job.interval,
+        cronSchedule: job.cronSchedule,
         concurrency: job.concurrency,
         maxRunning: job.maxRunning,
       });
@@ -107,9 +108,65 @@ describe('JobScheduler', () => {
       expect(jobDescription).toEqual({
         name: job.name,
         interval: job.interval,
+        cronSchedule: job.cronSchedule,
         concurrency: job.concurrency,
         maxRunning: job.maxRunning,
-        schedulerStatus: { interval: job.interval, running: 0 },
+        schedulerStatus: { interval: job.interval, cronSchedule: job.cronSchedule, running: 0 },
+      });
+    });
+  });
+
+  describe('single cron scheduler job', () => {
+    function createCronScheduleJob(): Job {
+      return createJob({ interval: undefined, cronSchedule: '*/1 * * * * *' });
+    }
+
+    it('executes a job', async () => {
+      createCronScheduleJob();
+      await jobScheduler.start();
+
+      await sleep(1000);
+      verify(await jobExecutor.execute(anything())).once();
+    });
+
+    it('stops a job', async () => {
+      createCronScheduleJob();
+      await jobScheduler.start();
+
+      await sleep(1000);
+      verify(await jobExecutor.execute(anything())).once();
+
+      await jobScheduler.stop();
+
+      await sleep(1000);
+      verify(await jobExecutor.execute(anything())).once();
+    });
+
+    it('returns job description', async () => {
+      const job = createCronScheduleJob();
+
+      const jobDescription = await jobScheduler.getJobDescription();
+      expect(jobDescription).toEqual({
+        name: job.name,
+        interval: job.interval,
+        cronSchedule: job.cronSchedule,
+        concurrency: job.concurrency,
+        maxRunning: job.maxRunning,
+      });
+    });
+
+    it('returns job description for started job', async () => {
+      const job = createCronScheduleJob();
+      await jobScheduler.start();
+
+      const jobDescription = await jobScheduler.getJobDescription();
+      expect(jobDescription).toEqual({
+        name: job.name,
+        interval: job.interval,
+        cronSchedule: job.cronSchedule,
+        concurrency: job.concurrency,
+        maxRunning: job.maxRunning,
+        schedulerStatus: { interval: job.interval, cronSchedule: job.cronSchedule, running: 0 },
       });
     });
   });
@@ -119,6 +176,12 @@ describe('JobScheduler', () => {
       createJob({ interval: 'not an interval' });
 
       await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableInterval);
+    });
+
+    it('throws on non-parsable cron schedule', async () => {
+      createJob({ cronSchedule: 'not a schedule', interval: undefined });
+
+      await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableCronSchedule);
     });
 
     it('reports error when job was removed before scheduling', async () => {

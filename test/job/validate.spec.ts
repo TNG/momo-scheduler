@@ -56,7 +56,7 @@ describe('validate', () => {
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name: job.name, cronSchedule: job.cronSchedule },
-      momoError.invalidCronSchedule
+      momoError.nonParsableCronSchedule
     );
   });
 

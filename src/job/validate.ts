@@ -89,7 +89,7 @@ function validateCronSchedule(cronSchedule: string, name: string, logger?: Logge
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name, cronSchedule },
-      momoError.invalidCronSchedule
+      momoError.nonParsableCronSchedule
     );
     return false;
   }

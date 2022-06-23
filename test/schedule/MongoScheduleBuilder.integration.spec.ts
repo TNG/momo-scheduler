@@ -13,7 +13,7 @@ describe('MongoScheduleBuilder', () => {
 
   const job2: MomoJob = {
     name: 'test job 2',
-    interval: 'one hour',
+    cronSchedule: '0 * * * *',
     handler: jest.fn(),
   };
 

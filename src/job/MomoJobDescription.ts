@@ -7,13 +7,15 @@ import { JobEntity } from '../repository/JobEntity';
  * running: the number of currently running executions
  */
 export interface JobSchedulerStatus {
-  interval: string;
+  interval?: string;
+  cronSchedule?: string;
   running: number;
 }
 
 export interface MomoJobDescription {
   name: string;
-  interval: string;
+  interval?: string;
+  cronSchedule?: string;
   concurrency: number;
   maxRunning: number;
   /** present only if the job is started */
@@ -21,7 +23,12 @@ export interface MomoJobDescription {
 }
 
 export function jobDescriptionFromEntity(jobEntity: JobEntity): MomoJobDescription {
-  const { name, interval, concurrency, maxRunning } = jobEntity;
-  // TODO: FIXME
-  return { name, interval: interval ?? '', concurrency, maxRunning };
+  const { name, interval, cronSchedule, concurrency, maxRunning } = jobEntity;
+  return {
+    name,
+    ...(interval !== undefined ? { interval } : {}),
+    ...(cronSchedule !== undefined ? { cronSchedule } : {}),
+    concurrency,
+    maxRunning,
+  };
 }
