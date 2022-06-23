@@ -312,15 +312,15 @@ describe('Momo', () => {
 
       await mongoSchedule.define({ ...job1, interval: '2 seconds' });
       await mongoSchedule.start();
-      await sleep(2200);
-      expect(jobHandler1.count).toBe(2);
-      expect(jobHandler2.count).toBe(3);
+      await sleep(4000);
+      expect(jobHandler1.count).toBe(3);
+      expect(jobHandler2.count).toBe(5);
 
       await mongoSchedule.stop();
 
-      await sleep(2200);
-      expect(jobHandler1.count).toBe(2);
-      expect(jobHandler2.count).toBe(3);
+      await sleep(2000);
+      expect(jobHandler1.count).toBe(3);
+      expect(jobHandler2.count).toBe(5);
     });
 
     it('starts jobs defined after first start', async () => {
