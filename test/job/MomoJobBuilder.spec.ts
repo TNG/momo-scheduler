@@ -4,8 +4,7 @@ describe('MomoJobBuilder', () => {
   it('can build a job with all attributes and an interval', () => {
     const momoJob = new MomoJobBuilder()
       .withName('name')
-      .withInterval('one minute')
-      .withFirstRunAfter(0)
+      .withSchedule('one minute', 0)
       .withConcurrency(1)
       .withMaxRunning(1)
       .withHandler(jest.fn())
@@ -34,10 +33,10 @@ describe('MomoJobBuilder', () => {
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
   });
 
-  it('can build a job with required attributes only', () => {
+  it('can build an interval job with required attributes only', () => {
     const momoJobWithInterval = new MomoJobBuilder()
       .withName('name')
-      .withInterval('one minute')
+      .withSchedule('one minute')
       .withHandler(jest.fn())
       .build();
 
@@ -46,7 +45,9 @@ describe('MomoJobBuilder', () => {
     expect(momoJobWithInterval.concurrency).toBeUndefined();
     expect(momoJobWithInterval.maxRunning).toBeUndefined();
     expect(momoJobWithInterval.handler.toString()).toEqual(jest.fn().toString());
+  });
 
+  it('can build a cron interval job with required attributes only', () => {
     const momoJobWithCronSchedule = new MomoJobBuilder()
       .withName('name')
       .withCronSchedule('0 9 * * 1-5')
@@ -61,7 +62,7 @@ describe('MomoJobBuilder', () => {
   });
 
   it("cannot build if 'name' not specified", () => {
-    const momoJobBuilder = new MomoJobBuilder().withInterval('one minute').withHandler(jest.fn());
+    const momoJobBuilder = new MomoJobBuilder().withSchedule('one minute').withHandler(jest.fn());
 
     expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have a specified name');
   });
@@ -69,11 +70,11 @@ describe('MomoJobBuilder', () => {
   it('cannot build if schedule is specified', () => {
     const momoJobBuilder = new MomoJobBuilder().withName('name').withHandler(jest.fn());
 
-    expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have either a specified schedule');
+    expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have a specified schedule');
   });
 
   it("cannot build if 'handler' not specified", () => {
-    const momoJobBuilder = new MomoJobBuilder().withName('name').withInterval('one minute');
+    const momoJobBuilder = new MomoJobBuilder().withName('name').withSchedule('one minute');
 
     expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have a specified handler');
   });

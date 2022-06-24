@@ -1,37 +1,35 @@
-import { Handler, MomoJob, isCronSchedule, isInterval } from './MomoJob';
+import { Handler, MomoJob } from './MomoJob';
+
+interface MomoJobBuilderBase<T> {
+  withName: (name: string) => T;
+  withConcurrency: (concurrency: number) => T;
+  withMaxRunning: (maxRunning: number) => T;
+  withHandler: (handler: Handler) => T;
+  build: () => MomoJob;
+}
+
+interface MomoIntervalJobBuilder extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
+  withSchedule: (interval: string, firstRunAfter?: number) => MomoIntervalJobBuilder;
+}
+
+interface MomoCronJobBuilder extends MomoJobBuilderBase<MomoCronJobBuilder> {
+  withCronSchedule: (cronSchedule: string) => MomoCronJobBuilder;
+}
 
 export class MomoJobBuilder {
-  private momoJob: Partial<MomoJob> = {};
+  protected momoJob: Partial<MomoJob> = {};
 
   withName(name: string): this {
     this.momoJob.name = name;
     return this;
   }
 
-  withInterval(interval: string): this {
-    if (this.momoJob.schedule !== undefined && isInterval(this.momoJob.schedule)) {
-      this.momoJob.schedule = { ...this.momoJob.schedule, interval };
-      return this;
-    }
-
-    this.momoJob.schedule = { interval, firstRunAfter: 0 };
+  withSchedule(interval: string, firstRunAfter = 0): MomoIntervalJobBuilder {
+    this.momoJob.schedule = { firstRunAfter, interval };
     return this;
   }
 
-  withFirstRunAfter(firstRunAfter: number): this {
-    if (this.momoJob.schedule !== undefined && isCronSchedule(this.momoJob.schedule)) {
-      throw new Error('Error: Setting a firstRunAfter on a cron job');
-    }
-
-    if (this.momoJob.schedule?.interval === undefined) {
-      throw new Error('Error: Setting a firstRunAfter before interval');
-    }
-
-    this.momoJob.schedule = { ...this.momoJob.schedule, firstRunAfter };
-    return this;
-  }
-
-  withCronSchedule(cronSchedule: string): this {
+  withCronSchedule(cronSchedule: string): MomoCronJobBuilder {
     this.momoJob.schedule = { cronSchedule };
     return this;
   }
@@ -57,7 +55,7 @@ export class MomoJobBuilder {
     }
 
     if (this.momoJob.schedule === undefined) {
-      throw Error('Error: Job must have either a specified schedule');
+      throw Error('Error: Job must have a specified schedule');
     }
 
     if (this.momoJob.handler === undefined) {
