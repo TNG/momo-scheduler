@@ -2,10 +2,10 @@ import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
 import { ExecutionStatus, MomoErrorType } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { loggerForTests } from '../utils/logging';
+import { Job } from '../../dist/job/Job';
 
 describe('JobExecutor', () => {
   const scheduleId = '123';

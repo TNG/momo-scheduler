@@ -78,7 +78,7 @@ export class Schedule extends LogEmitter {
   }
 
   /**
-   * Triggers a defined job to run once independently from the schedule.
+   * Triggers a defined job to run once independently of the schedule.
    * Does nothing if no job with this name exists.
    *
    * Note that the returned promise will not be resolved until the job execution finished.

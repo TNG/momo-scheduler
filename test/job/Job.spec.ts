@@ -1,7 +1,7 @@
 import { toJob } from '../../src/job/Job';
 import { MomoJob } from '../../src';
 
-describe('fromMomoJob', () => {
+describe('toJob', () => {
   it('sets defaults', () => {
     const job: MomoJob = {
       name: 'test',

@@ -21,7 +21,11 @@ describe('validate', () => {
   });
 
   it('validates a job with a cron schedule', () => {
-    const job: Job = toJob({ name: 'test', schedule: { cronSchedule: '0 9 * * 1-5' }, handler: () => 'finished' });
+    const job: Job = toJob({
+      name: 'test',
+      schedule: { cronSchedule: '0 9 * * 1-5' },
+      handler: () => 'finished',
+    });
     expect(validate(job, logger)).toBe(true);
   });
 
@@ -60,7 +64,11 @@ describe('validate', () => {
   });
 
   it('reports error when cron schedule cannot be parsed', () => {
-    const job: Job = toJob({ name: 'test', schedule: { cronSchedule: 'not a schedule' }, handler: () => 'finished' });
+    const job: Job = toJob({
+      name: 'test',
+      schedule: { cronSchedule: 'not a schedule' },
+      handler: () => 'finished',
+    });
     expect(validate(job, logger)).toBe(false);
 
     expect(logger.error).toHaveBeenCalledTimes(1);

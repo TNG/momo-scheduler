@@ -2,21 +2,21 @@ import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
 import { ObjectId } from 'mongodb';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { Job, toJobDefinition } from '../../src/job/Job';
+import { toJobDefinition } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { MomoErrorType, momoError } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
+import { JobDefinition } from '../../dist/job/Job';
 
 describe('JobScheduler', () => {
-  const defaultJob: Job = {
+  const defaultJob: JobDefinition = {
     name: 'test',
     schedule: { interval: '1 second', firstRunAfter: 1000 },
     concurrency: 1,
     maxRunning: 0,
-    handler: jest.fn(),
   };
   const errorFn = jest.fn();
   const scheduleId = '123';
@@ -37,7 +37,7 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
   });
 
-  function createJob(partialJob: Partial<Job> = {}): Job {
+  function createJob(partialJob: Partial<JobDefinition> = {}): JobDefinition {
     const job = { ...defaultJob, ...partialJob };
     jobScheduler = new JobScheduler(
       job.name,
@@ -120,7 +120,7 @@ describe('JobScheduler', () => {
   });
 
   describe('single cron scheduler job', () => {
-    function createCronScheduleJob(): Job {
+    function createCronScheduleJob(): JobDefinition {
       return createJob({ schedule: { cronSchedule: '*/1 * * * * *' } });
     }
 
