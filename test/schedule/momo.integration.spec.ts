@@ -10,7 +10,7 @@ import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { toJob, toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
-import { CronSchedule, Interval, MomoCronJob, MomoIntervalJob } from '../../src/job/MomoJob';
+import { Interval, MomoIntervalJob } from '../../src/job/MomoJob';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -79,15 +79,7 @@ describe('Momo', () => {
 
   function createTestIntervalJob(jobHandler: TestJobHandler, schedule: Interval): MomoIntervalJob {
     return {
-      name: `test_job_${uuid()}`,
-      handler: jobHandler.handler,
-      schedule,
-    };
-  }
-
-  function createTestCronJob(jobHandler: TestJobHandler, schedule: CronSchedule): MomoCronJob {
-    return {
-      name: `test_job_${uuid()}`,
+      name: `interval_test_job_${uuid()}`,
       handler: jobHandler.handler,
       schedule,
     };
@@ -308,7 +300,7 @@ describe('Momo', () => {
       jobHandler1 = createTestJobHandler();
       jobHandler2 = createTestJobHandler();
       job1 = createTestIntervalJob(jobHandler1, { interval: '1 second', firstRunAfter: 0 });
-      job2 = createTestCronJob(jobHandler2, { cronSchedule: '*/1 * * * * *' });
+      job2 = createTestIntervalJob(jobHandler2, { interval: '1 second', firstRunAfter: 0 });
     });
 
     it('executes, updates and stops with two jobs', async () => {
@@ -324,15 +316,15 @@ describe('Momo', () => {
 
       await mongoSchedule.define({ ...job1, schedule: { interval: '2 seconds', firstRunAfter: 0 } });
       await mongoSchedule.start();
-      await sleep(4000);
-      expect(jobHandler1.count).toBe(3);
-      expect(jobHandler2.count).toBe(5);
+      await sleep(2200);
+      expect(jobHandler1.count).toBe(2);
+      expect(jobHandler2.count).toBe(3);
 
       await mongoSchedule.stop();
 
-      await sleep(2000);
-      expect(jobHandler1.count).toBe(3);
-      expect(jobHandler2.count).toBe(5);
+      await sleep(2200);
+      expect(jobHandler1.count).toBe(2);
+      expect(jobHandler2.count).toBe(3);
     });
 
     it('starts jobs defined after first start', async () => {
@@ -346,8 +338,8 @@ describe('Momo', () => {
 
       await mongoSchedule.start();
 
-      await sleep(2000);
-      expect(jobHandler1.count).toBe(3);
+      await sleep(1200);
+      expect(jobHandler1.count).toBe(2);
       expect(jobHandler2.count).toBe(2);
     });
 
@@ -488,7 +480,7 @@ describe('Momo', () => {
 
     beforeEach(() => {
       jobHandler = createTestJobHandler(3200);
-      job = createTestCronJob(jobHandler, { cronSchedule: '*/1 * * * * *' });
+      job = createTestIntervalJob(jobHandler, { interval: '1 second', firstRunAfter: 0 });
     });
 
     it('executes a long running job', async () => {

@@ -8,6 +8,7 @@ import { calculateDelayFromInterval } from '../../src/scheduler/calculateDelayFr
 describe('calculateDelayFromInterval', () => {
   const clock: Clock = install();
   const firstRunAfter = 500;
+  const schedule = { interval: 'one second', firstRunAfter };
   const job: JobEntity = {
     name: 'test',
     schedule: { interval: 'one second', firstRunAfter },
@@ -18,7 +19,7 @@ describe('calculateDelayFromInterval', () => {
   afterAll(() => clock.reset());
 
   it('uses configured delay if job was never started before', () => {
-    const delay = calculateDelayFromInterval(1000, job, firstRunAfter);
+    const delay = calculateDelayFromInterval(schedule, undefined);
 
     expect(delay).toBe(firstRunAfter);
   });
@@ -28,7 +29,7 @@ describe('calculateDelayFromInterval', () => {
 
     clock.tick(firstRunAfter);
 
-    const delay = calculateDelayFromInterval(1000, job, firstRunAfter);
+    const delay = calculateDelayFromInterval(schedule, job.executionInfo.lastStarted);
     expect(delay).toBe(firstRunAfter);
   });
 });

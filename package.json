@@ -30,11 +30,11 @@
     "format": "prettier --write \"**/*.ts\" && eslint --fix --ext .ts,.js,.json ."
   },
   "dependencies": {
-    "cron-schedule": "^3.0.6",
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
     "luxon": "2.4.0",
     "mongodb": "4.7.0",
+    "node-cron": "3.0.1",
     "typed-emitter": "2.1.0",
     "uuid": "8.3.2"
   },
@@ -45,6 +45,7 @@
     "@types/lodash": "4.14.182",
     "@types/luxon": "2.3.2",
     "@types/node": "16.11.39",
+    "@types/node-cron": "3.0.1",
     "@types/pino": "7.0.4",
     "@types/sinonjs__fake-timers": "8.1.2",
     "@types/uuid": "8.3.4",

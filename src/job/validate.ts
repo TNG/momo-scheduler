@@ -1,6 +1,6 @@
+import { validate as validateCron } from 'node-cron';
 import humanInterval from 'human-interval';
 
-import { parseCronExpression } from 'cron-schedule';
 import { Job } from './Job';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
@@ -65,9 +65,7 @@ function validateInterval(interval: string, name: string, logger?: Logger): bool
 }
 
 function validateCronSchedule(cronSchedule: string, name: string, logger?: Logger): boolean {
-  try {
-    parseCronExpression(cronSchedule);
-  } catch (e) {
+  if (!validateCron(cronSchedule)) {
     logger?.error(
       'job cannot be defined',
       MomoErrorType.defineJob,
@@ -76,6 +74,5 @@ function validateCronSchedule(cronSchedule: string, name: string, logger?: Logge
     );
     return false;
   }
-
   return true;
 }

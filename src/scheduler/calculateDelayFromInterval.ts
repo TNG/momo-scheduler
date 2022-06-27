@@ -1,23 +1,18 @@
 import { DateTime } from 'luxon';
-import { max } from 'lodash';
+import { max, toInteger } from 'lodash';
+import humanInterval from 'human-interval';
+import { Interval } from '../job/MomoJob';
 
-import { JobEntity } from '../repository/JobEntity';
-
-export function calculateDelayFromInterval(
-  millisecondsInterval: number,
-  job: JobEntity,
-  firstRunAfter: number
-): number {
-  const nextStart = calculateNextStartFromInterval(millisecondsInterval, job);
+export function calculateDelayFromInterval(schedule: Interval, jobLastStarted: string | undefined): number {
+  const nextStart = calculateNextStartFromInterval(toInteger(humanInterval(schedule.interval)), jobLastStarted);
   if (nextStart === undefined) {
-    return firstRunAfter;
+    return schedule.firstRunAfter;
   }
 
   return max([nextStart - DateTime.now().toMillis(), 0]) ?? 0;
 }
 
-function calculateNextStartFromInterval(interval: number, job: JobEntity): number | undefined {
-  const lastStarted = job.executionInfo?.lastStarted;
-  const lastStartedDateTime = lastStarted !== undefined ? DateTime.fromISO(lastStarted) : undefined;
+function calculateNextStartFromInterval(interval: number, jobLastStarted: string | undefined): number | undefined {
+  const lastStartedDateTime = jobLastStarted !== undefined ? DateTime.fromISO(jobLastStarted) : undefined;
   return lastStartedDateTime?.plus({ milliseconds: interval }).toMillis();
 }
