@@ -714,7 +714,7 @@ describe('Momo', () => {
       await waitFor(async () => {
         const running = await executionsRepository.countRunningExecutions(job.name);
         expect(running).toBe(1);
-      }, 1010);
+      }, 1100);
 
       await jobRepository.delete();
 
