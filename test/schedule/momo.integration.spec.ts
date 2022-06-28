@@ -290,7 +290,7 @@ describe('Momo', () => {
     });
   });
 
-  describe('several jobs', () => {
+  describe('several interval jobs', () => {
     let jobHandler1: TestJobHandler;
     let jobHandler2: TestJobHandler;
     let job1: MomoJob;
