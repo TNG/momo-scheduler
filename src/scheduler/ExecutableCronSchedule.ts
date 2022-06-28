@@ -1,13 +1,13 @@
-import { ScheduledTask, schedule as cronSchedule } from 'node-cron';
 import { parseExpression } from 'cron-parser';
 import { DateTime } from 'luxon';
+import { CronJob } from 'cron';
 import { CronSchedule } from '../job/MomoJob';
 import { ExecutableSchedule, ExecutionDelay } from './ExecutableSchedule';
 import { momoError } from '../logging/error/MomoError';
 
 export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> {
   private readonly cronSchedule: string;
-  private scheduledTask?: ScheduledTask;
+  private scheduledJob?: CronJob;
 
   constructor({ cronSchedule }: CronSchedule) {
     this.cronSchedule = cronSchedule;
@@ -19,19 +19,22 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
 
   execute(callback: () => Promise<void>): ExecutionDelay {
     this.validateCronSchedule();
-    this.scheduledTask = cronSchedule(this.cronSchedule, callback);
-    return { delay: parseExpression(this.cronSchedule).next().getTime() - DateTime.now().toMillis() };
+
+    this.scheduledJob = new CronJob(this.cronSchedule, callback);
+    this.scheduledJob.start();
+
+    return { delay: this.scheduledJob.nextDate().toMillis() - DateTime.now().toMillis() };
   }
 
   stop(): void {
-    if (this.scheduledTask !== undefined) {
-      this.scheduledTask.stop();
-      this.scheduledTask = undefined;
+    if (this.scheduledJob !== undefined) {
+      this.scheduledJob.stop();
+      this.scheduledJob = undefined;
     }
   }
 
   isStarted(): boolean {
-    return this.scheduledTask !== undefined;
+    return this.scheduledJob !== undefined;
   }
 
   private validateCronSchedule(): void {
