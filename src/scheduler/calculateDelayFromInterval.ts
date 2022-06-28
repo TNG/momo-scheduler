@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon';
 import { max, toInteger } from 'lodash';
 import humanInterval from 'human-interval';
-import { Interval } from '../job/MomoJob';
+import { IntervalSchedule } from '../job/MomoJob';
 
-export function calculateDelayFromInterval(schedule: Interval, jobLastStarted: string | undefined): number {
+export function calculateDelayFromInterval(schedule: IntervalSchedule, jobLastStarted: string | undefined): number {
   const nextStart = calculateNextStartFromInterval(toInteger(humanInterval(schedule.interval)), jobLastStarted);
   if (nextStart === undefined) {
     return schedule.firstRunAfter;

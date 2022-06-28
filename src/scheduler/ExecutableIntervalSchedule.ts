@@ -1,34 +1,45 @@
 import humanInterval from 'human-interval';
 import { max } from 'lodash';
 import { DateTime } from 'luxon';
-import { Interval } from '../job/MomoJob';
+import { IntervalSchedule } from '../job/MomoJob';
 import { momoError } from '../logging/error/MomoError';
-import { setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
+import { TimeoutHandle, setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
 import { Logger } from '../logging/Logger';
-import { ExecutableSchedule, HandleResult } from './ExecutableSchedule';
+import { ExecutableSchedule, ExecutionDelay } from './ExecutableSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
 
-export class ExecutableInterval implements ExecutableSchedule<Interval> {
+export class ExecutableIntervalSchedule implements ExecutableSchedule<IntervalSchedule> {
   private readonly interval: string;
   private readonly firstRunAfter: number;
+  private timeoutHandle?: TimeoutHandle;
 
-  constructor({ interval, firstRunAfter }: Interval) {
+  constructor({ interval, firstRunAfter }: IntervalSchedule) {
     this.interval = interval;
     this.firstRunAfter = firstRunAfter;
   }
 
-  toObject(): Interval {
+  toObject(): IntervalSchedule {
     return { interval: this.interval, firstRunAfter: this.firstRunAfter };
   }
 
-  execute(callback: () => Promise<void>, logger: Logger, executionInfo?: ExecutionInfo): HandleResult {
+  execute(callback: () => Promise<void>, logger: Logger, executionInfo?: ExecutionInfo): ExecutionDelay {
     const interval = this.parse();
     const delay = this.calculateDelay(interval, executionInfo);
 
-    return {
-      jobHandle: setSafeIntervalWithDelay(callback, interval, delay, logger, 'Concurrent execution failed'),
-      delay,
-    };
+    this.timeoutHandle = setSafeIntervalWithDelay(callback, interval, delay, logger, 'Concurrent execution failed');
+
+    return { delay };
+  }
+
+  isStarted(): boolean {
+    return this.timeoutHandle !== undefined;
+  }
+
+  stop(): void {
+    if (this.timeoutHandle) {
+      clearTimeout(this.timeoutHandle.get());
+      this.timeoutHandle = undefined;
+    }
   }
 
   private calculateDelay(interval: number, executionInfo: ExecutionInfo | undefined): number {

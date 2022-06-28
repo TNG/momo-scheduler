@@ -7,7 +7,7 @@ interface MomoBaseJob {
   maxRunning?: number;
 }
 
-export interface Interval {
+export interface IntervalSchedule {
   interval: string;
   firstRunAfter: number;
 }
@@ -16,14 +16,14 @@ export interface CronSchedule {
   cronSchedule: string;
 }
 
-export function isInterval(input: unknown): input is Interval {
+export function isIntervalSchedule(input: unknown): input is IntervalSchedule {
   return (
     // @ts-ignore
     input.interval !== undefined &&
     // @ts-ignore
     input.firstRunAfter !== undefined &&
-    typeof (input as Interval).interval == 'string' &&
-    typeof (input as Interval).firstRunAfter == 'number'
+    typeof (input as IntervalSchedule).interval == 'string' &&
+    typeof (input as IntervalSchedule).firstRunAfter == 'number'
   );
 }
 
@@ -35,11 +35,11 @@ export function isCronSchedule(input: unknown): input is CronSchedule {
 }
 
 export interface MomoIntervalJob extends MomoBaseJob {
-  schedule: Interval;
+  schedule: IntervalSchedule;
 }
 
 export function isMomoIntervalJob(input: unknown): input is MomoIntervalJob {
-  return isInterval((input as MomoIntervalJob).schedule);
+  return isIntervalSchedule((input as MomoIntervalJob).schedule);
 }
 
 export interface MomoCronJob extends MomoBaseJob {

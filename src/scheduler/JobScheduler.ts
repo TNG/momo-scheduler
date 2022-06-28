@@ -8,16 +8,14 @@ import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
-import { TimeoutHandle } from '../timeout/setSafeIntervalWithDelay';
 import { momoError } from '../logging/error/MomoError';
-import { ExecutableInterval } from './ExecutableInterval';
+import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { toExecutableSchedule } from './ExecutableSchedule';
 
 export class JobScheduler {
-  private jobHandle?: TimeoutHandle;
   private unexpectedErrorCount = 0;
-  private executableSchedule?: ExecutableInterval | ExecutableCronSchedule;
+  private executableSchedule?: ExecutableIntervalSchedule | ExecutableCronSchedule;
 
   constructor(
     private readonly jobName: string,
@@ -44,7 +42,7 @@ export class JobScheduler {
   }
 
   isStarted(): boolean {
-    return this.jobHandle !== undefined;
+    return this.executableSchedule?.isStarted() ?? false;
   }
 
   async getJobDescription(): Promise<MomoJobDescription | undefined> {
@@ -82,12 +80,11 @@ export class JobScheduler {
 
     this.executableSchedule = toExecutableSchedule(jobEntity.schedule);
 
-    const { jobHandle, delay } = this.executableSchedule.execute(
+    const { delay } = this.executableSchedule.execute(
       this.executeConcurrently.bind(this),
       this.logger,
       jobEntity.executionInfo
     );
-    this.jobHandle = jobHandle;
 
     this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
       name: this.jobName,
@@ -96,11 +93,10 @@ export class JobScheduler {
   }
 
   async stop(): Promise<void> {
-    if (this.jobHandle) {
-      clearTimeout(this.jobHandle.get());
+    if (this.executableSchedule) {
+      this.executableSchedule.stop();
       this.jobExecutor.stop();
       await this.executionsRepository.removeJob(this.scheduleId, this.jobName);
-      this.jobHandle = undefined;
       this.executableSchedule = undefined;
     }
   }

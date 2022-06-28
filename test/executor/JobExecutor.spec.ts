@@ -5,7 +5,7 @@ import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository'
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { loggerForTests } from '../utils/logging';
-import { Job } from '../../dist/job/Job';
+import { Job } from '../../src/job/Job';
 
 describe('JobExecutor', () => {
   const scheduleId = '123';

@@ -10,7 +10,7 @@ import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { toJob, toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
-import { CronSchedule, Interval } from '../../src/job/MomoJob';
+import { CronSchedule, IntervalSchedule, MomoIntervalJob } from '../../src/job/MomoJob';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -77,7 +77,7 @@ describe('Momo', () => {
     return jobHandler;
   }
 
-  function createTestIntervalJob(jobHandler: TestJobHandler, schedule: Interval): MomoJob {
+  function createTestIntervalJob(jobHandler: TestJobHandler, schedule: IntervalSchedule): MomoIntervalJob {
     return {
       name: `interval_test_job_${uuid()}`,
       handler: jobHandler.handler,
@@ -95,7 +95,7 @@ describe('Momo', () => {
 
   describe('single interval job', () => {
     let jobHandler: TestJobHandler;
-    let intervalJob: MomoJob;
+    let intervalJob: MomoIntervalJob;
 
     beforeEach(() => {
       jobHandler = createTestJobHandler();
@@ -394,10 +394,6 @@ describe('Momo', () => {
 
       await sleep(1200);
       expect(jobHandler.count).toBe(2);
-    });
-
-    it('updates already started job', async () => {
-      // TODO
     });
 
     it('does not execute a job that was removed from mongo', async () => {

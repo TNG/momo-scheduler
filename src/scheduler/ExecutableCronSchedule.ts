@@ -1,14 +1,12 @@
-import { Cron, parseCronExpression } from 'cron-schedule';
+import { ScheduledTask, schedule as cronSchedule } from 'node-cron';
+import { parseExpression } from 'cron-parser';
 import { DateTime } from 'luxon';
 import { CronSchedule } from '../job/MomoJob';
-import { momoError } from '../logging/error/MomoError';
-import { setSafeTimeout } from '../timeout/safeTimeouts';
-import { Logger } from '../logging/Logger';
-import { ExecutableSchedule, HandleResult } from './ExecutableSchedule';
+import { ExecutableSchedule, ExecutionDelay } from './ExecutableSchedule';
 
 export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> {
   private readonly cronSchedule: string;
-  private timeout: NodeJS.Timeout | undefined;
+  private scheduledTask?: ScheduledTask;
 
   constructor({ cronSchedule }: CronSchedule) {
     this.cronSchedule = cronSchedule;
@@ -18,31 +16,19 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
     return { cronSchedule: this.cronSchedule };
   }
 
-  execute(callback: () => Promise<void>, logger: Logger): HandleResult {
-    const delay = this.calculateDelay();
-    return this.executeInternal(delay, callback, logger);
+  execute(callback: () => Promise<void>): ExecutionDelay {
+    this.scheduledTask = cronSchedule(this.cronSchedule, callback);
+    return { delay: parseExpression(this.cronSchedule).next().getTime() - DateTime.now().toMillis() };
   }
 
-  executeInternal(delay: number, callback: () => Promise<void>, logger: Logger): HandleResult {
-    const executeAndReschedule = async (): Promise<void> => {
-      await callback();
-      this.executeInternal(delay, callback, logger);
-    };
-    this.timeout = setSafeTimeout(executeAndReschedule, delay, logger, 'Concurrent execution failed');
-
-    return { jobHandle: { get: () => this.timeout! }, delay };
-  }
-
-  private calculateDelay(): number {
-    return this.parse().getNextDate().getTime() - DateTime.now().toMillis();
-  }
-
-  private parse(): Cron {
-    try {
-      return parseCronExpression(this.cronSchedule);
-    } catch {
-      // the cron schedule was already validated when the job was defined
-      throw momoError.nonParsableCronSchedule;
+  stop(): void {
+    if (this.scheduledTask !== undefined) {
+      this.scheduledTask.stop();
+      this.scheduledTask = undefined;
     }
+  }
+
+  isStarted(): boolean {
+    return this.scheduledTask !== undefined;
   }
 }
