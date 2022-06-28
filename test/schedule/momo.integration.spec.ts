@@ -250,12 +250,15 @@ describe('Momo', () => {
 
     it('does not execute a job that was removed from mongo', async () => {
       await mongoSchedule.define(intervalJob);
-
       await mongoSchedule.start();
-      await jobRepository.delete();
 
-      await sleep(500);
-      expect(jobHandler.count).toBe(0);
+      await waitFor(() => {
+        expect(jobHandler.count).toBe(1);
+      });
+      await jobRepository.delete();
+      await sleep(2000);
+
+      expect(jobHandler.count).toBe(1);
     });
 
     it('updates maxRunning and concurrency from mongo', async () => {
@@ -276,8 +279,7 @@ describe('Momo', () => {
 
       await mongoSchedule.start();
 
-      await sleep(200);
-      expect(jobHandler.count).toBe(updatedConcurrency);
+      await waitFor(() => expect(jobHandler.count).toBe(updatedConcurrency));
     });
 
     it('does not update interval of started job from mongo', async () => {
@@ -388,7 +390,7 @@ describe('Momo', () => {
       await mongoSchedule.define(cronJob);
       await mongoSchedule.start();
 
-      await waitFor(() => expect(jobHandler.count).toBe(2));
+      await waitFor(() => expect(jobHandler.count).toBe(2), 5000);
 
       await mongoSchedule.stop();
 
@@ -398,12 +400,15 @@ describe('Momo', () => {
 
     it('does not execute a job that was removed from mongo', async () => {
       await mongoSchedule.define(cronJob);
-
       await mongoSchedule.start();
-      await jobRepository.delete();
 
-      await sleep(500);
-      expect(jobHandler.count).toBe(0);
+      await waitFor(() => {
+        expect(jobHandler.count).toBe(1);
+      });
+      await jobRepository.delete();
+      await sleep(2000);
+
+      expect(jobHandler.count).toBe(1);
     });
 
     it('updates maxRunning and concurrency from mongo', async () => {
@@ -424,8 +429,7 @@ describe('Momo', () => {
 
       await mongoSchedule.start();
 
-      await sleep(200);
-      expect(jobHandler.count).toBe(updatedConcurrency);
+      await waitFor(() => expect(jobHandler.count).toBe(updatedConcurrency));
     });
   });
 
@@ -703,7 +707,7 @@ describe('Momo', () => {
       await waitFor(async () => {
         const running = await executionsRepository.countRunningExecutions(job.name);
         expect(running).toBe(0);
-      }, jobHandler.duration);
+      }, jobHandler.duration + 1000);
     });
 
     it('executes a job that is removed from mongo during execution', async () => {
@@ -714,7 +718,7 @@ describe('Momo', () => {
       await waitFor(async () => {
         const running = await executionsRepository.countRunningExecutions(job.name);
         expect(running).toBe(1);
-      }, 1200);
+      }, 1010);
 
       await jobRepository.delete();
 
