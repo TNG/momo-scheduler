@@ -618,7 +618,149 @@ describe('Momo', () => {
   });
 
   describe('long running interval jobs', () => {
-    // TODO
+    jest.setTimeout(10_000);
+
+    let jobHandler: TestJobHandler;
+    let job: MomoJob;
+
+    beforeEach(() => {
+      jobHandler = createTestJobHandler(3200);
+      job = createTestIntervalJob(jobHandler, { interval: '1 second', firstRunAfter: 0 });
+    });
+
+    it('executes a long running job', async () => {
+      await mongoSchedule.define(job);
+
+      await mongoSchedule.start();
+      await waitFor(() => expect(jobHandler.count).toBe(1), jobHandler.duration + 1000);
+
+      const { executionInfo } = await waitFor(async () => {
+        const savedJobs = await jobRepository.find({ name: job.name });
+        expect(savedJobs[0]?.executionInfo?.lastFinished).toBeDefined();
+        return savedJobs[0]!;
+      });
+
+      expect(executionInfo).toBeDefined();
+      if (!executionInfo) throw new Error('should be defined');
+      const duration =
+        DateTime.fromISO(executionInfo.lastFinished).toMillis() -
+        DateTime.fromISO(executionInfo.lastStarted).toMillis();
+      expect(duration).toBeGreaterThan(3000);
+    });
+
+    it('does not start twice a long running job that should not run in parallel', async () => {
+      await mongoSchedule.define({ ...job, maxRunning: 1 });
+
+      await mongoSchedule.start();
+      await waitFor(() => expect(jobHandler.count).toBe(1), jobHandler.duration + 1000);
+
+      await mongoSchedule.stop();
+
+      await sleep(jobHandler.duration);
+      expect(jobHandler.count).toBe(1);
+    });
+
+    it('respects maxRunning', async () => {
+      await mongoSchedule.define({ ...job, maxRunning: 2 });
+
+      await mongoSchedule.start();
+
+      await sleep(2200);
+      const runningAfter2Sec = await executionsRepository.countRunningExecutions(job.name);
+      expect(runningAfter2Sec).toBe(2);
+
+      await sleep(1000);
+      const runningAfter3Sec = await executionsRepository.countRunningExecutions(job.name);
+      expect(runningAfter3Sec).toBe(2);
+
+      await mongoSchedule.stop();
+
+      const running = await executionsRepository.countRunningExecutions(job.name);
+      expect(running).toBe(0);
+    });
+
+    it('start job twice if maxRunning is set to 0 (no max, default)', async () => {
+      await mongoSchedule.define(job);
+
+      await mongoSchedule.start();
+
+      await waitFor(async () => {
+        const running = await executionsRepository.countRunningExecutions(job.name);
+        expect(running).toBe(2);
+      });
+    });
+
+    it('updates running in mongo', async () => {
+      await mongoSchedule.define({ ...job, maxRunning: 1 });
+
+      await mongoSchedule.start();
+
+      await waitFor(async () => {
+        const running = await executionsRepository.countRunningExecutions(job.name);
+        expect(running).toBe(1);
+      });
+
+      await waitFor(async () => {
+        const running = await executionsRepository.countRunningExecutions(job.name);
+        expect(running).toBe(0);
+      }, jobHandler.duration + 1000);
+    });
+
+    it('executes a job that is removed from mongo during execution', async () => {
+      await mongoSchedule.define(job);
+
+      await mongoSchedule.start();
+
+      await waitFor(async () => {
+        const running = await executionsRepository.countRunningExecutions(job.name);
+        expect(running).toBe(1);
+      }, 1010);
+
+      await jobRepository.delete();
+
+      await waitFor(async () => {
+        expect(await jobRepository.find({ name: job.name })).toHaveLength(0);
+      }, jobHandler.duration);
+    });
+
+    it('reports error when job is removed from mongo between scheduling and executing it', async () => {
+      await mongoSchedule.define(job);
+
+      await mongoSchedule.start();
+
+      await jobRepository.delete();
+
+      await waitFor(() => {
+        expect(receivedError).toEqual({
+          message: 'job not found, skip execution',
+          type: MomoErrorType.executeJob,
+          data: { name: job.name },
+          error: momoError.jobNotFound,
+        });
+      });
+    });
+
+    it('stopped job does not decrease execution count', async () => {
+      await mongoSchedule.define(job);
+
+      await mongoSchedule.start();
+
+      await waitFor(async () => {
+        const running = await executionsRepository.countRunningExecutions(job.name);
+        expect(running).toBe(1);
+      }, 1200);
+
+      await mongoSchedule.stop();
+
+      const running = await executionsRepository.countRunningExecutions(job.name);
+      expect(running).toBe(0);
+
+      await sleep(jobHandler.duration + 1000);
+      expect(jobHandler.count).toBe(1);
+
+      const running2 = await executionsRepository.countRunningExecutions(job.name);
+      expect(running2).toBe(0);
+    });
   });
 
   describe('long running cron jobs', () => {
