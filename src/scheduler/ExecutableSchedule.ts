@@ -1,15 +1,16 @@
+import { DateTime } from 'luxon';
 import { Logger } from '../logging/Logger';
 import { CronSchedule, IntervalSchedule, isIntervalSchedule } from '../job/MomoJob';
 import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
 
-export interface ExecutionDelay {
-  delay: number;
+export interface NextExecutionTime {
+  date: DateTime;
 }
 
 export interface ExecutableSchedule<I> {
-  execute: (callback: () => Promise<void>, logger: Logger, executionInfo?: ExecutionInfo) => ExecutionDelay;
+  execute: (callback: () => Promise<void>, logger: Logger, executionInfo?: ExecutionInfo) => NextExecutionTime;
   stop: () => void;
   isStarted: () => boolean;
   toObject: () => I;

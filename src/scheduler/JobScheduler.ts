@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import { min } from 'lodash';
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
@@ -80,13 +79,13 @@ export class JobScheduler {
 
     this.executableSchedule = toExecutableSchedule(jobEntity.schedule);
 
-    const { delay } = this.executableSchedule.execute(
+    const { date } = this.executableSchedule.execute(
       this.executeConcurrently.bind(this),
       this.logger,
       jobEntity.executionInfo
     );
 
-    this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
+    this.logger.debug(`scheduled job to run at ${date}`, {
       name: this.jobName,
       ...this.executableSchedule.toObject(),
     });

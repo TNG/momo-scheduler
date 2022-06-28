@@ -1,8 +1,8 @@
 import { parseExpression } from 'cron-parser';
-import { DateTime } from 'luxon';
 import { CronJob } from 'cron';
+import { DateTime } from 'luxon';
 import { CronSchedule } from '../job/MomoJob';
-import { ExecutableSchedule, ExecutionDelay } from './ExecutableSchedule';
+import { ExecutableSchedule, NextExecutionTime } from './ExecutableSchedule';
 import { momoError } from '../logging/error/MomoError';
 
 export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> {
@@ -17,13 +17,13 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
     return { cronSchedule: this.cronSchedule };
   }
 
-  execute(callback: () => Promise<void>): ExecutionDelay {
+  execute(callback: () => Promise<void>): NextExecutionTime {
     this.validateCronSchedule();
 
     this.scheduledJob = new CronJob(this.cronSchedule, callback);
     this.scheduledJob.start();
 
-    return { delay: this.scheduledJob.nextDate().toMillis() - DateTime.now().toMillis() };
+    return { date: DateTime.fromMillis(this.scheduledJob.nextDate().toMillis()) };
   }
 
   stop(): void {

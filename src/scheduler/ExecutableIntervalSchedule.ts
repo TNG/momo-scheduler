@@ -5,7 +5,7 @@ import { IntervalSchedule } from '../job/MomoJob';
 import { momoError } from '../logging/error/MomoError';
 import { TimeoutHandle, setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
 import { Logger } from '../logging/Logger';
-import { ExecutableSchedule, ExecutionDelay } from './ExecutableSchedule';
+import { ExecutableSchedule, NextExecutionTime } from './ExecutableSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
 
 export class ExecutableIntervalSchedule implements ExecutableSchedule<IntervalSchedule> {
@@ -22,13 +22,13 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<IntervalSc
     return { interval: this.interval, firstRunAfter: this.firstRunAfter };
   }
 
-  execute(callback: () => Promise<void>, logger: Logger, executionInfo?: ExecutionInfo): ExecutionDelay {
+  execute(callback: () => Promise<void>, logger: Logger, executionInfo?: ExecutionInfo): NextExecutionTime {
     const interval = this.parse();
     const delay = this.calculateDelay(interval, executionInfo);
 
     this.timeoutHandle = setSafeIntervalWithDelay(callback, interval, delay, logger, 'Concurrent execution failed');
 
-    return { delay };
+    return { date: DateTime.fromMillis(DateTime.now().toMillis() + delay) };
   }
 
   isStarted(): boolean {
