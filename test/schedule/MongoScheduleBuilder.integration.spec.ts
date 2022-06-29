@@ -56,6 +56,13 @@ describe('MongoScheduleBuilder', () => {
       expect(jobList[0]?.schedule).toEqual(job1.schedule);
     });
 
+    it('can build without a job', async () => {
+      mongoSchedule = await new MongoScheduleBuilder().withConnection(connectionOptions).build();
+
+      const jobList = await mongoSchedule.list();
+      expect(jobList).toHaveLength(0);
+    });
+
     it('can build with multiple jobs and a connection', async () => {
       mongoSchedule = await new MongoScheduleBuilder()
         .withJob(job1)
@@ -80,14 +87,6 @@ describe('MongoScheduleBuilder', () => {
 
     await expect(mongoScheduleBuilder.build()).rejects.toThrowError(
       'Error: MongoSchedule must be built with defined ConnectionOptions'
-    );
-  });
-
-  it('throws an error when built with no jobs', async () => {
-    const mongoScheduleBuilder = new MongoScheduleBuilder().withConnection(connectionOptions);
-
-    await expect(mongoScheduleBuilder.build()).rejects.toThrowError(
-      'Error: MongoSchedule must be built with at least one defined job'
     );
   });
 });

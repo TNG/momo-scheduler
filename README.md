@@ -96,10 +96,10 @@ You can instantiate a momo job using the `MomoJobBuilder` class. It provides the
 You can instantiate a mongo schedule using the `MongoScheduleBuilder` class. It provides the following setter
 methods:
 
-| setter         | parameters    | mandatory | default value | description                                                                     |
-|----------------|---------------|-----------|---------------|---------------------------------------------------------------------------------|
-| withJob        | `MomoJob`     | true      |               | One of the scheduler's jobs. A scheduler must be defined with at least one job. |
-| withConnection | `MomoOptions` | true      |               | The connection options of the schedule.                                         |
+| setter         | parameters    | mandatory | default value | description                             |
+|----------------|---------------|-----------|---------------|-----------------------------------------|
+| withJob        | `MomoJob`     | true      |               | Adds a job to the schedule.             |
+| withConnection | `MomoOptions` | true      |               | The connection options of the schedule. |
 
 The start/stop/cancel/remove methods can take a job's name as an optional parameter.
 Only the job with the provided name is started/stopped/cancelled/removed.

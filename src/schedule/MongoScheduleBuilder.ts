@@ -19,13 +19,10 @@ export class MongoScheduleBuilder {
     if (!this.momoConnectionOptions) {
       throw Error('Error: MongoSchedule must be built with defined ConnectionOptions');
     }
-    if (!this.momoJobs) {
-      throw Error('Error: MongoSchedule must be built with at least one defined job');
-    }
 
     const mongoSchedule = await MongoSchedule.connect(this.momoConnectionOptions);
 
-    for (const momoJob of this.momoJobs) {
+    for (const momoJob of this.momoJobs ?? []) {
       await mongoSchedule.define(momoJob);
     }
 
