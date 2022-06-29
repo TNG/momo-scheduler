@@ -8,7 +8,7 @@ import { CronSchedule, IntervalSchedule } from './MomoJob';
  * running: the number of currently running executions
  */
 export interface JobSchedulerStatus {
-  schedule?: IntervalSchedule | CronSchedule;
+  schedule: IntervalSchedule | CronSchedule;
   running: number;
 }
 
