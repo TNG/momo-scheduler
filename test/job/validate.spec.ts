@@ -41,7 +41,7 @@ describe('validate', () => {
     expect(logger.error).toHaveBeenCalledWith(
       'job cannot be defined',
       MomoErrorType.defineJob,
-      { name: job.name, interval: 'not an interval' },
+      { name: job.name, interval: 'not an interval', firstRunAfter: 0 },
       momoError.nonParsableInterval
     );
   });
@@ -58,7 +58,7 @@ describe('validate', () => {
     expect(logger.error).toHaveBeenCalledWith(
       'job cannot be defined',
       MomoErrorType.defineJob,
-      { name: job.name, interval: '-1 minute' },
+      { name: job.name, interval: '-1 minute', firstRunAfter: 0 },
       momoError.nonParsableInterval
     );
   });
@@ -92,7 +92,7 @@ describe('validate', () => {
     expect(logger.error).toHaveBeenCalledWith(
       'job cannot be defined',
       MomoErrorType.defineJob,
-      { name: job.name, firstRunAfter: -1 },
+      { name: job.name, interval: '1 minute', firstRunAfter: -1 },
       momoError.invalidFirstRunAfter
     );
   });
