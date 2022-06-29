@@ -122,7 +122,7 @@ describe('JobScheduler', () => {
     });
   });
 
-  describe('single cron scheduler job', () => {
+  describe('single cron job', () => {
     it('executes a job', async () => {
       createCronScheduleJob();
       await jobScheduler.start();

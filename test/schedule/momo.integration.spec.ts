@@ -252,9 +252,7 @@ describe('Momo', () => {
       await mongoSchedule.define(intervalJob);
       await mongoSchedule.start();
 
-      await waitFor(() => {
-        expect(jobHandler.count).toBe(1);
-      });
+      await waitFor(() => expect(jobHandler.count).toBe(1));
       await jobRepository.delete();
       await sleep(2000);
 
@@ -402,9 +400,7 @@ describe('Momo', () => {
       await mongoSchedule.define(cronJob);
       await mongoSchedule.start();
 
-      await waitFor(() => {
-        expect(jobHandler.count).toBe(1);
-      });
+      await waitFor(() => expect(jobHandler.count).toBe(1));
       await jobRepository.delete();
       await sleep(2000);
 
@@ -938,9 +934,7 @@ describe('Momo', () => {
 
       await mongoSchedule.start();
 
-      await waitFor(() => {
-        expect(jobHandler.count).toBe(2);
-      }, jobHandler.duration + 1200);
+      await waitFor(() => expect(jobHandler.count).toBe(2), jobHandler.duration + 1200);
     });
   });
 });
