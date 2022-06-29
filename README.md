@@ -210,7 +210,7 @@ Now assume the MongoSchedule is stopped at 12:02 and then immediately started ag
 
 ## Supported Node Versions
 
-momo-scheduler supports node 14 and 16.
+momo-scheduler supports node 14, 16 and 18.
 
 ## License
 
