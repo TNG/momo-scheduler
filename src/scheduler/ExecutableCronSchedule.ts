@@ -4,6 +4,8 @@ import { DateTime } from 'luxon';
 import { CronSchedule } from '../job/MomoJob';
 import { ExecutableSchedule, NextExecutionTime } from './ExecutableSchedule';
 import { momoError } from '../logging/error/MomoError';
+import { MomoErrorType } from '../logging/error/MomoErrorType';
+import { Logger } from '../logging/Logger';
 
 export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> {
   private readonly cronSchedule: string;
@@ -17,11 +19,15 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
     return { cronSchedule: this.cronSchedule };
   }
 
-  execute(callback: () => Promise<void>): NextExecutionTime {
+  execute(callback: () => Promise<void>, logger: Logger, errorMessage: string): NextExecutionTime {
     this.validateCronSchedule();
 
     this.scheduledJob = new CronJob(this.cronSchedule, callback);
-    this.scheduledJob.start();
+    try {
+      this.scheduledJob.start();
+    } catch (e) {
+      logger.error(errorMessage, MomoErrorType.internal, {}, e);
+    }
 
     return { nextExecution: DateTime.fromMillis(this.scheduledJob.nextDate().toMillis()) };
   }

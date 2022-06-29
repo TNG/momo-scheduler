@@ -22,11 +22,16 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<I
     return { interval: this.interval, firstRunAfter: this.firstRunAfter };
   }
 
-  execute(callback: () => Promise<void>, logger: Logger, executionInfo?: ExecutionInfo): NextExecutionTime {
+  execute(
+    callback: () => Promise<void>,
+    logger: Logger,
+    errorMessage: string,
+    executionInfo?: ExecutionInfo
+  ): NextExecutionTime {
     const interval = this.parse();
     const delay = this.calculateDelay(interval, executionInfo);
 
-    this.timeoutHandle = setSafeIntervalWithDelay(callback, interval, delay, logger, 'Concurrent execution failed');
+    this.timeoutHandle = setSafeIntervalWithDelay(callback, interval, delay, logger, errorMessage);
 
     return { nextExecution: DateTime.fromMillis(DateTime.now().toMillis() + delay) };
   }

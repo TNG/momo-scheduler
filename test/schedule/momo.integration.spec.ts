@@ -50,6 +50,7 @@ describe('Momo', () => {
     expect(mongoSchedule.getUnexpectedErrorCount()).toBe(0);
     await mongoSchedule.cancel();
     await mongoSchedule.clear();
+    await mongoSchedule.stop();
   });
 
   afterAll(async () => {
@@ -856,7 +857,7 @@ describe('Momo', () => {
       await waitFor(async () => {
         const running = await executionsRepository.countRunningExecutions(job.name);
         expect(running).toBe(1);
-      }, 1010);
+      }, 1000);
 
       await jobRepository.delete();
 

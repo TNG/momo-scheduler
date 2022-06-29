@@ -85,6 +85,7 @@ export class JobScheduler {
     const { nextExecution } = this.executableSchedule.execute(
       this.executeConcurrently.bind(this),
       this.logger,
+      'Concurrent execution failed',
       jobEntity.executionInfo
     );
 

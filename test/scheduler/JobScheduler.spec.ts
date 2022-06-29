@@ -251,7 +251,7 @@ describe('JobScheduler', () => {
       createCronScheduleJob({ concurrency: 3, maxRunning: 3 });
       await jobScheduler.start();
 
-      await sleep(1010);
+      await sleep(1000);
       verify(await jobExecutor.execute(anything())).thrice();
     });
 
@@ -259,7 +259,7 @@ describe('JobScheduler', () => {
       const job = createCronScheduleJob({ maxRunning: 0, concurrency: 3 });
       await jobScheduler.start();
 
-      await sleep(2010);
+      await sleep(2000);
       verify(await jobExecutor.execute(anything())).times(2 * job.concurrency);
     });
 
@@ -269,7 +269,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      await sleep(1010);
+      await sleep(1000);
       verify(await jobExecutor.execute(anything())).twice();
     });
   });

@@ -10,6 +10,7 @@ describe('ExecutableIntervalSchedule', () => {
     debug: jest.fn(),
     error: jest.fn(),
   };
+  const errorMessage = 'Something went wrong';
 
   const intervalSchedule = { interval: '1 second', firstRunAfter: 1000 };
   let executableIntervalSchedule: ExecutableIntervalSchedule;
@@ -42,7 +43,7 @@ describe('ExecutableIntervalSchedule', () => {
     });
 
     it('reports that the schedule has been started', () => {
-      executableIntervalSchedule.execute(callbackFunction, logger);
+      executableIntervalSchedule.execute(callbackFunction, logger, errorMessage);
 
       expect(executableIntervalSchedule.isStarted()).toBe(true);
     });
@@ -50,7 +51,7 @@ describe('ExecutableIntervalSchedule', () => {
 
   describe('stop', () => {
     it('stops the schedule', () => {
-      executableIntervalSchedule.execute(callbackFunction, logger);
+      executableIntervalSchedule.execute(callbackFunction, logger, errorMessage);
       executableIntervalSchedule.stop();
 
       expect(executableIntervalSchedule.isStarted()).toBe(false);
@@ -60,7 +61,7 @@ describe('ExecutableIntervalSchedule', () => {
   describe('execute', () => {
     it('returns the correct NextExecutionTime if job has never run before', () => {
       jest.setSystemTime(0);
-      const nextExecutionTime = executableIntervalSchedule.execute(callbackFunction, logger);
+      const nextExecutionTime = executableIntervalSchedule.execute(callbackFunction, logger, errorMessage);
 
       expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(intervalSchedule.firstRunAfter) });
     });
@@ -73,7 +74,12 @@ describe('ExecutableIntervalSchedule', () => {
         lastResult: { status: ExecutionStatus.finished },
       };
 
-      const nextExecutionTime = executableIntervalSchedule.execute(callbackFunction, logger, executionInfo);
+      const nextExecutionTime = executableIntervalSchedule.execute(
+        callbackFunction,
+        logger,
+        errorMessage,
+        executionInfo
+      );
 
       expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(1050) });
     });
@@ -86,7 +92,12 @@ describe('ExecutableIntervalSchedule', () => {
         lastResult: { status: ExecutionStatus.finished },
       };
 
-      const nextExecutionTime = executableIntervalSchedule.execute(callbackFunction, logger, executionInfo);
+      const nextExecutionTime = executableIntervalSchedule.execute(
+        callbackFunction,
+        logger,
+        errorMessage,
+        executionInfo
+      );
 
       expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(2000) });
     });

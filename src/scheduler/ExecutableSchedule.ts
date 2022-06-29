@@ -10,7 +10,12 @@ export interface NextExecutionTime {
 }
 
 export interface ExecutableSchedule<I> {
-  execute: (callback: () => Promise<void>, logger: Logger, executionInfo?: ExecutionInfo) => NextExecutionTime;
+  execute: (
+    callback: () => Promise<void>,
+    logger: Logger,
+    errorMessage: string,
+    executionInfo?: ExecutionInfo
+  ) => NextExecutionTime;
   stop: () => void;
   isStarted: () => boolean;
   toObject: () => I;

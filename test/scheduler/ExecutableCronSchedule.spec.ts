@@ -1,9 +1,15 @@
 import { DateTime } from 'luxon';
 import { noop } from 'lodash';
 import { ExecutableCronSchedule } from '../../src/scheduler/ExecutableCronSchedule';
+import { Logger } from '../../src/logging/Logger';
 
 describe('ExecutableIntervalSchedule', () => {
   const callbackFunction = async (): Promise<void> => noop();
+  const logger: Logger = {
+    debug: jest.fn(),
+    error: jest.fn(),
+  };
+  const errorMessage = 'Something went wrong';
 
   const cronSchedule = { cronSchedule: '* * * * * *' };
   let executableCronSchedule: ExecutableCronSchedule;
@@ -36,7 +42,7 @@ describe('ExecutableIntervalSchedule', () => {
     });
 
     it('reports that the schedule has been started', () => {
-      executableCronSchedule.execute(callbackFunction);
+      executableCronSchedule.execute(callbackFunction, logger, errorMessage);
 
       expect(executableCronSchedule.isStarted()).toBe(true);
     });
@@ -44,7 +50,7 @@ describe('ExecutableIntervalSchedule', () => {
 
   describe('stop', () => {
     it('stops the schedule', () => {
-      executableCronSchedule.execute(callbackFunction);
+      executableCronSchedule.execute(callbackFunction, logger, errorMessage);
       executableCronSchedule.stop();
 
       expect(executableCronSchedule.isStarted()).toBe(false);
@@ -62,7 +68,7 @@ describe('ExecutableIntervalSchedule', () => {
 
     it('returns the correct NextExecutionTime', () => {
       jest.setSystemTime(0);
-      const nextExecutionTime = executableCronSchedule.execute(callbackFunction);
+      const nextExecutionTime = executableCronSchedule.execute(callbackFunction, logger, errorMessage);
 
       expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(1000) });
     });
