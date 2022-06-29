@@ -1,7 +1,8 @@
 export type Handler = () => Promise<string | undefined | void> | string | undefined | void;
 
-interface MomoBaseJob {
+export interface MomoJob {
   handler: Handler;
+  schedule: IntervalSchedule | CronSchedule;
   name: string;
   concurrency?: number;
   maxRunning?: number;
@@ -16,38 +17,17 @@ export interface CronSchedule {
   cronSchedule: string;
 }
 
-export function isIntervalSchedule(input: unknown): input is IntervalSchedule {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isIntervalSchedule(input: any): input is IntervalSchedule {
   return (
-    // @ts-ignore
     input.interval !== undefined &&
-    // @ts-ignore
     input.firstRunAfter !== undefined &&
-    typeof (input as IntervalSchedule).interval == 'string' &&
-    typeof (input as IntervalSchedule).firstRunAfter == 'number'
+    typeof input.interval == 'string' &&
+    typeof input.firstRunAfter == 'number'
   );
 }
 
-export function isCronSchedule(input: unknown): input is CronSchedule {
-  return (
-    // @ts-ignore
-    input.cronSchedule !== undefined && typeof (input as CronSchedule).cronSchedule == 'string'
-  );
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isCronSchedule(input: any): input is CronSchedule {
+  return input.cronSchedule !== undefined && typeof input.cronSchedule == 'string';
 }
-
-export interface MomoIntervalJob extends MomoBaseJob {
-  schedule: IntervalSchedule;
-}
-
-export function isMomoIntervalJob(input: unknown): input is MomoIntervalJob {
-  return isIntervalSchedule((input as MomoIntervalJob).schedule);
-}
-
-export interface MomoCronJob extends MomoBaseJob {
-  schedule: CronSchedule;
-}
-
-export function isMomoCronJob(input: MomoJob): input is MomoCronJob {
-  return isCronSchedule((input as MomoIntervalJob).schedule);
-}
-
-export type MomoJob = MomoCronJob | MomoIntervalJob;

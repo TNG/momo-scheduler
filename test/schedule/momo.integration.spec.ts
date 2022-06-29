@@ -10,7 +10,7 @@ import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { toJob, toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
-import { CronSchedule, IntervalSchedule, MomoIntervalJob } from '../../src/job/MomoJob';
+import { CronSchedule, IntervalSchedule } from '../../src/job/MomoJob';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -77,7 +77,7 @@ describe('Momo', () => {
     return jobHandler;
   }
 
-  function createTestIntervalJob(jobHandler: TestJobHandler, schedule: IntervalSchedule): MomoIntervalJob {
+  function createTestIntervalJob(jobHandler: TestJobHandler, schedule: IntervalSchedule): MomoJob {
     return {
       name: `interval_test_job_${uuid()}`,
       handler: jobHandler.handler,
@@ -95,7 +95,7 @@ describe('Momo', () => {
 
   describe('single interval job', () => {
     let jobHandler: TestJobHandler;
-    let intervalJob: MomoIntervalJob;
+    let intervalJob: MomoJob;
 
     beforeEach(() => {
       jobHandler = createTestJobHandler();
