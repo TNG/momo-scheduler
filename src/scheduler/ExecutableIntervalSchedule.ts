@@ -8,17 +8,17 @@ import { Logger } from '../logging/Logger';
 import { ExecutableSchedule, NextExecutionTime } from './ExecutableSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
 
-export class ExecutableIntervalSchedule implements ExecutableSchedule<IntervalSchedule> {
+export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<IntervalSchedule>> {
   private readonly interval: string;
   private readonly firstRunAfter: number;
   private timeoutHandle?: TimeoutHandle;
 
-  constructor({ interval, firstRunAfter }: IntervalSchedule) {
+  constructor({ interval, firstRunAfter }: Required<IntervalSchedule>) {
     this.interval = interval;
     this.firstRunAfter = firstRunAfter;
   }
 
-  toObject(): IntervalSchedule {
+  toObject(): Required<IntervalSchedule> {
     return { interval: this.interval, firstRunAfter: this.firstRunAfter };
   }
 

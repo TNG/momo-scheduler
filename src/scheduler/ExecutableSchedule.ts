@@ -17,7 +17,7 @@ export interface ExecutableSchedule<I> {
 }
 
 export function toExecutableSchedule(
-  schedule: IntervalSchedule | CronSchedule
+  schedule: Required<IntervalSchedule> | CronSchedule
 ): ExecutableIntervalSchedule | ExecutableCronSchedule {
   return isIntervalSchedule(schedule) ? new ExecutableIntervalSchedule(schedule) : new ExecutableCronSchedule(schedule);
 }

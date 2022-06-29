@@ -10,7 +10,7 @@ export interface MomoJob {
 
 export interface IntervalSchedule {
   interval: string;
-  firstRunAfter: number;
+  firstRunAfter?: number;
 }
 
 export interface CronSchedule {
@@ -21,13 +21,12 @@ export interface CronSchedule {
 export function isIntervalSchedule(input: any): input is IntervalSchedule {
   return (
     input.interval !== undefined &&
-    input.firstRunAfter !== undefined &&
-    typeof input.interval == 'string' &&
-    typeof input.firstRunAfter == 'number'
+    typeof input.interval === 'string' &&
+    (input.firstRunAfter === undefined || typeof input.firstRunAfter === 'number')
   );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isCronSchedule(input: any): input is CronSchedule {
-  return input.cronSchedule !== undefined && typeof input.cronSchedule == 'string';
+  return input.cronSchedule !== undefined && typeof input.cronSchedule === 'string';
 }

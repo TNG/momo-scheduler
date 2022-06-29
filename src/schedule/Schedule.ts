@@ -114,8 +114,7 @@ export class Schedule extends LogEmitter {
    * Schedule all defined jobs.
    *
    * Updates made to jobs after starting the scheduler are picked up
-   * automatically from the database, EXCEPT for changes to the interval
-   * or cron schedule.
+   * automatically from the database, EXCEPT for changes to schedule.
    * Start the scheduler again to change a job's interval or cron schedule.
    *
    * @throws if the database throws

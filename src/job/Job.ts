@@ -1,14 +1,12 @@
 import { WithoutId } from 'mongodb';
-import { CronSchedule, Handler, IntervalSchedule, MomoJob } from './MomoJob';
+import { CronSchedule, Handler, IntervalSchedule, MomoJob, isIntervalSchedule } from './MomoJob';
 import { JobEntity } from '../repository/JobEntity';
-import { ExecutableIntervalSchedule } from '../scheduler/ExecutableIntervalSchedule';
-import { ExecutableCronSchedule } from '../scheduler/ExecutableCronSchedule';
 
 export type MomoJobStatus = WithoutId<JobEntity>;
 
 export interface JobDefinition {
   name: string;
-  schedule: IntervalSchedule | CronSchedule;
+  schedule: Required<IntervalSchedule> | CronSchedule;
   concurrency: number;
   maxRunning: number;
 }
@@ -17,20 +15,19 @@ export interface Job extends JobDefinition {
   handler: Handler;
 }
 
-export interface ExecutableJob extends Omit<Job, 'schedule'> {
-  executableSchedule: ExecutableIntervalSchedule | ExecutableCronSchedule;
-}
-
 /**
  * sets default values
  *
  * @param momoJob
  */
 export function toJob(momoJob: MomoJob): Job {
+  const schedule = isIntervalSchedule(momoJob.schedule) ? { firstRunAfter: 0, ...momoJob.schedule } : momoJob.schedule;
+
   return {
     concurrency: 1,
     maxRunning: 0,
     ...momoJob,
+    schedule,
   };
 }
 

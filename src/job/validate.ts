@@ -4,7 +4,7 @@ import { parseExpression } from 'cron-parser';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { momoError } from '../logging/error/MomoError';
-import { IntervalSchedule, isCronSchedule, isIntervalSchedule } from './MomoJob';
+import { CronSchedule, IntervalSchedule, isCronSchedule, isIntervalSchedule } from './MomoJob';
 import { Job } from './Job';
 
 export function validate({ name, schedule, concurrency, maxRunning }: Job, logger?: Logger): boolean {
@@ -38,13 +38,13 @@ export function validate({ name, schedule, concurrency, maxRunning }: Job, logge
   }
 
   if (isCronSchedule(schedule)) {
-    return validateCronSchedule(schedule.cronSchedule, name, logger);
+    return validateCronSchedule(schedule, name, logger);
   }
 
   return false;
 }
 
-function validateInterval(schedule: IntervalSchedule, name: string, logger?: Logger): boolean {
+function validateInterval(schedule: Required<IntervalSchedule>, name: string, logger?: Logger): boolean {
   const parsedInterval = humanInterval(schedule.interval);
   const invalidFirstRunAfter = schedule.firstRunAfter < 0;
   const invalidInterval = parsedInterval === undefined || isNaN(parsedInterval) || parsedInterval <= 0;
@@ -62,7 +62,7 @@ function validateInterval(schedule: IntervalSchedule, name: string, logger?: Log
   return true;
 }
 
-function validateCronSchedule(cronSchedule: string, name: string, logger?: Logger): boolean {
+function validateCronSchedule({ cronSchedule }: CronSchedule, name: string, logger?: Logger): boolean {
   try {
     parseExpression(cronSchedule);
     return true;

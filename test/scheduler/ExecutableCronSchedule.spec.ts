@@ -1,17 +1,22 @@
 import { DateTime } from 'luxon';
-import { CronSchedule } from '../../src/job/MomoJob';
+import { noop } from 'lodash';
 import { ExecutableCronSchedule } from '../../src/scheduler/ExecutableCronSchedule';
 
 describe('ExecutableIntervalSchedule', () => {
-  const callbackFunction = jest.fn();
+  const callbackFunction = async (): Promise<void> => noop();
 
-  let cronSchedule: CronSchedule;
+  const cronSchedule = { cronSchedule: '* * * * * *' };
   let executableCronSchedule: ExecutableCronSchedule;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
 
-    cronSchedule = { cronSchedule: '* * * * * *' };
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
+  beforeEach(() => {
     executableCronSchedule = new ExecutableCronSchedule(cronSchedule);
   });
 
