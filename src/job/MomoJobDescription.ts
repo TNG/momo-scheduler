@@ -21,8 +21,7 @@ export interface MomoJobDescription {
   schedulerStatus?: JobSchedulerStatus;
 }
 
-export function jobDescriptionFromEntity(jobEntity: JobEntity): MomoJobDescription {
-  const { name, schedule, concurrency, maxRunning } = jobEntity;
+export function jobDescriptionFromEntity({ name, schedule, concurrency, maxRunning }: JobEntity): MomoJobDescription {
   return {
     name,
     schedule,

@@ -35,7 +35,7 @@ export class JobRepository extends Repository<JobEntity> {
     this.logger?.debug('define job', {
       name,
       concurrency,
-      schedule: JSON.stringify(schedule),
+      ...schedule,
       maxRunning,
     });
 

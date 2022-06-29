@@ -4,20 +4,10 @@ import { parseExpression } from 'cron-parser';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { momoError } from '../logging/error/MomoError';
-import { isCronSchedule, isIntervalSchedule } from './MomoJob';
+import { IntervalSchedule, isCronSchedule, isIntervalSchedule } from './MomoJob';
 import { Job } from './Job';
 
 export function validate({ name, schedule, concurrency, maxRunning }: Job, logger?: Logger): boolean {
-  if (isIntervalSchedule(schedule) && schedule.firstRunAfter < 0) {
-    logger?.error(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name, firstRunAfter: schedule.firstRunAfter },
-      momoError.invalidFirstRunAfter
-    );
-    return false;
-  }
-
   if (maxRunning < 0) {
     logger?.error('job cannot be defined', MomoErrorType.defineJob, { name, maxRunning }, momoError.invalidMaxRunning);
     return false;
@@ -44,7 +34,7 @@ export function validate({ name, schedule, concurrency, maxRunning }: Job, logge
   }
 
   if (isIntervalSchedule(schedule)) {
-    return validateInterval(schedule.interval, name, logger);
+    return validateInterval(schedule, name, logger);
   }
 
   if (isCronSchedule(schedule)) {
@@ -54,10 +44,18 @@ export function validate({ name, schedule, concurrency, maxRunning }: Job, logge
   return false;
 }
 
-function validateInterval(interval: string, name: string, logger?: Logger): boolean {
-  const parsedInterval = humanInterval(interval);
-  if (parsedInterval === undefined || isNaN(parsedInterval) || parsedInterval <= 0) {
-    logger?.error('job cannot be defined', MomoErrorType.defineJob, { name, interval }, momoError.nonParsableInterval);
+function validateInterval(schedule: IntervalSchedule, name: string, logger?: Logger): boolean {
+  const parsedInterval = humanInterval(schedule.interval);
+  const invalidFirstRunAfter = schedule.firstRunAfter < 0;
+  const invalidInterval = parsedInterval === undefined || isNaN(parsedInterval) || parsedInterval <= 0;
+
+  if (invalidInterval || invalidFirstRunAfter) {
+    logger?.error(
+      'job cannot be defined',
+      MomoErrorType.defineJob,
+      { name, interval: schedule.interval, firstRunAfter: schedule.firstRunAfter },
+      invalidInterval ? momoError.nonParsableInterval : momoError.invalidFirstRunAfter
+    );
     return false;
   }
 
