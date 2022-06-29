@@ -7,3 +7,4 @@ export { MomoJobDescription, JobSchedulerStatus } from './job/MomoJobDescription
 export { ExecutionStatus } from './job/ExecutionInfo';
 export { ExecutionInfo } from './job/ExecutionInfo';
 export { MomoJobBuilder } from './job/MomoJobBuilder';
+export { MongoScheduleBuilder } from './schedule/MongoScheduleBuilder';
