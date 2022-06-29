@@ -6,7 +6,7 @@ import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
 
 export interface NextExecutionTime {
-  date: DateTime;
+  nextExecution: DateTime;
 }
 
 export interface ExecutableSchedule<I> {

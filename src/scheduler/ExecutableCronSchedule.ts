@@ -23,7 +23,7 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
     this.scheduledJob = new CronJob(this.cronSchedule, callback);
     this.scheduledJob.start();
 
-    return { date: DateTime.fromMillis(this.scheduledJob.nextDate().toMillis()) };
+    return { nextExecution: DateTime.fromMillis(this.scheduledJob.nextDate().toMillis()) };
   }
 
   stop(): void {

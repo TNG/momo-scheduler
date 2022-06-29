@@ -28,7 +28,7 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<IntervalSc
 
     this.timeoutHandle = setSafeIntervalWithDelay(callback, interval, delay, logger, 'Concurrent execution failed');
 
-    return { date: DateTime.fromMillis(DateTime.now().toMillis() + delay) };
+    return { nextExecution: DateTime.fromMillis(DateTime.now().toMillis() + delay) };
   }
 
   isStarted(): boolean {

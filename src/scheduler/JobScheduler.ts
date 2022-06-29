@@ -56,10 +56,12 @@ export class JobScheduler {
       return;
     }
 
-    const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
     const schedulerStatus = !this.executableSchedule
       ? undefined
-      : { schedule: this.executableSchedule.toObject(), running };
+      : {
+          schedule: this.executableSchedule.toObject(),
+          running: await this.executionsRepository.countRunningExecutions(jobEntity.name),
+        };
 
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }
@@ -80,13 +82,13 @@ export class JobScheduler {
 
     this.executableSchedule = toExecutableSchedule(jobEntity.schedule);
 
-    const { date } = this.executableSchedule.execute(
+    const { nextExecution } = this.executableSchedule.execute(
       this.executeConcurrently.bind(this),
       this.logger,
       jobEntity.executionInfo
     );
 
-    this.logger.debug(`scheduled job to run at ${date}`, {
+    this.logger.debug(`scheduled job to run at ${nextExecution}`, {
       name: this.jobName,
       ...this.executableSchedule.toObject(),
     });
