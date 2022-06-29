@@ -1,3 +1,4 @@
+
 # momo-scheduler <img src="momo_logo.svg" align="right" />
 
 momo is a light-weight, easy-to-use scheduler that persists jobs in a MongoDB and supports interval-based scheduling as
@@ -50,8 +51,8 @@ const cronJob: MomoJob = new MomoJobBuilder()
   .withName('interval job')
   .withConcurrency(1)
   .withMaxRunning(1)
-  .withCronShcedule('0 0 * * *')
-  .withHandler(() => logger.error('This is a momo job that runs every day at midnight!'))
+  .withCronSchedule('0 0 * * 1-5')
+  .withHandler(() => logger.error('This is a momo job that runs every weekday at midnight!'))
   .build();
 
 await mongoSchedule.define(intervalJob);
@@ -176,7 +177,7 @@ const example3: MomoJob = new MomoJobBuilder()
 
 const example4: MomoJob = new MomoJobBuilder()
   .withName('example 4')
-  .withCronSchedule('0 0 * * *') // every day at midnight
+  .withCronSchedule('0 0 * * 1-5') // every weekday at midnight
   .withHandler(() => console.log('This is momo'));
 ```
 
@@ -185,14 +186,14 @@ Assume it is 12:00 AM when the MongoSchedule with these four example jobs is sta
 - `example 1` will be run immediately, at 12:00, and then every five minutes. Adding `firstRunAfter: 0` explicitly is equivalent as this is the default value.
 - `example 2` will be run after 1 minute (the configured `firstRunAfter`), at 12:01, and then every five minutes.
 - `example 3` will be run after 5 minutes (the configured `firstRunAfter`), at 12:05, and then every five minutes.
-- `example 4` will be run at midnight every day
+- `example 4` will be run at midnight every weekday
 
 Now assume the MongoSchedule is stopped at 12:02 and then immediately started again.
 
 - `example 1` will be run 5 minutes (the configured `interval`) after the last execution, at 12:05. The job is NOT run immediately because it already ran before.
 - `example 2` will be run 5 minutes (the configured `interval`) after the last execution, at 12:06. The job is NOT run after 1 minute (the configured `firstRunAfter`) because it already ran before.
 - `example 3` will be run 5 minutes after the start (because of the the configured `firstRunAfter`), at 12:07, because it never ran before, and then every five minutes.
-- `example 4` will be run at midnight every day
+- `example 4` will be run at midnight every weekday
 
 ## Supported Node Versions
 

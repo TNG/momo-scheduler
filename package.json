@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "cron": "2.0.0",
-    "cron-parser": "^4.5.0",
+    "cron-parser": "4.5.0",
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
     "luxon": "2.4.0",
