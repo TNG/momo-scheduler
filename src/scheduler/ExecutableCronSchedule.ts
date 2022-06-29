@@ -27,14 +27,14 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
   }
 
   stop(): void {
-    if (this.scheduledJob !== undefined) {
+    if (this.scheduledJob) {
       this.scheduledJob.stop();
       this.scheduledJob = undefined;
     }
   }
 
   isStarted(): boolean {
-    return this.scheduledJob !== undefined;
+    return !!this.scheduledJob;
   }
 
   private validateCronSchedule(): void {

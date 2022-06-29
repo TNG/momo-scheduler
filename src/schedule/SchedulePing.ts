@@ -13,7 +13,7 @@ export class SchedulePing {
   ) {}
 
   start(): void {
-    if (this.handle !== undefined) {
+    if (this.handle) {
       return;
     }
     this.handle = setSafeInterval(
@@ -31,7 +31,7 @@ export class SchedulePing {
   }
 
   async stop(): Promise<void> {
-    if (this.handle !== undefined) {
+    if (this.handle) {
       this.logger.debug('stop SchedulePing', { scheduleId: this.scheduleId });
       clearInterval(this.handle);
     }

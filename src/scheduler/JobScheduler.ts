@@ -57,8 +57,9 @@ export class JobScheduler {
     }
 
     const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
-    const schedulerStatus =
-      this.executableSchedule === undefined ? undefined : { schedule: this.executableSchedule.toObject(), running };
+    const schedulerStatus = !this.executableSchedule
+      ? undefined
+      : { schedule: this.executableSchedule.toObject(), running };
 
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }

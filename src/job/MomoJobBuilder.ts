@@ -54,11 +54,11 @@ export class MomoJobBuilder {
       throw Error('Error: Job must have a specified name');
     }
 
-    if (this.momoJob.schedule === undefined) {
+    if (!this.momoJob.schedule) {
       throw Error('Error: Job must have a specified schedule');
     }
 
-    if (this.momoJob.handler === undefined) {
+    if (!this.momoJob.handler) {
       throw Error('Error: Job must have a specified handler');
     }
 

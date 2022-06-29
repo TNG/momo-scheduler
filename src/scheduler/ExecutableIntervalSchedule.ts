@@ -32,7 +32,7 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<IntervalSc
   }
 
   isStarted(): boolean {
-    return this.timeoutHandle !== undefined;
+    return !!this.timeoutHandle;
   }
 
   stop(): void {
