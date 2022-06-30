@@ -13,9 +13,7 @@ import { sleep } from '../utils/sleep';
 describe('JobScheduler', () => {
   const defaultIntervalJob: JobDefinition = {
     name: 'test',
-    schedule: {interval: '1 second',
-    parsedInterval: 1000,
-    firstRunAfter: 1000},
+    schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 1000, parsedFirstRunAfter: 1000 },
     concurrency: 1,
     maxRunning: 0,
   };
@@ -38,6 +36,7 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
   });
 
+  // TODO refactor
   function createIntervalJob(partialJob: Partial<JobDefinition> = {}): JobDefinition {
     const job = { ...defaultIntervalJob, ...partialJob };
     jobScheduler = new JobScheduler(
@@ -56,7 +55,7 @@ describe('JobScheduler', () => {
     return job;
   }
 
-  function createCronScheduleJob(partialJob: Partial<JobDefinition> = {}): JobDefinition {
+  function createCronJob(partialJob: Partial<JobDefinition> = {}): JobDefinition {
     return createIntervalJob({ schedule: { cronSchedule: '*/1 * * * * *' }, ...partialJob });
   }
 
@@ -70,7 +69,9 @@ describe('JobScheduler', () => {
     });
 
     it('executes a job with firstRunAfter=0 immediately', async () => {
-      createIntervalJob({ schedule: { interval: '1 second', firstRunAfter: 0, parsedInterval: 60_000 } });
+      createIntervalJob({
+        schedule: { interval: '1 second', parsedInterval: 60_000, firstRunAfter: 0, parsedFirstRunAfter: 0 },
+      });
 
       await jobScheduler.start();
 
@@ -119,14 +120,20 @@ describe('JobScheduler', () => {
           firstRunAfter: 1000,
           interval: '1 second',
         },
-        schedulerStatus: { schedule: job.schedule, running: 0 },
+        schedulerStatus: {
+          schedule: {
+            firstRunAfter: 1000,
+            interval: '1 second',
+          },
+          running: 0,
+        },
       });
     });
   });
 
   describe('single cron job', () => {
     it('executes a job', async () => {
-      createCronScheduleJob();
+      createCronJob();
       await jobScheduler.start();
 
       await sleep(1000);
@@ -134,7 +141,7 @@ describe('JobScheduler', () => {
     });
 
     it('stops a job', async () => {
-      createCronScheduleJob();
+      createCronJob();
       await jobScheduler.start();
 
       await sleep(1000);
@@ -147,7 +154,7 @@ describe('JobScheduler', () => {
     });
 
     it('returns job description', async () => {
-      const job = createCronScheduleJob();
+      const job = createCronJob();
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
@@ -159,7 +166,7 @@ describe('JobScheduler', () => {
     });
 
     it('returns job description for started job', async () => {
-      const job = createCronScheduleJob();
+      const job = createCronJob();
       await jobScheduler.start();
 
       const jobDescription = await jobScheduler.getJobDescription();
@@ -238,7 +245,7 @@ describe('JobScheduler', () => {
 
   describe('concurrent cron job', () => {
     it('executes job thrice', async () => {
-      createCronScheduleJob({ concurrency: 3, maxRunning: 3 });
+      createCronJob({ concurrency: 3, maxRunning: 3 });
       await jobScheduler.start();
 
       await sleep(1000);
@@ -246,7 +253,7 @@ describe('JobScheduler', () => {
     });
 
     it('executes job when no maxRunning is set', async () => {
-      const job = createCronScheduleJob({ maxRunning: 0, concurrency: 3 });
+      const job = createCronJob({ maxRunning: 0, concurrency: 3 });
       await jobScheduler.start();
 
       await sleep(2000);
@@ -254,7 +261,7 @@ describe('JobScheduler', () => {
     });
 
     it('executes job only twice if it is already running', async () => {
-      const job = createCronScheduleJob({ concurrency: 3, maxRunning: 3 });
+      const job = createCronJob({ concurrency: 3, maxRunning: 3 });
       when(executionsRepository.countRunningExecutions(job.name)).thenResolve(1);
 
       await jobScheduler.start();

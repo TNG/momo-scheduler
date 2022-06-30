@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule';
 import { Logger } from '../../src/logging/Logger';
 import { ExecutionStatus } from '../../src';
+import { ParsedIntervalSchedule } from '../../dist/job/Job';
 
 describe('ExecutableIntervalSchedule', () => {
   const callbackFunction = jest.fn();
@@ -11,7 +12,12 @@ describe('ExecutableIntervalSchedule', () => {
     error: jest.fn(),
   };
   const errorMessage = 'Something went wrong';
-  const intervalSchedule = { interval: '1 second', firstRunAfter: 1000 };
+  const parsedIntervalSchedule: ParsedIntervalSchedule = {
+    interval: '1 second',
+    parsedInterval: 1000,
+    firstRunAfter: 1000,
+    parsedFirstRunAfter: 1000,
+  };
 
   let executableIntervalSchedule: ExecutableIntervalSchedule;
 
@@ -24,7 +30,7 @@ describe('ExecutableIntervalSchedule', () => {
   });
 
   beforeEach(() => {
-    executableIntervalSchedule = new ExecutableIntervalSchedule(intervalSchedule);
+    executableIntervalSchedule = new ExecutableIntervalSchedule(parsedIntervalSchedule);
   });
 
   afterEach(() => {
@@ -33,7 +39,10 @@ describe('ExecutableIntervalSchedule', () => {
 
   describe('toObject', () => {
     it('converts the schedule to an IntervalSchedule object', async () => {
-      expect(executableIntervalSchedule.toObject()).toEqual(intervalSchedule);
+      expect(executableIntervalSchedule.toObject()).toEqual({
+        interval: parsedIntervalSchedule.interval,
+        firstRunAfter: parsedIntervalSchedule.firstRunAfter,
+      });
     });
   });
 
@@ -63,7 +72,9 @@ describe('ExecutableIntervalSchedule', () => {
       jest.setSystemTime(0);
       const nextExecutionTime = executableIntervalSchedule.execute(callbackFunction, logger, errorMessage);
 
-      expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(intervalSchedule.firstRunAfter) });
+      expect(nextExecutionTime).toEqual({
+        nextExecution: DateTime.fromMillis(parsedIntervalSchedule.parsedFirstRunAfter),
+      });
     });
 
     it('returns the correct NextExecutionTime if the job has already run', () => {

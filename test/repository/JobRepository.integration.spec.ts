@@ -6,6 +6,7 @@ import { ExecutionInfo, ExecutionStatus } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { toJob, toJobDefinition } from '../../src/job/Job';
+import { ParsedIntervalSchedule } from '../../dist/job/Job';
 
 describe('JobRepository', () => {
   const job = toJob({
@@ -98,6 +99,7 @@ describe('JobRepository', () => {
           interval: '1 minute',
           parsedInterval: 60_000,
           firstRunAfter: 0,
+          parsedFirstRunAfter: 0,
         },
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
@@ -109,6 +111,7 @@ describe('JobRepository', () => {
           interval: '2 minutes',
           parsedInterval: 120_000,
           firstRunAfter: 0,
+          parsedFirstRunAfter: 0,
         },
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
@@ -119,17 +122,20 @@ describe('JobRepository', () => {
 
       const jobs = await jobRepository.list();
 
+      const schedule1 = job1.schedule as ParsedIntervalSchedule;
+      const schedule2 = job2.schedule as ParsedIntervalSchedule;
+
       expect(jobs).toEqual([
         {
           name: job1.name,
-          schedule: job1.schedule,
+          schedule: { interval: schedule1.interval, firstRunAfter: schedule1.firstRunAfter },
           concurrency: job1.concurrency,
           maxRunning: job1.maxRunning,
           executionInfo: {},
         },
         {
           name: job2.name,
-          schedule: job2.schedule,
+          schedule: { interval: schedule2.interval, firstRunAfter: schedule2.firstRunAfter },
           concurrency: job2.concurrency,
           maxRunning: job2.maxRunning,
           executionInfo: {},
@@ -150,7 +156,14 @@ describe('JobRepository', () => {
       };
       await jobRepository.save(savedJob);
 
-      await jobRepository.updateJob(job.name, { schedule: { interval: 'two minutes', firstRunAfter: 0,  parsedInterval: 120_000, } });
+      await jobRepository.updateJob(job.name, {
+        schedule: {
+          interval: 'two minutes',
+          firstRunAfter: 0,
+          parsedInterval: 120_000,
+          parsedFirstRunAfter: 0,
+        },
+      });
 
       const jobs = await jobRepository.find({ name: job.name });
       expect(jobs[0]?.executionInfo).toEqual(savedJob.executionInfo);

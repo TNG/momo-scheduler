@@ -7,8 +7,9 @@ import { momoError } from '../logging/error/MomoError';
 
 export type MomoJobStatus = WithoutId<JobEntity>;
 
-interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
+export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedInterval: number;
+  parsedFirstRunAfter: number;
 }
 
 export interface JobDefinition {
@@ -31,23 +32,19 @@ export function toJob(momoJob: MomoJob): Job {
   let schedule: ParsedIntervalSchedule | CronSchedule;
 
   if (isIntervalSchedule(momoJob.schedule)) {
-    const firstRunAfter =
-      momoJob.firstRunAfter !== undefined
-        ? typeof momoJob.firstRunAfter === 'number'
-          ? momoJob.firstRunAfter
-          : humanInterval(momoJob.firstRunAfter)
-        : 0;
-    if (firstRunAfter === undefined || isNaN(firstRunAfter)) {
+    const firstRunAfter = momoJob.schedule.firstRunAfter ?? 0;
+    const parsedFirstRunAfter = typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
+    if (parsedFirstRunAfter === undefined || isNaN(parsedFirstRunAfter)) {
       // firstRunAfter was already validated
       throw momoError.invalidFirstRunAfter;
     }
 
-    const parsedInterval = humanInterval(momoJob.interval);
+    const parsedInterval = humanInterval(momoJob.schedule.interval);
     if (parsedInterval === undefined || isNaN(parsedInterval)) {
       // parsedInterval was already validated
       throw momoError.nonParsableInterval;
     }
-    schedule = { firstRunAfter, parsedInterval, interval: momoJob.schedule.interval };
+    schedule = { interval: momoJob.schedule.interval, parsedInterval, firstRunAfter, parsedFirstRunAfter };
   } else {
     schedule = momoJob.schedule;
   }

@@ -244,6 +244,7 @@ export class Schedule extends LogEmitter {
       await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.getJobDescription()))
     ).filter((jobDescription): jobDescription is MomoJobDescription => jobDescription !== undefined);
   }
+
   /**
    * Retrieves execution information about the job from the database. Returns undefined if the job cannot be found or was never executed.
    *

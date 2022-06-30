@@ -1,26 +1,32 @@
-import humanInterval from 'human-interval';
 import { max } from 'lodash';
 import { DateTime } from 'luxon';
 
-import { IntervalSchedule } from '../job/MomoJob';
-import { momoError } from '../logging/error/MomoError';
 import { TimeoutHandle, setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
 import { Logger } from '../logging/Logger';
 import { ExecutableSchedule, NextExecutionTime } from './ExecutableSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
+import { ParsedIntervalSchedule } from '../job/Job';
+import { IntervalSchedule } from '../job/MomoJob';
 
 export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<IntervalSchedule>> {
   private readonly interval: string;
-  private readonly firstRunAfter: number;
+  private readonly parsedInterval: number;
+  private readonly firstRunAfter: number | string;
+  private readonly parsedFirstRunAfter: number;
   private timeoutHandle?: TimeoutHandle;
 
-  constructor({ interval, firstRunAfter }: Required<IntervalSchedule>) {
+  constructor({ interval, parsedInterval, firstRunAfter, parsedFirstRunAfter }: ParsedIntervalSchedule) {
     this.interval = interval;
+    this.parsedInterval = parsedInterval;
     this.firstRunAfter = firstRunAfter;
+    this.parsedFirstRunAfter = parsedFirstRunAfter;
   }
 
   toObject(): Required<IntervalSchedule> {
-    return { interval: this.interval, firstRunAfter: this.firstRunAfter };
+    return {
+      interval: this.interval,
+      firstRunAfter: this.firstRunAfter,
+    };
   }
 
   execute(
@@ -29,10 +35,9 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<I
     errorMessage: string,
     executionInfo?: ExecutionInfo
   ): NextExecutionTime {
-    const interval = this.parse();
-    const delay = this.calculateDelay(interval, executionInfo);
+    const delay = this.calculateDelay(executionInfo);
 
-    this.timeoutHandle = setSafeIntervalWithDelay(callback, interval, delay, logger, errorMessage);
+    this.timeoutHandle = setSafeIntervalWithDelay(callback, this.parsedInterval, delay, logger, errorMessage);
 
     return { nextExecution: DateTime.fromMillis(DateTime.now().toMillis() + delay) };
   }
@@ -48,24 +53,15 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<I
     }
   }
 
-  private calculateDelay(interval: number, executionInfo: ExecutionInfo | undefined): number {
+  private calculateDelay(executionInfo: ExecutionInfo | undefined): number {
     const lastStarted = executionInfo?.lastStarted;
     const lastStartedDateTime = lastStarted !== undefined ? DateTime.fromISO(lastStarted) : undefined;
-    const nextStart = lastStartedDateTime?.plus({ milliseconds: interval }).toMillis();
+    const nextStart = lastStartedDateTime?.plus({ milliseconds: this.parsedInterval }).toMillis();
 
     if (nextStart === undefined) {
-      return this.firstRunAfter;
+      return this.parsedFirstRunAfter;
     }
 
     return max([nextStart - DateTime.now().toMillis(), 0]) ?? 0;
-  }
-
-  private parse(): number {
-    const parsedInterval = humanInterval(this.interval);
-    if (parsedInterval === undefined || isNaN(parsedInterval)) {
-      // the interval was already validated when the job was defined
-      throw momoError.nonParsableInterval;
-    }
-    return parsedInterval;
   }
 }

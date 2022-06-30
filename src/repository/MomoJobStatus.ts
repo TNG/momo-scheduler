@@ -1,13 +1,22 @@
 import { JobEntity } from './JobEntity';
+import { CronSchedule, IntervalSchedule, isIntervalSchedule } from '../job/MomoJob';
 
-export type MomoJobStatus = Omit<JobEntity, '_id' | 'parsedInterval'>;
+export interface MomoJobStatus extends Omit<JobEntity, '_id' | 'schedule'> {
+  schedule: Required<IntervalSchedule> | CronSchedule;
+}
 
 export function toMomoJobStatus<T extends MomoJobStatus>({
   name,
-  interval,
-  firstRunAfter,
+  schedule,
   concurrency,
   maxRunning,
 }: T): MomoJobStatus {
-  return { name, interval, firstRunAfter, concurrency, maxRunning };
+  return {
+    name,
+    schedule: isIntervalSchedule(schedule)
+      ? { interval: schedule.interval, firstRunAfter: schedule.firstRunAfter }
+      : schedule,
+    concurrency,
+    maxRunning,
+  };
 }

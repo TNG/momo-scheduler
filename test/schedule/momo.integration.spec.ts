@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { v4 as uuid } from 'uuid';
+
 import { Connection } from '../../src/Connection';
 import { ExecutionStatus, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule, momoError } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
@@ -11,6 +12,7 @@ import { toJob, toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { CronSchedule, IntervalSchedule } from '../../src/job/MomoJob';
+import { ParsedIntervalSchedule } from '../../dist/job/Job';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -126,7 +128,7 @@ describe('Momo', () => {
     });
 
     it('executes job periodically with human-readable firstRunAfter', async () => {
-      await mongoSchedule.define({ ...momoJob, firstRunAfter: '1 second' });
+      await mongoSchedule.define({ ...intervalJob, schedule: { ...intervalJob.schedule, firstRunAfter: '1 second' } });
 
       await mongoSchedule.start();
 
@@ -157,18 +159,17 @@ describe('Momo', () => {
       await waitFor(() => expect(jobHandler.count).toBe(1), 500);
     });
 
-    it('updates and executes job that was saved without parsedInterval before', async () => {
-      const { name, interval } = momoJob;
-      const jobEntity: Omit<JobEntity, 'parsedInterval'> = {
-        name,
+    it('updates and executes job that was saved without parsed values before', async () => {
+      const { interval, firstRunAfter } = intervalJob.schedule as ParsedIntervalSchedule;
+      const jobEntity = {
+        name: intervalJob.name,
         concurrency: 1,
-        firstRunAfter: 0,
-        interval,
+        schedule: { interval, firstRunAfter },
         maxRunning: 0,
       };
       await jobRepository.save(jobEntity as JobEntity);
 
-      await mongoSchedule.define(momoJob);
+      await mongoSchedule.define(intervalJob);
       await mongoSchedule.start();
 
       expect(jobHandler.count).toBe(0);
@@ -314,15 +315,19 @@ describe('Momo', () => {
 
       await mongoSchedule.start();
 
-      const updatedSchedule = { interval: '2 seconds', firstRunAfter: 0 };
+      const updatedSchedule = { interval: '2 seconds', parsedInterval: 2000, firstRunAfter: 0, parsedFirstRunAfter: 0 };
       await jobRepository.updateOne({ name: intervalJob.name }, { $set: { schedule: updatedSchedule } });
 
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
       const updatedJobs = await mongoSchedule.list();
       const { schedule, schedulerStatus } = updatedJobs[0]!;
-      expect(schedule).toEqual(updatedSchedule);
-      expect(schedulerStatus?.schedule).toEqual(intervalJob.schedule);
+      expect(schedule).toEqual({ interval: updatedSchedule.interval, firstRunAfter: updatedSchedule.firstRunAfter });
+      const intervalSchedule = intervalJob.schedule as IntervalSchedule; // TODO avoid cast?
+      expect(schedulerStatus?.schedule).toEqual({
+        interval: intervalSchedule.interval,
+        firstRunAfter: intervalSchedule.firstRunAfter,
+      });
       expect(schedulerStatus?.running).toBeGreaterThanOrEqual(0);
     });
   });

@@ -4,8 +4,7 @@ import { parseExpression } from 'cron-parser';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { momoError } from '../logging/error/MomoError';
-import { CronSchedule, IntervalSchedule, isCronSchedule, isIntervalSchedule } from './MomoJob';
-import { MomoJob } from './MomoJob';
+import { CronSchedule, IntervalSchedule, MomoJob, isCronSchedule, isIntervalSchedule } from './MomoJob';
 
 export function validate({ name, schedule, concurrency, maxRunning }: MomoJob, logger?: Logger): boolean {
   if (maxRunning !== undefined && maxRunning < 0) {
@@ -46,15 +45,18 @@ export function validate({ name, schedule, concurrency, maxRunning }: MomoJob, l
 
 function validateInterval({ interval, firstRunAfter }: IntervalSchedule, name: string, logger?: Logger): boolean {
   const parsedInterval = humanInterval(interval);
-  const parsedFirstRunAfter = firstRunAfter !== undefined && typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter) : firstRunAfter;
-const invalidFirstRunAfter = parsedFirstRunAfter !== undefined && (isNaN(parsedFirstRunAfter) || parsedFirstRunAfter < 0);
+  const parsedFirstRunAfter =
+    firstRunAfter !== undefined && typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
+  const invalidFirstRunAfter =
+    parsedFirstRunAfter !== undefined && (isNaN(parsedFirstRunAfter) || parsedFirstRunAfter < 0);
   const invalidInterval = parsedInterval === undefined || isNaN(parsedInterval) || parsedInterval <= 0;
 
   if (invalidInterval || invalidFirstRunAfter) {
     logger?.error(
       'job cannot be defined',
       MomoErrorType.defineJob,
-      { name, interval: interval, firstRunAfter },
+      { name, interval, firstRunAfter },
+      // TODO send correct error
       invalidInterval ? momoError.nonParsableInterval : momoError.invalidFirstRunAfter
     );
     return false;

@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 import { ExecutionInfo } from '../job/ExecutionInfo';
-import { JobDefinition, toJobDefinition } from '../job/Job';
+import { JobDefinition } from '../job/Job';
 import { JobEntity } from './JobEntity';
 import { Logger } from '../logging/Logger';
 import { Repository } from './Repository';

@@ -17,6 +17,7 @@ describe('JobExecutor', () => {
       interval: '1 minute',
       parsedInterval: 60_000,
       firstRunAfter: 0,
+      parsedFirstRunAfter: 0,
     },
     concurrency: 1,
     maxRunning: 0,

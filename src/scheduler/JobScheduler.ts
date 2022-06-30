@@ -7,7 +7,7 @@ import { JobExecutor } from '../executor/JobExecutor';
 import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
+import { MomoJobDescription, toMomoJobDescription } from '../job/MomoJobDescription';
 import { momoError } from '../logging/error/MomoError';
 import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
@@ -64,7 +64,7 @@ export class JobScheduler {
           running: await this.executionsRepository.countRunningExecutions(jobEntity.name),
         };
 
-    return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
+    return { ...toMomoJobDescription(jobEntity), schedulerStatus };
   }
 
   async start(): Promise<void> {
