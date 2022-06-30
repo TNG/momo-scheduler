@@ -59,9 +59,9 @@ const mongoSchedule = new MongoScheduleBuilder()
     collectionsPrefix: 'momo',
     pingInterval: 1000,
   })
-  .withJob(intervalJob);
-
-await mongoSchedule.define(cronJob);
+  .withJob(intervalJob)
+  .withJob(cronJob)
+  .build();
 
 // optional: listen to error and debug events
 mongoSchedule.on('error', (error: MomoErrorEvent) => {

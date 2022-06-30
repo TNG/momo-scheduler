@@ -26,6 +26,11 @@ export function isCronSchedule(input: any): input is CronSchedule {
   return input.cronSchedule !== undefined && typeof input.cronSchedule === 'string';
 }
 
+/**
+ * removes properties that are not part of the IntervalSchedule resp. CronSchedule interface
+ *
+ * @param schedule
+ */
 export function toSchedule<Schedule extends ParsedIntervalSchedule | CronSchedule>(
   schedule: Schedule
 ): Required<IntervalSchedule> | CronSchedule {
