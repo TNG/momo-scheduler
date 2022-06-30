@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule';
 import { Logger } from '../../src/logging/Logger';
 import { ExecutionStatus } from '../../src';
-import { ParsedIntervalSchedule } from '../../dist/job/Job';
+import { ParsedIntervalSchedule } from '../../src/job/Job';
 
 describe('ExecutableIntervalSchedule', () => {
   const callbackFunction = jest.fn();

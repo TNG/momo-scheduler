@@ -5,9 +5,8 @@ import { Connection } from '../../src/Connection';
 import { ExecutionInfo, ExecutionStatus } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { toIntervalJob, toJobDefinition } from '../../src/job/Job';
-import { ParsedIntervalSchedule } from '../../dist/job/Job';
-import { CronSchedule } from '../../dist/job/MomoJob';
+import { ParsedIntervalSchedule, toIntervalJob, toJobDefinition } from '../../src/job/Job';
+import { CronSchedule } from '../../src/job/MomoJob';
 
 describe('JobRepository', () => {
   const job = toIntervalJob({

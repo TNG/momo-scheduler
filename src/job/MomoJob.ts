@@ -31,9 +31,7 @@ export function isCronSchedule(input: any): input is CronSchedule {
  *
  * @param schedule
  */
-export function toSchedule<Schedule extends ParsedIntervalSchedule | CronSchedule>(
-  schedule: Schedule
-): Required<IntervalSchedule> | CronSchedule {
+export function toSchedule(schedule: ParsedIntervalSchedule | CronSchedule): Required<IntervalSchedule> | CronSchedule {
   if (isCronSchedule(schedule)) {
     return schedule;
   }

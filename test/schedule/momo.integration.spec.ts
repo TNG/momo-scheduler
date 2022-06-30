@@ -8,12 +8,10 @@ import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository'
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
-import { toJobDefinition } from '../../src/job/Job';
+import { toIntervalJob, toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
 import { JobEntity } from '../../src/repository/JobEntity';
-import { CronSchedule, IntervalSchedule } from '../../src/job/MomoJob';
-import { toIntervalJob } from '../../dist/job/Job';
-import { TypedMomoJob } from '../../dist/job/MomoJob';
+import { CronSchedule, IntervalSchedule, TypedMomoJob } from '../../src/job/MomoJob';
 
 interface TestJobHandler {
   handler: () => Promise<string>;

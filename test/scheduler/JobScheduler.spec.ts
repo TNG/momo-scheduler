@@ -9,7 +9,7 @@ import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { MomoErrorType, momoError } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
-import { CronSchedule } from '../../dist/job/MomoJob';
+import { CronSchedule } from '../../src/job/MomoJob';
 
 describe('JobScheduler', () => {
   const errorFn = jest.fn();
