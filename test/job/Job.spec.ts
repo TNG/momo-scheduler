@@ -7,6 +7,7 @@ describe('fromMomoJob', () => {
 
     expect(toJob(job)).toEqual({
       ...job,
+      parsedInterval: 1000,
       firstRunAfter: 0,
       concurrency: 1,
       maxRunning: 0,

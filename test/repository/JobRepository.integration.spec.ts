@@ -95,6 +95,7 @@ describe('JobRepository', () => {
       const job1: JobEntity = {
         name: 'job1',
         interval: '1 minute',
+        parsedInterval: 60_000,
         firstRunAfter: 0,
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
@@ -103,6 +104,7 @@ describe('JobRepository', () => {
       const job2: JobEntity = {
         name: 'job2',
         interval: '2 minutes',
+        parsedInterval: 120_000,
         firstRunAfter: 0,
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,

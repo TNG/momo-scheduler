@@ -1,11 +1,12 @@
 import { MongoClient } from 'mongodb';
 
 import { ExecutionInfo } from '../job/ExecutionInfo';
-import { Job, MomoJobStatus, toJobDefinition } from '../job/Job';
+import { Job, toJobDefinition } from '../job/Job';
 import { JobEntity } from './JobEntity';
 import { Logger } from '../logging/Logger';
 import { Repository } from './Repository';
 import { findLatest } from '../job/findLatest';
+import { MomoJobStatus, toMomoJobStatus } from './MomoJobStatus';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
 
@@ -30,10 +31,10 @@ export class JobRepository extends Repository<JobEntity> {
   }
 
   async define(job: Job): Promise<void> {
-    const { name, interval, concurrency, maxRunning } = job;
+    const { name, interval, parsedInterval, concurrency, maxRunning } = job;
     const jobDefinition = toJobDefinition(job);
 
-    this.logger?.debug('define job', { name, concurrency, interval, maxRunning });
+    this.logger?.debug('define job', { name, concurrency, interval, parsedInterval, maxRunning });
 
     const old = await this.keepLatest(name);
 
@@ -66,7 +67,7 @@ export class JobRepository extends Repository<JobEntity> {
   async list(): Promise<MomoJobStatus[]> {
     const jobs = await this.find();
 
-    return jobs.map((job) => ({ ...toJobDefinition(job), executionInfo: job.executionInfo }));
+    return jobs.map((job) => ({ ...toMomoJobStatus(job), executionInfo: job.executionInfo }));
   }
 
   async updateJob(name: string, update: Partial<JobEntity>): Promise<void> {
