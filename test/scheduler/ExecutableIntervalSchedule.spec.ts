@@ -1,19 +1,18 @@
 import { DateTime } from 'luxon';
-import { noop } from 'lodash';
 
 import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule';
 import { Logger } from '../../src/logging/Logger';
 import { ExecutionStatus } from '../../src';
 
 describe('ExecutableIntervalSchedule', () => {
-  const callbackFunction = async (): Promise<void> => noop();
+  const callbackFunction = jest.fn();
   const logger: Logger = {
     debug: jest.fn(),
     error: jest.fn(),
   };
   const errorMessage = 'Something went wrong';
-
   const intervalSchedule = { interval: '1 second', firstRunAfter: 1000 };
+
   let executableIntervalSchedule: ExecutableIntervalSchedule;
 
   beforeAll(() => {

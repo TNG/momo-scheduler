@@ -1,18 +1,17 @@
 import { DateTime } from 'luxon';
-import { noop } from 'lodash';
 
 import { ExecutableCronSchedule } from '../../src/scheduler/ExecutableCronSchedule';
 import { Logger } from '../../src/logging/Logger';
 
 describe('ExecutableIntervalSchedule', () => {
-  const callbackFunction = async (): Promise<void> => noop();
+  const callbackFunction = jest.fn();
   const logger: Logger = {
     debug: jest.fn(),
     error: jest.fn(),
   };
   const errorMessage = 'Something went wrong';
-
   const cronSchedule = { cronSchedule: '* * * * * *' };
+
   let executableCronSchedule: ExecutableCronSchedule;
 
   beforeAll(() => {
@@ -59,14 +58,6 @@ describe('ExecutableIntervalSchedule', () => {
   });
 
   describe('execute', () => {
-    beforeAll(() => {
-      jest.useFakeTimers();
-    });
-
-    afterAll(() => {
-      jest.useRealTimers();
-    });
-
     it('returns the correct NextExecutionTime', () => {
       jest.setSystemTime(0);
       const nextExecutionTime = executableCronSchedule.execute(callbackFunction, logger, errorMessage);
