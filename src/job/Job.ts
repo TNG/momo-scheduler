@@ -8,14 +8,17 @@ export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedFirstRunAfter: number;
 }
 
-export interface JobDefinition<Schedule extends ParsedIntervalSchedule | CronSchedule> {
+export interface JobDefinition<
+  Schedule extends ParsedIntervalSchedule | CronSchedule = ParsedIntervalSchedule | CronSchedule
+> {
   name: string;
   schedule: Schedule;
   concurrency: number;
   maxRunning: number;
 }
 
-export interface Job<Schedule extends ParsedIntervalSchedule | CronSchedule> extends JobDefinition<Schedule> {
+export interface Job<Schedule extends ParsedIntervalSchedule | CronSchedule = ParsedIntervalSchedule | CronSchedule>
+  extends JobDefinition<Schedule> {
   handler: Handler;
 }
 

@@ -6,9 +6,9 @@ import { JobRepository } from '../repository/JobRepository';
 import { JobScheduler } from '../scheduler/JobScheduler';
 import { LogEmitter } from '../logging/LogEmitter';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { CronSchedule, MomoJob, isCronJob } from '../job/MomoJob';
+import { MomoJob, isCronJob } from '../job/MomoJob';
 import { MomoJobDescription } from '../job/MomoJobDescription';
-import { ParsedIntervalSchedule, toCronJob, toIntervalJob } from '../job/Job';
+import { toCronJob, toIntervalJob } from '../job/Job';
 import { validate } from '../job/validate';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
 
@@ -67,7 +67,7 @@ export class Schedule extends LogEmitter {
 
     await this.jobRepository.define(job);
 
-    this.jobSchedulers[job.name] = JobScheduler.forJob<ParsedIntervalSchedule | CronSchedule>(
+    this.jobSchedulers[job.name] = JobScheduler.forJob(
       this.scheduleId,
       job,
       this.logger,

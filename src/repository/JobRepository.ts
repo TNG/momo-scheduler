@@ -1,13 +1,12 @@
 import { MongoClient } from 'mongodb';
 
 import { ExecutionInfo } from '../job/ExecutionInfo';
-import { JobDefinition, ParsedIntervalSchedule } from '../job/Job';
+import { JobDefinition } from '../job/Job';
 import { JobEntity } from './JobEntity';
 import { Logger } from '../logging/Logger';
 import { Repository } from './Repository';
 import { findLatest } from '../job/findLatest';
 import { MomoJobStatus, toMomoJobStatus } from './MomoJobStatus';
-import { CronSchedule } from '../job/MomoJob';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
 
@@ -31,7 +30,7 @@ export class JobRepository extends Repository<JobEntity> {
     await this.delete();
   }
 
-  async define(job: JobDefinition<ParsedIntervalSchedule | CronSchedule>): Promise<void> {
+  async define(job: JobDefinition): Promise<void> {
     const { name, schedule, concurrency, maxRunning } = job;
 
     this.logger?.debug('define job', {
