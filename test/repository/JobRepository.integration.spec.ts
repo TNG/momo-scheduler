@@ -10,7 +10,7 @@ import { toJob, toJobDefinition } from '../../src/job/Job';
 describe('JobRepository', () => {
   const job = toJob({
     name: 'test job',
-    interval: 'one minute',
+    schedule: { interval: 'one minute' },
     handler: () => undefined,
   });
   const jobDefinition = toJobDefinition(job);
@@ -63,11 +63,11 @@ describe('JobRepository', () => {
     it('updates a job', async () => {
       await jobRepository.save(jobDefinition);
 
-      const newInterval = '2 minutes';
-      await jobRepository.define({ ...job, interval: newInterval });
+      const newSchedule = { ...job.schedule, interval: '2 minutes' };
+      await jobRepository.define({ ...job, schedule: newSchedule });
 
       expect(await jobRepository.find({ name: job.name })).toEqual([
-        { ...jobDefinition, interval: newInterval, _id: expect.anything() },
+        { ...jobDefinition, schedule: newSchedule, _id: expect.anything() },
       ]);
     });
 
@@ -76,14 +76,14 @@ describe('JobRepository', () => {
       await jobRepository.save(jobDefinition);
       await jobRepository.save(latest);
 
-      const newInterval = 'two minutes';
-      await jobRepository.define({ ...job, interval: newInterval });
+      const newSchedule = { ...job.schedule, interval: 'two minutes' };
+      await jobRepository.define({ ...job, schedule: newSchedule });
 
       const actual = await jobRepository.find({ name: job.name });
       expect(actual).toEqual([
         {
           ...latest,
-          interval: newInterval,
+          schedule: newSchedule,
           _id: expect.anything(),
         },
       ]);
@@ -94,18 +94,22 @@ describe('JobRepository', () => {
     it('returns jobs', async () => {
       const job1: JobEntity = {
         name: 'job1',
-        interval: '1 minute',
-        parsedInterval: 60_000,
-        firstRunAfter: 0,
+        schedule: {
+          interval: '1 minute',
+          parsedInterval: 60_000,
+          firstRunAfter: 0,
+        },
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
         maxRunning: 3,
       };
       const job2: JobEntity = {
         name: 'job2',
-        interval: '2 minutes',
-        parsedInterval: 120_000,
-        firstRunAfter: 0,
+        schedule: {
+          interval: '2 minutes',
+          parsedInterval: 120_000,
+          firstRunAfter: 0,
+        },
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
         maxRunning: 0,
@@ -118,16 +122,14 @@ describe('JobRepository', () => {
       expect(jobs).toEqual([
         {
           name: job1.name,
-          interval: job1.interval,
-          firstRunAfter: job1.firstRunAfter,
+          schedule: job1.schedule,
           concurrency: job1.concurrency,
           maxRunning: job1.maxRunning,
           executionInfo: {},
         },
         {
           name: job2.name,
-          interval: job2.interval,
-          firstRunAfter: job1.firstRunAfter,
+          schedule: job2.schedule,
           concurrency: job2.concurrency,
           maxRunning: job2.maxRunning,
           executionInfo: {},
@@ -148,7 +150,7 @@ describe('JobRepository', () => {
       };
       await jobRepository.save(savedJob);
 
-      await jobRepository.updateJob(job.name, { interval: 'new interval' });
+      await jobRepository.updateJob(job.name, { schedule: { interval: 'two minutes', firstRunAfter: 0,  parsedInterval: 120_000, } });
 
       const jobs = await jobRepository.find({ name: job.name });
       expect(jobs[0]?.executionInfo).toEqual(savedJob.executionInfo);

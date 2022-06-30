@@ -1,12 +1,19 @@
 import humanInterval from 'human-interval';
-import { Handler, MomoJob } from './MomoJob';
+import { WithoutId } from 'mongodb';
+
+import { CronSchedule, Handler, IntervalSchedule, MomoJob, isIntervalSchedule } from './MomoJob';
+import { JobEntity } from '../repository/JobEntity';
 import { momoError } from '../logging/error/MomoError';
+
+export type MomoJobStatus = WithoutId<JobEntity>;
+
+interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
+  parsedInterval: number;
+}
 
 export interface JobDefinition {
   name: string;
-  interval: string;
-  parsedInterval: number;
-  firstRunAfter: number;
+  schedule: ParsedIntervalSchedule | CronSchedule;
   concurrency: number;
   maxRunning: number;
 }
@@ -15,34 +22,54 @@ export interface Job extends JobDefinition {
   handler: Handler;
 }
 
-export function toJob(job: MomoJob): Job {
-  const firstRunAfter =
-    job.firstRunAfter !== undefined
-      ? typeof job.firstRunAfter === 'number'
-        ? job.firstRunAfter
-        : humanInterval(job.firstRunAfter)
-      : 0;
-  if (firstRunAfter === undefined || isNaN(firstRunAfter)) {
-    // firstRunAfter was already validated
-    throw momoError.invalidFirstRunAfter;
+/**
+ * sets default values
+ *
+ * @param momoJob
+ */
+export function toJob(momoJob: MomoJob): Job {
+  let schedule: ParsedIntervalSchedule | CronSchedule;
+
+  if (isIntervalSchedule(momoJob.schedule)) {
+    const firstRunAfter =
+      momoJob.firstRunAfter !== undefined
+        ? typeof momoJob.firstRunAfter === 'number'
+          ? momoJob.firstRunAfter
+          : humanInterval(momoJob.firstRunAfter)
+        : 0;
+    if (firstRunAfter === undefined || isNaN(firstRunAfter)) {
+      // firstRunAfter was already validated
+      throw momoError.invalidFirstRunAfter;
+    }
+
+    const parsedInterval = humanInterval(momoJob.interval);
+    if (parsedInterval === undefined || isNaN(parsedInterval)) {
+      // parsedInterval was already validated
+      throw momoError.nonParsableInterval;
+    }
+    schedule = { firstRunAfter, parsedInterval, interval: momoJob.schedule.interval };
+  } else {
+    schedule = momoJob.schedule;
   }
 
-  const parsedInterval = humanInterval(job.interval);
-  if (parsedInterval === undefined || isNaN(parsedInterval)) {
-    // parsedInterval was already validated
-    throw momoError.nonParsableInterval;
-  }
-
-  return { concurrency: 1, maxRunning: 0, ...job, firstRunAfter, parsedInterval };
+  return {
+    concurrency: 1,
+    maxRunning: 0,
+    ...momoJob,
+    schedule,
+  };
 }
 
+/**
+ * removes properties that are not part of the JobDefinition interface
+ *
+ * @param job
+ */
 export function toJobDefinition<T extends JobDefinition>({
   name,
-  interval,
-  parsedInterval,
-  firstRunAfter,
+  schedule,
   maxRunning,
   concurrency,
 }: T): JobDefinition {
-  return { name, interval, parsedInterval, firstRunAfter, maxRunning, concurrency };
+  return { name, schedule, maxRunning, concurrency };
 }

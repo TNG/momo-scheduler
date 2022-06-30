@@ -17,7 +17,7 @@ export class ExecutionsRepository extends Repository<ExecutionsEntity> {
 
   async removeJob(scheduleId: string, name: string): Promise<void> {
     const executionsEntity = await this.findOne({ scheduleId });
-    if (executionsEntity === undefined) {
+    if (!executionsEntity) {
       throw new Error(`executionsEntity not found for scheduleId=${scheduleId}`);
     }
 

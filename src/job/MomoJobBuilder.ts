@@ -1,20 +1,36 @@
 import { Handler, MomoJob } from './MomoJob';
 
+interface MomoJobBuilderBase<T> {
+  withName: (name: string) => T;
+  withConcurrency: (concurrency: number) => T;
+  withMaxRunning: (maxRunning: number) => T;
+  withHandler: (handler: Handler) => T;
+  build: () => MomoJob;
+}
+
+interface MomoIntervalJobBuilder extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
+  withSchedule: (interval: string, firstRunAfter?: number) => MomoIntervalJobBuilder;
+}
+
+interface MomoCronJobBuilder extends MomoJobBuilderBase<MomoCronJobBuilder> {
+  withCronSchedule: (cronSchedule: string) => MomoCronJobBuilder;
+}
+
 export class MomoJobBuilder {
-  private momoJob: Partial<MomoJob> = {};
+  protected momoJob: Partial<MomoJob> = {};
 
   withName(name: string): this {
     this.momoJob.name = name;
     return this;
   }
 
-  withInterval(interval: string): this {
-    this.momoJob.interval = interval;
+  withSchedule(interval: string, firstRunAfter: number | string = 0): MomoIntervalJobBuilder {
+    this.momoJob.schedule = { firstRunAfter, interval };
     return this;
   }
 
-  withFirstRunAfter(firstRunAfter: number | string): this {
-    this.momoJob.firstRunAfter = firstRunAfter;
+  withCronSchedule(cronSchedule: string): MomoCronJobBuilder {
+    this.momoJob.schedule = { cronSchedule };
     return this;
   }
 
@@ -38,11 +54,11 @@ export class MomoJobBuilder {
       throw Error('Error: Job must have a specified name');
     }
 
-    if (this.momoJob.interval === undefined) {
-      throw Error('Error: Job must have a specified interval');
+    if (!this.momoJob.schedule) {
+      throw Error('Error: Job must have a specified schedule');
     }
 
-    if (this.momoJob.handler === undefined) {
+    if (!this.momoJob.handler) {
       throw Error('Error: Job must have a specified handler');
     }
 

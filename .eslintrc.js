@@ -83,6 +83,7 @@ module.exports = {
         allowNullableObject: true,
         allowNullableBoolean: false,
         allowNullableString: false,
+        allowNullableNumber: false,
       },
     ],
     '@typescript-eslint/triple-slash-reference': [
@@ -135,6 +136,7 @@ module.exports = {
       'error',
       {
         groups: ['builtin', 'external', 'object'],
+        'newlines-between': 'always',
       },
     ],
     'jest/expect-expect': [

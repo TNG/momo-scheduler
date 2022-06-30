@@ -1,6 +1,6 @@
 import { anyString, deepEqual, instance, mock, when } from 'ts-mockito';
-
 import { ObjectId } from 'mongodb';
+
 import { ExecutionStatus, MomoEvent, MomoJob, MomoOptions, MongoSchedule } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
@@ -27,7 +27,7 @@ jest.mock('../../src/Connection', () => {
 describe('Schedule', () => {
   const momoJob: MomoJob = {
     name: 'test job',
-    interval: 'one minute',
+    schedule: { interval: 'one minute', firstRunAfter: 0 },
     handler: jest.fn(),
   };
   const entityWithId = { _id: new ObjectId(), ...toJobDefinition(toJob(momoJob)) };

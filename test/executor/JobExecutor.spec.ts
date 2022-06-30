@@ -2,10 +2,10 @@ import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
 import { ExecutionStatus, MomoErrorType } from '../../src';
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { Job } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { loggerForTests } from '../utils/logging';
+import { Job } from '../../src/job/Job';
 
 describe('JobExecutor', () => {
   const scheduleId = '123';
@@ -13,9 +13,11 @@ describe('JobExecutor', () => {
   const handler = jest.fn();
   const job: Job = {
     name: 'test',
-    interval: '1 minute',
-    parsedInterval: 60_000,
-    firstRunAfter: 0,
+    schedule: {
+      interval: '1 minute',
+      parsedInterval: 60_000,
+      firstRunAfter: 0,
+    },
     concurrency: 1,
     maxRunning: 0,
     handler,

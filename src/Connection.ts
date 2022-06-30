@@ -29,7 +29,7 @@ export class Connection {
   }
 
   getExecutionsRepository(deadExecutionsThreshold = 60 * 1000): ExecutionsRepository {
-    if (this.executionsRepository === undefined) {
+    if (!this.executionsRepository) {
       this.executionsRepository = new ExecutionsRepository(
         this.mongoClient,
         deadExecutionsThreshold,
@@ -40,7 +40,7 @@ export class Connection {
   }
 
   getJobRepository(): JobRepository {
-    if (this.jobRepository === undefined) {
+    if (!this.jobRepository) {
       this.jobRepository = new JobRepository(this.mongoClient, this.collectionsPrefix);
     }
     return this.jobRepository;
