@@ -163,6 +163,24 @@ describe('Momo', () => {
       await waitFor(() => expect(jobHandler.count).toBe(1), 500);
     });
 
+    it('updates and executes job that was saved without schedule', async () => {
+      const { interval, firstRunAfter } = intervalJob.schedule;
+      const jobEntity = {
+        name: intervalJob.name,
+        concurrency: 1,
+        interval,
+        firstRunAfter,
+        maxRunning: 0,
+      };
+      await jobRepository.save(jobEntity as unknown as JobEntity);
+
+      await mongoSchedule.define(intervalJob);
+      await mongoSchedule.start();
+
+      expect(jobHandler.count).toBe(0);
+      await waitFor(() => expect(jobHandler.count).toBe(1), 1200);
+    });
+
     it('updates and executes job that was saved without parsed values before', async () => {
       const { interval, firstRunAfter } = intervalJob.schedule;
       const jobEntity = {
