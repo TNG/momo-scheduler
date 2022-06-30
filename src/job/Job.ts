@@ -1,4 +1,5 @@
 import { WithoutId } from 'mongodb';
+
 import { CronSchedule, Handler, IntervalSchedule, MomoJob, isIntervalSchedule } from './MomoJob';
 import { JobEntity } from '../repository/JobEntity';
 

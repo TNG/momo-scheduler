@@ -1,4 +1,5 @@
 import { min } from 'lodash';
+
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
 import { Job } from '../job/Job';

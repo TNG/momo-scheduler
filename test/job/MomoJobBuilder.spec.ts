@@ -1,4 +1,4 @@
-import { MomoJobBuilder } from '../../src/job/MomoJobBuilder';
+import { MomoJobBuilder } from '../../src';
 
 describe('MomoJobBuilder', () => {
   it('can build a job with all attributes and an interval', () => {

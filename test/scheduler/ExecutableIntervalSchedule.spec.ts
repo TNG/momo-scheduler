@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon';
 import { noop } from 'lodash';
+
 import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule';
 import { Logger } from '../../src/logging/Logger';
-import { ExecutionStatus } from '../../src/job/ExecutionInfo';
+import { ExecutionStatus } from '../../src';
 
 describe('ExecutableIntervalSchedule', () => {
   const callbackFunction = async (): Promise<void> => noop();

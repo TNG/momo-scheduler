@@ -1,8 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { Connection } from '../../src/Connection';
-import { MomoJob, MomoOptions, MongoSchedule } from '../../src';
-import { MongoScheduleBuilder } from '../../src/schedule/MongoScheduleBuilder';
+import { MomoJob, MomoOptions, MongoSchedule, MongoScheduleBuilder } from '../../src';
 
 describe('MongoScheduleBuilder', () => {
   const job1: MomoJob = {
