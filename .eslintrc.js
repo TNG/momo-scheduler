@@ -83,6 +83,7 @@ module.exports = {
         allowNullableObject: true,
         allowNullableBoolean: false,
         allowNullableString: false,
+        allowNullableNumber: false,
       },
     ],
     '@typescript-eslint/triple-slash-reference': [

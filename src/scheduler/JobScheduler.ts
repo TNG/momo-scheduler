@@ -1,6 +1,4 @@
-import { DateTime } from 'luxon';
 import { min } from 'lodash';
-import humanInterval from 'human-interval';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
@@ -10,14 +8,14 @@ import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { MomoJobDescription, jobDescriptionFromEntity } from '../job/MomoJobDescription';
-import { TimeoutHandle, setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
-import { calculateDelay } from './calculateDelay';
 import { momoError } from '../logging/error/MomoError';
+import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
+import { ExecutableCronSchedule } from './ExecutableCronSchedule';
+import { toExecutableSchedule } from './ExecutableSchedule';
 
 export class JobScheduler {
-  private jobHandle?: TimeoutHandle;
   private unexpectedErrorCount = 0;
-  private interval?: string;
+  private executableSchedule?: ExecutableIntervalSchedule | ExecutableCronSchedule;
 
   constructor(
     private readonly jobName: string,
@@ -44,7 +42,7 @@ export class JobScheduler {
   }
 
   isStarted(): boolean {
-    return this.jobHandle !== undefined;
+    return this.executableSchedule?.isStarted() ?? false;
   }
 
   async getJobDescription(): Promise<MomoJobDescription | undefined> {
@@ -59,8 +57,12 @@ export class JobScheduler {
       return;
     }
 
-    const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
-    const schedulerStatus = this.interval !== undefined ? { interval: this.interval, running } : undefined;
+    const schedulerStatus = !this.executableSchedule
+      ? undefined
+      : {
+          schedule: this.executableSchedule.toObject(),
+          running: await this.executionsRepository.countRunningExecutions(jobEntity.name),
+        };
 
     return { ...jobDescriptionFromEntity(jobEntity), schedulerStatus };
   }
@@ -79,38 +81,27 @@ export class JobScheduler {
       return;
     }
 
-    const interval = humanInterval(jobEntity.interval);
-    if (interval === undefined || isNaN(interval)) {
-      // the interval was already validated when the job was defined
-      throw momoError.nonParsableInterval;
-    }
+    this.executableSchedule = toExecutableSchedule(jobEntity.schedule);
 
-    this.interval = jobEntity.interval;
-
-    const delay = calculateDelay(interval, jobEntity);
-
-    this.jobHandle = setSafeIntervalWithDelay(
+    const { nextExecution } = this.executableSchedule.execute(
       this.executeConcurrently.bind(this),
-      interval,
-      delay,
       this.logger,
-      'Concurrent execution failed'
+      'Concurrent execution failed',
+      jobEntity.executionInfo
     );
 
-    this.logger.debug(`scheduled job to run at ${DateTime.now().plus({ milliseconds: delay }).toISO()}`, {
+    this.logger.debug(`scheduled job to run at ${nextExecution}`, {
       name: this.jobName,
-      interval,
-      delay,
+      ...this.executableSchedule.toObject(),
     });
   }
 
   async stop(): Promise<void> {
-    if (this.jobHandle) {
-      clearInterval(this.jobHandle.get());
+    if (this.executableSchedule) {
+      this.executableSchedule.stop();
       this.jobExecutor.stop();
       await this.executionsRepository.removeJob(this.scheduleId, this.jobName);
-      this.jobHandle = undefined;
-      this.interval = undefined;
+      this.executableSchedule = undefined;
     }
   }
 

@@ -78,7 +78,7 @@ export class Schedule extends LogEmitter {
   }
 
   /**
-   * Triggers a defined job to run once independently from the schedule.
+   * Triggers a defined job to run once independently of the schedule.
    * Does nothing if no job with this name exists.
    *
    * Note that the returned promise will not be resolved until the job execution finished.
@@ -113,9 +113,9 @@ export class Schedule extends LogEmitter {
   /**
    * Schedule all defined jobs.
    *
-   * Updates made to jobs after starting the scheduler are picked up
-   * automatically from the database, EXCEPT for changes to the interval.
-   * Start the scheduler again to change a job's interval.
+   * Updates made to the jobs after starting the scheduler are picked up
+   * automatically from the database, EXCEPT for changes to schedule.
+   * Start the scheduler again to change a job's schedule.
    *
    * @throws if the database throws
    */
@@ -128,9 +128,9 @@ export class Schedule extends LogEmitter {
    * Schedules a defined job.
    * Does nothing if no job with the given name exists.
    *
-   * Updates made to jobs after starting the scheduler are picked up
-   * automatically from the database, EXCEPT for changes to the interval.
-   * Start the scheduler again to change a job's interval.
+   * Updates made to the job after starting the scheduler are picked up
+   * automatically from the database, EXCEPT for changes to the schedule.
+   * Start the scheduler again to change a job's schedule.
    *
    * @param name the job to start
    * @throws if the database throws

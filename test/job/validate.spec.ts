@@ -11,52 +11,103 @@ describe('validate', () => {
 
   beforeEach(async () => jest.clearAllMocks());
 
-  it('validates a job', () => {
-    const job: Job = toJob({ name: 'test', interval: '1 minute', handler: () => 'finished' });
-    expect(validate(job, logger)).toBe(true);
+  describe('interval job', () => {
+    it('validates a job with an interval', () => {
+      const job: Job = toJob({
+        name: 'test',
+        schedule: { interval: '1 minute', firstRunAfter: 0 },
+        handler: () => 'finished',
+      });
+      expect(validate(job, logger)).toBe(true);
+    });
+
+    it('reports error when interval cannot be parsed', () => {
+      const job: Job = toJob({
+        name: 'test',
+        schedule: { interval: 'not an interval', firstRunAfter: 0 },
+        handler: () => 'finished',
+      });
+      expect(validate(job, logger)).toBe(false);
+
+      expect(logger.error).toHaveBeenCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledWith(
+        'job cannot be defined',
+        MomoErrorType.defineJob,
+        { name: job.name, interval: 'not an interval', firstRunAfter: 0 },
+        momoError.nonParsableInterval
+      );
+    });
+
+    it('reports error when interval is not positive', () => {
+      const job: Job = toJob({
+        name: 'test',
+        schedule: { interval: '-1 minute', firstRunAfter: 0 },
+        handler: () => 'finished',
+      });
+      expect(validate(job, logger)).toBe(false);
+
+      expect(logger.error).toHaveBeenCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledWith(
+        'job cannot be defined',
+        MomoErrorType.defineJob,
+        { name: job.name, interval: '-1 minute', firstRunAfter: 0 },
+        momoError.nonParsableInterval
+      );
+    });
+
+    it('reports error when firstRunAfter is invalid', async () => {
+      const job: Job = toJob({
+        name: 'test',
+        schedule: { interval: '1 minute', firstRunAfter: -1 },
+        handler: () => 'finished',
+      });
+      expect(validate(job, logger)).toBe(false);
+
+      expect(logger.error).toHaveBeenCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledWith(
+        'job cannot be defined',
+        MomoErrorType.defineJob,
+        { name: job.name, interval: '1 minute', firstRunAfter: -1 },
+        momoError.invalidFirstRunAfter
+      );
+    });
   });
 
-  it('reports error when interval cannot be parsed', () => {
-    const job: Job = toJob({ name: 'test', interval: 'not an interval', handler: () => 'finished' });
-    expect(validate(job, logger)).toBe(false);
+  describe('cron job', () => {
+    it('validates a job with a cron schedule', () => {
+      const job: Job = toJob({
+        name: 'test',
+        schedule: { cronSchedule: '0 9 * * 1-5' },
+        handler: () => 'finished',
+      });
+      expect(validate(job, logger)).toBe(true);
+    });
 
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name: job.name, interval: job.interval },
-      momoError.nonParsableInterval
-    );
-  });
+    it('reports error when cron schedule cannot be parsed', () => {
+      const job: Job = toJob({
+        name: 'test',
+        schedule: { cronSchedule: 'not a schedule' },
+        handler: () => 'finished',
+      });
+      expect(validate(job, logger)).toBe(false);
 
-  it('reports error when interval is not positive', () => {
-    const job: Job = toJob({ name: 'test', interval: '-1 minute', handler: () => 'finished' });
-    expect(validate(job, logger)).toBe(false);
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name: job.name, interval: job.interval },
-      momoError.nonParsableInterval
-    );
-  });
-
-  it('reports error when firstRunAfter is invalid', async () => {
-    const job: Job = toJob({ name: 'test', interval: '1 minute', handler: () => 'finished', firstRunAfter: -1 });
-    expect(validate(job, logger)).toBe(false);
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name: job.name, firstRunAfter: -1 },
-      momoError.invalidFirstRunAfter
-    );
+      expect(logger.error).toHaveBeenCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledWith(
+        'job cannot be defined',
+        MomoErrorType.defineJob,
+        { name: job.name, cronSchedule: 'not a schedule' },
+        momoError.nonParsableCronSchedule
+      );
+    });
   });
 
   it('reports error when maxRunning is invalid', async () => {
-    const job: Job = toJob({ name: 'test', interval: '1 minute', handler: () => 'finished', maxRunning: -1 });
+    const job: Job = toJob({
+      name: 'test',
+      schedule: { interval: '1 minute', firstRunAfter: 0 },
+      handler: () => 'finished',
+      maxRunning: -1,
+    });
     expect(validate(job, logger)).toBe(false);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
@@ -69,7 +120,12 @@ describe('validate', () => {
   });
 
   it('reports error when concurrency is invalid', async () => {
-    const job: Job = toJob({ name: 'test', interval: '1 minute', handler: () => 'finished', concurrency: 0 });
+    const job: Job = toJob({
+      name: 'test',
+      schedule: { interval: '1 minute', firstRunAfter: 0 },
+      handler: () => 'finished',
+      concurrency: 0,
+    });
     expect(validate(job, logger)).toBe(false);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
@@ -84,7 +140,7 @@ describe('validate', () => {
   it('reports error when concurrency > maxRunning', async () => {
     const job: Job = toJob({
       name: 'test',
-      interval: '1 minute',
+      schedule: { interval: '1 minute', firstRunAfter: 0 },
       handler: () => 'finished',
       concurrency: 3,
       maxRunning: 2,

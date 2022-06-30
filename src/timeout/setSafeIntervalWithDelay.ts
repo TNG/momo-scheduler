@@ -17,7 +17,7 @@ export function setSafeIntervalWithDelay(
 }
 
 class IntervalWithDelay {
-  public timeout: NodeJS.Timeout;
+  timeout: NodeJS.Timeout;
 
   constructor(callback: () => Promise<void>, interval: number, delay: number, logger: Logger, errorMessage: string) {
     this.timeout = setSafeTimeout(

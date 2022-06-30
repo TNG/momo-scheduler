@@ -1,25 +1,24 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { Connection } from '../../src/Connection';
-import { MomoJob, MomoOptions, MongoSchedule } from '../../src';
-import { MongoScheduleBuilder } from '../../src/schedule/MongoScheduleBuilder';
+import { MomoJob, MomoOptions, MongoSchedule, MongoScheduleBuilder } from '../../src';
 
 describe('MongoScheduleBuilder', () => {
   const job1: MomoJob = {
     name: 'test job 1',
-    interval: 'one minute',
+    schedule: { interval: 'one minute', firstRunAfter: 0 },
     handler: jest.fn(),
   };
 
   const job2: MomoJob = {
     name: 'test job 2',
-    interval: 'one hour',
+    schedule: { cronSchedule: '0 * * * *' },
     handler: jest.fn(),
   };
 
   const job3: MomoJob = {
     name: 'test job 3',
-    interval: 'one day',
+    schedule: { interval: 'one day', firstRunAfter: 0 },
     handler: jest.fn(),
   };
 
@@ -53,7 +52,14 @@ describe('MongoScheduleBuilder', () => {
       const jobList = await mongoSchedule.list();
       expect(jobList).toHaveLength(1);
       expect(jobList[0]?.name).toEqual(job1.name);
-      expect(jobList[0]?.interval).toEqual(job1.interval);
+      expect(jobList[0]?.schedule).toEqual(job1.schedule);
+    });
+
+    it('can build without a job', async () => {
+      mongoSchedule = await new MongoScheduleBuilder().withConnection(connectionOptions).build();
+
+      const jobList = await mongoSchedule.list();
+      expect(jobList).toHaveLength(0);
     });
 
     it('can build with multiple jobs and a connection', async () => {
@@ -67,11 +73,11 @@ describe('MongoScheduleBuilder', () => {
       const jobList = await mongoSchedule.list();
       expect(jobList).toHaveLength(3);
       expect(jobList[0]?.name).toEqual(job1.name);
-      expect(jobList[0]?.interval).toEqual(job1.interval);
+      expect(jobList[0]?.schedule).toEqual(job1.schedule);
       expect(jobList[1]?.name).toEqual(job2.name);
-      expect(jobList[1]?.interval).toEqual(job2.interval);
+      expect(jobList[1]?.schedule).toEqual(job2.schedule);
       expect(jobList[2]?.name).toEqual(job3.name);
-      expect(jobList[2]?.interval).toEqual(job3.interval);
+      expect(jobList[2]?.schedule).toEqual(job3.schedule);
     });
   });
 
@@ -80,14 +86,6 @@ describe('MongoScheduleBuilder', () => {
 
     await expect(mongoScheduleBuilder.build()).rejects.toThrowError(
       'Error: MongoSchedule must be built with defined ConnectionOptions'
-    );
-  });
-
-  it('throws an error when built with no jobs', async () => {
-    const mongoScheduleBuilder = new MongoScheduleBuilder().withConnection(connectionOptions);
-
-    await expect(mongoScheduleBuilder.build()).rejects.toThrowError(
-      'Error: MongoSchedule must be built with at least one defined job'
     );
   });
 });
