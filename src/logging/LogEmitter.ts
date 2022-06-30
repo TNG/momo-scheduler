@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+
 import TypedEmitter from 'typed-emitter';
 
 import { Logger, debug, error } from './Logger';

@@ -136,6 +136,7 @@ module.exports = {
       'error',
       {
         groups: ['builtin', 'external', 'object'],
+        'newlines-between': 'always',
       },
     ],
     'jest/expect-expect': [
