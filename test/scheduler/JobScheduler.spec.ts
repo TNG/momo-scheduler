@@ -2,21 +2,16 @@ import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 import { ObjectId } from 'mongodb';
 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { JobDefinition, toJobDefinition } from '../../src/job/Job';
+import { JobDefinition, ParsedIntervalSchedule, toJobDefinition } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { MomoErrorType, momoError } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
+import { CronSchedule } from '../../dist/job/MomoJob';
 
 describe('JobScheduler', () => {
-  const defaultIntervalJob: JobDefinition = {
-    name: 'test',
-    schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 1000, parsedFirstRunAfter: 1000 },
-    concurrency: 1,
-    maxRunning: 0,
-  };
   const errorFn = jest.fn();
   const scheduleId = '123';
 
@@ -36,9 +31,9 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
   });
 
-  // TODO refactor
-  function createIntervalJob(partialJob: Partial<JobDefinition> = {}): JobDefinition {
-    const job = { ...defaultIntervalJob, ...partialJob };
+  function createJob<Schedule extends ParsedIntervalSchedule | CronSchedule>(
+    job: JobDefinition<Schedule>
+  ): JobDefinition<Schedule> {
     jobScheduler = new JobScheduler(
       job.name,
       instance(jobExecutor),
@@ -55,8 +50,27 @@ describe('JobScheduler', () => {
     return job;
   }
 
-  function createCronJob(partialJob: Partial<JobDefinition> = {}): JobDefinition {
-    return createIntervalJob({ schedule: { cronSchedule: '*/1 * * * * *' }, ...partialJob });
+  function createIntervalJob(
+    partialJob: Partial<JobDefinition<ParsedIntervalSchedule>> = {}
+  ): JobDefinition<ParsedIntervalSchedule> {
+    const job = {
+      name: 'interval job',
+      schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 1000, parsedFirstRunAfter: 1000 },
+      concurrency: 1,
+      maxRunning: 0,
+      ...partialJob,
+    };
+    return createJob(job);
+  }
+
+  function createCronJob(partialJob: Partial<JobDefinition<CronSchedule>> = {}): JobDefinition<CronSchedule> {
+    return createJob({
+      name: 'cron job',
+      schedule: { cronSchedule: '*/1 * * * * *' },
+      concurrency: 1,
+      maxRunning: 0,
+      ...partialJob,
+    });
   }
 
   describe('single interval job', () => {

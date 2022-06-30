@@ -6,12 +6,13 @@ import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { loggerForTests } from '../utils/logging';
 import { Job } from '../../src/job/Job';
+import { ParsedIntervalSchedule } from '../../dist/job/Job';
 
 describe('JobExecutor', () => {
   const scheduleId = '123';
   const errorFn = jest.fn();
   const handler = jest.fn();
-  const job: Job = {
+  const job: Job<ParsedIntervalSchedule> = {
     name: 'test',
     schedule: {
       interval: '1 minute',

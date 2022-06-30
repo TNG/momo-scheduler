@@ -4,7 +4,7 @@ import { Connection } from '../../src/Connection';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { MomoJob, MongoSchedule } from '../../src';
 import { initLoggingForTests } from '../utils/logging';
-import { toJob } from '../../src/job/Job';
+import { toIntervalJob } from '../../src/job/Job';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -66,7 +66,7 @@ describe('Schedule', () => {
 
   it('lists jobs on the schedule', async () => {
     await jobRepository.save(
-      toJob({
+      toIntervalJob({
         name: 'some job that is in the database but not on the schedule',
         handler: jest.fn(),
         schedule: { interval: 'one minute', firstRunAfter: 0 },

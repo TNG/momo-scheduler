@@ -8,11 +8,12 @@ import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository'
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
-import { toJob, toJobDefinition } from '../../src/job/Job';
+import { toJobDefinition } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { CronSchedule, IntervalSchedule } from '../../src/job/MomoJob';
-import { ParsedIntervalSchedule } from '../../dist/job/Job';
+import { toIntervalJob } from '../../dist/job/Job';
+import { TypedMomoJob } from '../../dist/job/MomoJob';
 
 interface TestJobHandler {
   handler: () => Promise<string>;
@@ -80,7 +81,10 @@ describe('Momo', () => {
     return jobHandler;
   }
 
-  function createTestIntervalJob(jobHandler: TestJobHandler, schedule: IntervalSchedule): MomoJob {
+  function createTestIntervalJob(
+    jobHandler: TestJobHandler,
+    schedule: IntervalSchedule
+  ): TypedMomoJob<IntervalSchedule> {
     return {
       name: `interval_test_job_${uuid()}`,
       handler: jobHandler.handler,
@@ -88,7 +92,7 @@ describe('Momo', () => {
     };
   }
 
-  function createTestCronJob(jobHandler: TestJobHandler, schedule: CronSchedule): MomoJob {
+  function createTestCronJob(jobHandler: TestJobHandler, schedule: CronSchedule): TypedMomoJob<CronSchedule> {
     return {
       name: `cron_test_job_${uuid()}`,
       handler: jobHandler.handler,
@@ -98,7 +102,7 @@ describe('Momo', () => {
 
   describe('single interval job', () => {
     let jobHandler: TestJobHandler;
-    let intervalJob: MomoJob;
+    let intervalJob: TypedMomoJob<IntervalSchedule>;
 
     beforeEach(() => {
       jobHandler = createTestJobHandler();
@@ -139,7 +143,7 @@ describe('Momo', () => {
 
     it('executes job that was executed before', async () => {
       const jobEntity = {
-        ...toJobDefinition(toJob(intervalJob)),
+        ...toJobDefinition(toIntervalJob(intervalJob)),
         executionInfo: {
           lastStarted: DateTime.now().toISO(),
           lastFinished: DateTime.now().toISO(),
@@ -160,7 +164,7 @@ describe('Momo', () => {
     });
 
     it('updates and executes job that was saved without parsed values before', async () => {
-      const { interval, firstRunAfter } = intervalJob.schedule as ParsedIntervalSchedule;
+      const { interval, firstRunAfter } = intervalJob.schedule;
       const jobEntity = {
         name: intervalJob.name,
         concurrency: 1,
@@ -321,9 +325,11 @@ describe('Momo', () => {
       await waitFor(() => expect(jobHandler.count).toBe(1));
 
       const updatedJobs = await mongoSchedule.list();
+
       const { schedule, schedulerStatus } = updatedJobs[0]!;
       expect(schedule).toEqual({ interval: updatedSchedule.interval, firstRunAfter: updatedSchedule.firstRunAfter });
-      const intervalSchedule = intervalJob.schedule as IntervalSchedule; // TODO avoid cast?
+
+      const intervalSchedule = intervalJob.schedule;
       expect(schedulerStatus?.schedule).toEqual({
         interval: intervalSchedule.interval,
         firstRunAfter: intervalSchedule.firstRunAfter,

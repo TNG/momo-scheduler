@@ -5,11 +5,12 @@ import { Connection } from '../../src/Connection';
 import { ExecutionInfo, ExecutionStatus } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { toJob, toJobDefinition } from '../../src/job/Job';
+import { toIntervalJob, toJobDefinition } from '../../src/job/Job';
 import { ParsedIntervalSchedule } from '../../dist/job/Job';
+import { CronSchedule } from '../../dist/job/MomoJob';
 
 describe('JobRepository', () => {
-  const job = toJob({
+  const job = toIntervalJob({
     name: 'test job',
     schedule: { interval: 'one minute' },
     handler: () => undefined,
@@ -93,7 +94,7 @@ describe('JobRepository', () => {
 
   describe('list', () => {
     it('returns jobs', async () => {
-      const job1: JobEntity = {
+      const job1: JobEntity<ParsedIntervalSchedule> = {
         name: 'job1',
         schedule: {
           interval: '1 minute',
@@ -105,13 +106,10 @@ describe('JobRepository', () => {
         concurrency: 1,
         maxRunning: 3,
       };
-      const job2: JobEntity = {
+      const job2: JobEntity<CronSchedule> = {
         name: 'job2',
         schedule: {
-          interval: '2 minutes',
-          parsedInterval: 120_000,
-          firstRunAfter: 0,
-          parsedFirstRunAfter: 0,
+          cronSchedule: '0 9 * * 1-5',
         },
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
@@ -122,20 +120,19 @@ describe('JobRepository', () => {
 
       const jobs = await jobRepository.list();
 
-      const schedule1 = job1.schedule as ParsedIntervalSchedule;
-      const schedule2 = job2.schedule as ParsedIntervalSchedule;
+      const { interval, firstRunAfter } = job1.schedule;
 
       expect(jobs).toEqual([
         {
           name: job1.name,
-          schedule: { interval: schedule1.interval, firstRunAfter: schedule1.firstRunAfter },
+          schedule: { interval, firstRunAfter },
           concurrency: job1.concurrency,
           maxRunning: job1.maxRunning,
           executionInfo: {},
         },
         {
           name: job2.name,
-          schedule: { interval: schedule2.interval, firstRunAfter: schedule2.firstRunAfter },
+          schedule: job2.schedule,
           concurrency: job2.concurrency,
           maxRunning: job2.maxRunning,
           executionInfo: {},

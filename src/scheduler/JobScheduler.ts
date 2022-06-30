@@ -2,7 +2,7 @@ import { min } from 'lodash';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { ExecutionsRepository } from '../repository/ExecutionsRepository';
-import { Job } from '../job/Job';
+import { Job, ParsedIntervalSchedule } from '../job/Job';
 import { JobExecutor } from '../executor/JobExecutor';
 import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
@@ -12,6 +12,7 @@ import { momoError } from '../logging/error/MomoError';
 import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { toExecutableSchedule } from './ExecutableSchedule';
+import { CronSchedule } from '../job/MomoJob';
 
 export class JobScheduler {
   private unexpectedErrorCount = 0;
@@ -26,9 +27,9 @@ export class JobScheduler {
     private readonly logger: Logger
   ) {}
 
-  static forJob(
+  static forJob<Schedule extends ParsedIntervalSchedule | CronSchedule>(
     scheduleId: string,
-    job: Job,
+    job: Job<Schedule>,
     logger: Logger,
     executionsRepository: ExecutionsRepository,
     jobRepository: JobRepository

@@ -4,7 +4,7 @@ import { parseExpression } from 'cron-parser';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { momoError } from '../logging/error/MomoError';
-import { CronSchedule, IntervalSchedule, MomoJob, isCronSchedule, isIntervalSchedule } from './MomoJob';
+import { CronSchedule, IntervalSchedule, MomoJob, isCronSchedule } from './MomoJob';
 
 export function validate({ name, schedule, concurrency, maxRunning }: MomoJob, logger?: Logger): boolean {
   if (maxRunning !== undefined && maxRunning < 0) {
@@ -32,15 +32,11 @@ export function validate({ name, schedule, concurrency, maxRunning }: MomoJob, l
     return false;
   }
 
-  if (isIntervalSchedule(schedule)) {
-    return validateInterval(schedule, name, logger);
-  }
-
   if (isCronSchedule(schedule)) {
     return validateCronSchedule(schedule, name, logger);
   }
 
-  return false;
+  return validateInterval(schedule, name, logger);
 }
 
 function validateInterval({ interval, firstRunAfter }: IntervalSchedule, name: string, logger?: Logger): boolean {
@@ -56,7 +52,7 @@ function validateInterval({ interval, firstRunAfter }: IntervalSchedule, name: s
       'job cannot be defined',
       MomoErrorType.defineJob,
       { name, interval, firstRunAfter },
-      // TODO send correct error
+      // TODO send correct error when firstRunAfter is not parseable
       invalidInterval ? momoError.nonParsableInterval : momoError.invalidFirstRunAfter
     );
     return false;

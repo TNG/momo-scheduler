@@ -2,13 +2,15 @@ import { ParsedIntervalSchedule } from './Job';
 
 export type Handler = () => Promise<string | undefined | void> | string | undefined | void;
 
-export interface MomoJob {
+export interface TypedMomoJob<Schedule> {
   handler: Handler;
-  schedule: IntervalSchedule | CronSchedule;
+  schedule: Schedule;
   name: string;
   concurrency?: number;
   maxRunning?: number;
 }
+
+export type MomoJob = TypedMomoJob<IntervalSchedule> | TypedMomoJob<CronSchedule>;
 
 export interface IntervalSchedule {
   interval: string;
@@ -20,22 +22,13 @@ export interface CronSchedule {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isIntervalSchedule(input: any): input is IntervalSchedule {
-  return (
-    input.interval !== undefined &&
-    typeof input.interval === 'string' &&
-    (input.firstRunAfter === undefined ||
-      typeof input.firstRunAfter === 'number' ||
-      typeof input.firstRunAfter === 'string')
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isCronSchedule(input: any): input is CronSchedule {
   return input.cronSchedule !== undefined && typeof input.cronSchedule === 'string';
 }
 
-export function toSchedule(schedule: ParsedIntervalSchedule | CronSchedule): IntervalSchedule | CronSchedule {
+export function toSchedule<Schedule extends ParsedIntervalSchedule | CronSchedule>(
+  schedule: Schedule
+): Required<IntervalSchedule> | CronSchedule {
   if (isCronSchedule(schedule)) {
     return schedule;
   }
@@ -43,4 +36,8 @@ export function toSchedule(schedule: ParsedIntervalSchedule | CronSchedule): Int
   const { interval, firstRunAfter } = schedule;
 
   return { interval, firstRunAfter };
+}
+
+export function isCronJob(momoJob: MomoJob): momoJob is TypedMomoJob<CronSchedule> {
+  return isCronSchedule(momoJob.schedule);
 }
