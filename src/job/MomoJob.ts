@@ -13,7 +13,7 @@ export interface TypedMomoJob<Schedule> {
 export type MomoJob = TypedMomoJob<IntervalSchedule> | TypedMomoJob<CronSchedule>;
 
 export interface IntervalSchedule {
-  interval: string;
+  interval: number | string;
   firstRunAfter?: number | string;
 }
 

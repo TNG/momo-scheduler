@@ -9,7 +9,7 @@ import { ParsedIntervalSchedule } from '../job/Job';
 import { IntervalSchedule } from '../job/MomoJob';
 
 export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<IntervalSchedule>> {
-  private readonly interval: string;
+  private readonly interval: number | string;
   private readonly parsedInterval: number;
   private readonly firstRunAfter: number | string;
   private readonly parsedFirstRunAfter: number;

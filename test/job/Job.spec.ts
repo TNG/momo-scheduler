@@ -1,4 +1,4 @@
-import { toCronJob, toIntervalJob } from '../../src/job/Job';
+import { tryToCronJob, tryToIntervalJob } from '../../src/job/Job';
 import { MomoJob } from '../../src';
 
 describe('Job', () => {
@@ -10,7 +10,7 @@ describe('Job', () => {
         handler: () => undefined,
       };
 
-      expect(toCronJob(job)).toEqual({
+      expect(tryToCronJob(job)).toEqual({
         ...job,
         schedule: { cronSchedule: '0 9 * * 1-5' },
         concurrency: 1,
@@ -27,7 +27,7 @@ describe('Job', () => {
         handler: () => undefined,
       };
 
-      expect(toIntervalJob(job)).toEqual({
+      expect(tryToIntervalJob(job)).toEqual({
         ...job,
         schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 0, parsedFirstRunAfter: 0 },
         concurrency: 1,
@@ -42,7 +42,7 @@ describe('Job', () => {
         handler: () => undefined,
       };
 
-      expect(toIntervalJob(job)).toEqual({
+      expect(tryToIntervalJob(job)).toEqual({
         ...job,
         schedule: {
           interval: '1 second',
@@ -62,7 +62,7 @@ describe('Job', () => {
         handler: () => undefined,
       };
 
-      expect(toIntervalJob(job)).toEqual({
+      expect(tryToIntervalJob(job)).toEqual({
         ...job,
         schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 42, parsedFirstRunAfter: 42 },
         concurrency: 1,

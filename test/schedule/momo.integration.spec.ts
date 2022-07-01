@@ -8,7 +8,7 @@ import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository'
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
-import { toIntervalJob, toJobDefinition } from '../../src/job/Job';
+import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
 import { waitFor } from '../utils/waitFor';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { CronSchedule, IntervalSchedule, TypedMomoJob } from '../../src/job/MomoJob';
@@ -141,7 +141,7 @@ describe('Momo', () => {
 
     it('executes job that was executed before', async () => {
       const jobEntity = {
-        ...toJobDefinition(toIntervalJob(intervalJob)),
+        ...toJobDefinition(tryToIntervalJob(intervalJob)),
         executionInfo: {
           lastStarted: DateTime.now().toISO(),
           lastFinished: DateTime.now().toISO(),

@@ -6,10 +6,9 @@ import { JobRepository } from '../repository/JobRepository';
 import { JobScheduler } from '../scheduler/JobScheduler';
 import { LogEmitter } from '../logging/LogEmitter';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { MomoJob, isCronJob } from '../job/MomoJob';
+import { MomoJob } from '../job/MomoJob';
 import { MomoJobDescription } from '../job/MomoJobDescription';
-import { toCronJob, toIntervalJob } from '../job/Job';
-import { validate } from '../job/validate';
+import { tryToJob } from '../job/Job';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class Schedule extends LogEmitter {
@@ -57,11 +56,13 @@ export class Schedule extends LogEmitter {
    * @throws if the database throws
    */
   public async define(momoJob: MomoJob): Promise<boolean> {
-    if (!validate(momoJob, this.logger)) {
+    const jobResult = tryToJob(momoJob);
+    if (jobResult.isErr()) {
+      const { handler, schedule, ...data } = momoJob;
+      this.logger.error('job cannot be defined', MomoErrorType.defineJob, { ...data, ...schedule }, jobResult.error);
       return false;
     }
-
-    const job = isCronJob(momoJob) ? toCronJob(momoJob) : toIntervalJob(momoJob);
+    const job = jobResult.value;
 
     await this.stopJob(job.name);
 

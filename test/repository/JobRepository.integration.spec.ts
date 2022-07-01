@@ -5,11 +5,11 @@ import { Connection } from '../../src/Connection';
 import { ExecutionInfo, ExecutionStatus } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { ParsedIntervalSchedule, toIntervalJob, toJobDefinition } from '../../src/job/Job';
+import { ParsedIntervalSchedule, toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
 import { CronSchedule } from '../../src/job/MomoJob';
 
 describe('JobRepository', () => {
-  const job = toIntervalJob({
+  const job = tryToIntervalJob({
     name: 'test job',
     schedule: { interval: 'one minute' },
     handler: () => undefined,

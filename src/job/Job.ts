@@ -1,6 +1,8 @@
 import humanInterval from 'human-interval';
+import { Result, err, ok } from 'neverthrow';
+import { parseExpression } from 'cron-parser';
 
-import { CronSchedule, Handler, IntervalSchedule, TypedMomoJob } from './MomoJob';
+import { CronSchedule, Handler, IntervalSchedule, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
 import { momoError } from '../logging/error/MomoError';
 
 export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
@@ -8,18 +10,30 @@ export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedFirstRunAfter: number;
 }
 
-export interface JobDefinition<
-  Schedule extends ParsedIntervalSchedule | CronSchedule = ParsedIntervalSchedule | CronSchedule
-> {
+export interface JobDefinition<Schedule = ParsedIntervalSchedule | CronSchedule> {
   name: string;
   schedule: Schedule;
   concurrency: number;
   maxRunning: number;
 }
 
-export interface Job<Schedule extends ParsedIntervalSchedule | CronSchedule = ParsedIntervalSchedule | CronSchedule>
-  extends JobDefinition<Schedule> {
+export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule> extends JobDefinition<Schedule> {
   handler: Handler;
+}
+
+export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
+  const { concurrency, maxRunning } = momoJob;
+  if (maxRunning !== undefined && maxRunning < 0) {
+    return err(momoError.invalidMaxRunning);
+  }
+  if (concurrency !== undefined && concurrency < 1) {
+    return err(momoError.invalidConcurrency);
+  }
+  if (maxRunning !== undefined && maxRunning > 0 && concurrency !== undefined && concurrency > maxRunning) {
+    return err(momoError.invalidConcurrency);
+  }
+
+  return isCronJob(momoJob) ? tryToCronJob(momoJob) : tryToIntervalJob(momoJob);
 }
 
 /**
@@ -27,27 +41,36 @@ export interface Job<Schedule extends ParsedIntervalSchedule | CronSchedule = Pa
  *
  * @param momoJob
  */
-export function toIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Job<ParsedIntervalSchedule> {
-  const firstRunAfter = momoJob.schedule.firstRunAfter ?? 0;
+export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Result<Job<ParsedIntervalSchedule>, Error> {
+  const { interval, firstRunAfter } = momoJob.schedule;
+  const parsedInterval = typeof interval === 'number' ? interval : humanInterval(interval);
   const parsedFirstRunAfter = typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
-  if (parsedFirstRunAfter === undefined || isNaN(parsedFirstRunAfter)) {
-    // firstRunAfter was already validated
-    throw momoError.invalidFirstRunAfter;
+
+  if (typeof parsedInterval !== 'number' || isNaN(parsedInterval)) {
+    return err(momoError.nonParsableInterval);
+  } else if (parsedInterval <= 0) {
+    return err(momoError.invalidInterval);
+  }
+  if (firstRunAfter !== undefined) {
+    if (typeof parsedFirstRunAfter !== 'number' || isNaN(parsedFirstRunAfter)) {
+      return err(momoError.nonParsableFirstRunAfter);
+    } else if (parsedFirstRunAfter < 0) {
+      return err(momoError.invalidFirstRunAfter);
+    }
   }
 
-  const parsedInterval = humanInterval(momoJob.schedule.interval);
-  if (parsedInterval === undefined || isNaN(parsedInterval)) {
-    // parsedInterval was already validated
-    throw momoError.nonParsableInterval;
-  }
-  const schedule = { interval: momoJob.schedule.interval, parsedInterval, firstRunAfter, parsedFirstRunAfter };
-
-  return {
+  const schedule = {
+    interval: momoJob.schedule.interval,
+    parsedInterval,
+    firstRunAfter: firstRunAfter ?? 0,
+    parsedFirstRunAfter: parsedFirstRunAfter ?? 0,
+  };
+  return ok({
     concurrency: 1,
     maxRunning: 0,
     ...momoJob,
     schedule,
-  };
+  });
 }
 
 /**
@@ -55,12 +78,18 @@ export function toIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Job<Pars
  *
  * @param momoJob
  */
-export function toCronJob(momoJob: TypedMomoJob<CronSchedule>): Job<CronSchedule> {
-  return {
-    concurrency: 1,
-    maxRunning: 0,
-    ...momoJob,
-  };
+export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<CronSchedule>, Error> {
+  try {
+    parseExpression(momoJob.schedule.cronSchedule);
+
+    return ok({
+      concurrency: 1,
+      maxRunning: 0,
+      ...momoJob,
+    });
+  } catch {
+    return err(momoError.nonParsableCronSchedule);
+  }
 }
 
 /**

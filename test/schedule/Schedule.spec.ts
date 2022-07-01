@@ -5,7 +5,7 @@ import { ExecutionStatus, MomoEvent, MomoJob, MomoOptions, MongoSchedule } from 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
-import { toIntervalJob, toJobDefinition } from '../../src/job/Job';
+import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
 
 const executionsRepository = mock(ExecutionsRepository);
 const jobRepository = mock(JobRepository);
@@ -30,7 +30,7 @@ describe('Schedule', () => {
     schedule: { interval: 'one minute', firstRunAfter: 0 },
     handler: jest.fn(),
   };
-  const entityWithId = { _id: new ObjectId(), ...toJobDefinition(toIntervalJob(momoJob)) };
+  const entityWithId = { _id: new ObjectId(), ...toJobDefinition(tryToIntervalJob(momoJob)) };
 
   let mongoSchedule: MongoSchedule;
 

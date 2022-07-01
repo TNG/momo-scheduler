@@ -1,8 +1,11 @@
-import { Logger } from '../../src/logging/Logger';
-import { MomoErrorType, MomoJob, momoError } from '../../src';
-import { validate } from '../../src/job/validate';
+import { err, ok } from 'neverthrow';
 
-describe('validate', () => {
+import { Logger } from '../../src/logging/Logger';
+import { MomoJob, momoError } from '../../src';
+import { Job, ParsedIntervalSchedule, tryToJob } from '../../src/job/Job';
+import { CronSchedule } from '../../src/job/MomoJob';
+
+describe('tryToJob', () => {
   const logger: Logger = {
     debug: jest.fn(),
     error: jest.fn(),
@@ -11,13 +14,46 @@ describe('validate', () => {
   beforeEach(async () => jest.clearAllMocks());
 
   describe('interval job', () => {
-    it('validates a job', () => {
-      const job: MomoJob = {
+    it('validates a job with human readable interval', () => {
+      const job = {
         name: 'test',
         schedule: { interval: '1 minute', firstRunAfter: 0 },
         handler: () => 'finished',
       };
-      expect(validate(job, logger)).toBe(true);
+      const expected: Job<ParsedIntervalSchedule> = {
+        name: job.name,
+        schedule: {
+          interval: job.schedule.interval,
+          parsedInterval: 60000,
+          firstRunAfter: job.schedule.firstRunAfter,
+          parsedFirstRunAfter: 0,
+        },
+        handler: job.handler,
+        concurrency: 1,
+        maxRunning: 0,
+      };
+      expect(tryToJob(job)).toEqual(ok(expected));
+    });
+
+    it('validates a job with number interval', () => {
+      const job = {
+        name: 'test',
+        schedule: { interval: 42, firstRunAfter: 0 },
+        handler: () => 'finished',
+      };
+      const expected: Job<ParsedIntervalSchedule> = {
+        name: job.name,
+        schedule: {
+          interval: job.schedule.interval,
+          parsedInterval: 42,
+          firstRunAfter: job.schedule.firstRunAfter,
+          parsedFirstRunAfter: 0,
+        },
+        handler: job.handler,
+        concurrency: 1,
+        maxRunning: 0,
+      };
+      expect(tryToJob(job)).toEqual(ok(expected));
     });
 
     it('reports error when interval cannot be parsed', () => {
@@ -26,32 +62,25 @@ describe('validate', () => {
         schedule: { interval: 'not an interval', firstRunAfter: 0 },
         handler: () => 'finished',
       };
-      expect(validate(job, logger)).toBe(false);
-
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith(
-        'job cannot be defined',
-        MomoErrorType.defineJob,
-        { name: job.name, interval: 'not an interval', firstRunAfter: 0 },
-        momoError.nonParsableInterval
-      );
+      expect(tryToJob(job)).toEqual(err(momoError.nonParsableInterval));
     });
 
-    it('reports error when interval is not positive', () => {
+    it('reports error when human readable interval is not positive', () => {
       const job: MomoJob = {
         name: 'test',
         schedule: { interval: '-1 minute', firstRunAfter: 0 },
         handler: () => 'finished',
       };
-      expect(validate(job, logger)).toBe(false);
+      expect(tryToJob(job)).toEqual(err(momoError.invalidInterval));
+    });
 
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith(
-        'job cannot be defined',
-        MomoErrorType.defineJob,
-        { name: job.name, interval: '-1 minute', firstRunAfter: 0 },
-        momoError.invalidInterval
-      );
+    it('reports error when interval is not positive', () => {
+      const job: MomoJob = {
+        name: 'test',
+        schedule: { interval: -42, firstRunAfter: 0 },
+        handler: () => 'finished',
+      };
+      expect(tryToJob(job)).toEqual(err(momoError.invalidInterval));
     });
 
     it('reports error when firstRunAfter is invalid', async () => {
@@ -60,15 +89,7 @@ describe('validate', () => {
         schedule: { interval: '1 minute', firstRunAfter: -1 },
         handler: () => 'finished',
       };
-      expect(validate(job, logger)).toBe(false);
-
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith(
-        'job cannot be defined',
-        MomoErrorType.defineJob,
-        { name: job.name, interval: '1 minute', firstRunAfter: -1 },
-        momoError.invalidFirstRunAfter
-      );
+      expect(tryToJob(job)).toEqual(err(momoError.invalidFirstRunAfter));
     });
 
     it('reports error when firstRunAfter cannot be parsed', async () => {
@@ -77,15 +98,7 @@ describe('validate', () => {
         schedule: { interval: '1 minute', firstRunAfter: 'not parseable' },
         handler: () => 'finished',
       };
-      expect(validate(job, logger)).toBe(false);
-
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith(
-        'job cannot be defined',
-        MomoErrorType.defineJob,
-        { name: job.name, interval: '1 minute', firstRunAfter: 'not parseable' },
-        momoError.nonParsableFirstRunAfter
-      );
+      expect(tryToJob(job)).toEqual(err(momoError.nonParsableFirstRunAfter));
     });
 
     it('reports error when firstRunAfter is parseable but invalid', async () => {
@@ -94,15 +107,7 @@ describe('validate', () => {
         schedule: { interval: '1 minute', firstRunAfter: '-1 minute' },
         handler: () => 'finished',
       };
-      expect(validate(job, logger)).toBe(false);
-
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith(
-        'job cannot be defined',
-        MomoErrorType.defineJob,
-        { name: job.name, interval: '1 minute', firstRunAfter: '-1 minute' },
-        momoError.invalidFirstRunAfter
-      );
+      expect(tryToJob(job)).toEqual(err(momoError.invalidFirstRunAfter));
     });
   });
 
@@ -113,7 +118,14 @@ describe('validate', () => {
         schedule: { cronSchedule: '0 9 * * 1-5' },
         handler: () => 'finished',
       };
-      expect(validate(job, logger)).toBe(true);
+      const expected: Job<CronSchedule> = {
+        name: job.name,
+        schedule: { cronSchedule: job.schedule.cronSchedule },
+        handler: job.handler,
+        concurrency: 1,
+        maxRunning: 0,
+      };
+      expect(tryToJob(job)).toEqual(ok(expected));
     });
 
     it('reports error when cron schedule cannot be parsed', () => {
@@ -122,15 +134,7 @@ describe('validate', () => {
         schedule: { cronSchedule: 'not a schedule' },
         handler: () => 'finished',
       };
-      expect(validate(job, logger)).toBe(false);
-
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith(
-        'job cannot be defined',
-        MomoErrorType.defineJob,
-        { name: job.name, cronSchedule: 'not a schedule' },
-        momoError.nonParsableCronSchedule
-      );
+      expect(tryToJob(job)).toEqual(err(momoError.nonParsableCronSchedule));
     });
   });
 
@@ -141,15 +145,7 @@ describe('validate', () => {
       handler: () => 'finished',
       maxRunning: -1,
     };
-    expect(validate(job, logger)).toBe(false);
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name: job.name, maxRunning: -1 },
-      momoError.invalidMaxRunning
-    );
+    expect(tryToJob(job)).toEqual(err(momoError.invalidMaxRunning));
   });
 
   it('reports error when concurrency is invalid', async () => {
@@ -159,15 +155,7 @@ describe('validate', () => {
       handler: () => 'finished',
       concurrency: 0,
     };
-    expect(validate(job, logger)).toBe(false);
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name: job.name, concurrency: job.concurrency },
-      momoError.invalidConcurrency
-    );
+    expect(tryToJob(job)).toEqual(err(momoError.invalidConcurrency));
   });
 
   it('reports error when concurrency > maxRunning', async () => {
@@ -178,14 +166,6 @@ describe('validate', () => {
       concurrency: 3,
       maxRunning: 2,
     };
-    expect(validate(job, logger)).toBe(false);
-
-    expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name: job.name, concurrency: job.concurrency, maxRunning: job.maxRunning },
-      momoError.invalidConcurrency
-    );
+    expect(tryToJob(job)).toEqual(err(momoError.invalidConcurrency));
   });
 });
