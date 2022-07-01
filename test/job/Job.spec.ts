@@ -35,6 +35,39 @@ describe('Job', () => {
       });
     });
 
-    // TODO add more test cases
+    it('parses firstRunAfter', () => {
+      const job: MomoJob = {
+        name: 'test',
+        schedule: { interval: '1 second', firstRunAfter: '5 minutes' },
+        handler: () => undefined,
+      };
+
+      expect(toIntervalJob(job)).toEqual({
+        ...job,
+        schedule: {
+          interval: '1 second',
+          parsedInterval: 1000,
+          firstRunAfter: '5 minutes',
+          parsedFirstRunAfter: 300000,
+        },
+        concurrency: 1,
+        maxRunning: 0,
+      });
+    });
+
+    it('keeps firstRunAfter as number', () => {
+      const job: MomoJob = {
+        name: 'test',
+        schedule: { interval: '1 second', firstRunAfter: 42 },
+        handler: () => undefined,
+      };
+
+      expect(toIntervalJob(job)).toEqual({
+        ...job,
+        schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 42, parsedFirstRunAfter: 42 },
+        concurrency: 1,
+        maxRunning: 0,
+      });
+    });
   });
 });

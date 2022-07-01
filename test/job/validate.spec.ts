@@ -50,7 +50,7 @@ describe('validate', () => {
         'job cannot be defined',
         MomoErrorType.defineJob,
         { name: job.name, interval: '-1 minute', firstRunAfter: 0 },
-        momoError.nonParsableInterval
+        momoError.invalidInterval
       );
     });
 
@@ -84,7 +84,7 @@ describe('validate', () => {
         'job cannot be defined',
         MomoErrorType.defineJob,
         { name: job.name, interval: '1 minute', firstRunAfter: 'not parseable' },
-        momoError.invalidFirstRunAfter
+        momoError.nonParsableFirstRunAfter
       );
     });
 

@@ -41,20 +41,21 @@ export function validate({ name, schedule, concurrency, maxRunning }: MomoJob, l
 
 function validateInterval({ interval, firstRunAfter }: IntervalSchedule, name: string, logger?: Logger): boolean {
   const parsedInterval = humanInterval(interval);
-  const parsedFirstRunAfter =
-    firstRunAfter !== undefined && typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
-  const invalidFirstRunAfter =
-    parsedFirstRunAfter !== undefined && (isNaN(parsedFirstRunAfter) || parsedFirstRunAfter < 0);
-  const invalidInterval = parsedInterval === undefined || isNaN(parsedInterval) || parsedInterval <= 0;
+  const parsedFirstRunAfter = typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
 
-  if (invalidInterval || invalidFirstRunAfter) {
-    logger?.error(
-      'job cannot be defined',
-      MomoErrorType.defineJob,
-      { name, interval, firstRunAfter },
-      // TODO send correct error when firstRunAfter is not parseable
-      invalidInterval ? momoError.nonParsableInterval : momoError.invalidFirstRunAfter
-    );
+  let error;
+  if (typeof parsedFirstRunAfter !== 'number' || isNaN(parsedFirstRunAfter)) {
+    error = momoError.nonParsableFirstRunAfter;
+  } else if (parsedFirstRunAfter < 0) {
+    error = momoError.invalidFirstRunAfter;
+  }
+  if (typeof parsedInterval !== 'number' || isNaN(parsedInterval)) {
+    error = momoError.nonParsableInterval;
+  } else if (parsedInterval <= 0) {
+    error = momoError.invalidInterval;
+  }
+  if (error !== undefined) {
+    logger?.error('job cannot be defined', MomoErrorType.defineJob, { name, interval, firstRunAfter }, error);
     return false;
   }
 
