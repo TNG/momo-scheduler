@@ -21,6 +21,11 @@ export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule> extends J
   handler: Handler;
 }
 
+/**
+ * This validates all fields and sets defaults for not defined optional fields.
+ *
+ * @param momoJob to be verified and converted into a `Job`
+ */
 export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
   const { concurrency, maxRunning } = momoJob;
   if (maxRunning !== undefined && maxRunning < 0) {
@@ -37,9 +42,9 @@ export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
 }
 
 /**
- * sets default values
+ * This validates all fields and sets defaults for not defined optional fields.
  *
- * @param momoJob
+ * @param momoJob to be verified and converted into a `Job`
  */
 export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Result<Job<ParsedIntervalSchedule>, Error> {
   const { interval, firstRunAfter } = momoJob.schedule;
@@ -74,9 +79,9 @@ export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Resul
 }
 
 /**
- * sets default values
+ * This validates all fields and sets defaults for not defined optional fields.
  *
- * @param momoJob
+ * @param momoJob to be verified and converted into a `Job`
  */
 export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<CronSchedule>, Error> {
   try {
