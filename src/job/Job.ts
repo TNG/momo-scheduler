@@ -10,9 +10,9 @@ export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedFirstRunAfter: number;
 }
 
-export interface JobDefinition<Schedule = ParsedIntervalSchedule | CronSchedule> {
+export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedule> {
   name: string;
-  schedule: Schedule;
+  schedule: JobSchedule;
   concurrency: number;
   maxRunning: number;
 }
