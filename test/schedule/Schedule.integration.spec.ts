@@ -70,7 +70,7 @@ describe('Schedule', () => {
         name: 'some job that is in the database but not on the schedule',
         handler: jest.fn(),
         schedule: { interval: 'one minute', firstRunAfter: 0 },
-      })
+      })._unsafeUnwrap()
     );
 
     await mongoSchedule.define(job);

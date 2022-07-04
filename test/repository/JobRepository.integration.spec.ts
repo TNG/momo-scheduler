@@ -13,7 +13,7 @@ describe('JobRepository', () => {
     name: 'test job',
     schedule: { interval: 'one minute' },
     handler: () => undefined,
-  });
+  })._unsafeUnwrap();
   const jobDefinition = toJobDefinition(job);
 
   let mongo: MongoMemoryServer;

@@ -30,7 +30,7 @@ describe('Schedule', () => {
     schedule: { interval: 'one minute', firstRunAfter: 0 },
     handler: jest.fn(),
   };
-  const entityWithId = { _id: new ObjectId(), ...toJobDefinition(tryToIntervalJob(momoJob)) };
+  const entityWithId = { _id: new ObjectId(), ...toJobDefinition(tryToIntervalJob(momoJob)._unsafeUnwrap()) };
 
   let mongoSchedule: MongoSchedule;
 

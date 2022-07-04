@@ -141,7 +141,7 @@ describe('Momo', () => {
 
     it('executes job that was executed before', async () => {
       const jobEntity = {
-        ...toJobDefinition(tryToIntervalJob(intervalJob)),
+        ...toJobDefinition(tryToIntervalJob(intervalJob)._unsafeUnwrap()),
         executionInfo: {
           lastStarted: DateTime.now().toISO(),
           lastFinished: DateTime.now().toISO(),
