@@ -47,6 +47,20 @@ describe('MomoJobBuilder', () => {
     expect(momoJobWithInterval.handler.toString()).toEqual(jest.fn().toString());
   });
 
+  it('can build an interval job with a number as interval', () => {
+    const momoJobWithInterval = new MomoJobBuilder()
+      .withName('name')
+      .withSchedule(60 * 1000, 'two minutes')
+      .withHandler(jest.fn())
+      .build();
+
+    expect(momoJobWithInterval.name).toEqual('name');
+    expect(momoJobWithInterval.schedule).toEqual({ interval: 60000, firstRunAfter: 'two minutes' });
+    expect(momoJobWithInterval.concurrency).toBeUndefined();
+    expect(momoJobWithInterval.maxRunning).toBeUndefined();
+    expect(momoJobWithInterval.handler.toString()).toEqual(jest.fn().toString());
+  });
+
   it('can build an interval job with human readable firstRunAfter', () => {
     const momoJobWithInterval = new MomoJobBuilder()
       .withName('name')
