@@ -5,15 +5,20 @@ import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository'
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { loggerForTests } from '../utils/logging';
-import { Job } from '../../src/job/Job';
+import { Job, ParsedIntervalSchedule } from '../../src/job/Job';
 
 describe('JobExecutor', () => {
   const scheduleId = '123';
   const errorFn = jest.fn();
   const handler = jest.fn();
-  const job: Job = {
+  const job: Job<ParsedIntervalSchedule> = {
     name: 'test',
-    schedule: { interval: '1 minute', firstRunAfter: 0 },
+    schedule: {
+      interval: '1 minute',
+      parsedInterval: 60_000,
+      firstRunAfter: 0,
+      parsedFirstRunAfter: 0,
+    },
     concurrency: 1,
     maxRunning: 0,
     handler,

@@ -5,14 +5,15 @@ import { Connection } from '../../src/Connection';
 import { ExecutionInfo, ExecutionStatus } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
-import { toJob, toJobDefinition } from '../../src/job/Job';
+import { ParsedIntervalSchedule, toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
+import { CronSchedule } from '../../src/job/MomoJob';
 
 describe('JobRepository', () => {
-  const job = toJob({
+  const job = tryToIntervalJob({
     name: 'test job',
-    schedule: { interval: 'one minute', firstRunAfter: 0 },
+    schedule: { interval: 'one minute' },
     handler: () => undefined,
-  });
+  })._unsafeUnwrap();
   const jobDefinition = toJobDefinition(job);
 
   let mongo: MongoMemoryServer;
@@ -92,16 +93,23 @@ describe('JobRepository', () => {
 
   describe('list', () => {
     it('returns jobs', async () => {
-      const job1: JobEntity = {
+      const job1: JobEntity<ParsedIntervalSchedule> = {
         name: 'job1',
-        schedule: { interval: '1 minute', firstRunAfter: 0 },
+        schedule: {
+          interval: '1 minute',
+          parsedInterval: 60_000,
+          firstRunAfter: 0,
+          parsedFirstRunAfter: 0,
+        },
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
         maxRunning: 3,
       };
-      const job2: JobEntity = {
+      const job2: JobEntity<CronSchedule> = {
         name: 'job2',
-        schedule: { interval: '2 minutes', firstRunAfter: 0 },
+        schedule: {
+          cronSchedule: '0 9 * * 1-5',
+        },
         executionInfo: {} as ExecutionInfo,
         concurrency: 1,
         maxRunning: 0,
@@ -111,10 +119,12 @@ describe('JobRepository', () => {
 
       const jobs = await jobRepository.list();
 
+      const { interval, firstRunAfter } = job1.schedule;
+
       expect(jobs).toEqual([
         {
           name: job1.name,
-          schedule: job1.schedule,
+          schedule: { interval, firstRunAfter },
           concurrency: job1.concurrency,
           maxRunning: job1.maxRunning,
           executionInfo: {},
@@ -142,7 +152,14 @@ describe('JobRepository', () => {
       };
       await jobRepository.save(savedJob);
 
-      await jobRepository.updateJob(job.name, { schedule: { interval: 'new interval', firstRunAfter: 0 } });
+      await jobRepository.updateJob(job.name, {
+        schedule: {
+          interval: 'two minutes',
+          firstRunAfter: 0,
+          parsedInterval: 120_000,
+          parsedFirstRunAfter: 0,
+        },
+      });
 
       const jobs = await jobRepository.find({ name: job.name });
       expect(jobs[0]?.executionInfo).toEqual(savedJob.executionInfo);

@@ -59,9 +59,9 @@ const mongoSchedule = new MongoScheduleBuilder()
     collectionsPrefix: 'momo',
     pingInterval: 1000,
   })
-  .withJob(intervalJob);
-
-await mongoSchedule.define(cronJob);
+  .withJob(intervalJob)
+  .withJob(cronJob)
+  .build();
 
 // optional: listen to error and debug events
 mongoSchedule.on('error', (error: MomoErrorEvent) => {
@@ -82,14 +82,14 @@ await mongoSchedule.disconnect();
 
 You can instantiate a momo job using the `MomoJobBuilder` class. It provides the following setter methods:
 
-| setter           | parameters                       | mandatory | default value | description                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ---------------- | -------------------------------- | --------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| withName         | `string`                         | true      |               | The name of the job. Used as a unique identifier.                                                                                                                                                                                                                                                                                                                                                                                                            |
-| withSchedule     | `string`,`number` (default: `0`) | false     |               | Either this setter or `withCronSchedule()` must be called. Specifies the time interval at which the job is started. Time intervals in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours' ) are accepted. Check documentation of [ human-interval ](https://www.npmjs.com/package/human-interval) library for details. If the job never ran before, the job will run after `firstRunAfter` milliseconds for the first time. |
-| withCronSchedule | `string`                         | false     |               | Either this setter or `withCronSchedule()` must be called. Specifies the cron schedule according to which the job will run.                                                                                                                                                                                                                                                                                                                                  |
-| withConcurrency  | `number`                         | false     | 1             | How many instances of a job are started at a time.                                                                                                                                                                                                                                                                                                                                                                                                           |
-| withMaxRunning   | `number`                         | false     | 0             | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded.                                                                                                                                               |
-| withHandler      | `function`                       | true      |               | The function to execute.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| setter           | parameters                                 | mandatory | default value | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ---------------- |--------------------------------------------| --------- | ------------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| withName         | `string`                                   | true      |               | The name of the job. Used as a unique identifier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| withSchedule     | `number` or `string`,`number` or `string` (default: `0`) | false     |               | Either this setter or `withCronSchedule()` must be called. Specifies the schedule for starting the job. Time intervals can be given in human-readable formats (like '1 minute', 'ten days' or 'twenty-one days and 2 hours' ) or in milliseconds. Check the documentation of [ human-interval ](https://www.npmjs.com/package/human-interval) for details. If the job never ran before, the job will run after `firstRunAfter` for the first time. Just like the `interval`, `firstRunAfter` can also be given in a human-readable format or as milliseconds. |
+| withCronSchedule | `string`                                   | false     |               | Either this setter or `withCronSchedule()` must be called. Specifies the cron schedule according to which the job will run.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| withConcurrency  | `number`                                   | false     | 1             | How many instances of a job are started at a time.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| withMaxRunning   | `number`                                   | false     | 0             | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached. However, there is no guarantee that the schedule always respects the limit; in rare cases with multiple Momo instances maxRunning may be exceeded.                                                                                                                                                                                                                                                |
+| withHandler      | `function`                                 | true      |               | The function to execute.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ### MongoSchedule
 
@@ -97,7 +97,7 @@ You can instantiate a mongo schedule using the `MongoScheduleBuilder` class. It 
 methods:
 
 | setter         | parameters    | mandatory | default value | description                             |
-|----------------|---------------|-----------|---------------|-----------------------------------------|
+| -------------- | ------------- | --------- | ------------- | --------------------------------------- |
 | withJob        | `MomoJob`     | true      |               | Adds a job to the schedule.             |
 | withConnection | `MomoOptions` | true      |               | The connection options of the schedule. |
 
@@ -185,7 +185,7 @@ const example2: MomoJob = new MomoJobBuilder()
 
 const example3: MomoJob = new MomoJobBuilder()
   .withName('example 3')
-  .withInterval('5 minutes', 5 * 60 * 1000) // first run after five minutes
+  .withInterval('5 minutes', '4 minutes') // first run after four minutes
   .withHandler(() => console.log('This is momo'));
 
 const example4: MomoJob = new MomoJobBuilder()
@@ -197,16 +197,20 @@ const example4: MomoJob = new MomoJobBuilder()
 Assume it is 12:00 AM when the MongoSchedule with these four example jobs is started.
 
 - `example 1` will be run immediately, at 12:00, and then every five minutes. Adding `firstRunAfter: 0` explicitly is equivalent as this is the default value.
-- `example 2` will be run after 1 minute (the configured `firstRunAfter`), at 12:01, and then every five minutes.
-- `example 3` will be run after 5 minutes (the configured `firstRunAfter`), at 12:05, and then every five minutes.
+- `example 2` will be run after 1 minute (the configured `firstRunAfter`), at 12:01, and then every five minutes (next is 12:06).
+- `example 3` will be run after 4 minutes (the configured `firstRunAfter`), at 12:04, and then every five minutes (next is 12:09).
 - `example 4` will be run at midnight every weekday
 
 Now assume the MongoSchedule is stopped at 12:02 and then immediately started again.
 
 - `example 1` will be run 5 minutes (the configured `interval`) after the last execution, at 12:05. The job is NOT run immediately because it already ran before.
 - `example 2` will be run 5 minutes (the configured `interval`) after the last execution, at 12:06. The job is NOT run after 1 minute (the configured `firstRunAfter`) because it already ran before.
-- `example 3` will be run 5 minutes after the start (because of the the configured `firstRunAfter`), at 12:07, because it never ran before, and then every five minutes.
+- `example 3` will be run 4 minutes after the start (because of the configured `firstRunAfter`), at 12:06, because it never ran before, and then every five minutes (next is 12:11).
 - `example 4` will be run at midnight every weekday
+
+If your program is not running while a cron job should start, the missed run will not be started when your program
+resumes. This is the case for interval jobs though. The benefit of cron jobs is, that you can control the exact time
+of execution. They are also not restricted to a constant interval.
 
 ## Supported Node Versions
 

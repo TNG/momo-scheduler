@@ -23,7 +23,7 @@
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "npx rimraf dist",
-    "test": "jest --detectOpenHandles --forceExit",
+    "test": "jest",
     "test:unit": "npm run test \"^((?!\\.integration\\.).)*$\"",
     "test:integration": "npm run test integration",
     "lint": "prettier --check \"**/*.ts\"  && eslint --ext .ts,.js,.json .",
@@ -36,6 +36,7 @@
     "lodash": "4.17.21",
     "luxon": "2.4.0",
     "mongodb": "4.7.0",
+    "neverthrow": "4.3.1",
     "typed-emitter": "2.1.0",
     "uuid": "8.3.2"
   },

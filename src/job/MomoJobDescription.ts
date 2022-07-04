@@ -1,5 +1,5 @@
 import { JobEntity } from '../repository/JobEntity';
-import { CronSchedule, IntervalSchedule } from './MomoJob';
+import { CronSchedule, IntervalSchedule, toSchedule } from './MomoJob';
 
 /**
  * information about scheduled job
@@ -21,10 +21,10 @@ export interface MomoJobDescription {
   schedulerStatus?: JobSchedulerStatus;
 }
 
-export function jobDescriptionFromEntity({ name, schedule, concurrency, maxRunning }: JobEntity): MomoJobDescription {
+export function toMomoJobDescription({ name, schedule, concurrency, maxRunning }: JobEntity): MomoJobDescription {
   return {
     name,
-    schedule,
+    schedule: toSchedule(schedule),
     concurrency,
     maxRunning,
   };

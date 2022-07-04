@@ -1,7 +1,7 @@
 import { MomoErrorType } from './error/MomoErrorType';
 
 export interface MomoEventData {
-  [key: string]: boolean | number | string;
+  [key: string]: boolean | number | string | undefined;
 }
 
 export interface MomoEvent {

@@ -9,7 +9,7 @@ interface MomoJobBuilderBase<T> {
 }
 
 interface MomoIntervalJobBuilder extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
-  withSchedule: (interval: string, firstRunAfter?: number) => MomoIntervalJobBuilder;
+  withSchedule: (interval: number | string, firstRunAfter?: number | string) => MomoIntervalJobBuilder;
 }
 
 interface MomoCronJobBuilder extends MomoJobBuilderBase<MomoCronJobBuilder> {
@@ -24,7 +24,7 @@ export class MomoJobBuilder {
     return this;
   }
 
-  withSchedule(interval: string, firstRunAfter = 0): MomoIntervalJobBuilder {
+  withSchedule(interval: number | string, firstRunAfter: number | string = 0): MomoIntervalJobBuilder {
     this.momoJob.schedule = { firstRunAfter, interval };
     return this;
   }

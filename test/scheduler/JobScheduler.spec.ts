@@ -2,21 +2,16 @@ import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 import { ObjectId } from 'mongodb';
 
 import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
-import { JobDefinition, toJobDefinition } from '../../src/job/Job';
+import { JobDefinition, ParsedIntervalSchedule, toJobDefinition } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { MomoErrorType, momoError } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
+import { CronSchedule } from '../../src/job/MomoJob';
 
 describe('JobScheduler', () => {
-  const defaultIntervalJob: JobDefinition = {
-    name: 'test',
-    schedule: { interval: '1 second', firstRunAfter: 1000 },
-    concurrency: 1,
-    maxRunning: 0,
-  };
   const errorFn = jest.fn();
   const scheduleId = '123';
 
@@ -36,8 +31,9 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
   });
 
-  function createIntervalJob(partialJob: Partial<JobDefinition> = {}): JobDefinition {
-    const job = { ...defaultIntervalJob, ...partialJob };
+  function createJob<Schedule extends ParsedIntervalSchedule | CronSchedule>(
+    job: JobDefinition<Schedule>
+  ): JobDefinition<Schedule> {
     jobScheduler = new JobScheduler(
       job.name,
       instance(jobExecutor),
@@ -54,8 +50,27 @@ describe('JobScheduler', () => {
     return job;
   }
 
-  function createCronScheduleJob(partialJob: Partial<JobDefinition> = {}): JobDefinition {
-    return createIntervalJob({ schedule: { cronSchedule: '*/1 * * * * *' }, ...partialJob });
+  function createIntervalJob(
+    partialJob: Partial<JobDefinition<ParsedIntervalSchedule>> = {}
+  ): JobDefinition<ParsedIntervalSchedule> {
+    const job = {
+      name: 'interval job',
+      schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 1000, parsedFirstRunAfter: 1000 },
+      concurrency: 1,
+      maxRunning: 0,
+      ...partialJob,
+    };
+    return createJob(job);
+  }
+
+  function createCronJob(partialJob: Partial<JobDefinition<CronSchedule>> = {}): JobDefinition<CronSchedule> {
+    return createJob({
+      name: 'cron job',
+      schedule: { cronSchedule: '*/1 * * * * *' },
+      concurrency: 1,
+      maxRunning: 0,
+      ...partialJob,
+    });
   }
 
   describe('single interval job', () => {
@@ -68,7 +83,9 @@ describe('JobScheduler', () => {
     });
 
     it('executes a job with firstRunAfter=0 immediately', async () => {
-      createIntervalJob({ schedule: { interval: '1 second', firstRunAfter: 0 } });
+      createIntervalJob({
+        schedule: { interval: '1 second', parsedInterval: 60_000, firstRunAfter: 0, parsedFirstRunAfter: 0 },
+      });
 
       await jobScheduler.start();
 
@@ -117,14 +134,20 @@ describe('JobScheduler', () => {
           firstRunAfter: 1000,
           interval: '1 second',
         },
-        schedulerStatus: { schedule: job.schedule, running: 0 },
+        schedulerStatus: {
+          schedule: {
+            firstRunAfter: 1000,
+            interval: '1 second',
+          },
+          running: 0,
+        },
       });
     });
   });
 
   describe('single cron job', () => {
     it('executes a job', async () => {
-      createCronScheduleJob();
+      createCronJob();
       await jobScheduler.start();
 
       await sleep(1000);
@@ -132,7 +155,7 @@ describe('JobScheduler', () => {
     });
 
     it('stops a job', async () => {
-      createCronScheduleJob();
+      createCronJob();
       await jobScheduler.start();
 
       await sleep(1000);
@@ -145,7 +168,7 @@ describe('JobScheduler', () => {
     });
 
     it('returns job description', async () => {
-      const job = createCronScheduleJob();
+      const job = createCronJob();
 
       const jobDescription = await jobScheduler.getJobDescription();
       expect(jobDescription).toEqual({
@@ -157,7 +180,7 @@ describe('JobScheduler', () => {
     });
 
     it('returns job description for started job', async () => {
-      const job = createCronScheduleJob();
+      const job = createCronJob();
       await jobScheduler.start();
 
       const jobDescription = await jobScheduler.getJobDescription();
@@ -172,18 +195,6 @@ describe('JobScheduler', () => {
   });
 
   describe('error cases', () => {
-    it('throws on non-parsable interval', async () => {
-      createIntervalJob({ schedule: { interval: 'not an interval', firstRunAfter: 0 } });
-
-      await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableInterval);
-    });
-
-    it('throws on non-parsable cron schedule', async () => {
-      createIntervalJob({ schedule: { cronSchedule: 'not a valid cron string' } });
-
-      await expect(async () => jobScheduler.start()).rejects.toThrow(momoError.nonParsableCronSchedule);
-    });
-
     it('reports error when job was removed before scheduling', async () => {
       const job = createIntervalJob();
       when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(undefined);
@@ -248,7 +259,7 @@ describe('JobScheduler', () => {
 
   describe('concurrent cron job', () => {
     it('executes job thrice', async () => {
-      createCronScheduleJob({ concurrency: 3, maxRunning: 3 });
+      createCronJob({ concurrency: 3, maxRunning: 3 });
       await jobScheduler.start();
 
       await sleep(1000);
@@ -256,7 +267,7 @@ describe('JobScheduler', () => {
     });
 
     it('executes job when no maxRunning is set', async () => {
-      const job = createCronScheduleJob({ maxRunning: 0, concurrency: 3 });
+      const job = createCronJob({ maxRunning: 0, concurrency: 3 });
       await jobScheduler.start();
 
       await sleep(2000);
@@ -264,7 +275,7 @@ describe('JobScheduler', () => {
     });
 
     it('executes job only twice if it is already running', async () => {
-      const job = createCronScheduleJob({ concurrency: 3, maxRunning: 3 });
+      const job = createCronJob({ concurrency: 3, maxRunning: 3 });
       when(executionsRepository.countRunningExecutions(job.name)).thenResolve(1);
 
       await jobScheduler.start();

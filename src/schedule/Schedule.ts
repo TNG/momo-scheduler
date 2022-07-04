@@ -8,8 +8,7 @@ import { LogEmitter } from '../logging/LogEmitter';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { MomoJob } from '../job/MomoJob';
 import { MomoJobDescription } from '../job/MomoJobDescription';
-import { toJob } from '../job/Job';
-import { validate } from '../job/validate';
+import { tryToJob } from '../job/Job';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class Schedule extends LogEmitter {
@@ -57,11 +56,14 @@ export class Schedule extends LogEmitter {
    * @throws if the database throws
    */
   public async define(momoJob: MomoJob): Promise<boolean> {
-    const job = toJob(momoJob);
-
-    if (!validate(job, this.logger)) {
+    const jobResult = tryToJob(momoJob);
+    if (jobResult.isErr()) {
+      const { handler, schedule, ...data } = momoJob;
+      this.logger.error('job cannot be defined', MomoErrorType.defineJob, { ...data, ...schedule }, jobResult.error);
       return false;
     }
+    const job = jobResult.value;
+
     await this.stopJob(job.name);
 
     await this.jobRepository.define(job);
@@ -243,6 +245,7 @@ export class Schedule extends LogEmitter {
       await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.getJobDescription()))
     ).filter((jobDescription): jobDescription is MomoJobDescription => jobDescription !== undefined);
   }
+
   /**
    * Retrieves execution information about the job from the database. Returns undefined if the job cannot be found or was never executed.
    *
