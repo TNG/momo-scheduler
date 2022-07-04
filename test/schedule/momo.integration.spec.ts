@@ -495,7 +495,7 @@ describe('Momo', () => {
       jobHandler1 = createTestJobHandler();
       jobHandler2 = createTestJobHandler();
       job1 = createTestIntervalJob(jobHandler1, { interval: '1 second', firstRunAfter: 0 });
-      job2 = createTestIntervalJob(jobHandler2, { interval: '1 second', firstRunAfter: 0 });
+      job2 = createTestIntervalJob(jobHandler2, { interval: 1000, firstRunAfter: 0 });
     });
 
     it('executes, updates and stops with two jobs', async () => {
