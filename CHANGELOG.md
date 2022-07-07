@@ -5,6 +5,12 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## Next release
 
+## v1.0.0 (2022-07-07)
+- Feature: job intervals can be given as a number or in human-readable format
+- Feature: `firstRunAfter` can be given as a number or in human-readable format
+- Feature: support cron jobs in addition to interval jobs
+- Breaking: Remove `validate` method; this is replaced by `tryToJob`
+
 ## v0.4.1 (2021-11-02)
 - Fix: catch exceptions thrown by momo's internal ping
 
