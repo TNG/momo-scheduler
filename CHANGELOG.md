@@ -5,6 +5,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## Next release
 
+## v1.0.0 (2022-07-11)
+- Feature: `interval` can be given as a number or in human-readable format
+- Feature: `firstRunAfter` can be given as a number or in human-readable format
+- Feature: support cron jobs in addition to interval jobs
+- Breaking: Remove `validate` method; it's replaced by `tryToJob`
+- Breaking: `MomoJobBuilder::withInterval` -> `MomoJobBuilder::withSchedule`
+- Breaking: Removed `MomoJobBuilder::withFirstRunAfter`; now part of `MomoJobBuilder::withSchedule`
+
 ## v0.4.1 (2021-11-02)
 - Fix: catch exceptions thrown by momo's internal ping
 
