@@ -1393,7 +1393,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: bson:4.6.4
+Package: bson:4.6.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -1776,7 +1776,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: caniuse-lite:1.0.30001363
+Package: caniuse-lite:1.0.30001364
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3651,7 +3651,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: electron-to-chromium:1.4.177
+Package: electron-to-chromium:1.4.185
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6130,7 +6130,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: globals:13.15.0
+Package: globals:13.16.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8789,7 +8789,32 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: luxon:2.4.0
+Package: luxon:2.5.0
+
+The following copyrights and licenses were found in the source code of this package:
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: luxon:3.0.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9697,7 +9722,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: neverthrow:4.3.1
+Package: neverthrow:4.4.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9772,7 +9797,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: node-releases:2.0.5
+Package: node-releases:2.0.6
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10908,7 +10933,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: readable-stream:4.0.0
+Package: readable-stream:4.1.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -14782,7 +14807,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:compat-data:7.18.6
+Package: @babel:compat-data:7.18.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -14982,7 +15007,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-module-transforms:7.18.6
+Package: @babel:helper-module-transforms:7.18.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -15182,7 +15207,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:parser:7.18.6
+Package: @babel:parser:7.18.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -15557,7 +15582,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:traverse:7.18.6
+Package: @babel:traverse:7.18.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -15582,7 +15607,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:types:7.18.7
+Package: @babel:types:7.18.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -16389,7 +16414,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @jridgewell:resolve-uri:3.0.8
+Package: @jridgewell:resolve-uri:3.1.0
 
 The following copyrights and licenses were found in the source code of this package:
 
