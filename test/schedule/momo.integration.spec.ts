@@ -742,22 +742,6 @@ describe('Momo', () => {
       });
     });
 
-    it('updates running in mongo', async () => {
-      await mongoSchedule.define({ ...job, maxRunning: 1 });
-
-      await mongoSchedule.start();
-
-      await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
-        expect(running).toBe(1);
-      });
-
-      await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
-        expect(running).toBe(0);
-      }, jobHandler.duration + 1000);
-    });
-
     it('executes a job that is removed from mongo during execution', async () => {
       await mongoSchedule.define(job);
 
@@ -886,22 +870,6 @@ describe('Momo', () => {
         const running = await executionsRepository.countRunningExecutions(job.name);
         expect(running).toBe(2);
       });
-    });
-
-    it('updates running in mongo', async () => {
-      await mongoSchedule.define({ ...job, maxRunning: 1 });
-
-      await mongoSchedule.start();
-
-      await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
-        expect(running).toBe(1);
-      });
-
-      await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
-        expect(running).toBe(0);
-      }, jobHandler.duration + 1000);
     });
 
     it('executes a job that is removed from mongo during execution', async () => {
