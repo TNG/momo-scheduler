@@ -173,25 +173,29 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 ```typescript
 import { MomoJobBuilder } from './MomoJobBuilder';
 
-const example1: MomoJob = new MomoJobBuilder()
+const example1 = new MomoJobBuilder()
   .withName('example 1')
   .withInterval('5 minutes')
-  .withHandler(() => console.log('This is momo'));
+  .withHandler(() => console.log('This is momo'))
+  .build();
 
-const example2: MomoJob = new MomoJobBuilder()
+const example2 = new MomoJobBuilder()
   .withName('example 2')
   .withInterval('5 minutes', 60 * 1000) // first run after one minute
-  .withHandler(() => console.log('This is momo'));
+  .withHandler(() => console.log('This is momo'))
+  .build();
 
-const example3: MomoJob = new MomoJobBuilder()
+const example3 = new MomoJobBuilder()
   .withName('example 3')
   .withInterval('5 minutes', '4 minutes') // first run after four minutes
-  .withHandler(() => console.log('This is momo'));
+  .withHandler(() => console.log('This is momo'))
+  .build();
 
-const example4: MomoJob = new MomoJobBuilder()
+const example4 = new MomoJobBuilder()
   .withName('example 4')
   .withCronSchedule('0 0 * * 1-5') // every weekday at midnight
-  .withHandler(() => console.log('This is momo'));
+  .withHandler(() => console.log('This is momo'))
+  .build();
 ```
 
 Assume it is 12:00 AM when the MongoSchedule with these four example jobs is started.
