@@ -3,10 +3,9 @@ import { CronJob } from 'cron';
 import { DateTime } from 'luxon';
 
 import { CronSchedule } from '../job/MomoJob';
-import { ExecutableSchedule, NextExecutionTime } from './ExecutableSchedule';
+import { ExecutableSchedule, ExecutionParameters, NextExecutionTime } from './ExecutableSchedule';
 import { momoError } from '../logging/error/MomoError';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { Logger } from '../logging/Logger';
 
 export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> {
   private readonly cronSchedule: string;
@@ -20,10 +19,10 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
     return { cronSchedule: this.cronSchedule };
   }
 
-  execute(callback: () => Promise<void>, logger: Logger, errorMessage: string): NextExecutionTime {
+  execute({ callback, jobParameters, logger, errorMessage }: ExecutionParameters): NextExecutionTime {
     this.validateCronSchedule();
 
-    this.scheduledJob = new CronJob(this.cronSchedule, callback);
+    this.scheduledJob = new CronJob(this.cronSchedule, async () => callback(jobParameters));
     try {
       this.scheduledJob.start();
     } catch (e) {

@@ -2,8 +2,7 @@ import { max } from 'lodash';
 import { DateTime } from 'luxon';
 
 import { TimeoutHandle, setSafeIntervalWithDelay } from '../timeout/setSafeIntervalWithDelay';
-import { Logger } from '../logging/Logger';
-import { ExecutableSchedule, NextExecutionTime } from './ExecutableSchedule';
+import { ExecutableSchedule, ExecutionParameters, NextExecutionTime } from './ExecutableSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
 import { ParsedIntervalSchedule } from '../job/Job';
 import { IntervalSchedule } from '../job/MomoJob';
@@ -29,15 +28,16 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<I
     };
   }
 
-  execute(
-    callback: () => Promise<void>,
-    logger: Logger,
-    errorMessage: string,
-    executionInfo?: ExecutionInfo
-  ): NextExecutionTime {
+  execute({ executionInfo, callback, jobParameters, logger, errorMessage }: ExecutionParameters): NextExecutionTime {
     const delay = this.calculateDelay(executionInfo);
 
-    this.timeoutHandle = setSafeIntervalWithDelay(callback, this.parsedInterval, delay, logger, errorMessage);
+    this.timeoutHandle = setSafeIntervalWithDelay(
+      async () => callback(jobParameters),
+      this.parsedInterval,
+      delay,
+      logger,
+      errorMessage
+    );
 
     return { nextExecution: DateTime.fromMillis(DateTime.now().toMillis() + delay) };
   }

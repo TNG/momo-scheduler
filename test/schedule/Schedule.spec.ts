@@ -109,7 +109,7 @@ describe('Schedule', () => {
     when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
     when(executionsRepository.addExecution(anyString(), momoJob.name, 0)).thenResolve({ added: true, running: 0 });
 
-    const result = await mongoSchedule.run(momoJob.name, 500);
+    const result = await mongoSchedule.run(momoJob.name, undefined, 500);
 
     expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
     expect(momoJob.handler).toHaveBeenCalledTimes(1);

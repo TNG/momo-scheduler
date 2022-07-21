@@ -25,6 +25,7 @@ describe('JobScheduler', () => {
     jobRepository = mock(JobRepository);
     jobExecutor = mock(JobExecutor);
     when(jobExecutor.execute(anything())).thenResolve();
+    when(jobExecutor.execute(anything(), anything())).thenResolve();
   });
 
   afterEach(async () => {
@@ -79,7 +80,15 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything())).once();
+      verify(await jobExecutor.execute(anything(), anything())).once();
+    });
+
+    it('executes a job with the desired paramteres', async () => {
+      createIntervalJob({ parameters: { foo: 'bar' } });
+      await jobScheduler.start();
+
+      await sleep(1100);
+      verify(await jobExecutor.execute(anything(), deepEqual({ foo: 'bar' }))).once();
     });
 
     it('executes a job with firstRunAfter=0 immediately', async () => {
@@ -90,7 +99,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(100);
-      verify(await jobExecutor.execute(anything())).once();
+      verify(await jobExecutor.execute(anything(), anything())).once();
     });
 
     it('stops a job', async () => {
@@ -98,12 +107,12 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything())).once();
+      verify(await jobExecutor.execute(anything(), anything())).once();
 
       await jobScheduler.stop();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything())).once();
+      verify(await jobExecutor.execute(anything(), anything())).once();
     });
 
     it('returns job description', async () => {
@@ -151,7 +160,15 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything())).once();
+      verify(await jobExecutor.execute(anything(), anything())).once();
+    });
+
+    it('executes a job with the desired parameters', async () => {
+      createCronJob({ parameters: { foo: 'bar' } });
+      await jobScheduler.start();
+
+      await sleep(1000);
+      verify(await jobExecutor.execute(anything(), deepEqual({ foo: 'bar' }))).once();
     });
 
     it('stops a job', async () => {
@@ -159,12 +176,12 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything())).once();
+      verify(await jobExecutor.execute(anything(), anything())).once();
 
       await jobScheduler.stop();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything())).once();
+      verify(await jobExecutor.execute(anything(), anything())).once();
     });
 
     it('returns job description', async () => {
@@ -235,7 +252,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything())).thrice();
+      verify(await jobExecutor.execute(anything(), anything())).thrice();
     });
 
     it('executes job when no maxRunning is set', async () => {
@@ -243,7 +260,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(2100);
-      verify(await jobExecutor.execute(anything())).times(2 * job.concurrency);
+      verify(await jobExecutor.execute(anything(), anything())).times(2 * job.concurrency);
     });
 
     it('executes job only twice if it is already running', async () => {
@@ -253,7 +270,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything())).twice();
+      verify(await jobExecutor.execute(anything(), anything())).twice();
     });
   });
 
@@ -263,7 +280,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything())).thrice();
+      verify(await jobExecutor.execute(anything(), anything())).thrice();
     });
 
     it('executes job when no maxRunning is set', async () => {
@@ -271,7 +288,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(2000);
-      verify(await jobExecutor.execute(anything())).times(2 * job.concurrency);
+      verify(await jobExecutor.execute(anything(), anything())).times(2 * job.concurrency);
     });
 
     it('executes job only twice if it is already running', async () => {
@@ -281,7 +298,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything())).twice();
+      verify(await jobExecutor.execute(anything(), anything())).twice();
     });
   });
 });

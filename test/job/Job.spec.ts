@@ -12,6 +12,7 @@ describe('Job', () => {
           name: 'test',
           schedule: { interval: '1 minute', firstRunAfter: 0 },
           handler: () => 'finished',
+          parameters: { foo: 'bar' },
         };
         const expected: Job<ParsedIntervalSchedule> = {
           name: job.name,
@@ -24,6 +25,7 @@ describe('Job', () => {
           handler: job.handler,
           concurrency: 1,
           maxRunning: 0,
+          parameters: { foo: 'bar' },
         };
         expect(tryToJob(job)).toEqual(ok(expected));
       });

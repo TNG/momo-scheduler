@@ -6,7 +6,7 @@ import { JobRepository } from '../repository/JobRepository';
 import { JobScheduler } from '../scheduler/JobScheduler';
 import { LogEmitter } from '../logging/LogEmitter';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { MomoJob } from '../job/MomoJob';
+import { JobParameters, MomoJob } from '../job/MomoJob';
 import { MomoJobDescription } from '../job/MomoJobDescription';
 import { tryToJob } from '../job/Job';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
@@ -58,8 +58,13 @@ export class Schedule extends LogEmitter {
   public async define(momoJob: MomoJob): Promise<boolean> {
     const jobResult = tryToJob(momoJob);
     if (jobResult.isErr()) {
-      const { handler, schedule, ...data } = momoJob;
-      this.logger.error('job cannot be defined', MomoErrorType.defineJob, { ...data, ...schedule }, jobResult.error);
+      const { schedule, name, maxRunning } = momoJob;
+      this.logger.error(
+        'job cannot be defined',
+        MomoErrorType.defineJob,
+        { name, maxRunning, ...schedule },
+        jobResult.error
+      );
       return false;
     }
     const job = jobResult.value;
@@ -87,10 +92,11 @@ export class Schedule extends LogEmitter {
    * You might not want to await the promise if your specified delay is big.
    *
    * @param name the job to run
+   * @param parameters the parameters that will be passed to the job for this single run; passing nothing will run the job with no parameters, regardless of potentially set job parameters for the scheduled runs
    * @param delay the job will be run after delay milliseconds
    * @returns the return value of the job's handler or one of: 'finished', 'max running reached' (job could not be executed), 'not found', 'failed'
    */
-  public async run(name: string, delay = 0): Promise<JobResult> {
+  public async run(name: string, parameters?: JobParameters, delay = 0): Promise<JobResult> {
     const jobScheduler = this.jobSchedulers[name];
 
     if (!jobScheduler) {
@@ -99,7 +105,7 @@ export class Schedule extends LogEmitter {
     }
 
     if (delay <= 0) {
-      return jobScheduler.executeOnce();
+      return jobScheduler.executeOnce(parameters);
     }
 
     return new Promise((resolve) =>
