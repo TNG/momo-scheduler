@@ -12,6 +12,7 @@ import { momoError } from '../logging/error/MomoError';
 import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { toExecutableSchedule } from './ExecutableSchedule';
+import { JobParameters } from '../job/MomoJob';
 
 export class JobScheduler {
   private unexpectedErrorCount = 0;
@@ -83,12 +84,13 @@ export class JobScheduler {
 
     this.executableSchedule = toExecutableSchedule(jobEntity.schedule);
 
-    const { nextExecution } = this.executableSchedule.execute(
-      this.executeConcurrently.bind(this),
-      this.logger,
-      'Concurrent execution failed',
-      jobEntity.executionInfo
-    );
+    const { nextExecution } = this.executableSchedule.execute({
+      callback: this.executeConcurrently.bind(this),
+      logger: this.logger,
+      errorMessage: 'Concurrent execution failed',
+      jobParameters: jobEntity.parameters,
+      executionInfo: jobEntity.executionInfo,
+    });
 
     this.logger.debug(`scheduled job to run at ${nextExecution}`, {
       name: this.jobName,
@@ -105,7 +107,7 @@ export class JobScheduler {
     }
   }
 
-  async executeOnce(): Promise<JobResult> {
+  async executeOnce(parameters?: JobParameters): Promise<JobResult> {
     try {
       const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
       if (!jobEntity) {
@@ -120,7 +122,7 @@ export class JobScheduler {
         };
       }
 
-      return this.jobExecutor.execute(jobEntity);
+      return this.jobExecutor.execute(jobEntity, parameters);
     } catch (e) {
       this.handleUnexpectedError(e);
       return {
@@ -129,7 +131,7 @@ export class JobScheduler {
     }
   }
 
-  async executeConcurrently(): Promise<void> {
+  async executeConcurrently(parameters?: JobParameters): Promise<void> {
     try {
       const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
       if (!jobEntity) {
@@ -151,7 +153,7 @@ export class JobScheduler {
 
       for (let i = 0; i < numToExecute; i++) {
         // eslint-disable-next-line no-void
-        void this.jobExecutor.execute(jobEntity).catch((e) => {
+        void this.jobExecutor.execute(jobEntity, parameters).catch((e) => {
           this.handleUnexpectedError(e);
         });
       }

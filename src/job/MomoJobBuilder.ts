@@ -1,10 +1,11 @@
-import { Handler, MomoJob } from './MomoJob';
+import { Handler, JobParameters, MomoJob } from './MomoJob';
 
 interface MomoJobBuilderBase<T> {
   withName: (name: string) => T;
   withConcurrency: (concurrency: number) => T;
   withMaxRunning: (maxRunning: number) => T;
   withHandler: (handler: Handler) => T;
+  withParameters: (parameters: JobParameters) => T;
   build: () => MomoJob;
 }
 
@@ -31,6 +32,11 @@ export class MomoJobBuilder {
 
   withCronSchedule(cronSchedule: string): MomoCronJobBuilder {
     this.momoJob.schedule = { cronSchedule };
+    return this;
+  }
+
+  withParameters(jobParameters: JobParameters): this {
+    this.momoJob.parameters = jobParameters;
     return this;
   }
 

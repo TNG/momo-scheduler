@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
 import { Logger } from '../logging/Logger';
-import { CronSchedule, isCronSchedule } from '../job/MomoJob';
+import { CronSchedule, JobParameters, isCronSchedule } from '../job/MomoJob';
 import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
@@ -11,13 +11,16 @@ export interface NextExecutionTime {
   nextExecution: DateTime;
 }
 
+export interface ExecutionParameters {
+  callback: (parameters?: JobParameters) => Promise<void>;
+  logger: Logger;
+  errorMessage: string;
+  jobParameters?: JobParameters;
+  executionInfo?: ExecutionInfo;
+}
+
 export interface ExecutableSchedule<I> {
-  execute: (
-    callback: () => Promise<void>,
-    logger: Logger,
-    errorMessage: string,
-    executionInfo?: ExecutionInfo
-  ) => NextExecutionTime;
+  execute: (executionParameters: ExecutionParameters) => NextExecutionTime;
   stop: () => void;
   isStarted: () => boolean;
   toObject: () => I;
