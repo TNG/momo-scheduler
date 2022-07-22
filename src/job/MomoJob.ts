@@ -1,6 +1,8 @@
 import { ParsedIntervalSchedule } from './Job';
 
-export type Handler = () => Promise<string | undefined | void> | string | undefined | void;
+export type JobParameters = Record<string, object | number | string | boolean | undefined>;
+
+export type Handler = (parameters?: JobParameters) => Promise<string | undefined | void> | string | undefined | void;
 
 export interface TypedMomoJob<Schedule> {
   handler: Handler;
@@ -8,6 +10,7 @@ export interface TypedMomoJob<Schedule> {
   name: string;
   concurrency?: number;
   maxRunning?: number;
+  parameters?: JobParameters;
 }
 
 export type MomoJob = TypedMomoJob<IntervalSchedule> | TypedMomoJob<CronSchedule>;
