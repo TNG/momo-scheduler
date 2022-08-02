@@ -30,12 +30,12 @@
     "format": "prettier --write \"**/*.ts\" && eslint --fix --ext .ts,.js,.json ."
   },
   "dependencies": {
-    "cron": "2.0.0",
-    "cron-parser": "4.5.0",
+    "cron": "2.1.0",
+    "cron-parser": "4.6.0",
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
     "luxon": "3.0.1",
-    "mongodb": "4.7.0",
+    "mongodb": "4.8.1",
     "neverthrow": "4.4.2",
     "typed-emitter": "2.1.0",
     "uuid": "8.3.2"
