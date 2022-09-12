@@ -38,7 +38,7 @@
     "mongodb": "4.9.1",
     "neverthrow": "5.0.0",
     "typed-emitter": "2.1.0",
-    "uuid": "8.3.2"
+    "uuid": "9.0.0"
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "9.1.2",
