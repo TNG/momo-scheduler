@@ -961,4 +961,38 @@ describe('Momo', () => {
       await waitFor(() => expect(jobHandler.count).toBe(2), jobHandler.duration + 1200);
     });
   });
+
+  describe('job parameters', () => {
+    let intervalJob: TypedMomoJob<IntervalSchedule>;
+
+    beforeEach(() => {
+      intervalJob = {
+        handler: jest.fn(),
+        name: 'test',
+        schedule: { interval: '1 second', firstRunAfter: 0 },
+        concurrency: 3,
+      };
+    });
+
+    it('executes job without parameters', async () => {
+      await mongoSchedule.define(intervalJob);
+
+      await mongoSchedule.start();
+
+      await waitFor(async () => {
+        expect(intervalJob.handler).toHaveBeenCalledWith(undefined);
+      }, 1200);
+    });
+
+    it('executes job with parameters', async () => {
+      const parameters = { test: 'hi there', aNumber: 5 };
+      await mongoSchedule.define({ ...intervalJob, parameters });
+
+      await mongoSchedule.start();
+
+      await waitFor(async () => {
+        expect(intervalJob.handler).toHaveBeenCalledWith(parameters);
+      }, 1200);
+    });
+  });
 });
