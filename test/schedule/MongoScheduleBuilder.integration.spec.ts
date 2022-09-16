@@ -84,7 +84,7 @@ describe('MongoScheduleBuilder', () => {
   it('throws an error when built with no connection', async () => {
     const mongoScheduleBuilder = new MongoScheduleBuilder().withJob(job1);
 
-    await expect(mongoScheduleBuilder.build()).rejects.toThrowError(
+    await expect(mongoScheduleBuilder.build()).rejects.toThrow(
       'Error: MongoSchedule must be built with defined ConnectionOptions'
     );
   });

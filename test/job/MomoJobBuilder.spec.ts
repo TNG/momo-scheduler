@@ -96,18 +96,18 @@ describe('MomoJobBuilder', () => {
   it("cannot build if 'name' is not specified", () => {
     const momoJobBuilder = new MomoJobBuilder().withSchedule('one minute').withHandler(jest.fn());
 
-    expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have a specified name');
+    expect(() => momoJobBuilder.build()).toThrow('Error: Job must have a specified name');
   });
 
   it('cannot build if schedule is not specified', () => {
     const momoJobBuilder = new MomoJobBuilder().withName('name').withHandler(jest.fn());
 
-    expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have a specified schedule');
+    expect(() => momoJobBuilder.build()).toThrow('Error: Job must have a specified schedule');
   });
 
   it("cannot build if 'handler' is not specified", () => {
     const momoJobBuilder = new MomoJobBuilder().withName('name').withSchedule('one minute');
 
-    expect(() => momoJobBuilder.build()).toThrowError('Error: Job must have a specified handler');
+    expect(() => momoJobBuilder.build()).toThrow('Error: Job must have a specified handler');
   });
 });
