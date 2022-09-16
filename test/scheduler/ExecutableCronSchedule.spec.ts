@@ -4,7 +4,7 @@ import { ExecutableCronSchedule } from '../../src/scheduler/ExecutableCronSchedu
 import { Logger } from '../../src/logging/Logger';
 
 describe('ExecutableIntervalSchedule', () => {
-  const callbackFunction = jest.fn();
+  const callback = jest.fn();
   const logger: Logger = {
     debug: jest.fn(),
     error: jest.fn(),
@@ -42,7 +42,7 @@ describe('ExecutableIntervalSchedule', () => {
     });
 
     it('reports that the schedule has been started', () => {
-      executableCronSchedule.execute(callbackFunction, logger, errorMessage);
+      executableCronSchedule.execute({ callback, logger, errorMessage });
 
       expect(executableCronSchedule.isStarted()).toBe(true);
     });
@@ -50,7 +50,7 @@ describe('ExecutableIntervalSchedule', () => {
 
   describe('stop', () => {
     it('stops the schedule', () => {
-      executableCronSchedule.execute(callbackFunction, logger, errorMessage);
+      executableCronSchedule.execute({ callback, logger, errorMessage });
       executableCronSchedule.stop();
 
       expect(executableCronSchedule.isStarted()).toBe(false);
@@ -60,7 +60,7 @@ describe('ExecutableIntervalSchedule', () => {
   describe('execute', () => {
     it('returns the correct NextExecutionTime', () => {
       jest.setSystemTime(0);
-      const nextExecutionTime = executableCronSchedule.execute(callbackFunction, logger, errorMessage);
+      const nextExecutionTime = executableCronSchedule.execute({ callback, logger, errorMessage });
 
       expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(1000) });
     });

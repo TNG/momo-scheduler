@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
 ## Next release
+- Feature: jobs can receive parameters ([#405](https://github.com/TNG/momo-scheduler/issues/405))
 
 ## v1.0.0 (2022-07-11)
 - Feature: `interval` can be given as a number or in human-readable format

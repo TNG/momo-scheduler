@@ -1,13 +1,14 @@
 import { MomoJobBuilder } from '../../src';
 
 describe('MomoJobBuilder', () => {
-  it('can build a job with all attributes and an interval', () => {
+  it('can build an interval job with all attributes and an interval', () => {
     const momoJob = new MomoJobBuilder()
       .withName('name')
       .withSchedule('one minute', 0)
       .withConcurrency(1)
       .withMaxRunning(1)
       .withHandler(jest.fn())
+      .withParameters({ foo: 'bar' })
       .build();
 
     expect(momoJob.name).toEqual('name');
@@ -15,6 +16,7 @@ describe('MomoJobBuilder', () => {
     expect(momoJob.concurrency).toEqual(1);
     expect(momoJob.maxRunning).toEqual(1);
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
+    expect(momoJob.parameters).toEqual({ foo: 'bar' });
   });
 
   it('can build a cron job with all attributes', () => {
@@ -24,6 +26,7 @@ describe('MomoJobBuilder', () => {
       .withConcurrency(1)
       .withMaxRunning(1)
       .withHandler(jest.fn())
+      .withParameters({ foo: 'bar' })
       .build();
 
     expect(momoJob.name).toEqual('name');
@@ -31,6 +34,7 @@ describe('MomoJobBuilder', () => {
     expect(momoJob.concurrency).toEqual(1);
     expect(momoJob.maxRunning).toEqual(1);
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
+    expect(momoJob.parameters).toEqual({ foo: 'bar' });
   });
 
   it('can build an interval job with required attributes only', () => {

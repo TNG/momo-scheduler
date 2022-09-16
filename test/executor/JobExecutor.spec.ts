@@ -48,10 +48,12 @@ describe('JobExecutor', () => {
     );
   });
 
-  it('executes job', async () => {
-    await jobExecutor.execute(job);
+  it('executes job with parameters and writes result to mongo', async () => {
+    const jobParameters = { foo: 'bar' };
 
-    expect(job.handler).toHaveBeenCalled();
+    await jobExecutor.execute(job, jobParameters);
+
+    expect(job.handler).toHaveBeenCalledWith(jobParameters);
 
     verify(jobRepository.updateJob(job.name, anything())).once();
     const [, update] = capture(jobRepository.updateJob).last();
@@ -84,22 +86,6 @@ describe('JobExecutor', () => {
     await jobExecutor.execute(job);
 
     expect(errorFn).toHaveBeenCalledWith('job failed', MomoErrorType.executeJob, { name: job.name }, error);
-
-    verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
-    verify(executionsRepository.removeExecution(scheduleId, job.name)).once();
-  });
-
-  it('writes result to mongo', async () => {
-    const handlerResult = 'the job result';
-    handler.mockImplementation(() => {
-      return handlerResult;
-    });
-
-    await jobExecutor.execute(job);
-
-    verify(jobRepository.updateJob(job.name, anything())).once();
-    const [, update] = capture(jobRepository.updateJob).last();
-    expect(update.executionInfo?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult });
 
     verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
     verify(executionsRepository.removeExecution(scheduleId, job.name)).once();

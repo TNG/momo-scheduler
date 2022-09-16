@@ -2,7 +2,7 @@ import humanInterval from 'human-interval';
 import { Result, err, ok } from 'neverthrow';
 import { parseExpression } from 'cron-parser';
 
-import { CronSchedule, Handler, IntervalSchedule, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
+import { CronSchedule, Handler, IntervalSchedule, JobParameters, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
 import { momoError } from '../logging/error/MomoError';
 
 export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
@@ -15,6 +15,7 @@ export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedu
   schedule: JobSchedule;
   concurrency: number;
   maxRunning: number;
+  parameters?: JobParameters;
 }
 
 export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule> extends JobDefinition<Schedule> {
@@ -105,6 +106,6 @@ export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<Cr
 export function toJobDefinition<
   Schedule extends ParsedIntervalSchedule | CronSchedule,
   Type extends JobDefinition<Schedule>
->({ name, schedule, maxRunning, concurrency }: Type): JobDefinition<Schedule> {
-  return { name, schedule, maxRunning, concurrency };
+>({ name, schedule, maxRunning, concurrency, parameters }: Type): JobDefinition<Schedule> {
+  return { name, schedule, maxRunning, concurrency, parameters };
 }

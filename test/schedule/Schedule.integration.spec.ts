@@ -11,6 +11,7 @@ describe('Schedule', () => {
     name: 'test job',
     schedule: { interval: 'one minute', firstRunAfter: 0 },
     handler: jest.fn(),
+    parameters: { foo: 'bar' },
   };
 
   let mongo: MongoMemoryServer;
@@ -45,6 +46,7 @@ describe('Schedule', () => {
     expect(await mongoSchedule.get(job.name)).toEqual({
       name: job.name,
       schedule: job.schedule,
+      parameters: job.parameters,
       concurrency: 1,
       maxRunning: 0,
     });
@@ -59,6 +61,7 @@ describe('Schedule', () => {
     expect(await mongoSchedule.get(job.name)).toEqual({
       name: job.name,
       schedule: newSchedule,
+      parameters: job.parameters,
       concurrency: 1,
       maxRunning: 0,
     });
@@ -76,7 +79,7 @@ describe('Schedule', () => {
     await mongoSchedule.define(job);
 
     expect(await mongoSchedule.list()).toEqual([
-      { name: job.name, schedule: job.schedule, concurrency: 1, maxRunning: 0 },
+      { name: job.name, schedule: job.schedule, parameters: job.parameters, concurrency: 1, maxRunning: 0 },
     ]);
   });
 
