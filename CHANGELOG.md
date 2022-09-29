@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## Next release
+## v1.1.0 (2022-09-29)
 - Feature: jobs can receive parameters ([#405](https://github.com/TNG/momo-scheduler/issues/405))
 
 ## v1.0.0 (2022-07-11)
