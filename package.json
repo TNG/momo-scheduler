@@ -50,7 +50,7 @@
     "@types/node": "16.11.66",
     "@types/pino": "7.0.4",
     "@types/sinonjs__fake-timers": "8.1.2",
-    "@types/uuid": "8.3.4",
+    "@types/uuid": "9.0.0",
     "@typescript-eslint/eslint-plugin": "5.40.1",
     "@typescript-eslint/parser": "5.40.1",
     "eslint": "8.29.0",
