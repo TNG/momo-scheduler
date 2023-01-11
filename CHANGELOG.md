@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v1.1.1 (2023-01-11)
+- Fix: Dependency upgrades (fix [CVE-2023-22467](https://github.com/moment/luxon/security/advisories/GHSA-3xq5-wjfh-ppjc))
+
 ## v1.1.0 (2022-09-29)
 - Feature: jobs can receive parameters ([#405](https://github.com/TNG/momo-scheduler/issues/405))
 
