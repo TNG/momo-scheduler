@@ -1,7 +1,7 @@
-# momo-scheduler <img src="momo_logo.svg" align="right" />
+# Momo scheduler <img src="momo_logo.svg" align="right" />
 
-momo is a light-weight, easy-to-use scheduler that persists jobs in a MongoDB and supports interval-based scheduling as
-well as cron syntax. In essence, it provides an easy way to tell your application to either "run that job every five
+Momo is a light-weight, easy-to-use scheduler that persists jobs in a MongoDB and supports interval-based scheduling as
+well as cron jobs. In essence, it provides an easy way to tell your application to either "run that job every five
 minutes" or "run that job at 9 AM every weekday".
 
 ## Features
@@ -10,8 +10,9 @@ minutes" or "run that job at 9 AM every weekday".
 - allows immediate jobs
 - supports long-running jobs
 - allows error handling
-- allows updating jobs during runtime
-- supports cluster mode (e.g. several services using the same job database)
+- supports cluster mode (e.g. several instances using the same job database)
+  - only one instance will actively schedule jobs
+  - if an instance stops running, a different instance will take over the job scheduling
 
 ## Installation
 
@@ -37,14 +38,12 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MongoScheduleBuilder } from './MongoScheduleBuilder';
 
 const mongo = await MongoMemoryServer.create();
-const mongoSchedule = new MongoScheduleBuilder()
+const mongoSchedule = await new MongoScheduleBuilder()
   .withConnection({
-    url: await mongo.getUri(),
+    url: mongo.getUri(),
     collectionsPrefix: 'momo',
     pingInterval: 1000,
   })
-  .withJob(intervalJob)
-  .withJob(cronJob)
   .build();
 
 const intervalJob: MomoJob = new MomoJobBuilder()
@@ -53,9 +52,9 @@ const intervalJob: MomoJob = new MomoJobBuilder()
   .withMaxRunning(3)
   .withSchedule('5 seconds')
   .withParameters({foo: 'bar'})
-  .withHandler(() => logger.error('This is a momo job that runs once every five seconds!'))
+  .withHandler(() => console.log('This is a momo job that runs twice every five seconds!'))
   .build();
-mongoSchedule.define(intervalJob);
+await mongoSchedule.define(intervalJob);
 
 const cronJob: MomoJob = new MomoJobBuilder()
   .withName('cron job')
@@ -63,18 +62,18 @@ const cronJob: MomoJob = new MomoJobBuilder()
   .withMaxRunning(1)
   .withCronSchedule('0 0 * * 1-5')
   .withParameters({foo: {bar: "baz"}})
-  .withHandler(() => logger.error('This is a momo job that runs every weekday at midnight!'))
+  .withHandler(() => console.log('This is a momo job that runs every weekday at midnight!'))
   .build();
-mongoSchedule.define(cronJob);
+await mongoSchedule.define(cronJob);
 
 const cronJobWithNoParameters: MomoJob = new MomoJobBuilder()
   .withName('cron job without parameters')
-  .withConcurrency(2)
+  .withConcurrency(1)
   .withMaxRunning(3)
   .withCronSchedule('0 0 * * 1-3')
-  .withHandler(() => logger.error('This is a momo job that runs on Monday, Tuesday and Wednesday!'))
+  .withHandler(() => console.log('This is a momo job that runs on Monday, Tuesday and Wednesday!'))
   .build();
-mongoSchedule.define(cronJobWithNoParameters);
+await mongoSchedule.define(cronJobWithNoParameters);
 
 // optional: listen to error and debug events
 mongoSchedule.on('error', (error: MomoErrorEvent) => {
@@ -86,8 +85,9 @@ mongoSchedule.on('debug', (debug: MomoEvent) => {
 
 await mongoSchedule.start();
 
-// ...
+// all your application code...
 
+// gracefully disconnect the scheduler
 await mongoSchedule.disconnect();
 ```
 

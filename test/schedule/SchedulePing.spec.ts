@@ -1,6 +1,6 @@
 import { deepEqual, instance, mock, verify, when } from 'ts-mockito';
 
-import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { sleep } from '../utils/sleep';
 
@@ -9,43 +9,54 @@ describe('SchedulePing', () => {
   const interval = 1000;
   let error: jest.Mock;
 
-  let executionsRepository: ExecutionsRepository;
+  let schedulesRepository: SchedulesRepository;
   let schedulePing: SchedulePing;
+  const startAllJobs = jest.fn();
 
   beforeEach(() => {
-    executionsRepository = mock(ExecutionsRepository);
+    schedulesRepository = mock(SchedulesRepository);
     error = jest.fn();
-    schedulePing = new SchedulePing(scheduleId, instance(executionsRepository), { debug: jest.fn(), error }, interval);
+    schedulePing = new SchedulePing(
+      scheduleId,
+      instance(schedulesRepository),
+      { debug: jest.fn(), error },
+      interval,
+      startAllJobs
+    );
   });
 
   afterEach(async () => schedulePing.stop());
 
   it('starts, pings, cleans and stops', async () => {
-    schedulePing.start();
-    await sleep(interval);
+    when(schedulesRepository.isActiveSchedule()).thenResolve(true);
+    await schedulePing.start();
 
-    verify(executionsRepository.ping(scheduleId)).once();
-    verify(executionsRepository.clean()).once();
+    expect(startAllJobs).toHaveBeenCalledTimes(1);
+    verify(schedulesRepository.ping(scheduleId)).once();
+
+    await sleep(1.1 * interval);
+    expect(startAllJobs).toHaveBeenCalledTimes(1);
+    verify(schedulesRepository.ping(scheduleId)).twice();
 
     await schedulePing.stop();
     await sleep(interval);
 
-    verify(executionsRepository.ping(scheduleId)).once();
-    verify(executionsRepository.deleteOne(deepEqual({ scheduleId }))).once();
+    verify(schedulesRepository.ping(scheduleId)).twice();
+    verify(schedulesRepository.deleteOne(deepEqual({ scheduleId }))).once();
   });
 
   it('handles mongo errors', async () => {
+    when(schedulesRepository.isActiveSchedule()).thenResolve(true);
     const message = 'I am an error that should be caught';
-    when(executionsRepository.ping(scheduleId)).thenReject({
+    when(schedulesRepository.ping(scheduleId)).thenReject({
       message,
     } as Error);
 
-    schedulePing.start();
-    await sleep(interval);
+    await schedulePing.start();
 
-    verify(executionsRepository.ping(scheduleId)).once();
+    verify(schedulesRepository.ping(scheduleId)).once();
     expect(error).toHaveBeenCalledWith(
-      'Pinging or cleaning the Executions repository failed',
+      'Pinging or cleaning the Schedules repository failed',
       'an internal error occurred',
       {},
       { message }

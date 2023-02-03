@@ -42,7 +42,7 @@ describe('MongoScheduleBuilder', () => {
 
     afterEach(async () => {
       await connection.getJobRepository().delete();
-      await connection.getExecutionsRepository().delete();
+      await connection.getSchedulesRepository(1, 'do not care').delete();
       await mongoSchedule.disconnect();
     });
 

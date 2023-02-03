@@ -1,7 +1,7 @@
 import { min } from 'lodash';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { ExecutionsRepository } from '../repository/ExecutionsRepository';
+import { SchedulesRepository } from '../repository/SchedulesRepository';
 import { Job } from '../job/Job';
 import { JobExecutor } from '../executor/JobExecutor';
 import { JobRepository } from '../repository/JobRepository';
@@ -22,7 +22,7 @@ export class JobScheduler {
     private readonly jobName: string,
     private readonly jobExecutor: JobExecutor,
     private readonly scheduleId: string,
-    private readonly executionsRepository: ExecutionsRepository,
+    private readonly schedulesRepository: SchedulesRepository,
     private readonly jobRepository: JobRepository,
     private readonly logger: Logger
   ) {}
@@ -31,11 +31,11 @@ export class JobScheduler {
     scheduleId: string,
     job: Job,
     logger: Logger,
-    executionsRepository: ExecutionsRepository,
+    schedulesRepository: SchedulesRepository,
     jobRepository: JobRepository
   ): JobScheduler {
-    const executor = new JobExecutor(job.handler, scheduleId, executionsRepository, jobRepository, logger);
-    return new JobScheduler(job.name, executor, scheduleId, executionsRepository, jobRepository, logger);
+    const executor = new JobExecutor(job.handler, schedulesRepository, jobRepository, logger);
+    return new JobScheduler(job.name, executor, scheduleId, schedulesRepository, jobRepository, logger);
   }
 
   getUnexpectedErrorCount(): number {
@@ -62,7 +62,7 @@ export class JobScheduler {
       ? undefined
       : {
           schedule: this.executableSchedule.toObject(),
-          running: await this.executionsRepository.countRunningExecutions(jobEntity.name),
+          running: await this.schedulesRepository.countRunningExecutions(jobEntity.name),
         };
 
     return { ...toMomoJobDescription(jobEntity), schedulerStatus };
@@ -102,7 +102,7 @@ export class JobScheduler {
     if (this.executableSchedule) {
       this.executableSchedule.stop();
       this.jobExecutor.stop();
-      await this.executionsRepository.removeJob(this.scheduleId, this.jobName);
+      await this.schedulesRepository.removeJob(this.scheduleId, this.jobName);
       this.executableSchedule = undefined;
     }
   }
@@ -122,7 +122,7 @@ export class JobScheduler {
         };
       }
 
-      return this.jobExecutor.execute(jobEntity, parameters);
+      return this.jobExecutor.execute(jobEntity, parameters, true);
     } catch (e) {
       this.handleUnexpectedError(e);
       return {
@@ -144,7 +144,7 @@ export class JobScheduler {
         return;
       }
 
-      const running = await this.executionsRepository.countRunningExecutions(jobEntity.name);
+      const running = await this.schedulesRepository.countRunningExecutions(jobEntity.name);
       const numToExecute =
         jobEntity.maxRunning > 0
           ? min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency

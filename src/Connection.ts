@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-import { ExecutionsRepository } from './repository/ExecutionsRepository';
+import { SchedulesRepository } from './repository/SchedulesRepository';
 import { JOBS_COLLECTION_NAME, JobRepository } from './repository/JobRepository';
 
 export interface MomoConnectionOptions {
@@ -15,7 +15,7 @@ export interface MomoConnectionOptions {
 }
 
 export class Connection {
-  private executionsRepository?: ExecutionsRepository;
+  private schedulesRepository?: SchedulesRepository;
   private jobRepository?: JobRepository;
 
   constructor(private readonly mongoClient: MongoClient, private readonly collectionsPrefix?: string) {}
@@ -28,15 +28,16 @@ export class Connection {
     return connection;
   }
 
-  getExecutionsRepository(deadExecutionsThreshold = 60 * 1000): ExecutionsRepository {
-    if (!this.executionsRepository) {
-      this.executionsRepository = new ExecutionsRepository(
+  getSchedulesRepository(deadScheduleThreshold = 2 * 60 * 1000, scheduleId: string): SchedulesRepository {
+    if (!this.schedulesRepository) {
+      this.schedulesRepository = new SchedulesRepository(
         this.mongoClient,
-        deadExecutionsThreshold,
+        deadScheduleThreshold,
+        scheduleId,
         this.collectionsPrefix
       );
     }
-    return this.executionsRepository;
+    return this.schedulesRepository;
   }
 
   getJobRepository(): JobRepository {

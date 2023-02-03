@@ -7,7 +7,7 @@ import { SchedulePing } from './SchedulePing';
 export interface MomoOptions extends MomoConnectionOptions {
   /**
    * The keep alive ping interval of the schedule, in seconds.
-   * After twice the amount of time has elapsed without a ping, stale job executions are considered dead.
+   * After twice the amount of time has elapsed without a ping, a schedule is considered dead.
    */
   pingInterval?: number;
 }
@@ -16,16 +16,22 @@ export class MongoSchedule extends Schedule {
   private readonly schedulePing: SchedulePing;
   private readonly disconnectFct: () => Promise<void>;
 
-  private constructor(scheduleId: string, connection: Connection, pingInterval: number) {
-    const executionsRepository = connection.getExecutionsRepository(pingInterval);
+  private constructor(protected readonly scheduleId: string, connection: Connection, pingInterval: number) {
+    const schedulesRepository = connection.getSchedulesRepository(2 * pingInterval, scheduleId);
     const jobRepository = connection.getJobRepository();
 
-    super(scheduleId, executionsRepository, jobRepository);
+    super(scheduleId, schedulesRepository, jobRepository);
 
     jobRepository.setLogger(this.logger);
 
     this.disconnectFct = connection.disconnect.bind(connection);
-    this.schedulePing = new SchedulePing(scheduleId, executionsRepository, this.logger, pingInterval);
+    this.schedulePing = new SchedulePing(
+      scheduleId,
+      schedulesRepository,
+      this.logger,
+      pingInterval,
+      this.startAllJobs.bind(this)
+    );
   }
 
   /**
@@ -36,17 +42,12 @@ export class MongoSchedule extends Schedule {
   public static async connect({ pingInterval = 60, ...connectionOptions }: MomoOptions): Promise<MongoSchedule> {
     const connection = await Connection.create(connectionOptions);
 
-    const pingIntervalMs = pingInterval * 1000;
-    const executionsRepository = connection.getExecutionsRepository(2 * pingIntervalMs);
-
     const scheduleId = uuid();
-    await executionsRepository.addSchedule(scheduleId);
+    const schedulesRepository = connection.getSchedulesRepository(2 * pingInterval, scheduleId);
+    await schedulesRepository.createIndex();
+    const pingIntervalMs = pingInterval * 1000;
 
-    const mongoSchedule = new MongoSchedule(scheduleId, connection, pingIntervalMs);
-
-    mongoSchedule.schedulePing.start();
-
-    return mongoSchedule;
+    return new MongoSchedule(scheduleId, connection, pingIntervalMs);
   }
 
   /**
@@ -56,5 +57,27 @@ export class MongoSchedule extends Schedule {
     await this.cancel();
     await this.schedulePing.stop();
     await this.disconnectFct();
+  }
+
+  /**
+   * Start the schedule.
+   *
+   * Updates made to the jobs after starting the scheduler are picked up
+   * automatically from the database, EXCEPT for changes to schedule.
+   * Start the scheduler again to change a job's schedule.
+   *
+   * @throws if the database throws
+   */
+  public async start(): Promise<void> {
+    this.logger.debug('starting the schedule', { jobCount: this.count() });
+    return this.schedulePing.start();
+  }
+
+  private async startAllJobs(): Promise<void> {
+    await Promise.all(Object.values(this.getJobSchedulers()).map(async (jobScheduler) => jobScheduler.start()));
+  }
+
+  public id(): string {
+    return this.scheduleId;
   }
 }
