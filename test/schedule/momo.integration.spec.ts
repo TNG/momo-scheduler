@@ -31,11 +31,8 @@ describe('Momo', () => {
   let mongoSchedule: MongoSchedule;
   let connection: Connection;
 
-  beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
-  });
-
   beforeEach(async () => {
+    mongo = await MongoMemoryServer.create();
     connection = await Connection.create({ url: mongo.getUri() });
     jobRepository = connection.getJobRepository();
     mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
@@ -52,10 +49,6 @@ describe('Momo', () => {
     expect(mongoSchedule.getUnexpectedErrorCount()).toBe(0);
     await schedulesRepository.delete();
     await jobRepository.delete();
-    await mongoSchedule.disconnect();
-  });
-
-  afterAll(async () => {
     await mongoSchedule.disconnect();
     await connection.disconnect();
     await mongo.stop();
