@@ -23,6 +23,7 @@ export class MongoSchedule extends Schedule {
     super(scheduleId, schedulesRepository, jobRepository);
 
     jobRepository.setLogger(this.logger);
+    schedulesRepository.setLogger(this.logger);
 
     this.disconnectFct = connection.disconnect.bind(connection);
     this.schedulePing = new SchedulePing(
@@ -43,9 +44,9 @@ export class MongoSchedule extends Schedule {
     const connection = await Connection.create(connectionOptions);
 
     const scheduleId = uuid();
-    const schedulesRepository = connection.getSchedulesRepository(2 * pingInterval, scheduleId);
-    await schedulesRepository.createIndex();
     const pingIntervalMs = pingInterval * 1000;
+    const schedulesRepository = connection.getSchedulesRepository(2 * pingIntervalMs, scheduleId);
+    await schedulesRepository.createIndex();
 
     return new MongoSchedule(scheduleId, connection, pingIntervalMs);
   }

@@ -3,10 +3,14 @@ import { MongoClient } from 'mongodb';
 
 import { ScheduleEntity } from './ScheduleEntity';
 import { Repository } from './Repository';
+import { Logger } from '../logging/Logger';
+import { MomoErrorType } from '../logging/error/MomoErrorType';
 
 export const SCHEDULES_COLLECTION_NAME = 'schedules';
 
 export class SchedulesRepository extends Repository<ScheduleEntity> {
+  private logger: Logger | undefined;
+
   constructor(
     mongoClient: MongoClient,
     private readonly deadScheduleThreshold: number,
@@ -16,8 +20,13 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     super(mongoClient, SCHEDULES_COLLECTION_NAME, collectionPrefix);
   }
 
+  setLogger(logger: Logger): void {
+    this.logger = logger;
+  }
+
   async isActiveSchedule(scheduleId = this.scheduleId): Promise<boolean> {
-    const threshold = DateTime.now().toMillis() - this.deadScheduleThreshold;
+    const lastAlive = DateTime.now().toMillis();
+    const threshold = lastAlive - this.deadScheduleThreshold;
     try {
       const result = await this.collection.findOneAndUpdate(
         { lastAlive: { $lt: threshold } },
@@ -25,7 +34,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
           $set: {
             name: 'schedule',
             scheduleId,
-            lastAlive: DateTime.now().toMillis(),
+            lastAlive,
             executions: {},
           },
         },
@@ -36,9 +45,18 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
       );
 
       return result.value === null ? false : result.value.scheduleId === scheduleId;
-    } catch (e) {
-      return false;
+    } catch (error) {
+      // We seem to have a schedule that's alive (the name index probably prevented the upsert)! Is it this one?
+      const aliveSchedule = await this.collection.findOne();
+      if (aliveSchedule === null) {
+        this.logger?.error('The database reported an unexpected error', MomoErrorType.internal, { scheduleId }, error);
+      }
+      return aliveSchedule?.scheduleId === scheduleId;
     }
+  }
+
+  async ping(scheduleId = this.scheduleId): Promise<void> {
+    await this.updateOne({ scheduleId }, { $set: { lastAlive: DateTime.now().toMillis() } });
   }
 
   async createIndex(): Promise<void> {
@@ -75,9 +93,5 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
 
   async countRunningExecutions(name: string): Promise<number> {
     return (await this.findOne({ scheduleId: this.scheduleId }))?.executions[name] ?? 0;
-  }
-
-  async ping(scheduleId = this.scheduleId): Promise<void> {
-    await this.updateOne({ scheduleId }, { $set: { lastAlive: DateTime.now().toMillis() } });
   }
 }

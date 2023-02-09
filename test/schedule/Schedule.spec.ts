@@ -38,6 +38,7 @@ describe('Schedule', () => {
     jest.clearAllMocks();
 
     when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
+    when(schedulesRepository.isActiveSchedule()).thenResolve(true);
 
     mongoSchedule = await MongoSchedule.connect({ url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);
@@ -53,7 +54,7 @@ describe('Schedule', () => {
 
     await mongoSchedule.start();
 
-    expect(caughtEvent).toEqual({ message: 'starting the schedule', data: { jobCount: 0 } });
+    expect(caughtEvent).toEqual({ message: 'This schedule just turned active' });
   });
 
   describe('define', () => {

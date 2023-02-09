@@ -29,18 +29,16 @@ export class SchedulePing {
   }
 
   private async checkActiveSchedule(): Promise<void> {
-    const active = await this.isActiveSchedule();
+    const active = await this.schedulesRepository.isActiveSchedule();
+    this.logger.debug(`This schedule is ${active ? '' : 'not '}active`);
     if (active) {
       await this.schedulesRepository.ping(this.scheduleId);
       if (!this.startedJobs) {
+        this.logger.debug(`This schedule just turned active`);
         await this.startAllJobs();
         this.startedJobs = true;
       }
     }
-  }
-
-  private async isActiveSchedule(): Promise<boolean> {
-    return this.schedulesRepository.isActiveSchedule();
   }
 
   async stop(): Promise<void> {
