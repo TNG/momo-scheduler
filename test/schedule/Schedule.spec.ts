@@ -57,14 +57,10 @@ describe('Schedule', () => {
     expect(caughtEvent).toEqual({ message: 'This schedule just turned active' });
   });
 
-  describe('define', () => {
-    it('successfully defines a job when concurrency > 0 and maxRunning is not set', async () => {
-      const defined = await mongoSchedule.define({ ...momoJob, concurrency: 3 });
+  it('successfully defines a job when concurrency > 0 and maxRunning is not set', async () => {
+    const defined = await mongoSchedule.define({ ...momoJob, concurrency: 3 });
 
-      expect(defined).toBe(true);
-    });
-
-    // TODO: Figure out if more tests are needed
+    expect(defined).toBe(true);
   });
 
   describe('run', () => {

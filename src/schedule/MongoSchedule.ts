@@ -6,18 +6,20 @@ import { SchedulePing } from './SchedulePing';
 
 export interface MomoOptions extends MomoConnectionOptions {
   /**
-   * The keep alive ping interval of the schedule, in seconds.
+   * The keep alive ping interval of the schedule, in milliseconds.
    * After twice the amount of time has elapsed without a ping, a schedule is considered dead.
+   *
+   * The default value is 60_000
    */
-  pingInterval?: number;
+  pingIntervalMs?: number;
 }
 
 export class MongoSchedule extends Schedule {
   private readonly schedulePing: SchedulePing;
   private readonly disconnectFct: () => Promise<void>;
 
-  private constructor(protected readonly scheduleId: string, connection: Connection, pingInterval: number) {
-    const schedulesRepository = connection.getSchedulesRepository(2 * pingInterval, scheduleId);
+  private constructor(protected readonly scheduleId: string, connection: Connection, pingIntervalMs: number) {
+    const schedulesRepository = connection.getSchedulesRepository();
     const jobRepository = connection.getJobRepository();
 
     super(scheduleId, schedulesRepository, jobRepository);
@@ -30,7 +32,7 @@ export class MongoSchedule extends Schedule {
       scheduleId,
       schedulesRepository,
       this.logger,
-      pingInterval,
+      pingIntervalMs,
       this.startAllJobs.bind(this)
     );
   }
@@ -40,13 +42,9 @@ export class MongoSchedule extends Schedule {
    *
    * @param momoOptions configuration options for the connection to establish and the Schedule instance to create
    */
-  public static async connect({ pingInterval = 60, ...connectionOptions }: MomoOptions): Promise<MongoSchedule> {
-    const connection = await Connection.create(connectionOptions);
-
+  public static async connect({ pingIntervalMs = 60_000, ...connectionOptions }: MomoOptions): Promise<MongoSchedule> {
     const scheduleId = uuid();
-    const pingIntervalMs = pingInterval * 1000;
-    const schedulesRepository = connection.getSchedulesRepository(2 * pingIntervalMs, scheduleId);
-    await schedulesRepository.createIndex();
+    const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId);
 
     return new MongoSchedule(scheduleId, connection, pingIntervalMs);
   }

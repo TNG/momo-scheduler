@@ -42,7 +42,7 @@ const mongoSchedule = await new MongoScheduleBuilder()
   .withConnection({
     url: mongo.getUri(),
     collectionsPrefix: 'momo',
-    pingInterval: 1000,
+    pingIntervalMs: 10_000,
   })
   .build();
 
@@ -142,11 +142,11 @@ If the parameter is omitted, all jobs are started/stopped/cancelled/removed.
 
 #### MomoConnectionOptions
 
-| property          | type     | optional | default   | description                                                                                                                                                                                                                                                          |
-|-------------------|----------|----------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| url               | `string` | false    |           | The connection string of your database.                                                                                                                                                                                                                              |
-| collectionsPrefix | `string` | true     | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                                        |
-| pingInterval      | number   | true     | `60`      | The keep alive ping interval of the schedule, in seconds. After twice the amount of time has elapsed without a ping of your Momo instance, stale job executions are considered dead. You might want to reduce this if you have jobs running on very short intervals. |
+| property          | type     | optional | default   | description                                                                                                                                                                                                                                                 |
+|-------------------|----------|----------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| url               | `string` | false    |           | The connection string of your database.                                                                                                                                                                                                                     |
+| collectionsPrefix | `string` | true     | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                               |
+| pingIntervalMs    | number   | true     | `60_000`  | The keep alive ping interval of the schedule, in milliseconds. After twice the amount of time has elapsed without a ping of your Momo instance, other instances would take over. You might want to reduce this if you have jobs running on short intervals. |
 
 #### MomoJobDescription
 

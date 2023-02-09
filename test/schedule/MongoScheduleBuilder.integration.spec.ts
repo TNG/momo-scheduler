@@ -29,7 +29,7 @@ describe('MongoScheduleBuilder', () => {
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     connectionOptions = { url: mongo.getUri() };
-    connection = await Connection.create(connectionOptions);
+    connection = await Connection.create(connectionOptions, 60_000, 'schedule_id');
   });
 
   afterAll(async () => {
@@ -42,7 +42,7 @@ describe('MongoScheduleBuilder', () => {
 
     afterEach(async () => {
       await connection.getJobRepository().delete();
-      await connection.getSchedulesRepository(1, 'do not care').delete();
+      await connection.getSchedulesRepository().delete();
       await mongoSchedule.disconnect();
     });
 

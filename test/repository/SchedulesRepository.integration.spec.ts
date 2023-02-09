@@ -5,7 +5,7 @@ import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 
 describe('SchedulesRepository', () => {
   const scheduleId = '123';
-  const deadScheduleThreshold = 1000;
+  const pingInterval = 500;
   const name = 'test job';
 
   let mongo: MongoMemoryServer;
@@ -14,8 +14,8 @@ describe('SchedulesRepository', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    connection = await Connection.create({ url: mongo.getUri() });
-    schedulesRepository = connection.getSchedulesRepository(deadScheduleThreshold, scheduleId);
+    connection = await Connection.create({ url: mongo.getUri() }, pingInterval, scheduleId);
+    schedulesRepository = connection.getSchedulesRepository();
     await schedulesRepository.createIndex();
   });
 

@@ -28,7 +28,6 @@ describe('MongoSchedule', () => {
 
   it('connects and starts the ping and disconnects and stops the ping', async () => {
     const mongoSchedule = await MongoSchedule.connect({ url: 'mongodb://does.not/matter' });
-    verify(schedulesRepository.createIndex()).once();
 
     await mongoSchedule.start();
     verify(schedulesRepository.isActiveSchedule()).once();

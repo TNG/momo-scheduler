@@ -33,10 +33,10 @@ describe('Momo', () => {
 
   beforeEach(async () => {
     mongo = await MongoMemoryServer.create();
-    connection = await Connection.create({ url: mongo.getUri() });
-    jobRepository = connection.getJobRepository();
     mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
-    schedulesRepository = connection.getSchedulesRepository(2 * 60 * 1000, mongoSchedule.id());
+    connection = await Connection.create({ url: mongo.getUri() }, 60_000, mongoSchedule.id());
+    jobRepository = connection.getJobRepository();
+    schedulesRepository = connection.getSchedulesRepository();
 
     initLoggingForTests(mongoSchedule);
 
