@@ -24,7 +24,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     this.logger = logger;
   }
 
-  async isActiveSchedule(scheduleId = this.scheduleId): Promise<boolean> {
+  async isActiveSchedule(): Promise<boolean> {
     const lastAlive = DateTime.now().toMillis();
     const threshold = lastAlive - this.deadScheduleThreshold;
     try {
@@ -33,7 +33,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         {
           $set: {
             name: 'schedule',
-            scheduleId,
+            scheduleId: this.scheduleId,
             lastAlive,
             executions: {},
           },
@@ -44,14 +44,19 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         }
       );
 
-      return result.value === null ? false : result.value.scheduleId === scheduleId;
+      return result.value === null ? false : result.value.scheduleId === this.scheduleId;
     } catch (error) {
       // We seem to have a schedule that's alive (the name index probably prevented the upsert)! Is it this one?
       const aliveSchedule = await this.collection.findOne();
       if (aliveSchedule === null) {
-        this.logger?.error('The database reported an unexpected error', MomoErrorType.internal, { scheduleId }, error);
+        this.logger?.error(
+          'The database reported an unexpected error',
+          MomoErrorType.internal,
+          { scheduleId: this.scheduleId },
+          error
+        );
       }
-      return aliveSchedule?.scheduleId === scheduleId;
+      return aliveSchedule?.scheduleId === this.scheduleId;
     }
   }
 

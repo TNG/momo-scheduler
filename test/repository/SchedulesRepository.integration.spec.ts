@@ -39,22 +39,35 @@ describe('SchedulesRepository', () => {
 
     it('only one schedule is active', async () => {
       const active = await schedulesRepository.isActiveSchedule();
-      await schedulesRepository.isActiveSchedule('not active');
+
+      const notActiveScheduleId = 'not active';
+      const notActiveConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, notActiveScheduleId);
+      const notActiveSchedulesRepository = notActiveConnection.getSchedulesRepository();
+      const notActive = await notActiveSchedulesRepository.isActiveSchedule();
+      await notActiveConnection.disconnect();
 
       const entities = await schedulesRepository.find({});
 
       expect(active).toEqual(true);
-      // expect(notActive).toEqual(false);
+      expect(notActive).toEqual(false);
       expect(entities).toHaveLength(1);
       expect(entities[0]?.scheduleId).toEqual(scheduleId);
     });
 
     it('only one schedule of many concurrent ones is active', async () => {
+      const connections = await Promise.all(
+        ['a', 'b', 'c', 'd', 'e'].map(async (id) => Connection.create({ url: mongo.getUri() }, pingInterval, id))
+      );
+
       const schedules = await Promise.all(
-        ['a', 'b', 'c', 'd', 'e'].map(async (id) => schedulesRepository.isActiveSchedule(id))
+        connections.map(async (connection) => {
+          const newSchedulesRepository = connection.getSchedulesRepository();
+          return newSchedulesRepository.isActiveSchedule();
+        })
       );
 
       const entities = await schedulesRepository.find({});
+      await Promise.all(connections.map(async (connection) => connection.disconnect()));
 
       expect(schedules.filter((active) => active)).toHaveLength(1);
       expect(entities).toHaveLength(1);
@@ -118,6 +131,18 @@ describe('SchedulesRepository', () => {
         const executionPing = await schedulesRepository.addExecution(name, 0);
         expect(executionPing).toBeDefined();
       });
+
+      it('does not add executions in schedule that is not active', async () => {
+        const otherScheduleId = 'other schedule';
+        const otherConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, otherScheduleId);
+        const otherSchedulesRepository = otherConnection.getSchedulesRepository();
+
+        await otherSchedulesRepository.addExecution(name, 2);
+
+        const running = await otherSchedulesRepository.countRunningExecutions(name);
+        await otherConnection.disconnect();
+        expect(running).toBe(0);
+      });
     });
 
     describe('countRunningExecutions', () => {
@@ -127,16 +152,6 @@ describe('SchedulesRepository', () => {
 
         const running = await schedulesRepository.countRunningExecutions(name);
         expect(running).toBe(2);
-      });
-
-      it('counts executions when other schedule has no entry', async () => {
-        const otherScheduleId = 'other schedule';
-        await schedulesRepository.isActiveSchedule(otherScheduleId);
-
-        await schedulesRepository.addExecution(name, 2);
-
-        const running = await schedulesRepository.countRunningExecutions(name);
-        expect(running).toBe(1);
       });
     });
 

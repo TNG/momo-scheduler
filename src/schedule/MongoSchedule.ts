@@ -18,7 +18,11 @@ export class MongoSchedule extends Schedule {
   private readonly schedulePing: SchedulePing;
   private readonly disconnectFct: () => Promise<void>;
 
-  private constructor(protected readonly scheduleId: string, connection: Connection, pingIntervalMs: number) {
+  private constructor(
+    protected readonly scheduleId: string,
+    protected readonly connection: Connection,
+    pingIntervalMs: number
+  ) {
     const schedulesRepository = connection.getSchedulesRepository();
     const jobRepository = connection.getJobRepository();
 
@@ -70,6 +74,14 @@ export class MongoSchedule extends Schedule {
   public async start(): Promise<void> {
     this.logger.debug('starting the schedule', { jobCount: this.count() });
     return this.schedulePing.start();
+  }
+
+  /**
+   * Returns whether this schedule is currently active
+   */
+  public async isActiveSchedule(): Promise<boolean> {
+    const schedulesRepository = this.connection.getSchedulesRepository();
+    return schedulesRepository.isActiveSchedule();
   }
 
   private async startAllJobs(): Promise<void> {
