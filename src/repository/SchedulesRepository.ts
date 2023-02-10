@@ -24,6 +24,12 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     this.logger = logger;
   }
 
+  /**
+   * Checks if there is an alive active schedule in the database.
+   * If there is one -> return true if it is this schedule, otherwise false.
+   * If there is no such schedule -> we try inserting this schedule as the active one.
+   * ↳ If it worked return true, otherwise false.
+   */
   async isActiveSchedule(): Promise<boolean> {
     const lastAlive = DateTime.now().toMillis();
     const threshold = lastAlive - this.deadScheduleThreshold;
