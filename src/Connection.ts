@@ -15,14 +15,10 @@ export interface MomoConnectionOptions {
 }
 
 export class Connection {
-  private schedulesRepository?: SchedulesRepository;
-  private jobRepository?: JobRepository;
-
-  constructor(
+  private constructor(
     private readonly mongoClient: MongoClient,
-    private readonly pingIntervalMs: number,
-    private readonly scheduleId: string,
-    private readonly collectionsPrefix?: string
+    private readonly schedulesRepository: SchedulesRepository,
+    private readonly jobRepository: JobRepository
   ) {}
 
   static async create(
@@ -30,34 +26,22 @@ export class Connection {
     pingIntervalMs: number,
     scheduleId: string
   ): Promise<Connection> {
-    const connection = new Connection(new MongoClient(url), pingIntervalMs, scheduleId, collectionsPrefix);
+    const mongoClient = new MongoClient(url);
+    await mongoClient.connect();
 
-    await connection.mongoClient.connect();
-
-    const schedulesRepository = connection.getSchedulesRepository();
+    const schedulesRepository = new SchedulesRepository(mongoClient, 2 * pingIntervalMs, scheduleId, collectionsPrefix);
     await schedulesRepository.createIndex();
-    const jobRepository = connection.getJobRepository();
+    const jobRepository = new JobRepository(mongoClient, collectionsPrefix);
     await jobRepository.createIndex();
 
-    return connection;
+    return new Connection(mongoClient, schedulesRepository, jobRepository);
   }
 
   getSchedulesRepository(): SchedulesRepository {
-    if (!this.schedulesRepository) {
-      this.schedulesRepository = new SchedulesRepository(
-        this.mongoClient,
-        2 * this.pingIntervalMs,
-        this.scheduleId,
-        this.collectionsPrefix
-      );
-    }
     return this.schedulesRepository;
   }
 
   getJobRepository(): JobRepository {
-    if (!this.jobRepository) {
-      this.jobRepository = new JobRepository(this.mongoClient, this.collectionsPrefix);
-    }
     return this.jobRepository;
   }
 
