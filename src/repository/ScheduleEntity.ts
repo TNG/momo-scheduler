@@ -6,7 +6,7 @@ interface Executions {
 
 export interface ScheduleEntity {
   _id?: ObjectId;
-  name: string;
+  name: 'schedule';
   scheduleId: string;
   lastAlive: number;
   executions: Executions;

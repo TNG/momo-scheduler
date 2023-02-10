@@ -77,7 +77,12 @@ export class MongoSchedule extends Schedule {
   }
 
   /**
-   * Returns whether this schedule is currently active
+   * Returns whether this schedule is currently active.
+   *
+   * Only the active schedule will schedule jobs and try to execute them.
+   * There is always only one active schedule per mongo database.
+   *
+   * @throws if the database throws
    */
   public async isActiveSchedule(): Promise<boolean> {
     const schedulesRepository = this.connection.getSchedulesRepository();
