@@ -40,7 +40,7 @@
     "uuid": "9.0.0"
   },
   "peerDependencies": {
-    "mongodb": "4 || 5"
+    "mongodb": "5"
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "10.0.2",
