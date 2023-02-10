@@ -77,4 +77,9 @@ export class JobRepository extends Repository<JobEntity> {
   async updateJob(name: string, update: Partial<JobEntity>): Promise<void> {
     await this.updateOne({ name }, { $set: update });
   }
+
+  async createIndex(): Promise<void> {
+    await this.collection.createIndex({ name: 1 }, { name: 'job_name_index' });
+    await this.collection.createIndex({ scheduleId: 1 }, { name: 'schedule_id_index' });
+  }
 }

@@ -1,7 +1,7 @@
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 import { ObjectId } from 'mongodb';
 
-import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobDefinition, ParsedIntervalSchedule, toJobDefinition } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
@@ -15,13 +15,13 @@ describe('JobScheduler', () => {
   const errorFn = jest.fn();
   const scheduleId = '123';
 
-  let executionsRepository: ExecutionsRepository;
+  let schedulesRepository: SchedulesRepository;
   let jobRepository: JobRepository;
   let jobExecutor: JobExecutor;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
-    executionsRepository = mock(ExecutionsRepository);
+    schedulesRepository = mock(SchedulesRepository);
     jobRepository = mock(JobRepository);
     jobExecutor = mock(JobExecutor);
     when(jobExecutor.execute(anything())).thenResolve();
@@ -39,7 +39,7 @@ describe('JobScheduler', () => {
       job.name,
       instance(jobExecutor),
       scheduleId,
-      instance(executionsRepository),
+      instance(schedulesRepository),
       instance(jobRepository),
       loggerForTests(errorFn)
     );
@@ -47,7 +47,7 @@ describe('JobScheduler', () => {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     });
-    when(executionsRepository.countRunningExecutions(job.name)).thenResolve(0);
+    when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
 
@@ -265,7 +265,7 @@ describe('JobScheduler', () => {
 
     it('executes job only twice if it is already running', async () => {
       const job = createIntervalJob({ concurrency: 3, maxRunning: 3 });
-      when(executionsRepository.countRunningExecutions(job.name)).thenResolve(1);
+      when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(1);
 
       await jobScheduler.start();
 
@@ -293,7 +293,7 @@ describe('JobScheduler', () => {
 
     it('executes job only twice if it is already running', async () => {
       const job = createCronJob({ concurrency: 3, maxRunning: 3 });
-      when(executionsRepository.countRunningExecutions(job.name)).thenResolve(1);
+      when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(1);
 
       await jobScheduler.start();
 

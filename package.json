@@ -23,7 +23,7 @@
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "npx rimraf dist",
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
     "test:unit": "npm run test \"^((?!\\.integration\\.).)*$\"",
     "test:integration": "npm run test integration",
     "lint": "prettier --check \"**/*.ts\"  && eslint --ext .ts,.js,.json .",
@@ -35,10 +35,12 @@
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
     "luxon": "3.2.1",
-    "mongodb": "4.13.0",
     "neverthrow": "6.0.0",
     "typed-emitter": "2.1.0",
     "uuid": "9.0.0"
+  },
+  "peerDependencies": {
+    "mongodb": "4 || 5"
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "10.0.2",

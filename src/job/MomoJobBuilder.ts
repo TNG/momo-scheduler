@@ -25,6 +25,7 @@ export class MomoJobBuilder {
     return this;
   }
 
+  // The interval is either a number in milliseconds or an interval in human-readable form (see readme)
   withSchedule(interval: number | string, firstRunAfter: number | string = 0): MomoIntervalJobBuilder {
     this.momoJob.schedule = { firstRunAfter, interval };
     return this;

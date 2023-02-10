@@ -1,14 +1,13 @@
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
 import { ExecutionStatus, MomoErrorType } from '../../src';
-import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { loggerForTests } from '../utils/logging';
 import { Job, ParsedIntervalSchedule } from '../../src/job/Job';
 
 describe('JobExecutor', () => {
-  const scheduleId = '123';
   const errorFn = jest.fn();
   const handler = jest.fn();
   const job: Job<ParsedIntervalSchedule> = {
@@ -25,24 +24,23 @@ describe('JobExecutor', () => {
   };
 
   let jobRepository: JobRepository;
-  let executionsRepository: ExecutionsRepository;
+  let schedulesRepository: SchedulesRepository;
   let jobExecutor: JobExecutor;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
     jobRepository = mock(JobRepository);
-    executionsRepository = mock(ExecutionsRepository);
+    schedulesRepository = mock(SchedulesRepository);
 
-    when(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).thenResolve({
+    when(schedulesRepository.addExecution(job.name, job.maxRunning)).thenResolve({
       added: true,
       running: 0,
     });
 
     jobExecutor = new JobExecutor(
       job.handler,
-      scheduleId,
-      instance(executionsRepository),
+      instance(schedulesRepository),
       instance(jobRepository),
       loggerForTests(errorFn)
     );
@@ -59,12 +57,12 @@ describe('JobExecutor', () => {
     const [, update] = capture(jobRepository.updateJob).last();
     expect(update.executionInfo?.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
 
-    verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
-    verify(executionsRepository.removeExecution(scheduleId, job.name)).once();
+    verify(schedulesRepository.addExecution(job.name, job.maxRunning)).once();
+    verify(schedulesRepository.removeExecution(job.name)).once();
   });
 
   it('does not execute job when mongo entity could not be updated', async () => {
-    when(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).thenResolve({
+    when(schedulesRepository.addExecution(job.name, job.maxRunning)).thenResolve({
       added: false,
       running: 0,
     });
@@ -74,7 +72,7 @@ describe('JobExecutor', () => {
     expect(errorFn).not.toHaveBeenCalled();
     expect(job.handler).not.toHaveBeenCalled();
 
-    verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
+    verify(schedulesRepository.addExecution(job.name, job.maxRunning)).once();
   });
 
   it('reports job error', async () => {
@@ -87,7 +85,7 @@ describe('JobExecutor', () => {
 
     expect(errorFn).toHaveBeenCalledWith('job failed', MomoErrorType.executeJob, { name: job.name }, error);
 
-    verify(executionsRepository.addExecution(scheduleId, job.name, job.maxRunning)).once();
-    verify(executionsRepository.removeExecution(scheduleId, job.name)).once();
+    verify(schedulesRepository.addExecution(job.name, job.maxRunning)).once();
+    verify(schedulesRepository.removeExecution(job.name)).once();
   });
 });

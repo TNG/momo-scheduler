@@ -2,10 +2,11 @@ import { Collection, Filter, MongoClient, ObjectId, OptionalUnlessRequiredId, Up
 import { cloneDeep } from 'lodash';
 
 export class Repository<ENTITY extends { _id?: ObjectId }> {
-  private readonly collection: Collection<ENTITY>;
+  protected readonly collection: Collection<ENTITY>;
 
   constructor(mongoClient: MongoClient, collectionName: string, collectionPrefix?: string) {
-    const prefixedCollectionName = collectionPrefix !== undefined ? `${collectionPrefix}_` : '' + collectionName;
+    const prefixedCollectionName =
+      collectionPrefix !== undefined ? `${collectionPrefix}_${collectionName}` : collectionName;
     this.collection = mongoClient.db().collection(prefixedCollectionName);
   }
 

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { ExecutionsRepository } from '../repository/ExecutionsRepository';
+import { SchedulesRepository } from '../repository/SchedulesRepository';
 import { Handler, JobParameters } from '../job/MomoJob';
 import { JobEntity } from '../repository/JobEntity';
 import { JobRepository } from '../repository/JobRepository';
@@ -13,8 +13,7 @@ export class JobExecutor {
 
   constructor(
     private readonly handler: Handler,
-    private readonly scheduleId: string,
-    private readonly executionsRepository: ExecutionsRepository,
+    private readonly schedulesRepository: SchedulesRepository,
     private readonly jobRepository: JobRepository,
     private readonly logger: Logger
   ) {}
@@ -23,20 +22,18 @@ export class JobExecutor {
     this.stopped = true;
   }
 
-  async execute(jobEntity: JobEntity, parameters?: JobParameters): Promise<JobResult> {
-    const { added, running } = await this.executionsRepository.addExecution(
-      this.scheduleId,
-      jobEntity.name,
-      jobEntity.maxRunning
-    );
-    if (!added) {
-      this.logger.debug('maxRunning reached, skip', {
-        name: jobEntity.name,
-        running,
-      });
-      return {
-        status: ExecutionStatus.maxRunningReached,
-      };
+  async execute(jobEntity: JobEntity, parameters?: JobParameters, force: boolean = false): Promise<JobResult> {
+    if (!force) {
+      const { added, running } = await this.schedulesRepository.addExecution(jobEntity.name, jobEntity.maxRunning);
+      if (!added) {
+        this.logger.debug('maxRunning reached, skip', {
+          name: jobEntity.name,
+          running,
+        });
+        return {
+          status: ExecutionStatus.maxRunningReached,
+        };
+      }
     }
 
     const { started, result } = await this.executeHandler(jobEntity, parameters);
@@ -55,8 +52,8 @@ export class JobExecutor {
       stopped: this.stopped,
     });
 
-    if (!this.stopped) {
-      await this.executionsRepository.removeExecution(this.scheduleId, jobEntity.name);
+    if (!force && !this.stopped) {
+      await this.schedulesRepository.removeExecution(jobEntity.name);
     }
 
     return result;

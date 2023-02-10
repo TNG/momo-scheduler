@@ -1,7 +1,7 @@
 import { sum } from 'lodash';
 
 import { ExecutionInfo, ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { ExecutionsRepository } from '../repository/ExecutionsRepository';
+import { SchedulesRepository } from '../repository/SchedulesRepository';
 import { JobRepository } from '../repository/JobRepository';
 import { JobScheduler } from '../scheduler/JobScheduler';
 import { LogEmitter } from '../logging/LogEmitter';
@@ -15,8 +15,8 @@ export class Schedule extends LogEmitter {
   private jobSchedulers: { [name: string]: JobScheduler } = {};
 
   constructor(
-    private readonly scheduleId: string,
-    private readonly executionsRepository: ExecutionsRepository,
+    protected readonly scheduleId: string,
+    private readonly schedulesRepository: SchedulesRepository,
     private readonly jobRepository: JobRepository
   ) {
     super();
@@ -77,7 +77,7 @@ export class Schedule extends LogEmitter {
       this.scheduleId,
       job,
       this.logger,
-      this.executionsRepository,
+      this.schedulesRepository,
       this.jobRepository
     );
 
@@ -116,42 +116,6 @@ export class Schedule extends LogEmitter {
         'Single execution failed'
       )
     );
-  }
-
-  /**
-   * Schedule all defined jobs.
-   *
-   * Updates made to the jobs after starting the scheduler are picked up
-   * automatically from the database, EXCEPT for changes to schedule.
-   * Start the scheduler again to change a job's schedule.
-   *
-   * @throws if the database throws
-   */
-  public async start(): Promise<void> {
-    this.logger.debug('start all jobs', { count: this.count() });
-    await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.start()));
-  }
-
-  /**
-   * Schedules a defined job.
-   * Does nothing if no job with the given name exists.
-   *
-   * Updates made to the job after starting the scheduler are picked up
-   * automatically from the database, EXCEPT for changes to the schedule.
-   * Start the scheduler again to change a job's schedule.
-   *
-   * @param name the job to start
-   * @throws if the database throws
-   */
-  public async startJob(name: string): Promise<void> {
-    const jobScheduler = this.jobSchedulers[name];
-    if (!jobScheduler) {
-      this.logger.debug('job not found', { name });
-      return;
-    }
-
-    this.logger.debug('start', { name });
-    await jobScheduler.start();
   }
 
   /**
@@ -286,5 +250,9 @@ export class Schedule extends LogEmitter {
    */
   public async get(name: string): Promise<MomoJobDescription | undefined> {
     return this.jobSchedulers[name]?.getJobDescription();
+  }
+
+  protected getJobSchedulers(): { [name: string]: JobScheduler } {
+    return this.jobSchedulers;
   }
 }

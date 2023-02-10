@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import { Connection } from '../../src/Connection';
 import { ExecutionStatus, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule, momoError } from '../../src';
-import { ExecutionsRepository } from '../../src/repository/ExecutionsRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
@@ -27,18 +27,16 @@ describe('Momo', () => {
 
   let mongo: MongoMemoryServer;
   let jobRepository: JobRepository;
-  let executionsRepository: ExecutionsRepository;
+  let schedulesRepository: SchedulesRepository;
   let mongoSchedule: MongoSchedule;
   let connection: Connection;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     mongo = await MongoMemoryServer.create();
-
-    connection = await Connection.create({ url: mongo.getUri() });
-    jobRepository = connection.getJobRepository();
-    executionsRepository = connection.getExecutionsRepository();
-
     mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
+    connection = await Connection.create({ url: mongo.getUri() }, 60_000, mongoSchedule.id());
+    jobRepository = connection.getJobRepository();
+    schedulesRepository = connection.getSchedulesRepository();
 
     initLoggingForTests(mongoSchedule);
 
@@ -49,12 +47,8 @@ describe('Momo', () => {
     receivedError = undefined;
     // eslint-disable-next-line jest/no-standalone-expect
     expect(mongoSchedule.getUnexpectedErrorCount()).toBe(0);
-    await mongoSchedule.cancel();
-    await mongoSchedule.clear();
-    await mongoSchedule.stop();
-  });
-
-  afterAll(async () => {
+    await schedulesRepository.delete();
+    await jobRepository.delete();
     await mongoSchedule.disconnect();
     await connection.disconnect();
     await mongo.stop();
@@ -264,40 +258,6 @@ describe('Momo', () => {
       }, 200);
     });
 
-    it('can be stopped and restarted', async () => {
-      await mongoSchedule.define(intervalJob);
-      await mongoSchedule.start();
-
-      await waitFor(() => expect(jobHandler.count).toBe(1));
-
-      await mongoSchedule.stop();
-
-      await sleep(1200);
-      expect(jobHandler.count).toBe(1);
-
-      await mongoSchedule.start();
-
-      // job should be executed immediately, because last run is further in the past than the interval
-      await waitFor(() => expect(jobHandler.count).toBe(2), 200);
-    });
-
-    it('updates already started job', async () => {
-      await mongoSchedule.define(intervalJob);
-      await mongoSchedule.start();
-      await waitFor(() => expect(jobHandler.count).toBe(1));
-
-      await mongoSchedule.define({
-        ...intervalJob,
-        schedule: { ...intervalJob.schedule, interval: '2 seconds' },
-      });
-      await mongoSchedule.start(); // pick up the new interval
-
-      await sleep(1200);
-      expect(jobHandler.count).toBe(1);
-      await sleep(1200);
-      expect(jobHandler.count).toBe(2);
-    });
-
     it('does not execute a job that was removed from mongo', async () => {
       await mongoSchedule.define(intervalJob);
       await mongoSchedule.start();
@@ -498,7 +458,7 @@ describe('Momo', () => {
       job2 = createTestIntervalJob(jobHandler2, { interval: 1000, firstRunAfter: 0 });
     });
 
-    it('executes, updates and stops with two jobs', async () => {
+    it('executes and stops with two jobs', async () => {
       await mongoSchedule.define(job1);
       await mongoSchedule.define(job2);
 
@@ -509,35 +469,11 @@ describe('Momo', () => {
         expect(jobHandler2.count).toBe(1);
       });
 
-      // update
-      await mongoSchedule.define({ ...job1, schedule: { interval: '2 seconds', firstRunAfter: 0 } });
-      await mongoSchedule.start();
-
-      await sleep(4000);
-      expect(jobHandler1.count).toBe(3);
-      expect(jobHandler2.count).toBe(5);
-
       await mongoSchedule.stop();
 
       await sleep(2000);
-      expect(jobHandler1.count).toBe(3);
-      expect(jobHandler2.count).toBe(5);
-    });
-
-    it('starts jobs defined after first start', async () => {
-      await mongoSchedule.define(job1);
-
-      await mongoSchedule.start();
-
-      await sleep(200);
       expect(jobHandler1.count).toBe(1);
-      await mongoSchedule.define(job2);
-
-      await mongoSchedule.start();
-
-      await sleep(2000);
-      expect(jobHandler1.count).toBe(3);
-      expect(jobHandler2.count).toBe(2);
+      expect(jobHandler2.count).toBe(1);
     });
 
     it('stops one of two jobs', async () => {
@@ -600,17 +536,6 @@ describe('Momo', () => {
       await sleep(1200);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(2);
-    });
-
-    it('starts one of two jobs', async () => {
-      await mongoSchedule.define(job1);
-      await mongoSchedule.define(job2);
-
-      await mongoSchedule.startJob(job1.name);
-
-      await sleep(200);
-      expect(jobHandler1.count).toBe(1);
-      expect(jobHandler2.count).toBe(0);
     });
 
     it('stops all jobs', async () => {
@@ -700,11 +625,14 @@ describe('Momo', () => {
       expect(duration).toBeGreaterThan(3000);
     });
 
-    it('does not start twice a long running job that should not run in parallel', async () => {
+    it('does not start a long running job twice that should not run in parallel', async () => {
       await mongoSchedule.define({ ...job, maxRunning: 1 });
 
       await mongoSchedule.start();
-      await waitFor(() => expect(jobHandler.count).toBe(1), jobHandler.duration + 1000);
+
+      await sleep(3500);
+
+      expect(jobHandler.count).toBe(1);
 
       await mongoSchedule.stop();
 
@@ -718,16 +646,16 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await sleep(2200);
-      const runningAfter2Sec = await executionsRepository.countRunningExecutions(job.name);
+      const runningAfter2Sec = await schedulesRepository.countRunningExecutions(job.name);
       expect(runningAfter2Sec).toBe(2);
 
-      await sleep(1000);
-      const runningAfter3Sec = await executionsRepository.countRunningExecutions(job.name);
+      await sleep(900);
+      const runningAfter3Sec = await schedulesRepository.countRunningExecutions(job.name);
       expect(runningAfter3Sec).toBe(2);
 
       await mongoSchedule.stop();
 
-      const running = await executionsRepository.countRunningExecutions(job.name);
+      const running = await schedulesRepository.countRunningExecutions(job.name);
       expect(running).toBe(0);
     });
 
@@ -737,7 +665,7 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
+        const running = await schedulesRepository.countRunningExecutions(job.name);
         expect(running).toBe(2);
       });
     });
@@ -748,7 +676,7 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
+        const running = await schedulesRepository.countRunningExecutions(job.name);
         expect(running).toBe(1);
       }, 1100);
 
@@ -782,19 +710,19 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
+        const running = await schedulesRepository.countRunningExecutions(job.name);
         expect(running).toBe(1);
       }, 1200);
 
       await mongoSchedule.stop();
 
-      const running = await executionsRepository.countRunningExecutions(job.name);
+      const running = await schedulesRepository.countRunningExecutions(job.name);
       expect(running).toBe(0);
 
       await sleep(jobHandler.duration + 1000);
       expect(jobHandler.count).toBe(1);
 
-      const running2 = await executionsRepository.countRunningExecutions(job.name);
+      const running2 = await schedulesRepository.countRunningExecutions(job.name);
       expect(running2).toBe(0);
     });
   });
@@ -848,16 +776,16 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await sleep(2200);
-      const runningAfter2Sec = await executionsRepository.countRunningExecutions(job.name);
+      const runningAfter2Sec = await schedulesRepository.countRunningExecutions(job.name);
       expect(runningAfter2Sec).toBe(2);
 
       await sleep(1000);
-      const runningAfter3Sec = await executionsRepository.countRunningExecutions(job.name);
+      const runningAfter3Sec = await schedulesRepository.countRunningExecutions(job.name);
       expect(runningAfter3Sec).toBe(2);
 
       await mongoSchedule.stop();
 
-      const running = await executionsRepository.countRunningExecutions(job.name);
+      const running = await schedulesRepository.countRunningExecutions(job.name);
       expect(running).toBe(0);
     });
 
@@ -867,7 +795,7 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
+        const running = await schedulesRepository.countRunningExecutions(job.name);
         expect(running).toBe(2);
       });
     });
@@ -878,7 +806,7 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
+        const running = await schedulesRepository.countRunningExecutions(job.name);
         expect(running).toBe(1);
       }, 1000);
 
@@ -912,19 +840,19 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
+        const running = await schedulesRepository.countRunningExecutions(job.name);
         expect(running).toBe(1);
       }, 1200);
 
       await mongoSchedule.stop();
 
-      const running = await executionsRepository.countRunningExecutions(job.name);
+      const running = await schedulesRepository.countRunningExecutions(job.name);
       expect(running).toBe(0);
 
       await sleep(jobHandler.duration + 1000);
       expect(jobHandler.count).toBe(1);
 
-      const running2 = await executionsRepository.countRunningExecutions(job.name);
+      const running2 = await schedulesRepository.countRunningExecutions(job.name);
       expect(running2).toBe(0);
     });
   });
@@ -934,7 +862,7 @@ describe('Momo', () => {
     let job: MomoJob;
 
     beforeEach(() => {
-      jobHandler = createTestJobHandler(3000);
+      jobHandler = createTestJobHandler(5000);
       job = { ...createTestIntervalJob(jobHandler, { interval: '1 second', firstRunAfter: 0 }), concurrency: 3 };
     });
 
@@ -944,21 +872,9 @@ describe('Momo', () => {
       await mongoSchedule.start();
 
       await waitFor(async () => {
-        const running = await executionsRepository.countRunningExecutions(job.name);
+        const running = await schedulesRepository.countRunningExecutions(job.name);
         expect(running).toBe(job.concurrency);
-      }, 1200);
-    });
-
-    it('respects maxRunning when executing concurrently when another schedule is already executing job', async () => {
-      await mongoSchedule.define({ ...job, maxRunning: 3 });
-
-      const otherScheduleId = '123';
-      await executionsRepository.addSchedule(otherScheduleId);
-      await executionsRepository.addExecution(otherScheduleId, job.name, 0);
-
-      await mongoSchedule.start();
-
-      await waitFor(() => expect(jobHandler.count).toBe(2), jobHandler.duration + 1200);
+      }, 1800);
     });
   });
 

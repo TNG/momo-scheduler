@@ -6,26 +6,39 @@ import { SchedulePing } from './SchedulePing';
 
 export interface MomoOptions extends MomoConnectionOptions {
   /**
-   * The keep alive ping interval of the schedule, in seconds.
-   * After twice the amount of time has elapsed without a ping, stale job executions are considered dead.
+   * The keep alive ping interval of the schedule, in milliseconds.
+   * After twice the amount of time has elapsed without a ping, a schedule is considered dead.
+   *
+   * The default value is 60_000
    */
-  pingInterval?: number;
+  pingIntervalMs?: number;
 }
 
 export class MongoSchedule extends Schedule {
   private readonly schedulePing: SchedulePing;
   private readonly disconnectFct: () => Promise<void>;
 
-  private constructor(scheduleId: string, connection: Connection, pingInterval: number) {
-    const executionsRepository = connection.getExecutionsRepository(pingInterval);
+  private constructor(
+    protected readonly scheduleId: string,
+    protected readonly connection: Connection,
+    pingIntervalMs: number
+  ) {
+    const schedulesRepository = connection.getSchedulesRepository();
     const jobRepository = connection.getJobRepository();
 
-    super(scheduleId, executionsRepository, jobRepository);
+    super(scheduleId, schedulesRepository, jobRepository);
 
     jobRepository.setLogger(this.logger);
+    schedulesRepository.setLogger(this.logger);
 
     this.disconnectFct = connection.disconnect.bind(connection);
-    this.schedulePing = new SchedulePing(scheduleId, executionsRepository, this.logger, pingInterval);
+    this.schedulePing = new SchedulePing(
+      scheduleId,
+      schedulesRepository,
+      this.logger,
+      pingIntervalMs,
+      this.startAllJobs.bind(this)
+    );
   }
 
   /**
@@ -33,20 +46,11 @@ export class MongoSchedule extends Schedule {
    *
    * @param momoOptions configuration options for the connection to establish and the Schedule instance to create
    */
-  public static async connect({ pingInterval = 60, ...connectionOptions }: MomoOptions): Promise<MongoSchedule> {
-    const connection = await Connection.create(connectionOptions);
-
-    const pingIntervalMs = pingInterval * 1000;
-    const executionsRepository = connection.getExecutionsRepository(2 * pingIntervalMs);
-
+  public static async connect({ pingIntervalMs = 60_000, ...connectionOptions }: MomoOptions): Promise<MongoSchedule> {
     const scheduleId = uuid();
-    await executionsRepository.addSchedule(scheduleId);
+    const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId);
 
-    const mongoSchedule = new MongoSchedule(scheduleId, connection, pingIntervalMs);
-
-    mongoSchedule.schedulePing.start();
-
-    return mongoSchedule;
+    return new MongoSchedule(scheduleId, connection, pingIntervalMs);
   }
 
   /**
@@ -56,5 +60,40 @@ export class MongoSchedule extends Schedule {
     await this.cancel();
     await this.schedulePing.stop();
     await this.disconnectFct();
+  }
+
+  /**
+   * Start the schedule.
+   *
+   * Updates made to the jobs after starting the scheduler are picked up
+   * automatically from the database, EXCEPT for changes to schedule.
+   * Start the scheduler again to change a job's schedule.
+   *
+   * @throws if the database throws
+   */
+  public async start(): Promise<void> {
+    this.logger.debug('starting the schedule', { jobCount: this.count() });
+    return this.schedulePing.start();
+  }
+
+  /**
+   * Returns whether this schedule is currently active.
+   *
+   * Only the active schedule will schedule jobs and try to execute them.
+   * There is always only one active schedule per mongo database.
+   *
+   * @throws if the database throws
+   */
+  public async isActiveSchedule(): Promise<boolean> {
+    const schedulesRepository = this.connection.getSchedulesRepository();
+    return schedulesRepository.isActiveSchedule();
+  }
+
+  private async startAllJobs(): Promise<void> {
+    await Promise.all(Object.values(this.getJobSchedulers()).map(async (jobScheduler) => jobScheduler.start()));
+  }
+
+  public id(): string {
+    return this.scheduleId;
   }
 }

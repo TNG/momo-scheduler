@@ -4,9 +4,10 @@ interface Executions {
   [name: string]: number;
 }
 
-export interface ExecutionsEntity {
+export interface ScheduleEntity {
   _id?: ObjectId;
+  name: 'schedule';
   scheduleId: string;
-  timestamp: number;
+  lastAlive: number;
   executions: Executions;
 }
