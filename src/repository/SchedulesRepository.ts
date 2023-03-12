@@ -30,15 +30,15 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
    * If there is no such schedule -> we try inserting this schedule as the active one.
    * ↳ If it worked return true, otherwise false.
    */
-  async isActiveSchedule(): Promise<boolean> {
+  async isActiveSchedule(name: string): Promise<boolean> {
     const lastAlive = DateTime.now().toMillis();
     const threshold = lastAlive - this.deadScheduleThreshold;
     try {
       const result = await this.collection.findOneAndUpdate(
-        { lastAlive: { $lt: threshold } },
+        { lastAlive: { $lt: threshold }, name },
         {
           $set: {
-            name: 'schedule',
+            name,
             scheduleId: this.scheduleId,
             lastAlive,
             executions: {},
@@ -53,7 +53,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
       return result.value === null ? false : result.value.scheduleId === this.scheduleId;
     } catch (error) {
       // We seem to have a schedule that's alive (the name index probably prevented the upsert)! Is it this one?
-      const aliveSchedule = await this.collection.findOne();
+      const aliveSchedule = await this.collection.findOne({ name });
       if (aliveSchedule === null) {
         this.logger?.error(
           'The database reported an unexpected error',
@@ -72,7 +72,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
 
   async createIndex(): Promise<void> {
     // this unique index combined with the always same `name` value of every schedule, ensures
-    // that we do not insert more than one active schedule in the repository
+    // that we do not insert more than one active schedule in the repository per schedule name
     await this.collection.createIndex({ name: 1 }, { unique: true });
   }
 

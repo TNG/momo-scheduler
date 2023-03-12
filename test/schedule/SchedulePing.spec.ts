@@ -6,6 +6,7 @@ import { sleep } from '../utils/sleep';
 
 describe('SchedulePing', () => {
   const scheduleId = '123';
+  const scheduleName = 'schedule';
   const interval = 1000;
   let error: jest.Mock;
 
@@ -18,6 +19,7 @@ describe('SchedulePing', () => {
     error = jest.fn();
     schedulePing = new SchedulePing(
       scheduleId,
+      scheduleName,
       instance(schedulesRepository),
       { debug: jest.fn(), error },
       interval,
@@ -28,7 +30,7 @@ describe('SchedulePing', () => {
   afterEach(async () => schedulePing.stop());
 
   it('starts, pings, cleans and stops', async () => {
-    when(schedulesRepository.isActiveSchedule()).thenResolve(true);
+    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(true);
     await schedulePing.start();
 
     expect(startAllJobs).toHaveBeenCalledTimes(1);
@@ -46,7 +48,7 @@ describe('SchedulePing', () => {
   });
 
   it('handles mongo errors', async () => {
-    when(schedulesRepository.isActiveSchedule()).thenResolve(true);
+    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(true);
     const message = 'I am an error that should be caught';
     when(schedulesRepository.ping(scheduleId)).thenReject({
       message,

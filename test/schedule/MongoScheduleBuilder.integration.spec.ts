@@ -4,6 +4,7 @@ import { Connection } from '../../src/Connection';
 import { MomoJob, MomoOptions, MongoSchedule, MongoScheduleBuilder } from '../../src';
 
 describe('MongoScheduleBuilder', () => {
+  const scheduleName = 'schedule';
   const job1: MomoJob = {
     name: 'test job 1',
     schedule: { interval: 'one minute', firstRunAfter: 0 },
@@ -28,7 +29,7 @@ describe('MongoScheduleBuilder', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    connectionOptions = { url: mongo.getUri() };
+    connectionOptions = { scheduleName, url: mongo.getUri() };
     connection = await Connection.create(connectionOptions, 60_000, 'schedule_id');
   });
 
