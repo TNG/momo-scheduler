@@ -30,7 +30,7 @@
     "format": "prettier --write \"**/*.ts\" && eslint --fix --ext .ts,.js,.json ."
   },
   "dependencies": {
-    "cron": "2.2.0",
+    "cron": "2.3.0",
     "cron-parser": "4.8.1",
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
