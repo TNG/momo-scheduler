@@ -25,7 +25,8 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
   }
 
   /**
-   * Checks if there is an alive active schedule in the database.
+   * Checks if there is an alive active schedule in the database for the given name.
+   *
    * If there is one -> return true if it is this schedule, otherwise false.
    * If there is no such schedule -> we try inserting this schedule as the active one.
    * ↳ If it worked return true, otherwise false.
@@ -52,7 +53,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
 
       return result.value === null ? false : result.value.scheduleId === this.scheduleId;
     } catch (error) {
-      // We seem to have a schedule that's alive (the name index probably prevented the upsert)! Is it this one?
+      // We seem to have a schedule that's alive. The unique name index probably prevented the upsert. Is this one the active schedule?
       const aliveSchedule = await this.collection.findOne({ name });
       if (aliveSchedule === null) {
         this.logger?.error(
@@ -71,8 +72,8 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
   }
 
   async createIndex(): Promise<void> {
-    // this unique index combined with the always same `name` value of every schedule, ensures
-    // that we do not insert more than one active schedule in the repository per schedule name
+    // this unique index ensures that we do not insert more than one active schedule
+    // in the repository per schedule name
     await this.collection.createIndex({ name: 1 }, { unique: true });
   }
 

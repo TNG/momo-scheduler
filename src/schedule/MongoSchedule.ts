@@ -27,7 +27,6 @@ export class MongoSchedule extends Schedule {
     protected readonly scheduleId: string,
     protected readonly connection: Connection,
     pingIntervalMs: number,
-    // @ts-ignore
     private readonly scheduleName: string
   ) {
     const schedulesRepository = connection.getSchedulesRepository();

@@ -40,18 +40,18 @@ describe('SchedulesRepository', () => {
     });
 
     it('only one schedule is active', async () => {
-      const active = await schedulesRepository.isActiveSchedule(scheduleName);
+      const firstIsActive = await schedulesRepository.isActiveSchedule(scheduleName);
 
-      const notActiveScheduleId = 'not active';
-      const notActiveConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, notActiveScheduleId);
-      const notActiveSchedulesRepository = notActiveConnection.getSchedulesRepository();
-      const notActive = await notActiveSchedulesRepository.isActiveSchedule(scheduleName);
-      await notActiveConnection.disconnect();
+      const inactiveScheduleId = 'not active';
+      const inactiveConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, inactiveScheduleId);
+      const inactiveSchedulesRepository = inactiveConnection.getSchedulesRepository();
+      const secondIsActive = await inactiveSchedulesRepository.isActiveSchedule(scheduleName);
+      await inactiveConnection.disconnect();
 
       const entities = await schedulesRepository.find({});
 
-      expect(active).toEqual(true);
-      expect(notActive).toEqual(false);
+      expect(firstIsActive).toEqual(true);
+      expect(secondIsActive).toEqual(false);
       expect(entities).toHaveLength(1);
       expect(entities[0]?.scheduleId).toEqual(scheduleId);
     });
@@ -61,7 +61,7 @@ describe('SchedulesRepository', () => {
         ['a', 'b', 'c', 'd', 'e'].map(async (id) => Connection.create({ url: mongo.getUri() }, pingInterval, id))
       );
 
-      const schedules = await Promise.all(
+      const schedulesActiveStatus = await Promise.all(
         connections.map(async (connection) => {
           const newSchedulesRepository = connection.getSchedulesRepository();
           return newSchedulesRepository.isActiveSchedule(scheduleName);
@@ -71,7 +71,7 @@ describe('SchedulesRepository', () => {
       const entities = await schedulesRepository.find({});
       await Promise.all(connections.map(async (connection) => connection.disconnect()));
 
-      expect(schedules.filter((active) => active)).toHaveLength(1);
+      expect(schedulesActiveStatus.filter((active) => active)).toHaveLength(1);
       expect(entities).toHaveLength(1);
     });
 
@@ -92,29 +92,29 @@ describe('SchedulesRepository', () => {
     });
 
     it('should allow two active schedules with different names', async () => {
-      const active = await schedulesRepository.isActiveSchedule(scheduleName);
+      const isActive = await schedulesRepository.isActiveSchedule(scheduleName);
       const otherScheduleName = 'other schedule';
-      const secondScheduleId = 'other schedule ID';
-      const thirdScheduleId = 'third schedule ID';
+      const secondScheduleId = 'first other schedule ID';
+      const thirdScheduleId = 'second other schedule ID';
       const secondConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, secondScheduleId);
       const secondSchedulesRepository = await secondConnection.getSchedulesRepository();
-      const secondActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
+      const isSecondActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
       const thirdConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, thirdScheduleId);
       const thirdSchedulesRepository = await thirdConnection.getSchedulesRepository();
-      const thirdActive = await thirdSchedulesRepository.isActiveSchedule(otherScheduleName);
+      const isThirdActive = await thirdSchedulesRepository.isActiveSchedule(otherScheduleName);
 
-      expect(active).toEqual(true);
-      expect(secondActive).toEqual(true);
-      expect(thirdActive).toEqual(false);
+      expect(isActive).toEqual(true);
+      expect(isSecondActive).toEqual(true);
+      expect(isThirdActive).toEqual(false);
 
       await sleep(2 * pingInterval + 100);
 
-      const firstStillActive = await schedulesRepository.isActiveSchedule(scheduleName);
-      const thirdTakeOver = await thirdSchedulesRepository.isActiveSchedule(otherScheduleName);
-      expect(firstStillActive).toEqual(true);
-      expect(thirdTakeOver).toEqual(true);
-      const secondNotActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
-      expect(secondNotActive).toEqual(false);
+      const isFirstStillActive = await schedulesRepository.isActiveSchedule(scheduleName);
+      const didThirdTakeOverActive = await thirdSchedulesRepository.isActiveSchedule(otherScheduleName);
+      expect(isFirstStillActive).toEqual(true);
+      expect(didThirdTakeOverActive).toEqual(true);
+      const isSecondStillActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
+      expect(isSecondStillActive).toEqual(false);
     });
   });
 

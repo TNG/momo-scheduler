@@ -18,7 +18,6 @@ describe('Schedule', () => {
   let connection: Connection;
   let jobRepository: JobRepository;
   let mongoSchedule: MongoSchedule;
-  let secondMongoSchedule: MongoSchedule;
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
@@ -26,7 +25,6 @@ describe('Schedule', () => {
     jobRepository = connection.getJobRepository();
 
     mongoSchedule = await MongoSchedule.connect({ scheduleName: 'schedule', url: mongo.getUri() });
-    secondMongoSchedule = await MongoSchedule.connect({ scheduleName: 'secondSchedule', url: mongo.getUri() });
 
     initLoggingForTests(mongoSchedule);
   });
@@ -34,13 +32,10 @@ describe('Schedule', () => {
   beforeEach(async () => {
     await mongoSchedule.cancel();
     await mongoSchedule.clear();
-    await secondMongoSchedule.cancel();
-    await secondMongoSchedule.clear();
   });
 
   afterAll(async () => {
     await mongoSchedule.disconnect();
-    await secondMongoSchedule.disconnect();
     await connection.disconnect();
     await mongo.stop();
   });
