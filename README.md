@@ -1,5 +1,10 @@
 # Momo scheduler <img src="momo_logo.svg" align="right" />
 
+![npm](https://img.shields.io/npm/v/@tngtech/momo-scheduler)
+![license](https://img.shields.io/npm/l/@tngtech/momo-scheduler)
+![downloads](https://img.shields.io/npm/dw/@tngtech/momo-scheduler)
+![npm type definitions](https://img.shields.io/npm/types/@tngtech/momo-scheduler)
+
 Momo is a light-weight, easy-to-use scheduler that persists jobs in a MongoDB and supports interval-based scheduling as
 well as cron jobs. In essence, it provides an easy way to tell your application to either "run that job every five
 minutes" or "run that job at 9 AM every weekday".
