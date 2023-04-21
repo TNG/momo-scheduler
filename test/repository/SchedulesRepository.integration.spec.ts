@@ -88,6 +88,7 @@ describe('SchedulesRepository', () => {
       await sleep(1200);
 
       const secondTakeOver = await secondSchedulesRepository.isActiveSchedule(scheduleName);
+      await secondConnection.disconnect();
       expect(secondTakeOver).toEqual(true);
     });
 
@@ -115,6 +116,9 @@ describe('SchedulesRepository', () => {
       expect(didThirdTakeOverActive).toEqual(true);
       const isSecondStillActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
       expect(isSecondStillActive).toEqual(false);
+
+      await secondConnection.disconnect();
+      await thirdConnection.disconnect();
     });
   });
 
