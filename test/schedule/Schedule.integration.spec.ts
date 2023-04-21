@@ -24,7 +24,7 @@ describe('Schedule', () => {
     connection = await Connection.create({ url: mongo.getUri() }, 60_000, 'schedule_id');
     jobRepository = connection.getJobRepository();
 
-    mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
+    mongoSchedule = await MongoSchedule.connect({ scheduleName: 'schedule', url: mongo.getUri() });
 
     initLoggingForTests(mongoSchedule);
   });

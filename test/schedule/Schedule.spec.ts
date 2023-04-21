@@ -25,6 +25,7 @@ jest.mock('../../src/Connection', () => {
 });
 
 describe('Schedule', () => {
+  const scheduleName = 'schedule';
   const momoJob: MomoJob = {
     name: 'test job',
     schedule: { interval: 'one minute', firstRunAfter: 0 },
@@ -38,9 +39,9 @@ describe('Schedule', () => {
     jest.clearAllMocks();
 
     when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
-    when(schedulesRepository.isActiveSchedule()).thenResolve(true);
+    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(true);
 
-    mongoSchedule = await MongoSchedule.connect({ url: 'mongodb://does.not/matter' });
+    mongoSchedule = await MongoSchedule.connect({ scheduleName, url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);
   });
 

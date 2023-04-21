@@ -27,14 +27,21 @@ describe('MongoSchedule', () => {
   });
 
   it('connects and starts the ping and disconnects and stops the ping', async () => {
-    const mongoSchedule = await MongoSchedule.connect({ url: 'mongodb://does.not/matter' });
+    const mongoSchedule = await MongoSchedule.connect({ scheduleName: 'schedule', url: 'mongodb://does.not/matter' });
+    const secondSchedule = await MongoSchedule.connect({
+      scheduleName: 'secondSchedule',
+      url: 'mongodb://does.not/matter',
+    });
 
     await mongoSchedule.start();
-    verify(schedulesRepository.isActiveSchedule()).once();
+    verify(schedulesRepository.isActiveSchedule('schedule')).once();
+    await secondSchedule.start();
+    verify(schedulesRepository.isActiveSchedule('secondSchedule')).once();
 
     await mongoSchedule.disconnect();
-    verify(schedulesRepository.deleteOne(deepEqual({ scheduleId: anyString() }))).once();
+    await secondSchedule.disconnect();
+    verify(schedulesRepository.deleteOne(deepEqual({ scheduleId: anyString() }))).twice();
 
-    expect(disconnect).toHaveBeenCalledTimes(1);
+    expect(disconnect).toHaveBeenCalledTimes(2);
   });
 });

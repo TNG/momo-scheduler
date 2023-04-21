@@ -9,6 +9,7 @@ export class SchedulePing {
 
   constructor(
     private readonly scheduleId: string,
+    private readonly scheduleName: string,
     private readonly schedulesRepository: SchedulesRepository,
     private readonly logger: Logger,
     private readonly interval: number,
@@ -29,7 +30,7 @@ export class SchedulePing {
   }
 
   private async checkActiveSchedule(): Promise<void> {
-    const active = await this.schedulesRepository.isActiveSchedule();
+    const active = await this.schedulesRepository.isActiveSchedule(this.scheduleName);
     this.logger.debug(`This schedule is ${active ? '' : 'not '}active`);
     if (active) {
       await this.schedulesRepository.ping(this.scheduleId);

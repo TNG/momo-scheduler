@@ -23,6 +23,7 @@ interface TestJobHandler {
 }
 
 describe('Momo', () => {
+  const scheduleName = 'schedule';
   let receivedError: MomoErrorEvent | undefined;
 
   let mongo: MongoMemoryServer;
@@ -33,7 +34,7 @@ describe('Momo', () => {
 
   beforeEach(async () => {
     mongo = await MongoMemoryServer.create();
-    mongoSchedule = await MongoSchedule.connect({ url: mongo.getUri() });
+    mongoSchedule = await MongoSchedule.connect({ scheduleName, url: mongo.getUri() });
     connection = await Connection.create({ url: mongo.getUri() }, 60_000, mongoSchedule.id());
     jobRepository = connection.getJobRepository();
     schedulesRepository = connection.getSchedulesRepository();
