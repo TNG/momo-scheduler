@@ -1926,7 +1926,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: caniuse-lite:1.0.30001479
+Package: caniuse-lite:1.0.30001482
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3593,7 +3593,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: electron-to-chromium:1.4.365
+Package: electron-to-chromium:1.4.383
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3911,7 +3911,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint:8.38.0
+Package: eslint:8.40.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4061,7 +4061,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint-plugin-jsdoc:43.0.7
+Package: eslint-plugin-jsdoc:44.2.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4221,7 +4221,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: eslint-visitor-keys:3.4.0
+Package: eslint-visitor-keys:3.4.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4429,7 +4429,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: espree:9.5.1
+Package: espree:9.5.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9133,7 +9133,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: mongodb:4.15.0
+Package: mongodb:4.16.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10435,7 +10435,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: pino:8.11.0
+Package: pino:8.14.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10485,7 +10485,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: pino-std-serializers:6.2.0
+Package: pino-std-serializers:6.2.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10585,7 +10585,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: prettier:2.8.7
+Package: prettier:2.8.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10760,7 +10760,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: pure-rand:6.0.1
+Package: pure-rand:6.0.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10935,7 +10935,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: regexp.prototype.flags:1.4.3
+Package: regexp.prototype.flags:1.5.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10985,7 +10985,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: resolve:1.22.3
+Package: resolve:1.22.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -11178,7 +11178,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: rxjs:7.8.0
+Package: rxjs:7.8.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -14426,7 +14426,7 @@ THIS SOFTWARE.
 
 ----
 
-Package: yargs:17.7.1
+Package: yargs:17.7.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -16000,7 +16000,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:client-cognito-identity:3.312.0
+Package: @aws-sdk:client-cognito-identity:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -16208,7 +16208,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:client-sso:3.310.0
+Package: @aws-sdk:client-sso:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -16416,7 +16416,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:client-sso-oidc:3.310.0
+Package: @aws-sdk:client-sso-oidc:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -16624,7 +16624,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:client-sts:3.312.0
+Package: @aws-sdk:client-sts:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17040,7 +17040,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:credential-provider-cognito-identity:3.312.0
+Package: @aws-sdk:credential-provider-cognito-identity:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17664,7 +17664,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:credential-provider-ini:3.310.0
+Package: @aws-sdk:credential-provider-ini:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -17872,7 +17872,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:credential-provider-node:3.310.0
+Package: @aws-sdk:credential-provider-node:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18288,7 +18288,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:credential-provider-sso:3.310.0
+Package: @aws-sdk:credential-provider-sso:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -18704,7 +18704,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:credential-providers:3.312.0
+Package: @aws-sdk:credential-providers:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19744,7 +19744,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-content-length:3.310.0
+Package: @aws-sdk:middleware-content-length:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -19952,7 +19952,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-endpoint:3.310.0
+Package: @aws-sdk:middleware-endpoint:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20160,7 +20160,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-host-header:3.310.0
+Package: @aws-sdk:middleware-host-header:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20368,7 +20368,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-logger:3.310.0
+Package: @aws-sdk:middleware-logger:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20576,7 +20576,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-recursion-detection:3.310.0
+Package: @aws-sdk:middleware-recursion-detection:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20784,7 +20784,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-retry:3.310.0
+Package: @aws-sdk:middleware-retry:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -20992,7 +20992,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-sdk-sts:3.310.0
+Package: @aws-sdk:middleware-sdk-sts:3.326.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -21200,7 +21200,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-serde:3.310.0
+Package: @aws-sdk:middleware-serde:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -21408,7 +21408,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-signing:3.310.0
+Package: @aws-sdk:middleware-signing:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -21616,7 +21616,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-stack:3.310.0
+Package: @aws-sdk:middleware-stack:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -21824,7 +21824,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:middleware-user-agent:3.310.0
+Package: @aws-sdk:middleware-user-agent:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -22240,7 +22240,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:node-http-handler:3.310.0
+Package: @aws-sdk:node-http-handler:3.321.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -23280,7 +23280,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:service-error-classification:3.310.0
+Package: @aws-sdk:service-error-classification:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -23904,7 +23904,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:smithy-client:3.310.0
+Package: @aws-sdk:smithy-client:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -24112,7 +24112,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:token-providers:3.310.0
+Package: @aws-sdk:token-providers:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -25776,7 +25776,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:util-defaults-mode-browser:3.310.0
+Package: @aws-sdk:util-defaults-mode-browser:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -25984,7 +25984,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:util-defaults-mode-node:3.310.0
+Package: @aws-sdk:util-defaults-mode-node:3.325.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -26192,7 +26192,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:util-endpoints:3.310.0
+Package: @aws-sdk:util-endpoints:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -27024,7 +27024,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: @aws-sdk:util-retry:3.310.0
+Package: @aws-sdk:util-retry:3.327.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28297,7 +28297,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:compat-data:7.21.4
+Package: @babel:compat-data:7.21.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28322,7 +28322,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:core:7.21.4
+Package: @babel:core:7.21.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28347,7 +28347,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:generator:7.21.4
+Package: @babel:generator:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28372,7 +28372,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-compilation-targets:7.21.4
+Package: @babel:helper-compilation-targets:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28397,7 +28397,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-environment-visitor:7.18.9
+Package: @babel:helper-environment-visitor:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28497,7 +28497,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-module-transforms:7.21.2
+Package: @babel:helper-module-transforms:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28522,7 +28522,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-plugin-utils:7.20.2
+Package: @babel:helper-plugin-utils:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28547,7 +28547,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-simple-access:7.20.2
+Package: @babel:helper-simple-access:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28597,7 +28597,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helper-string-parser:7.19.4
+Package: @babel:helper-string-parser:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28672,7 +28672,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:helpers:7.21.0
+Package: @babel:helpers:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -28722,7 +28722,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:parser:7.21.4
+Package: @babel:parser:7.21.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29122,7 +29122,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:traverse:7.21.4
+Package: @babel:traverse:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29147,7 +29147,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @babel:types:7.21.4
+Package: @babel:types:7.21.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29222,7 +29222,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @es-joy:jsdoccomment:0.37.1
+Package: @es-joy:jsdoccomment:0.38.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29247,7 +29247,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @eslint:eslintrc:2.0.2
+Package: @eslint:eslintrc:2.0.3
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29272,7 +29272,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @eslint:js:8.38.0
+Package: @eslint:js:8.40.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29322,7 +29322,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @eslint-community:regexpp:4.5.0
+Package: @eslint-community:regexpp:4.5.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -30699,7 +30699,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:babel__traverse:7.18.3
+Package: @types:babel__traverse:7.18.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31024,7 +31024,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:node:16.18.24
+Package: @types:node:16.18.28
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31324,7 +31324,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:eslint-plugin:5.59.0
+Package: @typescript-eslint:eslint-plugin:5.59.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31349,7 +31349,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:parser:5.59.0
+Package: @typescript-eslint:parser:5.59.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31376,7 +31376,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: @typescript-eslint:scope-manager:5.59.0
+Package: @typescript-eslint:scope-manager:5.59.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31401,7 +31401,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:type-utils:5.59.0
+Package: @typescript-eslint:type-utils:5.59.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31426,7 +31426,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:types:5.59.0
+Package: @typescript-eslint:types:5.59.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31451,7 +31451,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:typescript-estree:5.59.0
+Package: @typescript-eslint:typescript-estree:5.59.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31478,7 +31478,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: @typescript-eslint:utils:5.59.0
+Package: @typescript-eslint:utils:5.59.5
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31503,7 +31503,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:visitor-keys:5.59.0
+Package: @typescript-eslint:visitor-keys:5.59.5
 
 The following copyrights and licenses were found in the source code of this package:
 
