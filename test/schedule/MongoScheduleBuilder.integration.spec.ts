@@ -30,7 +30,7 @@ describe('MongoScheduleBuilder', () => {
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     connectionOptions = { scheduleName, url: mongo.getUri() };
-    connection = await Connection.create(connectionOptions, 60_000, 'schedule_id');
+    connection = await Connection.create(connectionOptions, 60_000, 'schedule_id', scheduleName);
   });
 
   afterAll(async () => {
