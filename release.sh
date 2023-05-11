@@ -25,7 +25,7 @@ for arg in "$@"; do
   shift
 done
 
-if [[ ! $VERSION =~ ^[0-9]*\.[0-9]*\.[0-9]*(-[A-Z0-9]*)?$ ]]; then
+if [[ ! $VERSION =~ ^[0-9]*\.[0-9]*\.[0-9]*(-[a-zA-Z0-9]*(\.[0-9]*)?)?$ ]]; then
     echo "You have to provide a version as first parameter (without v-prefix, e.g. 0.14.0)"
     exit 1
 fi
