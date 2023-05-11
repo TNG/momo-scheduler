@@ -15,6 +15,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     mongoClient: MongoClient,
     private readonly deadScheduleThreshold: number,
     private readonly scheduleId: string,
+    private readonly name: string,
     collectionPrefix?: string
   ) {
     super(mongoClient, SCHEDULES_COLLECTION_NAME, collectionPrefix);
@@ -89,18 +90,26 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
   }
 
   async addExecution(name: string, maxRunning: number): Promise<{ added: boolean; running: number }> {
-    const running = await this.countRunningExecutions(name);
-    if (maxRunning > 0 && running >= maxRunning) {
-      return { added: false, running };
+    if (maxRunning < 1) {
+      const schedule = await this.collection.findOneAndUpdate(
+        { name: this.name },
+        { $inc: { [`executions.${name}`]: 1 } },
+        { returnDocument: 'after' }
+      );
+      return { added: false, running: schedule.value?.executions[name] ?? 0 };
     }
 
-    await this.updateOne({ scheduleId: this.scheduleId }, { $inc: { [`executions.${name}`]: 1 } });
+    const schedule = await this.collection.findOneAndUpdate(
+      { name: this.name, [`executions.${name}`]: { $lt: maxRunning } },
+      { $inc: { [`executions.${name}`]: 1 } },
+      { returnDocument: 'after' }
+    );
 
-    return { added: true, running };
+    return { added: schedule.ok > 0, running: schedule.value?.executions[name] ?? maxRunning };
   }
 
   async removeExecution(name: string): Promise<void> {
-    await this.updateOne({ scheduleId: this.scheduleId }, { $inc: { [`executions.${name}`]: -1 } });
+    await this.updateOne({ name: this.name }, { $inc: { [`executions.${name}`]: -1 } });
   }
 
   async countRunningExecutions(name: string): Promise<number> {

@@ -252,6 +252,28 @@ export class Schedule extends LogEmitter {
     return this.jobSchedulers[name]?.getJobDescription();
   }
 
+  /**
+   * Schedules a defined job.
+   * Does nothing if no job with the given name exists.
+   *
+   * Updates made to the job after starting the scheduler are picked up
+   * automatically from the database, EXCEPT for changes to the schedule.
+   * Start the scheduler again to change a job's schedule.
+   *
+   * @param name the job to start
+   * @throws if the database throws
+   */
+  public async startJob(name: string): Promise<void> {
+    const jobScheduler = this.jobSchedulers[name];
+    if (!jobScheduler) {
+      this.logger.debug('job not found', { name });
+      return;
+    }
+
+    this.logger.debug('start', { name });
+    await jobScheduler.start();
+  }
+
   protected getJobSchedulers(): { [name: string]: JobScheduler } {
     return this.jobSchedulers;
   }
