@@ -10,6 +10,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - Breaking: dropped Node 14 support (still works with node 14 though)
 - Breaking: Removed `executions` collection and use `schedules` collection
 - Breaking: Schedules need a name now
+- Breaking: Removed `startJob`, `stopJob`, `cancelJob`, and `removeJob` from the schedule
 
 ## v1.1.1 (2023-01-11)
 - Fix: Dependency upgrades (fix [CVE-2023-22467](https://github.com/moment/luxon/security/advisories/GHSA-3xq5-wjfh-ppjc))

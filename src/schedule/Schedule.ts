@@ -69,7 +69,11 @@ export class Schedule extends LogEmitter {
     }
     const job = jobResult.value;
 
-    await this.stopJob(job.name);
+    try {
+      await this.jobSchedulers[job.name]?.stop();
+    } catch (error) {
+      this.logger.error('message failed to stop job', MomoErrorType.stopJob, { name: job.name }, error);
+    }
 
     await this.jobRepository.define(job);
 
@@ -119,22 +123,6 @@ export class Schedule extends LogEmitter {
   }
 
   /**
-   * Stops a scheduled job without removing it from neither the schedule nor the database.
-   * Does nothing if no job with the given name exists.
-   * Jobs can be started again using start().
-   *
-   * @param name the job to stop
-   */
-  public async stopJob(name: string): Promise<void> {
-    this.logger.debug('stop', { name });
-    try {
-      await this.jobSchedulers[name]?.stop();
-    } catch (error) {
-      this.logger.error('message failed to stop job', MomoErrorType.stopJob, { name }, error);
-    }
-  }
-
-  /**
    * Stops all scheduled jobs without removing them from neither the schedule nor the database.
    * Jobs can be started again using start().
    */
@@ -148,38 +136,12 @@ export class Schedule extends LogEmitter {
   }
 
   /**
-   * Stops a scheduled job and removes it from the schedule (but not from the database).
-   * Does nothing if no job with the given name exists.
-   *
-   * @param name the job to cancel
-   */
-  public async cancelJob(name: string): Promise<void> {
-    await this.stopJob(name);
-    this.logger.debug('cancel', { name });
-    delete this.jobSchedulers[name];
-  }
-
-  /**
    * Stops all scheduled jobs and removes them from the schedule (but not from the database).
    */
   public async cancel(): Promise<void> {
     await this.stop();
     this.logger.debug('cancel all jobs', { count: Object.keys(this.jobSchedulers).length });
     this.jobSchedulers = {};
-  }
-
-  /**
-   * Stops a scheduled job and removes it from the schedule and the database.
-   * Does nothing if no job with the given name exists.
-   *
-   * @param name the job to remove
-   *
-   * @throws if the database throws
-   */
-  public async removeJob(name: string): Promise<void> {
-    await this.cancelJob(name);
-    this.logger.debug('remove', { name });
-    await this.jobRepository.deleteOne({ name });
   }
 
   /**
@@ -250,28 +212,6 @@ export class Schedule extends LogEmitter {
    */
   public async get(name: string): Promise<MomoJobDescription | undefined> {
     return this.jobSchedulers[name]?.getJobDescription();
-  }
-
-  /**
-   * Schedules a defined job.
-   * Does nothing if no job with the given name exists.
-   *
-   * Updates made to the job after starting the scheduler are picked up
-   * automatically from the database, EXCEPT for changes to the schedule.
-   * Start the scheduler again to change a job's schedule.
-   *
-   * @param name the job to start
-   * @throws if the database throws
-   */
-  public async startJob(name: string): Promise<void> {
-    const jobScheduler = this.jobSchedulers[name];
-    if (!jobScheduler) {
-      this.logger.debug('job not found', { name });
-      return;
-    }
-
-    this.logger.debug('start', { name });
-    await jobScheduler.start();
   }
 
   protected getJobSchedulers(): { [name: string]: JobScheduler } {
