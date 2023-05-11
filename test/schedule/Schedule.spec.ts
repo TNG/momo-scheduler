@@ -105,7 +105,7 @@ describe('Schedule', () => {
       expect(result).toEqual({ status: ExecutionStatus.notFound });
     });
 
-    it('still runs job once even if maxRunning is reached', async () => {
+    it('skips running job once when maxRunning is reached', async () => {
       await mongoSchedule.define(momoJob);
 
       when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
@@ -116,8 +116,8 @@ describe('Schedule', () => {
 
       const result = await mongoSchedule.run(momoJob.name);
 
-      expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
-      expect(momoJob.handler).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ status: ExecutionStatus.maxRunningReached });
+      expect(momoJob.handler).toHaveBeenCalledTimes(0);
     });
   });
 
