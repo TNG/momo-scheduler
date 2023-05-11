@@ -179,7 +179,7 @@ describe('SchedulesRepository', () => {
       it('can add and remove an execution', async () => {
         const { added, running } = await schedulesRepository.addExecution(name, 1);
         expect(added).toBe(true);
-        expect(running).toBe(0);
+        expect(running).toBe(1);
 
         const schedulesEntity = await schedulesRepository.findOne({ scheduleId });
         expect(schedulesEntity?.executions).toEqual({ [name]: 1 });

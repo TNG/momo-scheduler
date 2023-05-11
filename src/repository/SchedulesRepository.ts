@@ -96,16 +96,19 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         { $inc: { [`executions.${name}`]: 1 } },
         { returnDocument: 'after' }
       );
-      return { added: false, running: schedule.value?.executions[name] ?? 0 };
+      return { added: schedule.value !== null, running: schedule.value?.executions[name] ?? 0 };
     }
 
     const schedule = await this.collection.findOneAndUpdate(
-      { name: this.name, [`executions.${name}`]: { $lt: maxRunning } },
+      {
+        name: this.name,
+        $or: [{ [`executions.${name}`]: { $lt: maxRunning } }, { [`executions.${name}`]: { $exists: false } }],
+      },
       { $inc: { [`executions.${name}`]: 1 } },
       { returnDocument: 'after' }
     );
 
-    return { added: schedule.ok > 0, running: schedule.value?.executions[name] ?? maxRunning };
+    return { added: schedule.value !== null, running: schedule.value?.executions[name] ?? maxRunning };
   }
 
   async removeExecution(name: string): Promise<void> {
