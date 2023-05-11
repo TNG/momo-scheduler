@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v2.0.0 (2023-04-21)
+- Feature: only one schedule with a given name can be active at the same time
+  - if an instance stops running, a different instance will take over the job scheduling
+- Fix: Fixed the usage to mongo collection prefixes
+- Breaking: dropped Node 14 support (still works with node 14 though)
+- Breaking: Removed `executions` collection and use `schedules` collection
+- Breaking: Schedules need a name now
+
 ## v1.1.1 (2023-01-11)
 - Fix: Dependency upgrades (fix [CVE-2023-22467](https://github.com/moment/luxon/security/advisories/GHSA-3xq5-wjfh-ppjc))
 
