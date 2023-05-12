@@ -59,7 +59,7 @@ export class MongoSchedule extends Schedule {
     ...connectionOptions
   }: MomoOptions): Promise<MongoSchedule> {
     const scheduleId = uuid();
-    const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId);
+    const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId, scheduleName);
 
     return new MongoSchedule(scheduleId, connection, pingIntervalMs, scheduleName);
   }

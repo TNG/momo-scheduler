@@ -35,7 +35,7 @@ describe('Momo', () => {
   beforeEach(async () => {
     mongo = await MongoMemoryServer.create();
     mongoSchedule = await MongoSchedule.connect({ scheduleName, url: mongo.getUri() });
-    connection = await Connection.create({ url: mongo.getUri() }, 60_000, mongoSchedule.id());
+    connection = await Connection.create({ url: mongo.getUri() }, 60_000, mongoSchedule.id(), scheduleName);
     jobRepository = connection.getJobRepository();
     schedulesRepository = connection.getSchedulesRepository();
 
@@ -475,68 +475,6 @@ describe('Momo', () => {
       await sleep(2000);
       expect(jobHandler1.count).toBe(1);
       expect(jobHandler2.count).toBe(1);
-    });
-
-    it('stops one of two jobs', async () => {
-      await mongoSchedule.define(job1);
-      await mongoSchedule.define(job2);
-
-      await mongoSchedule.start();
-
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-        expect(jobHandler2.count).toBe(1);
-      });
-
-      await mongoSchedule.stopJob(job1.name);
-
-      await sleep(1200);
-      expect(jobHandler1.count).toBe(1);
-      expect(jobHandler2.count).toBe(2);
-    });
-
-    it('removes one of two jobs', async () => {
-      await mongoSchedule.define(job1);
-      await mongoSchedule.define(job2);
-
-      await mongoSchedule.start();
-
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-        expect(jobHandler2.count).toBe(1);
-      });
-
-      await mongoSchedule.removeJob(job1.name);
-
-      await sleep(1200);
-      expect(jobHandler1.count).toBe(1);
-      expect(jobHandler2.count).toBe(2);
-
-      const jobs = await jobRepository.find();
-      expect(jobs).toHaveLength(1);
-      expect(jobs[0]?.name).toEqual(job2.name);
-    });
-
-    it('does not fail when trying to remove a non existent job', async () => {
-      await expect(mongoSchedule.removeJob(job1.name)).resolves.not.toThrow();
-    });
-
-    it('cancels one of two jobs', async () => {
-      await mongoSchedule.define(job1);
-      await mongoSchedule.define(job2);
-
-      await mongoSchedule.start();
-
-      await waitFor(() => {
-        expect(jobHandler1.count).toBe(1);
-        expect(jobHandler2.count).toBe(1);
-      });
-
-      await mongoSchedule.cancelJob(job1.name);
-
-      await sleep(1200);
-      expect(jobHandler1.count).toBe(1);
-      expect(jobHandler2.count).toBe(2);
     });
 
     it('stops all jobs', async () => {

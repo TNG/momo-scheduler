@@ -21,7 +21,7 @@ describe('Schedule', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    connection = await Connection.create({ url: mongo.getUri() }, 60_000, 'schedule_id');
+    connection = await Connection.create({ url: mongo.getUri() }, 60_000, 'schedule_id', 'testSchedule');
     jobRepository = connection.getJobRepository();
 
     mongoSchedule = await MongoSchedule.connect({ scheduleName: 'schedule', url: mongo.getUri() });
@@ -91,41 +91,11 @@ describe('Schedule', () => {
     expect(await jobRepository.find({})).toHaveLength(1);
   });
 
-  it('cancels a job without removing it from the database', async () => {
-    const jobToKeep = { ...job, name: 'keep me' };
-    await mongoSchedule.define(jobToKeep);
-    await mongoSchedule.define(job);
-
-    await mongoSchedule.cancelJob(job.name);
-
-    const jobs = await mongoSchedule.list();
-    expect(jobs).toHaveLength(1);
-    expect(jobs[0]?.name).toEqual(jobToKeep.name);
-
-    const jobEntities = await jobRepository.find({});
-    expect(jobEntities).toHaveLength(2);
-  });
-
   it('removes jobs', async () => {
     await mongoSchedule.define(job);
     await mongoSchedule.remove();
 
     expect(await mongoSchedule.get(job.name)).toBeUndefined();
     expect(await jobRepository.find({})).toHaveLength(0);
-  });
-
-  it('removes a job', async () => {
-    await mongoSchedule.define(job);
-
-    const jobToKeep = { ...job, name: 'keep me' };
-    await mongoSchedule.define(jobToKeep);
-
-    await mongoSchedule.removeJob(job.name);
-
-    expect(await mongoSchedule.get(job.name)).toEqual(undefined);
-
-    const jobEntities = await jobRepository.find({});
-    expect(jobEntities).toHaveLength(1);
-    expect(jobEntities[0]?.name).toEqual(jobToKeep.name);
   });
 });

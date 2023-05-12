@@ -24,12 +24,19 @@ export class Connection {
   static async create(
     { url, collectionsPrefix }: MomoConnectionOptions,
     pingIntervalMs: number,
-    scheduleId: string
+    scheduleId: string,
+    scheduleName: string
   ): Promise<Connection> {
     const mongoClient = new MongoClient(url);
     await mongoClient.connect();
 
-    const schedulesRepository = new SchedulesRepository(mongoClient, 2 * pingIntervalMs, scheduleId, collectionsPrefix);
+    const schedulesRepository = new SchedulesRepository(
+      mongoClient,
+      2 * pingIntervalMs,
+      scheduleId,
+      scheduleName,
+      collectionsPrefix
+    );
     await schedulesRepository.createIndex();
     const jobRepository = new JobRepository(mongoClient, collectionsPrefix);
     await jobRepository.createIndex();

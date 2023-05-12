@@ -22,18 +22,16 @@ export class JobExecutor {
     this.stopped = true;
   }
 
-  async execute(jobEntity: JobEntity, parameters?: JobParameters, force: boolean = false): Promise<JobResult> {
-    if (!force) {
-      const { added, running } = await this.schedulesRepository.addExecution(jobEntity.name, jobEntity.maxRunning);
-      if (!added) {
-        this.logger.debug('maxRunning reached, skip', {
-          name: jobEntity.name,
-          running,
-        });
-        return {
-          status: ExecutionStatus.maxRunningReached,
-        };
-      }
+  async execute(jobEntity: JobEntity, parameters?: JobParameters): Promise<JobResult> {
+    const { added, running } = await this.schedulesRepository.addExecution(jobEntity.name, jobEntity.maxRunning);
+    if (!added) {
+      this.logger.debug('maxRunning reached, skip', {
+        name: jobEntity.name,
+        running,
+      });
+      return {
+        status: ExecutionStatus.maxRunningReached,
+      };
     }
 
     const { started, result } = await this.executeHandler(jobEntity, parameters);
@@ -52,7 +50,7 @@ export class JobExecutor {
       stopped: this.stopped,
     });
 
-    if (!force && !this.stopped) {
+    if (!this.stopped) {
       await this.schedulesRepository.removeExecution(jobEntity.name);
     }
 

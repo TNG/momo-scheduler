@@ -122,7 +122,7 @@ export class JobScheduler {
         };
       }
 
-      return this.jobExecutor.execute(jobEntity, parameters, true);
+      return this.jobExecutor.execute(jobEntity, parameters);
     } catch (e) {
       this.handleUnexpectedError(e);
       return {

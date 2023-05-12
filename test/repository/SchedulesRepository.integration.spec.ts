@@ -16,7 +16,7 @@ describe('SchedulesRepository', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    connection = await Connection.create({ url: mongo.getUri() }, pingInterval, scheduleId);
+    connection = await Connection.create({ url: mongo.getUri() }, pingInterval, scheduleId, scheduleName);
     schedulesRepository = connection.getSchedulesRepository();
     await schedulesRepository.createIndex();
   });
@@ -43,7 +43,12 @@ describe('SchedulesRepository', () => {
       const firstIsActive = await schedulesRepository.isActiveSchedule(scheduleName);
 
       const inactiveScheduleId = 'not active';
-      const inactiveConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, inactiveScheduleId);
+      const inactiveConnection = await Connection.create(
+        { url: mongo.getUri() },
+        pingInterval,
+        inactiveScheduleId,
+        scheduleName
+      );
       const inactiveSchedulesRepository = inactiveConnection.getSchedulesRepository();
       const secondIsActive = await inactiveSchedulesRepository.isActiveSchedule(scheduleName);
       await inactiveConnection.disconnect();
@@ -58,7 +63,9 @@ describe('SchedulesRepository', () => {
 
     it('only one schedule of many concurrent ones is active', async () => {
       const connections = await Promise.all(
-        ['a', 'b', 'c', 'd', 'e'].map(async (id) => Connection.create({ url: mongo.getUri() }, pingInterval, id))
+        ['a', 'b', 'c', 'd', 'e'].map(async (id) =>
+          Connection.create({ url: mongo.getUri() }, pingInterval, id, scheduleName)
+        )
       );
 
       const schedulesActiveStatus = await Promise.all(
@@ -78,7 +85,12 @@ describe('SchedulesRepository', () => {
     it('should replace dead schedules', async () => {
       const active = await schedulesRepository.isActiveSchedule(scheduleName);
       const secondScheduleId = 'not active';
-      const secondConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, secondScheduleId);
+      const secondConnection = await Connection.create(
+        { url: mongo.getUri() },
+        pingInterval,
+        secondScheduleId,
+        scheduleName
+      );
       const secondSchedulesRepository = await secondConnection.getSchedulesRepository();
       const secondActive = await secondSchedulesRepository.isActiveSchedule(scheduleName);
 
@@ -97,10 +109,20 @@ describe('SchedulesRepository', () => {
       const otherScheduleName = 'other schedule';
       const secondScheduleId = 'first other schedule ID';
       const thirdScheduleId = 'second other schedule ID';
-      const secondConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, secondScheduleId);
+      const secondConnection = await Connection.create(
+        { url: mongo.getUri() },
+        pingInterval,
+        secondScheduleId,
+        otherScheduleName
+      );
       const secondSchedulesRepository = await secondConnection.getSchedulesRepository();
       const isSecondActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
-      const thirdConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, thirdScheduleId);
+      const thirdConnection = await Connection.create(
+        { url: mongo.getUri() },
+        pingInterval,
+        thirdScheduleId,
+        otherScheduleName
+      );
       const thirdSchedulesRepository = await thirdConnection.getSchedulesRepository();
       const isThirdActive = await thirdSchedulesRepository.isActiveSchedule(otherScheduleName);
 
@@ -157,7 +179,7 @@ describe('SchedulesRepository', () => {
       it('can add and remove an execution', async () => {
         const { added, running } = await schedulesRepository.addExecution(name, 1);
         expect(added).toBe(true);
-        expect(running).toBe(0);
+        expect(running).toBe(1);
 
         const schedulesEntity = await schedulesRepository.findOne({ scheduleId });
         expect(schedulesEntity?.executions).toEqual({ [name]: 1 });
@@ -182,7 +204,12 @@ describe('SchedulesRepository', () => {
 
       it('does not add executions in schedule that is not active', async () => {
         const otherScheduleId = 'other schedule';
-        const otherConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, otherScheduleId);
+        const otherConnection = await Connection.create(
+          { url: mongo.getUri() },
+          pingInterval,
+          otherScheduleId,
+          scheduleName
+        );
         const otherSchedulesRepository = otherConnection.getSchedulesRepository();
 
         await otherSchedulesRepository.addExecution(name, 2);

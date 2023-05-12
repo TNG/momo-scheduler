@@ -22,7 +22,7 @@ describe('JobRepository', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    connection = await Connection.create({ url: mongo.getUri() }, 60_000, 'schedule-id');
+    connection = await Connection.create({ url: mongo.getUri() }, 60_000, 'schedule-id', 'schedule');
     jobRepository = connection.getJobRepository();
   });
 
