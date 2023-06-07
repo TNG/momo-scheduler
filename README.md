@@ -16,8 +16,8 @@ minutes" or "run that job at 9 AM every weekday".
 - supports long-running jobs
 - allows error handling
 - supports cluster mode (e.g. several instances using the same job database)
-  - only one instance will actively schedule jobs
-  - if an instance stops running, a different instance will take over the job scheduling
+  - only one schedule per name will attempt to schedule jobs
+  - if an active schedule stops running (e.g. the application instance was stopped), another schedule with the same name (e.g. running on a different instance) will take over
 
 ## Installation
 
@@ -47,6 +47,7 @@ const mongoSchedule = await new MongoScheduleBuilder()
   .withConnection({
     url: mongo.getUri(),
     collectionsPrefix: 'momo',
+    scheduleName: 'MySchedule',
     pingIntervalMs: 10_000,
   })
   .build();
