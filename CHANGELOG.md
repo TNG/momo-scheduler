@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v2.0.1 (2023-06-12)
+
+- Fix: Fixed [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) [CVE](https://github.com/advisories/GHSA-6w63-h3fj-q4vw)
+
 ## v2.0.0 (2023-05-12)
 - Feature: only one schedule with a given name can be active at the same time
   - if an instance stops running, a different instance will take over the job scheduling
