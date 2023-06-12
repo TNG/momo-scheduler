@@ -2846,7 +2846,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: cron:2.3.0
+Package: cron:2.3.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3911,7 +3911,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint:8.40.0
+Package: eslint:8.42.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4061,7 +4061,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: eslint-plugin-jsdoc:44.2.1
+Package: eslint-plugin-jsdoc:45.0.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -6033,6 +6033,31 @@ THIS SOFTWARE.
 ----
 
 Package: grapheme-splitter:1.0.4
+
+The following copyrights and licenses were found in the source code of this package:
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: graphemer:1.4.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8206,31 +8231,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ----
 
 Package: jest-worker:29.5.0
-
-The following copyrights and licenses were found in the source code of this package:
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----
-
-Package: js-sdsl:4.4.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -11504,7 +11504,7 @@ THIS SOFTWARE.
 
 ----
 
-Package: semver:7.5.0
+Package: semver:7.5.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -13530,7 +13530,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: typescript:5.0.4
+Package: typescript:5.1.3
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29222,7 +29222,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @es-joy:jsdoccomment:0.38.0
+Package: @es-joy:jsdoccomment:0.39.4
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29272,7 +29272,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @eslint:js:8.40.0
+Package: @eslint:js:8.42.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -29347,7 +29347,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @humanwhocodes:config-array:0.11.8
+Package: @humanwhocodes:config-array:0.11.10
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -30462,7 +30462,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @sinonjs:commons:2.0.0
+Package: @sinonjs:commons:3.0.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -30493,7 +30493,7 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: @sinonjs:fake-timers:10.0.2
+Package: @sinonjs:fake-timers:10.2.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -30949,7 +30949,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:lodash:4.14.194
+Package: @types:lodash:4.14.195
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31024,7 +31024,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:node:16.18.28
+Package: @types:node:16.18.34
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31324,7 +31324,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:eslint-plugin:5.59.5
+Package: @typescript-eslint:eslint-plugin:5.59.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31349,7 +31349,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:parser:5.59.5
+Package: @typescript-eslint:parser:5.59.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31376,7 +31376,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: @typescript-eslint:scope-manager:5.59.5
+Package: @typescript-eslint:scope-manager:5.59.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31401,7 +31401,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:type-utils:5.59.5
+Package: @typescript-eslint:type-utils:5.59.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31426,7 +31426,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:types:5.59.5
+Package: @typescript-eslint:types:5.59.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31451,7 +31451,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:typescript-estree:5.59.5
+Package: @typescript-eslint:typescript-estree:5.59.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31478,7 +31478,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Package: @typescript-eslint:utils:5.59.5
+Package: @typescript-eslint:utils:5.59.7
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -31503,7 +31503,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @typescript-eslint:visitor-keys:5.59.5
+Package: @typescript-eslint:visitor-keys:5.59.7
 
 The following copyrights and licenses were found in the source code of this package:
 
