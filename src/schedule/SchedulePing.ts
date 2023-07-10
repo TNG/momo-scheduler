@@ -37,6 +37,7 @@ export class SchedulePing {
       if (!this.startedJobs) {
         this.logger.debug(`This schedule just turned active`);
         await this.startAllJobs();
+        // FIXME: startedJobs is not sufficient to handle startAllJobs() taking longer then this.interval
         this.startedJobs = true;
       }
     }
