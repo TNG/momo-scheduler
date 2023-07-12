@@ -66,7 +66,7 @@ describe('SchedulePing', () => {
     );
   });
 
-  it('handles job start taking too long', async () => {
+  it('handles job start taking longer than interval', async () => {
     when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(false);
 
     startAllJobs.mockImplementation(async () => sleep(2 * interval));
@@ -85,5 +85,11 @@ describe('SchedulePing', () => {
     await sleep(1.1 * interval);
     verify(schedulesRepository.ping(scheduleId)).twice();
     expect(startAllJobs).toHaveBeenCalledTimes(1);
+
+    await schedulePing.stop();
+    await sleep(interval);
+    verify(schedulesRepository.ping(scheduleId)).twice();
+    expect(startAllJobs).toHaveBeenCalledTimes(1);
+    verify(schedulesRepository.deleteOne(deepEqual({ scheduleId }))).once();
   });
 });

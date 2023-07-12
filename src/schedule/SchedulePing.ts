@@ -3,9 +3,15 @@ import { Logger } from '../logging/Logger';
 import { setSafeInterval } from '../timeout/safeTimeouts';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 
+enum StartJobsStatus {
+  notStarted,
+  inProgress,
+  finished,
+}
+
 export class SchedulePing {
   private handle?: NodeJS.Timeout;
-  private startedJobs: boolean = false;
+  private startJobsStatus: StartJobsStatus = StartJobsStatus.notStarted;
 
   constructor(
     private readonly scheduleId: string,
@@ -34,11 +40,17 @@ export class SchedulePing {
     this.logger.debug(`This schedule is ${active ? '' : 'not '}active`);
     if (active) {
       await this.schedulesRepository.ping(this.scheduleId);
-      if (!this.startedJobs) {
-        this.logger.debug(`This schedule just turned active`);
+      if (this.startJobsStatus === StartJobsStatus.notStarted) {
+        this.logger.debug('This schedule just turned active');
+        this.startJobsStatus = StartJobsStatus.inProgress;
+
         await this.startAllJobs();
-        // FIXME: startedJobs is not sufficient to handle startAllJobs() taking longer then this.interval
-        this.startedJobs = true;
+
+        if ((this.startJobsStatus as StartJobsStatus) === StartJobsStatus.finished) {
+          this.logger.error('Scheduled jobs were unexpectedly started multiple times', MomoErrorType.internal);
+        }
+        this.startJobsStatus = StartJobsStatus.finished;
+        this.logger.debug('Finished starting scheduled jobs');
       }
     }
   }

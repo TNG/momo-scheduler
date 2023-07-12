@@ -50,12 +50,20 @@ describe('Schedule', () => {
   });
 
   it('emits logs', async () => {
-    let caughtEvent: MomoEvent | undefined;
-    mongoSchedule.on('debug', (event: MomoEvent) => (caughtEvent = event));
+    const caughtEvents: string[] = [];
+    const caughtErrors: string[] = [];
+    mongoSchedule.on('debug', (event: MomoEvent) => caughtEvents.push(event.message));
+    mongoSchedule.on('error', (event: MomoEvent) => caughtErrors.push(event.message));
 
     await mongoSchedule.start();
 
-    expect(caughtEvent).toEqual({ message: 'This schedule just turned active' });
+    expect(caughtEvents).toEqual([
+      'starting the schedule',
+      'This schedule is active',
+      'This schedule just turned active',
+      'Finished starting scheduled jobs',
+    ]);
+    expect(caughtErrors).toEqual([]);
   });
 
   it('successfully defines a job when concurrency > 0 and maxRunning is not set', async () => {
