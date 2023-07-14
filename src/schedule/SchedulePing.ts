@@ -41,14 +41,11 @@ export class SchedulePing {
     if (active) {
       await this.schedulesRepository.ping(this.scheduleId);
       if (this.startJobsStatus === StartJobsStatus.notStarted) {
-        this.logger.debug('This schedule just turned active');
         this.startJobsStatus = StartJobsStatus.inProgress;
+        this.logger.debug('This schedule just turned active');
 
         await this.startAllJobs();
 
-        if ((this.startJobsStatus as StartJobsStatus) === StartJobsStatus.finished) {
-          this.logger.error('Scheduled jobs were unexpectedly started multiple times', MomoErrorType.internal);
-        }
         this.startJobsStatus = StartJobsStatus.finished;
         this.logger.debug('Finished starting scheduled jobs');
       }
