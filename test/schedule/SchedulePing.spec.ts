@@ -12,9 +12,10 @@ describe('SchedulePing', () => {
 
   let schedulesRepository: SchedulesRepository;
   let schedulePing: SchedulePing;
-  const startAllJobs = jest.fn();
+  let startAllJobs: jest.Mock;
 
   beforeEach(() => {
+    startAllJobs = jest.fn();
     schedulesRepository = mock(SchedulesRepository);
     error = jest.fn();
     schedulePing = new SchedulePing(
@@ -63,5 +64,32 @@ describe('SchedulePing', () => {
       {},
       { message }
     );
+  });
+
+  it('handles job start taking longer than interval', async () => {
+    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(false);
+
+    startAllJobs.mockImplementation(async () => sleep(2 * interval));
+
+    await schedulePing.start();
+
+    verify(schedulesRepository.ping(scheduleId)).never();
+    expect(startAllJobs).toHaveBeenCalledTimes(0);
+
+    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(true);
+
+    await sleep(1.1 * interval);
+    verify(schedulesRepository.ping(scheduleId)).once();
+    expect(startAllJobs).toHaveBeenCalledTimes(1);
+
+    await sleep(1.1 * interval);
+    verify(schedulesRepository.ping(scheduleId)).twice();
+    expect(startAllJobs).toHaveBeenCalledTimes(1);
+
+    await schedulePing.stop();
+    await sleep(interval);
+    verify(schedulesRepository.ping(scheduleId)).twice();
+    expect(startAllJobs).toHaveBeenCalledTimes(1);
+    verify(schedulesRepository.deleteOne(deepEqual({ scheduleId }))).once();
   });
 });
