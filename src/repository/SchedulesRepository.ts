@@ -16,7 +16,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     private readonly deadScheduleThreshold: number,
     private readonly scheduleId: string,
     private readonly name: string,
-    collectionPrefix?: string
+    collectionPrefix?: string,
   ) {
     super(mongoClient, SCHEDULES_COLLECTION_NAME, collectionPrefix);
   }
@@ -49,7 +49,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         {
           upsert: true,
           returnDocument: 'after',
-        }
+        },
       );
 
       return result.value === null ? false : result.value.scheduleId === this.scheduleId;
@@ -61,7 +61,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
           'The database reported an unexpected error',
           MomoErrorType.internal,
           { scheduleId: this.scheduleId },
-          error
+          error,
         );
       }
       return aliveSchedule?.scheduleId === this.scheduleId;
@@ -94,7 +94,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
       const schedule = await this.collection.findOneAndUpdate(
         { name: this.name },
         { $inc: { [`executions.${name}`]: 1 } },
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       );
       return { added: schedule.value !== null, running: schedule.value?.executions[name] ?? 0 };
     }
@@ -105,7 +105,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         $or: [{ [`executions.${name}`]: { $lt: maxRunning } }, { [`executions.${name}`]: { $exists: false } }],
       },
       { $inc: { [`executions.${name}`]: 1 } },
-      { returnDocument: 'after' }
+      { returnDocument: 'after' },
     );
 
     return { added: schedule.value !== null, running: schedule.value?.executions[name] ?? maxRunning };

@@ -19,7 +19,7 @@ export class SchedulePing {
     private readonly schedulesRepository: SchedulesRepository,
     private readonly logger: Logger,
     private readonly interval: number,
-    private readonly startAllJobs: () => Promise<void>
+    private readonly startAllJobs: () => Promise<void>,
   ) {}
 
   async start(): Promise<void> {

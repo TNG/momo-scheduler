@@ -27,7 +27,7 @@ export class MongoSchedule extends Schedule {
     protected readonly scheduleId: string,
     protected readonly connection: Connection,
     pingIntervalMs: number,
-    private readonly scheduleName: string
+    private readonly scheduleName: string,
   ) {
     const schedulesRepository = connection.getSchedulesRepository();
     const jobRepository = connection.getJobRepository();
@@ -44,7 +44,7 @@ export class MongoSchedule extends Schedule {
       schedulesRepository,
       this.logger,
       pingIntervalMs,
-      this.startAllJobs.bind(this)
+      this.startAllJobs.bind(this),
     );
   }
 

@@ -42,7 +42,7 @@ describe('JobExecutor', () => {
       job.handler,
       instance(schedulesRepository),
       instance(jobRepository),
-      loggerForTests(errorFn)
+      loggerForTests(errorFn),
     );
   });
 

@@ -10,7 +10,7 @@ export function setSafeIntervalWithDelay(
   interval: number,
   delay: number,
   logger: Logger,
-  errorMessage: string
+  errorMessage: string,
 ): TimeoutHandle {
   const intervalWithDelay = new IntervalWithDelay(callback, interval, delay, logger, errorMessage);
   return { get: () => intervalWithDelay.timeout };
@@ -27,7 +27,7 @@ class IntervalWithDelay {
       },
       delay,
       logger,
-      errorMessage
+      errorMessage,
     );
   }
 }

@@ -105,7 +105,7 @@ export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<Cr
  */
 export function toJobDefinition<
   Schedule extends ParsedIntervalSchedule | CronSchedule,
-  Type extends JobDefinition<Schedule>
+  Type extends JobDefinition<Schedule>,
 >({ name, schedule, maxRunning, concurrency, parameters }: Type): JobDefinition<Schedule> {
   return { name, schedule, maxRunning, concurrency, parameters };
 }

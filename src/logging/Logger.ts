@@ -17,7 +17,7 @@ export function error(
   message: string,
   type: MomoErrorType,
   data?: MomoEventData,
-  error?: unknown
+  error?: unknown,
 ): void {
   this.emit('error', { message, type, data, error });
 }

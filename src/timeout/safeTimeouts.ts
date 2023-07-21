@@ -5,7 +5,7 @@ export function setSafeTimeout(
   callback: () => Promise<void>,
   ms: number,
   logger: Logger,
-  errorMessage: string
+  errorMessage: string,
 ): NodeJS.Timeout {
   return setTimeout(async () => {
     try {
@@ -20,7 +20,7 @@ export function setSafeInterval(
   callback: () => Promise<void>,
   interval: number,
   logger: Logger,
-  errorMessage: string
+  errorMessage: string,
 ): NodeJS.Timeout {
   return setInterval(async () => {
     try {
