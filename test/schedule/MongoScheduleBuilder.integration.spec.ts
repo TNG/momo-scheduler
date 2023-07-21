@@ -86,7 +86,7 @@ describe('MongoScheduleBuilder', () => {
     const mongoScheduleBuilder = new MongoScheduleBuilder().withJob(job1);
 
     await expect(mongoScheduleBuilder.build()).rejects.toThrow(
-      'Error: MongoSchedule must be built with defined ConnectionOptions'
+      'Error: MongoSchedule must be built with defined ConnectionOptions',
     );
   });
 });

@@ -24,7 +24,7 @@ describe('SchedulePing', () => {
       instance(schedulesRepository),
       { debug: jest.fn(), error },
       interval,
-      startAllJobs
+      startAllJobs,
     );
   });
 
@@ -62,7 +62,7 @@ describe('SchedulePing', () => {
       'Pinging or cleaning the Schedules repository failed',
       'an internal error occurred',
       {},
-      { message }
+      { message },
     );
   });
 

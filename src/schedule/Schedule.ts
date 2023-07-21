@@ -17,7 +17,7 @@ export class Schedule extends LogEmitter {
   constructor(
     protected readonly scheduleId: string,
     private readonly schedulesRepository: SchedulesRepository,
-    private readonly jobRepository: JobRepository
+    private readonly jobRepository: JobRepository,
   ) {
     super();
   }
@@ -63,7 +63,7 @@ export class Schedule extends LogEmitter {
         'job cannot be defined',
         MomoErrorType.defineJob,
         { name, maxRunning, ...schedule },
-        jobResult.error
+        jobResult.error,
       );
       return false;
     }
@@ -82,7 +82,7 @@ export class Schedule extends LogEmitter {
       job,
       this.logger,
       this.schedulesRepository,
-      this.jobRepository
+      this.jobRepository,
     );
 
     return true;
@@ -117,8 +117,8 @@ export class Schedule extends LogEmitter {
         async () => resolve(await jobScheduler.executeOnce()),
         delay,
         this.logger,
-        'Single execution failed'
-      )
+        'Single execution failed',
+      ),
     );
   }
 

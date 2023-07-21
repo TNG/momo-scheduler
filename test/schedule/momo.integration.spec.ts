@@ -76,7 +76,7 @@ describe('Momo', () => {
 
   function createTestIntervalJob(
     jobHandler: TestJobHandler,
-    schedule: IntervalSchedule
+    schedule: IntervalSchedule,
   ): TypedMomoJob<IntervalSchedule> {
     return {
       name: `interval_test_job_${uuid()}`,
@@ -206,7 +206,7 @@ describe('Momo', () => {
       expect(executionInfo).toBeDefined();
 
       expect(DateTime.fromISO(executionInfo!.lastFinished).toMillis()).toBeGreaterThan(
-        DateTime.fromISO(executionInfo!.lastStarted).toMillis()
+        DateTime.fromISO(executionInfo!.lastStarted).toMillis(),
       );
       expect(executionInfo!.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: jobHandler.result });
     });
@@ -277,7 +277,7 @@ describe('Momo', () => {
       const updatedMaxRunning = 10;
       await jobRepository.updateOne(
         { name: intervalJob.name },
-        { $set: { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning } }
+        { $set: { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning } },
       );
 
       await waitFor(async () => {
@@ -348,7 +348,7 @@ describe('Momo', () => {
       expect(executionInfo).toBeDefined();
 
       expect(DateTime.fromISO(executionInfo!.lastFinished).toMillis()).toBeGreaterThan(
-        DateTime.fromISO(executionInfo!.lastStarted).toMillis()
+        DateTime.fromISO(executionInfo!.lastStarted).toMillis(),
       );
       expect(executionInfo!.lastResult).toEqual({ status: ExecutionStatus.finished, handlerResult: jobHandler.result });
     });
@@ -431,7 +431,7 @@ describe('Momo', () => {
       const updatedMaxRunning = 10;
       await jobRepository.updateOne(
         { name: cronJob.name },
-        { $set: { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning } }
+        { $set: { concurrency: updatedConcurrency, maxRunning: updatedMaxRunning } },
       );
 
       await waitFor(async () => {

@@ -15,7 +15,7 @@ export class JobExecutor {
     private readonly handler: Handler,
     private readonly schedulesRepository: SchedulesRepository,
     private readonly jobRepository: JobRepository,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {}
 
   stop(): void {
@@ -59,7 +59,7 @@ export class JobExecutor {
 
   private async executeHandler(
     jobEntity: JobEntity,
-    parameters?: JobParameters
+    parameters?: JobParameters,
   ): Promise<{ started: DateTime; result: JobResult }> {
     this.logger.debug('run job', { name: jobEntity.name });
     const started = DateTime.now();

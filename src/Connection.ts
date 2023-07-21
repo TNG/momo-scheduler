@@ -18,14 +18,14 @@ export class Connection {
   private constructor(
     private readonly mongoClient: MongoClient,
     private readonly schedulesRepository: SchedulesRepository,
-    private readonly jobRepository: JobRepository
+    private readonly jobRepository: JobRepository,
   ) {}
 
   static async create(
     { url, collectionsPrefix }: MomoConnectionOptions,
     pingIntervalMs: number,
     scheduleId: string,
-    scheduleName: string
+    scheduleName: string,
   ): Promise<Connection> {
     const mongoClient = new MongoClient(url);
     await mongoClient.connect();
@@ -35,7 +35,7 @@ export class Connection {
       2 * pingIntervalMs,
       scheduleId,
       scheduleName,
-      collectionsPrefix
+      collectionsPrefix,
     );
     await schedulesRepository.createIndex();
     const jobRepository = new JobRepository(mongoClient, collectionsPrefix);

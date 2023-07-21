@@ -24,7 +24,7 @@ export class JobScheduler {
     private readonly scheduleId: string,
     private readonly schedulesRepository: SchedulesRepository,
     private readonly jobRepository: JobRepository,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {}
 
   static forJob(
@@ -32,7 +32,7 @@ export class JobScheduler {
     job: Job,
     logger: Logger,
     schedulesRepository: SchedulesRepository,
-    jobRepository: JobRepository
+    jobRepository: JobRepository,
   ): JobScheduler {
     const executor = new JobExecutor(job.handler, schedulesRepository, jobRepository, logger);
     return new JobScheduler(job.name, executor, scheduleId, schedulesRepository, jobRepository, logger);
@@ -53,7 +53,7 @@ export class JobScheduler {
         'get job description - job not found',
         MomoErrorType.scheduleJob,
         { name: this.jobName },
-        momoError.jobNotFound
+        momoError.jobNotFound,
       );
       return;
     }
@@ -77,7 +77,7 @@ export class JobScheduler {
         'cannot schedule job',
         MomoErrorType.scheduleJob,
         { name: this.jobName },
-        momoError.jobNotFound
+        momoError.jobNotFound,
       );
       return;
     }
@@ -115,7 +115,7 @@ export class JobScheduler {
           'job not found, skip execution',
           MomoErrorType.executeJob,
           { name: this.jobName },
-          momoError.jobNotFound
+          momoError.jobNotFound,
         );
         return {
           status: ExecutionStatus.notFound,
@@ -139,7 +139,7 @@ export class JobScheduler {
           'job not found, skip execution',
           MomoErrorType.executeJob,
           { name: this.jobName },
-          momoError.jobNotFound
+          momoError.jobNotFound,
         );
         return;
       }
@@ -168,7 +168,7 @@ export class JobScheduler {
       'an unexpected error occurred while executing job',
       MomoErrorType.executeJob,
       { name: this.jobName },
-      error
+      error,
     );
   }
 }

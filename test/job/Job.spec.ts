@@ -179,7 +179,7 @@ describe('Job', () => {
           schedule: { cronSchedule: '0 9 * * 1-5' },
           concurrency: 1,
           maxRunning: 0,
-        })
+        }),
       );
     });
   });
@@ -198,7 +198,7 @@ describe('Job', () => {
           schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 0, parsedFirstRunAfter: 0 },
           concurrency: 1,
           maxRunning: 0,
-        })
+        }),
       );
     });
 
@@ -220,7 +220,7 @@ describe('Job', () => {
           },
           concurrency: 1,
           maxRunning: 0,
-        })
+        }),
       );
     });
 
@@ -237,7 +237,7 @@ describe('Job', () => {
           schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 42, parsedFirstRunAfter: 42 },
           concurrency: 1,
           maxRunning: 0,
-        })
+        }),
       );
     });
   });

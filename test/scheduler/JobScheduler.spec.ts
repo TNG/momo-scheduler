@@ -33,7 +33,7 @@ describe('JobScheduler', () => {
   });
 
   function createJob<Schedule extends ParsedIntervalSchedule | CronSchedule>(
-    job: JobDefinition<Schedule>
+    job: JobDefinition<Schedule>,
   ): JobDefinition<Schedule> {
     jobScheduler = new JobScheduler(
       job.name,
@@ -41,7 +41,7 @@ describe('JobScheduler', () => {
       scheduleId,
       instance(schedulesRepository),
       instance(jobRepository),
-      loggerForTests(errorFn)
+      loggerForTests(errorFn),
     );
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve({
       ...toJobDefinition(job),
@@ -52,7 +52,7 @@ describe('JobScheduler', () => {
   }
 
   function createIntervalJob(
-    partialJob: Partial<JobDefinition<ParsedIntervalSchedule>> = {}
+    partialJob: Partial<JobDefinition<ParsedIntervalSchedule>> = {},
   ): JobDefinition<ParsedIntervalSchedule> {
     const job = {
       name: 'interval job',
@@ -222,7 +222,7 @@ describe('JobScheduler', () => {
         'cannot schedule job',
         MomoErrorType.scheduleJob,
         { name: job.name },
-        momoError.jobNotFound
+        momoError.jobNotFound,
       );
     });
 
@@ -239,7 +239,7 @@ describe('JobScheduler', () => {
         'an unexpected error occurred while executing job',
         MomoErrorType.executeJob,
         { name: job.name },
-        error
+        error,
       );
 
       expect(jobScheduler.getUnexpectedErrorCount()).toBe(1);

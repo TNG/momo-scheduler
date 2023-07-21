@@ -47,7 +47,7 @@ describe('SchedulesRepository', () => {
         { url: mongo.getUri() },
         pingInterval,
         inactiveScheduleId,
-        scheduleName
+        scheduleName,
       );
       const inactiveSchedulesRepository = inactiveConnection.getSchedulesRepository();
       const secondIsActive = await inactiveSchedulesRepository.isActiveSchedule(scheduleName);
@@ -64,15 +64,15 @@ describe('SchedulesRepository', () => {
     it('only one schedule of many concurrent ones is active', async () => {
       const connections = await Promise.all(
         ['a', 'b', 'c', 'd', 'e'].map(async (id) =>
-          Connection.create({ url: mongo.getUri() }, pingInterval, id, scheduleName)
-        )
+          Connection.create({ url: mongo.getUri() }, pingInterval, id, scheduleName),
+        ),
       );
 
       const schedulesActiveStatus = await Promise.all(
         connections.map(async (connection) => {
           const newSchedulesRepository = connection.getSchedulesRepository();
           return newSchedulesRepository.isActiveSchedule(scheduleName);
-        })
+        }),
       );
 
       const entities = await schedulesRepository.find({});
@@ -89,7 +89,7 @@ describe('SchedulesRepository', () => {
         { url: mongo.getUri() },
         pingInterval,
         secondScheduleId,
-        scheduleName
+        scheduleName,
       );
       const secondSchedulesRepository = await secondConnection.getSchedulesRepository();
       const secondActive = await secondSchedulesRepository.isActiveSchedule(scheduleName);
@@ -113,7 +113,7 @@ describe('SchedulesRepository', () => {
         { url: mongo.getUri() },
         pingInterval,
         secondScheduleId,
-        otherScheduleName
+        otherScheduleName,
       );
       const secondSchedulesRepository = await secondConnection.getSchedulesRepository();
       const isSecondActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
@@ -121,7 +121,7 @@ describe('SchedulesRepository', () => {
         { url: mongo.getUri() },
         pingInterval,
         thirdScheduleId,
-        otherScheduleName
+        otherScheduleName,
       );
       const thirdSchedulesRepository = await thirdConnection.getSchedulesRepository();
       const isThirdActive = await thirdSchedulesRepository.isActiveSchedule(otherScheduleName);
@@ -208,7 +208,7 @@ describe('SchedulesRepository', () => {
           { url: mongo.getUri() },
           pingInterval,
           otherScheduleId,
-          scheduleName
+          scheduleName,
         );
         const otherSchedulesRepository = otherConnection.getSchedulesRepository();
 

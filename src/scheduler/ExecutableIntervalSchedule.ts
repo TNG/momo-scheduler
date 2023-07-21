@@ -36,7 +36,7 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<I
       this.parsedInterval,
       delay,
       logger,
-      errorMessage
+      errorMessage,
     );
 
     return { nextExecution: DateTime.fromMillis(DateTime.now().toMillis() + delay) };
