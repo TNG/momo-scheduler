@@ -43,7 +43,7 @@
     "mongodb": "4 || 5"
   },
   "devDependencies": {
-    "@sinonjs/fake-timers": "10.3.0",
+    "@sinonjs/fake-timers": "11.0.0",
     "@types/cron": "2.0.1",
     "@types/human-interval": "1.0.0",
     "@types/jest": "29.5.3",
