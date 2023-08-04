@@ -64,10 +64,25 @@ npm run lint
 npm run build
 npm run test
 
+echo "Creating release tag"
+git tag -am "$VERSION_PREFIXED" "$VERSION_PREFIXED"
+
+if [[ $DRY_RUN = 1 ]]; then
+  echo "Pushing tag to GitHub repository (dry-run)"
+  git push "$UPSTREAM_URL" "$VERSION_PREFIXED" --dry-run
+else
+  echo "Pushing tag to GitHub repository"
+  git push "$UPSTREAM_URL" "$VERSION_PREFIXED"
+fi
+
 if [[ $DRY_RUN = 1 ]]; then
   echo "Publish to npmjs (dry-run)"
   npm publish --access public --registry https://registry.npmjs.org/ --dry-run
 else
   echo "Publish to npmjs"
   npm publish --access public --registry https://registry.npmjs.org/
+fi
+
+if [[ $DRY_RUN = 1 ]]; then
+  echo "Run this command to clean up: git tag -d $VERSION_PREFIXED"
 fi
