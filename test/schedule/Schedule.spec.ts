@@ -39,7 +39,7 @@ describe('Schedule', () => {
     jest.clearAllMocks();
 
     when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
-    when(schedulesRepository.getScheduleState(anyNumber())).thenResolve(ScheduleState.THIS_INSTANCE_ACTIVE);
+    when(schedulesRepository.getScheduleState(anyNumber())).thenResolve(ScheduleState.thisInstanceActive);
 
     mongoSchedule = await MongoSchedule.connect({ scheduleName, url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);

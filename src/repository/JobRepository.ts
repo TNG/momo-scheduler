@@ -26,10 +26,6 @@ export class JobRepository extends Repository<JobEntity> {
     return job?.executionInfo;
   }
 
-  async clear(): Promise<void> {
-    await this.delete();
-  }
-
   async define(job: JobDefinition): Promise<void> {
     const { name, schedule, concurrency, maxRunning } = job;
 

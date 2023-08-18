@@ -38,7 +38,6 @@ export class MongoSchedule extends Schedule {
 
     this.disconnectFct = connection.disconnect.bind(connection);
     this.schedulePing = new SchedulePing(
-      scheduleId,
       schedulesRepository,
       this.logger,
       pingIntervalMs,

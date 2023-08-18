@@ -118,7 +118,7 @@ describe('SchedulesRepository', () => {
 
       const active = await schedulesRepository.getScheduleState(DateTime.now().toMillis());
 
-      expect(active).toBe(ScheduleState.THIS_INSTANCE_ACTIVE);
+      expect(active).toBe(ScheduleState.thisInstanceActive);
     });
 
     it('detects active schedule after ping interval elapsed', async () => {
@@ -127,7 +127,7 @@ describe('SchedulesRepository', () => {
 
       const active = await schedulesRepository.getScheduleState(DateTime.now().toMillis());
 
-      expect(active).toBe(ScheduleState.THIS_INSTANCE_ACTIVE);
+      expect(active).toBe(ScheduleState.thisInstanceActive);
     });
 
     it('detects other active schedule with identical name', async () => {
@@ -139,7 +139,7 @@ describe('SchedulesRepository', () => {
 
       const active = await secondSchedulesRepository.getScheduleState(now);
 
-      expect(active).toBe(ScheduleState.DIFFERENT_INSTANCE_ACTIVE);
+      expect(active).toBe(ScheduleState.differentInstanceActive);
     });
 
     it('does not consider dead schedule with identical name', async () => {
@@ -151,7 +151,7 @@ describe('SchedulesRepository', () => {
 
       const active = await secondSchedulesRepository.getScheduleState(DateTime.now().toMillis());
 
-      expect(active).toBe(ScheduleState.INACTIVE);
+      expect(active).toBe(ScheduleState.inactive);
     });
 
     it('does not consider schedule with different name', async () => {
@@ -168,7 +168,7 @@ describe('SchedulesRepository', () => {
 
       const active = await secondSchedulesRepository.getScheduleState(now);
 
-      expect(active).toBe(ScheduleState.INACTIVE);
+      expect(active).toBe(ScheduleState.inactive);
     });
   });
 

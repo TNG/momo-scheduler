@@ -9,9 +9,9 @@ import { MomoErrorType } from '../logging/error/MomoErrorType';
 export const SCHEDULES_COLLECTION_NAME = 'schedules';
 
 export enum ScheduleState {
-  INACTIVE,
-  DIFFERENT_INSTANCE_ACTIVE,
-  THIS_INSTANCE_ACTIVE,
+  inactive,
+  differentInstanceActive,
+  thisInstanceActive,
 }
 
 export class SchedulesRepository extends Repository<ScheduleEntity> {
@@ -31,6 +31,14 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     this.logger = logger;
   }
 
+  getScheduleId(): string {
+    return this.scheduleId;
+  }
+
+  async deleteOne(): Promise<void> {
+    await this.collection.deleteOne({ scheduleId: this.scheduleId });
+  }
+
   /**
    * Checks the state of the schedule represented by this repository.
    *
@@ -45,14 +53,14 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     const threshold = now - this.deadScheduleThreshold;
     const activeSchedule = await this.collection.findOne({ name: this.name });
     if (activeSchedule === null) {
-      return ScheduleState.INACTIVE;
+      return ScheduleState.inactive;
     }
 
     if (activeSchedule.scheduleId !== this.scheduleId) {
-      return activeSchedule.lastAlive >= threshold ? ScheduleState.DIFFERENT_INSTANCE_ACTIVE : ScheduleState.INACTIVE;
+      return activeSchedule.lastAlive >= threshold ? ScheduleState.differentInstanceActive : ScheduleState.inactive;
     }
 
-    return ScheduleState.THIS_INSTANCE_ACTIVE;
+    return ScheduleState.thisInstanceActive;
   }
 
   /**

@@ -16,7 +16,6 @@ export class SchedulePing {
   private startJobsStatus: StartJobsStatus = StartJobsStatus.notStarted;
 
   constructor(
-    private readonly scheduleId: string,
     private readonly schedulesRepository: SchedulesRepository,
     private readonly logger: Logger,
     private readonly interval: number,
@@ -40,9 +39,9 @@ export class SchedulePing {
     const now = DateTime.now().toMillis();
     const scheduleState = await this.schedulesRepository.getScheduleState(now);
     const active =
-      scheduleState === ScheduleState.INACTIVE
+      scheduleState === ScheduleState.inactive
         ? await this.schedulesRepository.setActiveSchedule(now)
-        : scheduleState === ScheduleState.THIS_INSTANCE_ACTIVE;
+        : scheduleState === ScheduleState.thisInstanceActive;
 
     this.logger.debug(`This schedule is ${active ? '' : 'not '}active`);
 
@@ -62,9 +61,10 @@ export class SchedulePing {
 
   async stop(): Promise<void> {
     if (this.handle) {
-      this.logger.debug('stop SchedulePing', { scheduleId: this.scheduleId });
+      this.logger.debug('stop SchedulePing', { scheduleId: this.schedulesRepository.getScheduleId() });
       clearInterval(this.handle);
     }
-    await this.schedulesRepository.deleteOne({ scheduleId: this.scheduleId });
+
+    await this.schedulesRepository.deleteOne();
   }
 }
