@@ -13,7 +13,6 @@ import { CronSchedule } from '../../src/job/MomoJob';
 
 describe('JobScheduler', () => {
   const errorFn = jest.fn();
-  const scheduleId = '123';
 
   let schedulesRepository: SchedulesRepository;
   let jobRepository: JobRepository;
@@ -38,7 +37,6 @@ describe('JobScheduler', () => {
     jobScheduler = new JobScheduler(
       job.name,
       instance(jobExecutor),
-      scheduleId,
       instance(schedulesRepository),
       instance(jobRepository),
       loggerForTests(errorFn),

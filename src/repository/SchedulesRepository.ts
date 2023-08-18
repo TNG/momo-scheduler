@@ -8,6 +8,12 @@ import { MomoErrorType } from '../logging/error/MomoErrorType';
 
 export const SCHEDULES_COLLECTION_NAME = 'schedules';
 
+export enum ScheduleState {
+  INACTIVE,
+  DIFFERENT_INSTANCE_ACTIVE,
+  THIS_INSTANCE_ACTIVE,
+}
+
 export class SchedulesRepository extends Repository<ScheduleEntity> {
   private logger: Logger | undefined;
 
@@ -25,22 +31,45 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     this.logger = logger;
   }
 
-  async getActiveSchedule(name: string): Promise<string | undefined> {
-    const threshold = DateTime.now().toMillis() - this.deadScheduleThreshold;
-    const activeSchedule = await this.collection.findOne({ name, lastAlive: { $gte: threshold } });
-    const foo = await this.collection.find({}).toArray();
-    // eslint-disable-next-line no-console
-    console.log(foo);
-    return activeSchedule?.scheduleId;
+  /**
+   * Checks the state of the schedule represented by this repository.
+   *
+   * INACTIVE: There is currently no active instance for a schedule with this name.
+   * DIFFERENT_INSTANCE_ACTIVE: Another instance (but not this one) is active for the schedule with this name.
+   * THIS_INSTANCE_ACTIVE: This instance is active for the schedule with this name.
+   *
+   * @param now timestamp in milliseconds
+   * @returns the schedule's state
+   */
+  async getScheduleState(now: number): Promise<ScheduleState> {
+    const threshold = now - this.deadScheduleThreshold;
+    const activeSchedule = await this.collection.findOne({ name: this.name });
+    if (activeSchedule === null) {
+      return ScheduleState.INACTIVE;
+    }
+
+    if (activeSchedule.scheduleId !== this.scheduleId) {
+      return activeSchedule.lastAlive >= threshold ? ScheduleState.DIFFERENT_INSTANCE_ACTIVE : ScheduleState.INACTIVE;
+    }
+
+    return ScheduleState.THIS_INSTANCE_ACTIVE;
   }
 
-  async setActiveSchedule(name: string): Promise<boolean> {
+  /**
+   * Tries to set this instance as active
+   *
+   * @param now timestamp in milliseconds
+   * @returns true if this instance is now active for the schedule with this name, false otherwise
+   */
+  async setActiveSchedule(now: number): Promise<boolean> {
+    const threshold = now - this.deadScheduleThreshold;
+
     try {
       await this.collection.updateOne(
-        { name },
+        { name: this.name, lastAlive: { $lt: threshold } }, // overwrite a dead (too old) schedule
         {
           $set: {
-            name,
+            name: this.name,
             scheduleId: this.scheduleId,
             lastAlive: DateTime.now().toMillis(),
             executions: {},
@@ -64,8 +93,8 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     }
   }
 
-  async ping(scheduleId = this.scheduleId): Promise<void> {
-    await this.updateOne({ scheduleId }, { $set: { lastAlive: DateTime.now().toMillis() } });
+  async ping(): Promise<void> {
+    await this.updateOne({ scheduleId: this.scheduleId }, { $set: { lastAlive: DateTime.now().toMillis() } });
   }
 
   async createIndex(): Promise<void> {
@@ -74,44 +103,44 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     await this.collection.createIndex({ name: 1 }, { unique: true });
   }
 
-  async removeJob(scheduleId: string, name: string): Promise<void> {
-    const schedulesEntity = await this.findOne({ scheduleId });
+  async removeJob(jobName: string): Promise<void> {
+    const schedulesEntity = await this.findOne({ scheduleId: this.scheduleId });
     if (!schedulesEntity) {
-      throw new Error(`schedulesEntity not found for scheduleId=${scheduleId}`);
+      throw new Error(`schedulesEntity not found for scheduleId=${this.scheduleId}`);
     }
 
     const executions = schedulesEntity.executions;
-    delete executions[name];
-    await this.updateOne({ scheduleId }, { $set: { executions } });
+    delete executions[jobName];
+    await this.updateOne({ scheduleId: this.scheduleId }, { $set: { executions } });
   }
 
-  async addExecution(name: string, maxRunning: number): Promise<{ added: boolean; running: number }> {
+  async addExecution(jobName: string, maxRunning: number): Promise<{ added: boolean; running: number }> {
     if (maxRunning < 1) {
       const schedule = await this.collection.findOneAndUpdate(
         { name: this.name },
-        { $inc: { [`executions.${name}`]: 1 } },
+        { $inc: { [`executions.${jobName}`]: 1 } },
         { returnDocument: 'after' },
       );
-      return { added: schedule.value !== null, running: schedule.value?.executions[name] ?? 0 };
+      return { added: schedule.value !== null, running: schedule.value?.executions[jobName] ?? 0 };
     }
 
     const schedule = await this.collection.findOneAndUpdate(
       {
         name: this.name,
-        $or: [{ [`executions.${name}`]: { $lt: maxRunning } }, { [`executions.${name}`]: { $exists: false } }],
+        $or: [{ [`executions.${jobName}`]: { $lt: maxRunning } }, { [`executions.${jobName}`]: { $exists: false } }],
       },
-      { $inc: { [`executions.${name}`]: 1 } },
+      { $inc: { [`executions.${jobName}`]: 1 } },
       { returnDocument: 'after' },
     );
 
-    return { added: schedule.value !== null, running: schedule.value?.executions[name] ?? maxRunning };
+    return { added: schedule.value !== null, running: schedule.value?.executions[jobName] ?? maxRunning };
   }
 
-  async removeExecution(name: string): Promise<void> {
-    await this.updateOne({ name: this.name }, { $inc: { [`executions.${name}`]: -1 } });
+  async removeExecution(jobName: string): Promise<void> {
+    await this.updateOne({ name: this.name }, { $inc: { [`executions.${jobName}`]: -1 } });
   }
 
-  async countRunningExecutions(name: string): Promise<number> {
-    return (await this.findOne({ scheduleId: this.scheduleId }))?.executions[name] ?? 0;
+  async countRunningExecutions(jobName: string): Promise<number> {
+    return (await this.findOne({ scheduleId: this.scheduleId }))?.executions[jobName] ?? 0;
   }
 }

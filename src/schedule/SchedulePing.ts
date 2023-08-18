@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { SchedulesRepository } from '../repository/SchedulesRepository';
+import { ScheduleState, SchedulesRepository } from '../repository/SchedulesRepository';
 import { Logger } from '../logging/Logger';
 import { setSafeInterval } from '../timeout/safeTimeouts';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
@@ -17,7 +17,6 @@ export class SchedulePing {
 
   constructor(
     private readonly scheduleId: string,
-    private readonly scheduleName: string,
     private readonly schedulesRepository: SchedulesRepository,
     private readonly logger: Logger,
     private readonly interval: number,
@@ -38,16 +37,17 @@ export class SchedulePing {
   }
 
   private async checkActiveSchedule(): Promise<void> {
-    const activeSchedule = await this.schedulesRepository.getActiveSchedule(this.scheduleName);
+    const now = DateTime.now().toMillis();
+    const scheduleState = await this.schedulesRepository.getScheduleState(now);
     const active =
-      activeSchedule === undefined
-        ? await this.schedulesRepository.setActiveSchedule(this.scheduleName)
-        : activeSchedule === this.scheduleId;
+      scheduleState === ScheduleState.INACTIVE
+        ? await this.schedulesRepository.setActiveSchedule(now)
+        : scheduleState === ScheduleState.THIS_INSTANCE_ACTIVE;
 
     this.logger.debug(`This schedule is ${active ? '' : 'not '}active`);
 
     if (active) {
-      await this.schedulesRepository.ping(this.scheduleId);
+      await this.schedulesRepository.ping();
       if (this.startJobsStatus === StartJobsStatus.notStarted) {
         this.startJobsStatus = StartJobsStatus.inProgress;
         this.logger.debug('This schedule just turned active');
