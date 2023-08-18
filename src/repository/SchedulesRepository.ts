@@ -26,31 +26,32 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
   }
 
   async getActiveSchedule(name: string): Promise<string | undefined> {
-    const activeSchedule = await this.collection.findOne({ name });
+    const threshold = DateTime.now().toMillis() - this.deadScheduleThreshold;
+    const activeSchedule = await this.collection.findOne({ name, lastAlive: { $gte: threshold } });
+    const foo = await this.collection.find({}).toArray();
+    // eslint-disable-next-line no-console
+    console.log(foo);
     return activeSchedule?.scheduleId;
   }
 
   async setActiveSchedule(name: string): Promise<boolean> {
-    const lastAlive = DateTime.now().toMillis();
-    const threshold = lastAlive - this.deadScheduleThreshold;
     try {
-      const result = await this.collection.findOneAndUpdate(
-        { lastAlive: { $lt: threshold }, name },
+      await this.collection.updateOne(
+        { name },
         {
           $set: {
             name,
             scheduleId: this.scheduleId,
-            lastAlive,
+            lastAlive: DateTime.now().toMillis(),
             executions: {},
           },
         },
         {
           upsert: true,
-          returnDocument: 'after',
         },
       );
 
-      return result.value !== null && result.value.scheduleId === this.scheduleId;
+      return true;
     } catch (error) {
       // We seem to have a schedule that's alive. The unique name index probably prevented the upsert.
       this.logger?.error(
