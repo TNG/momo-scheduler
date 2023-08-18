@@ -36,8 +36,14 @@ export class SchedulePing {
   }
 
   private async checkActiveSchedule(): Promise<void> {
-    const active = await this.schedulesRepository.isActiveSchedule(this.scheduleName);
+    const activeSchedule = await this.schedulesRepository.getActiveSchedule(this.scheduleName);
+    const active =
+      activeSchedule === undefined
+        ? await this.schedulesRepository.setActiveSchedule(this.scheduleName)
+        : activeSchedule === this.scheduleId;
+
     this.logger.debug(`This schedule is ${active ? '' : 'not '}active`);
+
     if (active) {
       await this.schedulesRepository.ping(this.scheduleId);
       if (this.startJobsStatus === StartJobsStatus.notStarted) {

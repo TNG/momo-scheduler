@@ -25,14 +25,12 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     this.logger = logger;
   }
 
-  /**
-   * Checks if there is an alive active schedule in the database for the given name.
-   *
-   * If there is one -> return true if it is this schedule, otherwise false.
-   * If there is no such schedule -> we try inserting this schedule as the active one.
-   * ↳ If it worked return true, otherwise false.
-   */
-  async isActiveSchedule(name: string): Promise<boolean> {
+  async getActiveSchedule(name: string): Promise<string | undefined> {
+    const activeSchedule = await this.collection.findOne({ name });
+    return activeSchedule?.scheduleId;
+  }
+
+  async setActiveSchedule(name: string): Promise<boolean> {
     const lastAlive = DateTime.now().toMillis();
     const threshold = lastAlive - this.deadScheduleThreshold;
     try {
@@ -52,19 +50,16 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         },
       );
 
-      return result.value === null ? false : result.value.scheduleId === this.scheduleId;
+      return result.value !== null && result.value.scheduleId === this.scheduleId;
     } catch (error) {
-      // We seem to have a schedule that's alive. The unique name index probably prevented the upsert. Is this one the active schedule?
-      const aliveSchedule = await this.collection.findOne({ name });
-      if (aliveSchedule === null) {
-        this.logger?.error(
-          'The database reported an unexpected error',
-          MomoErrorType.internal,
-          { scheduleId: this.scheduleId },
-          error,
-        );
-      }
-      return aliveSchedule?.scheduleId === this.scheduleId;
+      // We seem to have a schedule that's alive. The unique name index probably prevented the upsert.
+      this.logger?.error(
+        'The database reported an unexpected error',
+        MomoErrorType.internal,
+        { scheduleId: this.scheduleId },
+        error,
+      );
+      return false;
     }
   }
 
