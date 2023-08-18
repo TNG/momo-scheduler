@@ -67,23 +67,20 @@ npm run lint
 npm run build
 npm run test
 
-echo "Committing version change and creating tag"
+echo "Committing version change"
 git add package.json package-lock.json
 git commit -sm "chore: update version to $VERSION"
-git tag -am "$VERSION_PREFIXED" "$VERSION_PREFIXED"
 
 if [[ $DRY_RUN = 1 ]]; then
-  echo "Pushing version and tag to GitHub repository (dry-run)"
+  echo "Pushing version to GitHub repository (dry-run)"
   git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH" --dry-run
-  git push "$UPSTREAM_URL" "$VERSION_PREFIXED" --dry-run
 else
-  echo "Pushing version and tag to GitHub repository"
+  echo "Pushing version to GitHub repository"
   git push --set-upstream "$UPSTREAM_URL" "$RELEASE_BRANCH"
-  git push "$UPSTREAM_URL" "$VERSION_PREFIXED"
 fi
 
 echo "Please merge $RELEASE_BRANCH into $UPSTREAM_BRANCH"
 
 if [[ $DRY_RUN = 1 ]]; then
-  echo "Run these commands to clean up: git checkout $UPSTREAM_BRANCH && git branch -D $RELEASE_BRANCH && git tag -d $VERSION_PREFIXED"
+  echo "Run these commands to clean up: git checkout $UPSTREAM_BRANCH && git branch -D $RELEASE_BRANCH"
 fi
