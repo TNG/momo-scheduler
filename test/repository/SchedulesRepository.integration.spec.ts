@@ -2,8 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { DateTime } from 'luxon';
 
 import { Connection } from '../../src/Connection';
-import { ScheduleState, SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { sleep } from '../utils/sleep';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 
 describe('SchedulesRepository', () => {
   const scheduleName = 'schedule';
@@ -39,8 +38,21 @@ describe('SchedulesRepository', () => {
       expect(schedule).not.toBeNull();
     });
 
+    it('updates timestamp', async () => {
+      const now = DateTime.now().toMillis();
+      await schedulesRepository.setActiveSchedule(now - pingInterval);
+      const schedulesEntity = await schedulesRepository.findOne({ scheduleId });
+
+      await schedulesRepository.setActiveSchedule(now);
+
+      const schedulesEntityAfterPing = await schedulesRepository.findOne({ scheduleId });
+      expect(schedulesEntityAfterPing?.lastAlive).toBeGreaterThan(schedulesEntity!.lastAlive);
+    });
+
     it('refuses to set another active schedule', async () => {
-      await schedulesRepository.setActiveSchedule(DateTime.now().toMillis());
+      const now = DateTime.now().toMillis();
+      const lastAlive = now - 10;
+      await schedulesRepository.setActiveSchedule(lastAlive);
 
       const anotherScheduleId = 'not active';
       const anotherInstance = await Connection.create(
@@ -50,18 +62,19 @@ describe('SchedulesRepository', () => {
         scheduleName,
       );
       const anotherSchedulesRepository = anotherInstance.getSchedulesRepository();
-      const error = jest.fn();
-      anotherSchedulesRepository.setLogger({ debug: jest.fn(), error });
+      const debug = jest.fn();
+      anotherSchedulesRepository.setLogger({ debug, error: jest.fn() });
 
-      const active = await anotherSchedulesRepository.setActiveSchedule(DateTime.now().toMillis());
+      const active = await anotherSchedulesRepository.setActiveSchedule(now);
       await anotherInstance.disconnect();
 
-      expect(error).toHaveBeenCalled();
+      expect(debug).toHaveBeenCalled();
       expect(active).toEqual(false);
 
       const schedules = await schedulesRepository.find({ name: scheduleName });
       expect(schedules).toHaveLength(1);
       expect(schedules[0]?.scheduleId).toEqual(scheduleId);
+      expect(schedules[0]?.lastAlive).toEqual(lastAlive);
     });
 
     it('only one schedule of many concurrent ones is active', async () => {
@@ -85,14 +98,14 @@ describe('SchedulesRepository', () => {
     });
 
     it('should replace dead schedules', async () => {
-      await schedulesRepository.setActiveSchedule(DateTime.now().toMillis());
-      const otherScheduleId = 'not active';
+      const now = DateTime.now().toMillis();
+      await schedulesRepository.setActiveSchedule(now - 2 * pingInterval - 10);
+      const otherScheduleId = 'other schedule ID';
 
       secondConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, otherScheduleId, scheduleName);
       const secondSchedulesRepository = secondConnection.getSchedulesRepository();
-      await sleep(2 * pingInterval);
 
-      const active = await secondSchedulesRepository.setActiveSchedule(DateTime.now().toMillis());
+      const active = await secondSchedulesRepository.setActiveSchedule(now);
 
       expect(active).toEqual(true);
     });
@@ -116,18 +129,18 @@ describe('SchedulesRepository', () => {
     it('detects active schedule', async () => {
       await schedulesRepository.setActiveSchedule(DateTime.now().toMillis());
 
-      const active = await schedulesRepository.getScheduleState(DateTime.now().toMillis());
+      const active = await schedulesRepository.isActiveSchedule(DateTime.now().toMillis());
 
-      expect(active).toBe(ScheduleState.thisInstanceActive);
+      expect(active).toBe(true);
     });
 
     it('detects active schedule after ping interval elapsed', async () => {
-      await schedulesRepository.setActiveSchedule(DateTime.now().toMillis());
-      await sleep(2 * pingInterval);
+      const now = DateTime.now().toMillis();
+      await schedulesRepository.setActiveSchedule(now - 2 * pingInterval - 10);
 
-      const active = await schedulesRepository.getScheduleState(DateTime.now().toMillis());
+      const active = await schedulesRepository.isActiveSchedule(now);
 
-      expect(active).toBe(ScheduleState.thisInstanceActive);
+      expect(active).toBe(true);
     });
 
     it('detects other active schedule with identical name', async () => {
@@ -137,21 +150,21 @@ describe('SchedulesRepository', () => {
       const now = DateTime.now().toMillis();
       await schedulesRepository.setActiveSchedule(now);
 
-      const active = await secondSchedulesRepository.getScheduleState(now);
+      const active = await secondSchedulesRepository.isActiveSchedule(now);
 
-      expect(active).toBe(ScheduleState.differentInstanceActive);
+      expect(active).toBe(false);
     });
 
     it('does not consider dead schedule with identical name', async () => {
       secondConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, 'other schedule', scheduleName);
       const secondSchedulesRepository = secondConnection.getSchedulesRepository();
+      const now = DateTime.now().toMillis();
 
-      await schedulesRepository.setActiveSchedule(DateTime.now().toMillis());
-      await sleep(2 * pingInterval);
+      await schedulesRepository.setActiveSchedule(now - 2 * pingInterval - 10);
 
-      const active = await secondSchedulesRepository.getScheduleState(DateTime.now().toMillis());
+      const active = await secondSchedulesRepository.isActiveSchedule(now);
 
-      expect(active).toBe(ScheduleState.inactive);
+      expect(active).toBe(true);
     });
 
     it('does not consider schedule with different name', async () => {
@@ -166,9 +179,9 @@ describe('SchedulesRepository', () => {
       const now = DateTime.now().toMillis();
       await schedulesRepository.setActiveSchedule(now);
 
-      const active = await secondSchedulesRepository.getScheduleState(now);
+      const active = await secondSchedulesRepository.isActiveSchedule(now);
 
-      expect(active).toBe(ScheduleState.inactive);
+      expect(active).toBe(true);
     });
   });
 
@@ -253,17 +266,6 @@ describe('SchedulesRepository', () => {
 
         const running = await schedulesRepository.countRunningExecutions(name);
         expect(running).toBe(2);
-      });
-    });
-
-    describe('ping', () => {
-      it('updates timestamp', async () => {
-        const schedulesEntity = await schedulesRepository.findOne({ scheduleId });
-
-        await schedulesRepository.ping();
-
-        const schedulesEntityAfterPing = await schedulesRepository.findOne({ scheduleId });
-        expect(schedulesEntityAfterPing?.lastAlive).toBeGreaterThan(schedulesEntity!.lastAlive);
       });
     });
   });

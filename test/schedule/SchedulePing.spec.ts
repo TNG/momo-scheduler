@@ -1,11 +1,12 @@
 import { anyNumber, instance, mock, verify, when } from 'ts-mockito';
 
-import { ScheduleState, SchedulesRepository } from '../../src/repository/SchedulesRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { sleep } from '../utils/sleep';
 
 describe('SchedulePing', () => {
   const interval = 1000;
+  const logData = { name: 'name', scheduleId: 'scheduleId' };
   let error: jest.Mock;
 
   let schedulesRepository: SchedulesRepository;
@@ -22,64 +23,96 @@ describe('SchedulePing', () => {
   afterEach(async () => schedulePing.stop());
 
   it('starts, pings, cleans and stops', async () => {
-    when(schedulesRepository.getScheduleState(anyNumber())).thenResolve(ScheduleState.thisInstanceActive);
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
+    when(schedulesRepository.setActiveSchedule(anyNumber())).thenResolve(true);
     await schedulePing.start();
 
     expect(startAllJobs).toHaveBeenCalledTimes(1);
-    verify(schedulesRepository.ping()).once();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).once();
 
     await sleep(1.1 * interval);
     expect(startAllJobs).toHaveBeenCalledTimes(1);
-    verify(schedulesRepository.ping()).twice();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).twice();
 
     await schedulePing.stop();
     await sleep(interval);
 
-    verify(schedulesRepository.ping()).twice();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).twice();
     verify(schedulesRepository.deleteOne()).once();
   });
 
   it('handles mongo errors', async () => {
-    when(schedulesRepository.getScheduleState(anyNumber())).thenResolve(ScheduleState.thisInstanceActive);
+    when(schedulesRepository.getLogData()).thenReturn(logData);
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
     const message = 'I am an error that should be caught';
-    when(schedulesRepository.ping()).thenReject({
+    when(schedulesRepository.setActiveSchedule(anyNumber())).thenReject({
       message,
     } as Error);
 
     await schedulePing.start();
 
-    verify(schedulesRepository.ping()).once();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).once();
     expect(error).toHaveBeenCalledWith(
       'Pinging or cleaning the Schedules repository failed',
       'an internal error occurred',
-      {},
+      logData,
       { message },
     );
   });
 
-  it('handles job start taking longer than interval', async () => {
-    when(schedulesRepository.getScheduleState(anyNumber())).thenResolve(ScheduleState.differentInstanceActive);
-
-    startAllJobs.mockImplementation(async () => sleep(2 * interval));
+  it('does not start any jobs for inactive schedule', async () => {
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(false);
 
     await schedulePing.start();
 
-    verify(schedulesRepository.ping()).never();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).never();
+    expect(startAllJobs).not.toHaveBeenCalled();
+  });
+
+  it('does not start any jobs if setting active schedule fails', async () => {
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
+    when(schedulesRepository.setActiveSchedule(anyNumber())).thenResolve(false);
+
+    await schedulePing.start();
+
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).once();
+    expect(startAllJobs).not.toHaveBeenCalled();
+  });
+
+  it('becomes active when other schedule dies', async () => {
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(false);
+
+    await schedulePing.start();
+
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).never();
     expect(startAllJobs).toHaveBeenCalledTimes(0);
 
-    when(schedulesRepository.getScheduleState(anyNumber())).thenResolve(ScheduleState.thisInstanceActive);
+    // other schedule dies, this one becomes active
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
+    when(schedulesRepository.setActiveSchedule(anyNumber())).thenResolve(true);
 
     await sleep(1.1 * interval);
-    verify(schedulesRepository.ping()).once();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).once();
+    expect(startAllJobs).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles job start taking longer than interval', async () => {
+    startAllJobs.mockImplementation(async () => sleep(2 * interval));
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
+    when(schedulesRepository.setActiveSchedule(anyNumber())).thenResolve(true);
+
+    await schedulePing.start();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).once();
     expect(startAllJobs).toHaveBeenCalledTimes(1);
 
     await sleep(1.1 * interval);
-    verify(schedulesRepository.ping()).twice();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).twice();
     expect(startAllJobs).toHaveBeenCalledTimes(1);
 
     await schedulePing.stop();
+
     await sleep(interval);
-    verify(schedulesRepository.ping()).twice();
+    verify(schedulesRepository.setActiveSchedule(anyNumber())).twice();
     expect(startAllJobs).toHaveBeenCalledTimes(1);
     verify(schedulesRepository.deleteOne()).once();
   });

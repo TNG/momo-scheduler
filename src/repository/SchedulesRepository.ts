@@ -1,18 +1,14 @@
-import { DateTime } from 'luxon';
-import { MongoClient } from 'mongodb';
+import { Filter, MongoClient, MongoServerError } from 'mongodb';
 
 import { ScheduleEntity } from './ScheduleEntity';
 import { Repository } from './Repository';
 import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
+import { MomoEventData } from '../logging/MomoEvents';
 
 export const SCHEDULES_COLLECTION_NAME = 'schedules';
 
-export enum ScheduleState {
-  inactive,
-  differentInstanceActive,
-  thisInstanceActive,
-}
+const duplicateKeyErrorCode = 11000;
 
 export class SchedulesRepository extends Repository<ScheduleEntity> {
   private logger: Logger | undefined;
@@ -31,8 +27,8 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     this.logger = logger;
   }
 
-  getScheduleId(): string {
-    return this.scheduleId;
+  getLogData(): MomoEventData {
+    return { name: this.name, scheduleId: this.scheduleId };
   }
 
   async deleteOne(): Promise<void> {
@@ -49,18 +45,15 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
    * @param now timestamp in milliseconds
    * @returns the schedule's state
    */
-  async getScheduleState(now: number): Promise<ScheduleState> {
+  async isActiveSchedule(now: number): Promise<boolean> {
     const threshold = now - this.deadScheduleThreshold;
     const activeSchedule = await this.collection.findOne({ name: this.name });
-    if (activeSchedule === null) {
-      return ScheduleState.inactive;
+
+    if (activeSchedule === null || activeSchedule.scheduleId === this.scheduleId) {
+      return true;
     }
 
-    if (activeSchedule.scheduleId !== this.scheduleId) {
-      return activeSchedule.lastAlive >= threshold ? ScheduleState.differentInstanceActive : ScheduleState.inactive;
-    }
-
-    return ScheduleState.thisInstanceActive;
+    return activeSchedule.lastAlive < threshold; // if activeSchedule is too old, take over and make this one active
   }
 
   /**
@@ -72,42 +65,48 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
   async setActiveSchedule(now: number): Promise<boolean> {
     const threshold = now - this.deadScheduleThreshold;
 
+    const deadSchedule: Filter<ScheduleEntity> = { name: this.name, lastAlive: { $lt: threshold } };
+    const thisSchedule: Filter<ScheduleEntity> = { scheduleId: this.scheduleId };
+
+    const updatedSchedule: ScheduleEntity = {
+      name: this.name,
+      scheduleId: this.scheduleId,
+      lastAlive: now,
+      executions: {},
+    };
+
     try {
       await this.collection.updateOne(
-        { name: this.name, lastAlive: { $lt: threshold } }, // overwrite a dead (too old) schedule
-        {
-          $set: {
-            name: this.name,
-            scheduleId: this.scheduleId,
-            lastAlive: DateTime.now().toMillis(),
-            executions: {},
-          },
-        },
-        {
-          upsert: true,
-        },
+        { $or: [deadSchedule, thisSchedule] },
+        { $set: updatedSchedule },
+        { upsert: true },
       );
 
       return true;
     } catch (error) {
-      // We seem to have a schedule that's alive. The unique name index probably prevented the upsert.
-      this.logger?.error(
-        'The database reported an unexpected error',
-        MomoErrorType.internal,
-        { scheduleId: this.scheduleId },
-        error,
-      );
+      if (error instanceof MongoServerError && error.code === duplicateKeyErrorCode) {
+        this.logger?.debug(
+          'Cannot set active schedule - another schedule with this name is already active',
+          this.getLogData(),
+        );
+      } else {
+        this.logger?.error(
+          'The database reported an unexpected error',
+          MomoErrorType.internal,
+          this.getLogData(),
+          error,
+        );
+      }
+
       return false;
     }
   }
 
-  async ping(): Promise<void> {
-    await this.updateOne({ scheduleId: this.scheduleId }, { $set: { lastAlive: DateTime.now().toMillis() } });
-  }
-
+  /**
+   * This unique index ensures that we do not insert more than one active schedule per schedule name
+   * into the repository.
+   */
   async createIndex(): Promise<void> {
-    // this unique index ensures that we do not insert more than one active schedule
-    // in the repository per schedule name
     await this.collection.createIndex({ name: 1 }, { unique: true });
   }
 

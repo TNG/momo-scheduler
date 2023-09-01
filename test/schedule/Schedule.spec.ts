@@ -2,7 +2,7 @@ import { anyNumber, deepEqual, instance, mock, when } from 'ts-mockito';
 import { ObjectId } from 'mongodb';
 
 import { ExecutionStatus, MomoEvent, MomoJob, MomoOptions, MongoSchedule } from '../../src';
-import { ScheduleState, SchedulesRepository } from '../../src/repository/SchedulesRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
 import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
@@ -39,7 +39,8 @@ describe('Schedule', () => {
     jest.clearAllMocks();
 
     when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
-    when(schedulesRepository.getScheduleState(anyNumber())).thenResolve(ScheduleState.thisInstanceActive);
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
+    when(schedulesRepository.setActiveSchedule(anyNumber())).thenResolve(true);
 
     mongoSchedule = await MongoSchedule.connect({ scheduleName, url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);

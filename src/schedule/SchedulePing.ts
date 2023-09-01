@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { ScheduleState, SchedulesRepository } from '../repository/SchedulesRepository';
+import { SchedulesRepository } from '../repository/SchedulesRepository';
 import { Logger } from '../logging/Logger';
 import { setSafeInterval } from '../timeout/safeTimeouts';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
@@ -30,38 +30,39 @@ export class SchedulePing {
     try {
       await this.checkActiveSchedule();
     } catch (e) {
-      this.logger.error(errorMessage, MomoErrorType.internal, {}, e);
+      this.logger.error(errorMessage, MomoErrorType.internal, this.schedulesRepository.getLogData(), e);
     }
     this.handle = setSafeInterval(this.checkActiveSchedule.bind(this), this.interval, this.logger, errorMessage);
   }
 
   private async checkActiveSchedule(): Promise<void> {
     const now = DateTime.now().toMillis();
-    const scheduleState = await this.schedulesRepository.getScheduleState(now);
-    const active =
-      scheduleState === ScheduleState.inactive
-        ? await this.schedulesRepository.setActiveSchedule(now)
-        : scheduleState === ScheduleState.thisInstanceActive;
-
-    this.logger.debug(`This schedule is ${active ? '' : 'not '}active`);
-
-    if (active) {
-      await this.schedulesRepository.ping();
-      if (this.startJobsStatus === StartJobsStatus.notStarted) {
-        this.startJobsStatus = StartJobsStatus.inProgress;
-        this.logger.debug('This schedule just turned active');
-
-        await this.startAllJobs();
-
-        this.startJobsStatus = StartJobsStatus.finished;
-        this.logger.debug('Finished starting scheduled jobs');
-      }
+    const active = await this.schedulesRepository.isActiveSchedule(now);
+    if (!active) {
+      this.logger.debug('This schedule is not active', this.schedulesRepository.getLogData());
+      return;
     }
+
+    if (!(await this.schedulesRepository.setActiveSchedule(now))) {
+      return;
+    }
+
+    this.logger.debug('This schedule is active', this.schedulesRepository.getLogData());
+
+    if (this.startJobsStatus !== StartJobsStatus.notStarted) {
+      return;
+    }
+
+    this.startJobsStatus = StartJobsStatus.inProgress;
+    this.logger.debug('This schedule just turned active', this.schedulesRepository.getLogData());
+    await this.startAllJobs();
+    this.startJobsStatus = StartJobsStatus.finished;
+    this.logger.debug('Finished starting scheduled jobs', this.schedulesRepository.getLogData());
   }
 
   async stop(): Promise<void> {
     if (this.handle) {
-      this.logger.debug('stop SchedulePing', { scheduleId: this.schedulesRepository.getScheduleId() });
+      this.logger.debug('stop SchedulePing', this.schedulesRepository.getLogData());
       clearInterval(this.handle);
     }
 

@@ -1,6 +1,6 @@
 import { anyNumber, instance, mock, verify, when } from 'ts-mockito';
 
-import { ScheduleState, SchedulesRepository } from '../../src/repository/SchedulesRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { MomoOptions, MongoSchedule } from '../../src';
 
@@ -27,7 +27,7 @@ describe('MongoSchedule', () => {
   });
 
   it('connects and starts the ping and disconnects and stops the ping', async () => {
-    when(schedulesRepository.getScheduleState(anyNumber())).thenResolve(ScheduleState.inactive);
+    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
 
     const mongoSchedule = await MongoSchedule.connect({ scheduleName: 'schedule', url: 'mongodb://does.not/matter' });
     const secondSchedule = await MongoSchedule.connect({
