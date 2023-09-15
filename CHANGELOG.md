@@ -3,8 +3,11 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## v2.0.1 (2023-06-12)
+## v2.0.2 (2023-09-15)
+- Fix: prevent a race condition when starting jobs ([#603](https://github.com/TNG/momo-scheduler/issues/603) and [#604](https://github.com/TNG/momo-scheduler/issues/604))
+- Chore: add [mongodb](https://www.npmjs.com/package/mongodb) v6 support
 
+## v2.0.1 (2023-06-12)
 - Fix: fixed [CVE](https://github.com/advisories/GHSA-6w63-h3fj-q4vw) in [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser)
 
 ## v2.0.0 (2023-05-12)
