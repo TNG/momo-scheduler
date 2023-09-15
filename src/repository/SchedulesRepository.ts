@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { MongoClient } from 'mongodb';
+import { FindOneAndUpdateOptions, MongoClient } from 'mongodb';
 
 import { ScheduleEntity } from './ScheduleEntity';
 import { Repository } from './Repository';
@@ -7,6 +7,11 @@ import { Logger } from '../logging/Logger';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 
 export const SCHEDULES_COLLECTION_NAME = 'schedules';
+
+const mongoOptions: FindOneAndUpdateOptions & { includeResultMetadata: true } = {
+  returnDocument: 'after',
+  includeResultMetadata: true, // ensures backwards compatibility with mongodb <6
+};
 
 export class SchedulesRepository extends Repository<ScheduleEntity> {
   private logger: Logger | undefined;
@@ -47,8 +52,8 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
           },
         },
         {
+          ...mongoOptions,
           upsert: true,
-          returnDocument: 'after',
         },
       );
 
@@ -94,7 +99,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
       const schedule = await this.collection.findOneAndUpdate(
         { name: this.name },
         { $inc: { [`executions.${name}`]: 1 } },
-        { returnDocument: 'after' },
+        mongoOptions,
       );
       return { added: schedule.value !== null, running: schedule.value?.executions[name] ?? 0 };
     }
@@ -105,7 +110,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         $or: [{ [`executions.${name}`]: { $lt: maxRunning } }, { [`executions.${name}`]: { $exists: false } }],
       },
       { $inc: { [`executions.${name}`]: 1 } },
-      { returnDocument: 'after' },
+      mongoOptions,
     );
 
     return { added: schedule.value !== null, running: schedule.value?.executions[name] ?? maxRunning };
