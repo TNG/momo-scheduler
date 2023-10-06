@@ -98,7 +98,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         // concurrent modification, we use a filter to ensure that we only overwrite a dead schedule or ping this schedule
         { $or: [deadSchedule, thisSchedule] },
         { $set: updatedSchedule },
-        { ...mongoOptions, upsert: true },
+        { upsert: true },
       );
 
       return true;
