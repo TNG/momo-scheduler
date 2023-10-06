@@ -73,7 +73,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
     const deadSchedule: Filter<ScheduleEntity> = { name: this.name, lastAlive: { $lt: threshold } };
     const thisSchedule: Filter<ScheduleEntity> = { scheduleId: this.scheduleId };
 
-    const updatedSchedule: ScheduleEntity = {
+    const updatedSchedule: Partial<ScheduleEntity> = {
       name: this.name,
       scheduleId: this.scheduleId,
       lastAlive: now,
