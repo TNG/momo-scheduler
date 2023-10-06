@@ -1,4 +1,4 @@
-import { Filter, MongoClient, MongoServerError } from 'mongodb';
+import { Filter, FindOneAndUpdateOptions, MongoClient, MongoServerError } from 'mongodb';
 
 import { ScheduleEntity } from './ScheduleEntity';
 import { Repository } from './Repository';
@@ -7,6 +7,11 @@ import { MomoErrorType } from '../logging/error/MomoErrorType';
 import { MomoEventData } from '../logging/MomoEvents';
 
 export const SCHEDULES_COLLECTION_NAME = 'schedules';
+
+const mongoOptions: FindOneAndUpdateOptions & { includeResultMetadata: true } = {
+  returnDocument: 'after',
+  includeResultMetadata: true, // ensures backwards compatibility with mongodb <6
+};
 
 const duplicateKeyErrorCode = 11000;
 
@@ -79,7 +84,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
       await this.collection.updateOne(
         { $or: [deadSchedule, thisSchedule] },
         { $set: updatedSchedule },
-        { upsert: true },
+        { ...mongoOptions, upsert: true },
       );
 
       return true;
@@ -126,7 +131,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
       const schedule = await this.collection.findOneAndUpdate(
         { name: this.name },
         { $inc: { [`executions.${jobName}`]: 1 } },
-        { returnDocument: 'after' },
+        mongoOptions,
       );
       return { added: schedule.value !== null, running: schedule.value?.executions[jobName] ?? 0 };
     }
@@ -137,7 +142,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
         $or: [{ [`executions.${jobName}`]: { $lt: maxRunning } }, { [`executions.${jobName}`]: { $exists: false } }],
       },
       { $inc: { [`executions.${jobName}`]: 1 } },
-      { returnDocument: 'after' },
+      mongoOptions,
     );
 
     return { added: schedule.value !== null, running: schedule.value?.executions[jobName] ?? maxRunning };
