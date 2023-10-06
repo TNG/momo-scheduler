@@ -1,4 +1,4 @@
-import { anyNumber, instance, mock, verify, when } from 'ts-mockito';
+import { instance, mock, verify, when } from 'ts-mockito';
 
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
@@ -27,7 +27,7 @@ describe('MongoSchedule', () => {
   });
 
   it('connects and starts the ping and disconnects and stops the ping', async () => {
-    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
+    when(schedulesRepository.setActiveSchedule()).thenResolve(true);
 
     const mongoSchedule = await MongoSchedule.connect({ scheduleName: 'schedule', url: 'mongodb://does.not/matter' });
     const secondSchedule = await MongoSchedule.connect({
@@ -36,9 +36,9 @@ describe('MongoSchedule', () => {
     });
 
     await mongoSchedule.start();
-    verify(schedulesRepository.setActiveSchedule(anyNumber())).once();
+    verify(schedulesRepository.setActiveSchedule()).once();
     await secondSchedule.start();
-    verify(schedulesRepository.setActiveSchedule(anyNumber())).twice();
+    verify(schedulesRepository.setActiveSchedule()).twice();
 
     await mongoSchedule.disconnect();
     await secondSchedule.disconnect();

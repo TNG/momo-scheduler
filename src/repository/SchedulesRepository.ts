@@ -1,4 +1,5 @@
 import { Filter, FindOneAndUpdateOptions, MongoClient, MongoServerError } from 'mongodb';
+import { DateTime } from 'luxon';
 
 import { ScheduleEntity } from './ScheduleEntity';
 import { Repository } from './Repository';
@@ -43,15 +44,10 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
   /**
    * Checks the state of the schedule represented by this repository.
    *
-   * INACTIVE: There is currently no active instance for a schedule with this name.
-   * DIFFERENT_INSTANCE_ACTIVE: Another instance (but not this one) is active for the schedule with this name.
-   * THIS_INSTANCE_ACTIVE: This instance is active for the schedule with this name.
-   *
-   * @param now timestamp in milliseconds
+   * @param threshold a schedule older than (i.e. timestamp below) the threshold is considered dead and will be replaced
    * @returns the schedule's state
    */
-  async isActiveSchedule(now: number): Promise<boolean> {
-    const threshold = now - this.deadScheduleThreshold;
+  private async isActiveSchedule(threshold: number): Promise<boolean> {
     const activeSchedule = await this.collection.findOne({ name: this.name });
 
     if (activeSchedule === null || activeSchedule.scheduleId === this.scheduleId) {
@@ -62,13 +58,29 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
   }
 
   /**
-   * Tries to set this instance as active
+   * Tries to set this instance as active schedule of this name.
    *
-   * @param now timestamp in milliseconds
-   * @returns true if this instance is now active for the schedule with this name, false otherwise
+   * There are 4 possible cases:
+   *
+   * 1) Another instance already is active for this name. This instance does not need to become active. Nothing is done.
+   *
+   * 2) Another instance was active, but it's last ping was before the threshold. Hence, it is considered dead and this instance will take over and become active. The DB is updated accordingly.
+   *
+   * 3) There is currently no active schedule with this name. In this case, this instance will become the active schedule. The DB is updated accordingly.
+   *
+   * 4) This instance already is active. It will stay active and send a ping to the DB to indicate that it is still alive.
+   *
+   * @returns true if this instance is now active for the schedule with this name (cases 2-4), false otherwise (case 1)
    */
-  async setActiveSchedule(now: number): Promise<boolean> {
+  async setActiveSchedule(): Promise<boolean> {
+    const now = DateTime.now().toMillis();
     const threshold = now - this.deadScheduleThreshold;
+
+    const active = await this.isActiveSchedule(now);
+    if (!active) {
+      this.logger?.debug('This schedule is not active', this.getLogData());
+      return false;
+    }
 
     const deadSchedule: Filter<ScheduleEntity> = { name: this.name, lastAlive: { $lt: threshold } };
     const thisSchedule: Filter<ScheduleEntity> = { scheduleId: this.scheduleId };
@@ -82,6 +94,8 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
 
     try {
       await this.collection.updateOne(
+        // we already checked with isActiveSchedule that this instance should be the active one, but to prevent
+        // concurrent modification, we use a filter to ensure that we only overwrite a dead schedule or ping this schedule
         { $or: [deadSchedule, thisSchedule] },
         { $set: updatedSchedule },
         { ...mongoOptions, upsert: true },

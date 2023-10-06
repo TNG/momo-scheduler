@@ -1,4 +1,4 @@
-import { anyNumber, deepEqual, instance, mock, when } from 'ts-mockito';
+import { deepEqual, instance, mock, when } from 'ts-mockito';
 import { ObjectId } from 'mongodb';
 
 import { ExecutionStatus, MomoEvent, MomoJob, MomoOptions, MongoSchedule } from '../../src';
@@ -39,8 +39,7 @@ describe('Schedule', () => {
     jest.clearAllMocks();
 
     when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
-    when(schedulesRepository.isActiveSchedule(anyNumber())).thenResolve(true);
-    when(schedulesRepository.setActiveSchedule(anyNumber())).thenResolve(true);
+    when(schedulesRepository.setActiveSchedule()).thenResolve(true);
 
     mongoSchedule = await MongoSchedule.connect({ scheduleName, url: 'mongodb://does.not/matter' });
     initLoggingForTests(mongoSchedule);

@@ -1,5 +1,3 @@
-import { DateTime } from 'luxon';
-
 import { SchedulesRepository } from '../repository/SchedulesRepository';
 import { Logger } from '../logging/Logger';
 import { setSafeInterval } from '../timeout/safeTimeouts';
@@ -36,14 +34,8 @@ export class SchedulePing {
   }
 
   private async checkActiveSchedule(): Promise<void> {
-    const now = DateTime.now().toMillis();
-    const active = await this.schedulesRepository.isActiveSchedule(now);
+    const active = await this.schedulesRepository.setActiveSchedule();
     if (!active) {
-      this.logger.debug('This schedule is not active', this.schedulesRepository.getLogData());
-      return;
-    }
-
-    if (!(await this.schedulesRepository.setActiveSchedule(now))) {
       return;
     }
 
