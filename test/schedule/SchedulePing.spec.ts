@@ -1,13 +1,12 @@
-import { deepEqual, instance, mock, verify, when } from 'ts-mockito';
+import { instance, mock, verify, when } from 'ts-mockito';
 
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { SchedulePing } from '../../src/schedule/SchedulePing';
 import { sleep } from '../utils/sleep';
 
 describe('SchedulePing', () => {
-  const scheduleId = '123';
-  const scheduleName = 'schedule';
   const interval = 1000;
+  const logData = { name: 'name', scheduleId: 'scheduleId' };
   let error: jest.Mock;
 
   let schedulesRepository: SchedulesRepository;
@@ -18,78 +17,87 @@ describe('SchedulePing', () => {
     startAllJobs = jest.fn();
     schedulesRepository = mock(SchedulesRepository);
     error = jest.fn();
-    schedulePing = new SchedulePing(
-      scheduleId,
-      scheduleName,
-      instance(schedulesRepository),
-      { debug: jest.fn(), error },
-      interval,
-      startAllJobs,
-    );
+    schedulePing = new SchedulePing(instance(schedulesRepository), { debug: jest.fn(), error }, interval, startAllJobs);
   });
 
   afterEach(async () => schedulePing.stop());
 
   it('starts, pings, cleans and stops', async () => {
-    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(true);
+    when(schedulesRepository.setActiveSchedule()).thenResolve(true);
     await schedulePing.start();
 
     expect(startAllJobs).toHaveBeenCalledTimes(1);
-    verify(schedulesRepository.ping(scheduleId)).once();
+    verify(schedulesRepository.setActiveSchedule()).once();
 
     await sleep(1.1 * interval);
     expect(startAllJobs).toHaveBeenCalledTimes(1);
-    verify(schedulesRepository.ping(scheduleId)).twice();
+    verify(schedulesRepository.setActiveSchedule()).twice();
 
     await schedulePing.stop();
     await sleep(interval);
 
-    verify(schedulesRepository.ping(scheduleId)).twice();
-    verify(schedulesRepository.deleteOne(deepEqual({ scheduleId }))).once();
+    verify(schedulesRepository.setActiveSchedule()).twice();
+    verify(schedulesRepository.deleteOne()).once();
   });
 
   it('handles mongo errors', async () => {
-    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(true);
+    when(schedulesRepository.getLogData()).thenReturn(logData);
     const message = 'I am an error that should be caught';
-    when(schedulesRepository.ping(scheduleId)).thenReject({
+    when(schedulesRepository.setActiveSchedule()).thenReject({
       message,
     } as Error);
 
     await schedulePing.start();
 
-    verify(schedulesRepository.ping(scheduleId)).once();
+    verify(schedulesRepository.setActiveSchedule()).once();
     expect(error).toHaveBeenCalledWith(
       'Pinging or cleaning the Schedules repository failed',
       'an internal error occurred',
-      {},
+      logData,
       { message },
     );
   });
 
-  it('handles job start taking longer than interval', async () => {
-    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(false);
+  it('does not start any jobs for inactive schedule', async () => {
+    await schedulePing.start();
 
-    startAllJobs.mockImplementation(async () => sleep(2 * interval));
+    expect(startAllJobs).not.toHaveBeenCalled();
+  });
+
+  it('does not start any jobs if setting active schedule fails', async () => {
+    when(schedulesRepository.setActiveSchedule()).thenResolve(false);
 
     await schedulePing.start();
 
-    verify(schedulesRepository.ping(scheduleId)).never();
+    expect(startAllJobs).not.toHaveBeenCalled();
+  });
+
+  it('becomes active when other schedule dies', async () => {
+    await schedulePing.start();
+
     expect(startAllJobs).toHaveBeenCalledTimes(0);
 
-    when(schedulesRepository.isActiveSchedule(scheduleName)).thenResolve(true);
+    // other schedule dies, this one becomes active
+    when(schedulesRepository.setActiveSchedule()).thenResolve(true);
 
     await sleep(1.1 * interval);
-    verify(schedulesRepository.ping(scheduleId)).once();
+    expect(startAllJobs).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles job start taking longer than interval', async () => {
+    startAllJobs.mockImplementation(async () => sleep(2 * interval));
+    when(schedulesRepository.setActiveSchedule()).thenResolve(true);
+
+    await schedulePing.start();
     expect(startAllJobs).toHaveBeenCalledTimes(1);
 
     await sleep(1.1 * interval);
-    verify(schedulesRepository.ping(scheduleId)).twice();
     expect(startAllJobs).toHaveBeenCalledTimes(1);
 
     await schedulePing.stop();
+
     await sleep(interval);
-    verify(schedulesRepository.ping(scheduleId)).twice();
     expect(startAllJobs).toHaveBeenCalledTimes(1);
-    verify(schedulesRepository.deleteOne(deepEqual({ scheduleId }))).once();
+    verify(schedulesRepository.deleteOne()).once();
   });
 });

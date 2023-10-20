@@ -34,10 +34,6 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
     return result.deletedCount;
   }
 
-  async deleteOne(filter: Filter<ENTITY>): Promise<void> {
-    await this.collection.deleteOne(filter);
-  }
-
   // mongodb returns null instead of undefined for optional fields
   private mapNullToUndefined(entity: WithId<ENTITY>): WithId<ENTITY> {
     const keys = Object.keys(entity);

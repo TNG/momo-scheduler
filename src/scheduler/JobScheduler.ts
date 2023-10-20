@@ -21,21 +21,19 @@ export class JobScheduler {
   constructor(
     private readonly jobName: string,
     private readonly jobExecutor: JobExecutor,
-    private readonly scheduleId: string,
     private readonly schedulesRepository: SchedulesRepository,
     private readonly jobRepository: JobRepository,
     private readonly logger: Logger,
   ) {}
 
   static forJob(
-    scheduleId: string,
     job: Job,
     logger: Logger,
     schedulesRepository: SchedulesRepository,
     jobRepository: JobRepository,
   ): JobScheduler {
     const executor = new JobExecutor(job.handler, schedulesRepository, jobRepository, logger);
-    return new JobScheduler(job.name, executor, scheduleId, schedulesRepository, jobRepository, logger);
+    return new JobScheduler(job.name, executor, schedulesRepository, jobRepository, logger);
   }
 
   getUnexpectedErrorCount(): number {
@@ -102,7 +100,7 @@ export class JobScheduler {
     if (this.executableSchedule) {
       this.executableSchedule.stop();
       this.jobExecutor.stop();
-      await this.schedulesRepository.removeJob(this.scheduleId, this.jobName);
+      await this.schedulesRepository.removeJob(this.jobName);
       this.executableSchedule = undefined;
     }
   }

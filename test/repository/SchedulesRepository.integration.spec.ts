@@ -1,4 +1,5 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { DateTime } from 'luxon';
 
 import { Connection } from '../../src/Connection';
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
@@ -12,6 +13,7 @@ describe('SchedulesRepository', () => {
 
   let mongo: MongoMemoryServer;
   let connection: Connection;
+  let secondConnection: Connection | undefined;
   let schedulesRepository: SchedulesRepository;
 
   beforeAll(async () => {
@@ -22,132 +24,107 @@ describe('SchedulesRepository', () => {
   });
 
   beforeEach(async () => schedulesRepository.delete());
+  afterEach(async () => secondConnection?.disconnect());
 
   afterAll(async () => {
     await connection.disconnect();
     await mongo.stop();
   });
 
-  describe('isActiveSchedule', () => {
-    it('single schedule is active', async () => {
-      const active = await schedulesRepository.isActiveSchedule(scheduleName);
+  describe('setActiveSchedule', () => {
+    it('sets single schedule as active', async () => {
+      await schedulesRepository.setActiveSchedule();
 
-      const entities = await schedulesRepository.find({});
-
-      expect(active).toEqual(true);
-      expect(entities).toHaveLength(1);
-      expect(entities[0]?.scheduleId).toEqual(scheduleId);
+      const schedule = await schedulesRepository.findOne({ name: scheduleName, scheduleId });
+      expect(schedule).not.toBeNull();
     });
 
-    it('only one schedule is active', async () => {
-      const firstIsActive = await schedulesRepository.isActiveSchedule(scheduleName);
+    it('updates timestamp', async () => {
+      await schedulesRepository.setActiveSchedule();
+      const schedulesEntity = await schedulesRepository.findOne({ scheduleId });
 
-      const inactiveScheduleId = 'not active';
-      const inactiveConnection = await Connection.create(
+      await sleep(pingInterval);
+      await schedulesRepository.setActiveSchedule();
+
+      const schedulesEntityAfterPing = await schedulesRepository.findOne({ scheduleId });
+      expect(schedulesEntityAfterPing?.lastAlive).toBeGreaterThan(schedulesEntity!.lastAlive);
+    });
+
+    it('refuses to set another active schedule', async () => {
+      await schedulesRepository.setActiveSchedule();
+      const lastAlive = DateTime.now().toMillis();
+
+      const anotherScheduleId = 'not active';
+      const anotherInstance = await Connection.create(
         { url: mongo.getUri() },
         pingInterval,
-        inactiveScheduleId,
+        anotherScheduleId,
         scheduleName,
       );
-      const inactiveSchedulesRepository = inactiveConnection.getSchedulesRepository();
-      const secondIsActive = await inactiveSchedulesRepository.isActiveSchedule(scheduleName);
-      await inactiveConnection.disconnect();
+      const anotherSchedulesRepository = anotherInstance.getSchedulesRepository();
+      const debug = jest.fn();
+      anotherSchedulesRepository.setLogger({ debug, error: jest.fn() });
 
-      const entities = await schedulesRepository.find({});
+      const active = await anotherSchedulesRepository.setActiveSchedule();
+      await anotherInstance.disconnect();
 
-      expect(firstIsActive).toEqual(true);
-      expect(secondIsActive).toEqual(false);
-      expect(entities).toHaveLength(1);
-      expect(entities[0]?.scheduleId).toEqual(scheduleId);
+      expect(debug).toHaveBeenCalled();
+      expect(active).toEqual(false);
+
+      const schedules = await schedulesRepository.find({ name: scheduleName });
+      expect(schedules).toHaveLength(1);
+      expect(schedules[0]?.scheduleId).toEqual(scheduleId);
+      expect(schedules[0]?.lastAlive).toBeLessThanOrEqual(lastAlive);
     });
 
-    it('only one schedule of many concurrent ones is active', async () => {
+    it('sets only one schedule of many concurrent ones as active', async () => {
       const connections = await Promise.all(
         ['a', 'b', 'c', 'd', 'e'].map(async (id) =>
           Connection.create({ url: mongo.getUri() }, pingInterval, id, scheduleName),
         ),
       );
 
-      const schedulesActiveStatus = await Promise.all(
-        connections.map(async (connection) => {
-          const newSchedulesRepository = connection.getSchedulesRepository();
-          return newSchedulesRepository.isActiveSchedule(scheduleName);
-        }),
+      const active = await Promise.all(
+        connections.map(async (connection) => connection.getSchedulesRepository().setActiveSchedule()),
       );
 
-      const entities = await schedulesRepository.find({});
       await Promise.all(connections.map(async (connection) => connection.disconnect()));
 
-      expect(schedulesActiveStatus.filter((active) => active)).toHaveLength(1);
-      expect(entities).toHaveLength(1);
+      expect(active.filter((active) => active)).toHaveLength(1);
+      const schedules = await schedulesRepository.find({ name: scheduleName });
+      expect(schedules).toHaveLength(1);
     });
 
-    it('should replace dead schedules', async () => {
-      const active = await schedulesRepository.isActiveSchedule(scheduleName);
-      const secondScheduleId = 'not active';
-      const secondConnection = await Connection.create(
-        { url: mongo.getUri() },
-        pingInterval,
-        secondScheduleId,
-        scheduleName,
-      );
-      const secondSchedulesRepository = await secondConnection.getSchedulesRepository();
-      const secondActive = await secondSchedulesRepository.isActiveSchedule(scheduleName);
+    it('replaces a dead schedule', async () => {
+      await schedulesRepository.setActiveSchedule();
+      const otherScheduleId = 'other schedule ID';
+
+      secondConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, otherScheduleId, scheduleName);
+      const secondSchedulesRepository = secondConnection.getSchedulesRepository();
+
+      await sleep(2 * pingInterval + 10);
+      const active = await secondSchedulesRepository.setActiveSchedule();
 
       expect(active).toEqual(true);
-      expect(secondActive).toEqual(false);
-
-      await sleep(1200);
-
-      const secondTakeOver = await secondSchedulesRepository.isActiveSchedule(scheduleName);
-      await secondConnection.disconnect();
-      expect(secondTakeOver).toEqual(true);
     });
 
-    it('should allow two active schedules with different names', async () => {
-      const isActive = await schedulesRepository.isActiveSchedule(scheduleName);
-      const otherScheduleName = 'other schedule';
-      const secondScheduleId = 'first other schedule ID';
-      const thirdScheduleId = 'second other schedule ID';
-      const secondConnection = await Connection.create(
-        { url: mongo.getUri() },
-        pingInterval,
-        secondScheduleId,
-        otherScheduleName,
-      );
-      const secondSchedulesRepository = await secondConnection.getSchedulesRepository();
-      const isSecondActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
-      const thirdConnection = await Connection.create(
-        { url: mongo.getUri() },
-        pingInterval,
-        thirdScheduleId,
-        otherScheduleName,
-      );
-      const thirdSchedulesRepository = await thirdConnection.getSchedulesRepository();
-      const isThirdActive = await thirdSchedulesRepository.isActiveSchedule(otherScheduleName);
+    it('sets two active schedules with different names', async () => {
+      const otherName = 'other schedule';
+      const otherScheduleId = 'other schedule ID';
 
-      expect(isActive).toEqual(true);
-      expect(isSecondActive).toEqual(true);
-      expect(isThirdActive).toEqual(false);
+      secondConnection = await Connection.create({ url: mongo.getUri() }, pingInterval, otherScheduleId, otherName);
+      const secondSchedulesRepository = secondConnection.getSchedulesRepository();
 
-      await sleep(2 * pingInterval + 100);
+      const active = await schedulesRepository.setActiveSchedule();
+      const secondActive = await secondSchedulesRepository.setActiveSchedule();
 
-      const isFirstStillActive = await schedulesRepository.isActiveSchedule(scheduleName);
-      const didThirdTakeOverActive = await thirdSchedulesRepository.isActiveSchedule(otherScheduleName);
-      expect(isFirstStillActive).toEqual(true);
-      expect(didThirdTakeOverActive).toEqual(true);
-      const isSecondStillActive = await secondSchedulesRepository.isActiveSchedule(otherScheduleName);
-      expect(isSecondStillActive).toEqual(false);
-
-      await secondConnection.disconnect();
-      await thirdConnection.disconnect();
+      expect(active).toEqual(true);
+      expect(secondActive).toEqual(true);
     });
   });
 
-  describe('with schedule', () => {
-    beforeEach(async () => {
-      await schedulesRepository.isActiveSchedule(scheduleName);
-    });
+  describe('with active schedule', () => {
+    beforeEach(async () => schedulesRepository.setActiveSchedule());
 
     describe('removeJob', () => {
       it('can remove a job', async () => {
@@ -156,7 +133,7 @@ describe('SchedulesRepository', () => {
         const schedulesEntity = await schedulesRepository.findOne({ scheduleId });
         expect(schedulesEntity?.executions).toEqual({ [name]: 1 });
 
-        await schedulesRepository.removeJob(scheduleId, name);
+        await schedulesRepository.removeJob(name);
         const schedulesEntity2 = await schedulesRepository.findOne({ scheduleId });
         expect(schedulesEntity2?.executions).toEqual({});
       });
@@ -169,7 +146,7 @@ describe('SchedulesRepository', () => {
         const schedulesEntity = await schedulesRepository.findOne({ scheduleId });
         expect(schedulesEntity?.executions).toEqual({ [name]: 1, [otherName]: 1 });
 
-        await schedulesRepository.removeJob(scheduleId, name);
+        await schedulesRepository.removeJob(name);
         const schedulesEntity2 = await schedulesRepository.findOne({ scheduleId });
         expect(schedulesEntity2?.executions).toEqual({ [otherName]: 1 });
       });
@@ -227,17 +204,6 @@ describe('SchedulesRepository', () => {
 
         const running = await schedulesRepository.countRunningExecutions(name);
         expect(running).toBe(2);
-      });
-    });
-
-    describe('ping', () => {
-      it('updates timestamp', async () => {
-        const schedulesEntity = await schedulesRepository.findOne({ scheduleId });
-
-        await schedulesRepository.ping();
-
-        const schedulesEntityAfterPing = await schedulesRepository.findOne({ scheduleId });
-        expect(schedulesEntityAfterPing?.lastAlive).toBeGreaterThan(schedulesEntity!.lastAlive);
       });
     });
   });

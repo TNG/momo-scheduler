@@ -27,7 +27,6 @@ export class MongoSchedule extends Schedule {
     protected readonly scheduleId: string,
     protected readonly connection: Connection,
     pingIntervalMs: number,
-    private readonly scheduleName: string,
   ) {
     const schedulesRepository = connection.getSchedulesRepository();
     const jobRepository = connection.getJobRepository();
@@ -39,8 +38,6 @@ export class MongoSchedule extends Schedule {
 
     this.disconnectFct = connection.disconnect.bind(connection);
     this.schedulePing = new SchedulePing(
-      scheduleId,
-      scheduleName,
       schedulesRepository,
       this.logger,
       pingIntervalMs,
@@ -61,7 +58,7 @@ export class MongoSchedule extends Schedule {
     const scheduleId = uuid();
     const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId, scheduleName);
 
-    return new MongoSchedule(scheduleId, connection, pingIntervalMs, scheduleName);
+    return new MongoSchedule(scheduleId, connection, pingIntervalMs);
   }
 
   /**
@@ -85,19 +82,6 @@ export class MongoSchedule extends Schedule {
   public async start(): Promise<void> {
     this.logger.debug('starting the schedule', { jobCount: this.count() });
     return this.schedulePing.start();
-  }
-
-  /**
-   * Returns whether this schedule is currently active.
-   *
-   * Only the active schedule will schedule jobs and try to execute them.
-   * There is always only one active schedule per mongo database.
-   *
-   * @throws if the database throws
-   */
-  public async isActiveSchedule(): Promise<boolean> {
-    const schedulesRepository = this.connection.getSchedulesRepository();
-    return schedulesRepository.isActiveSchedule(this.scheduleName);
   }
 
   private async startAllJobs(): Promise<void> {
