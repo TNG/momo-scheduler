@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v2.0.3 (2023-10-20)
+- Fix: remove error spam when checking for active schedules ([#624](https://github.com/TNG/momo-scheduler/issues/624))
+
 ## v2.0.2 (2023-09-15)
 - Fix: prevent a race condition when starting jobs ([#603](https://github.com/TNG/momo-scheduler/issues/603) and [#604](https://github.com/TNG/momo-scheduler/issues/604))
 - Chore: add [mongodb](https://www.npmjs.com/package/mongodb) v6 support
