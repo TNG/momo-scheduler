@@ -15,7 +15,7 @@
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
     },
     {
-      "matchPackagePatterns": ["^@types"],
+      "matchPackagePatterns": ["^@types\/"],
       "automerge": true,
       "automergeType": "branch",
       "groupName": "Types",
