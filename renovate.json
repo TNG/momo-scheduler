@@ -8,14 +8,14 @@
   },
   "packageRules": [
     {
-      "matchPackagePatterns": ["^eslint"],
+      "matchPackagePatterns": ["^eslint", "^@typescript-eslint/"],
       "automerge": true,
       "automergeType": "branch",
       "groupName": "ESLint packages",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
     },
     {
-      "matchPackagePatterns": ["^@types"],
+      "matchPackagePatterns": ["^@types/"],
       "automerge": true,
       "automergeType": "branch",
       "groupName": "Types",
@@ -23,7 +23,7 @@
     },
     {
       "matchDepTypes": ["devDependencies"],
-      "excludePackagePrefixes": ["eslint", "@types"],
+      "excludePackagePrefixes": ["eslint", "@types/, @typescript-eslint/"],
       "automerge": true,
       "automergeType": "branch",
       "groupName":  "Dev dependencies",
