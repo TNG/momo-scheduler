@@ -52,6 +52,10 @@ module.exports = {
         selector: 'typeLike',
         format: ['PascalCase'],
       },
+      {
+        selector: 'import',
+        format: ['camelCase', 'PascalCase'],
+      },
     ],
     '@typescript-eslint/no-empty-function': 'error',
     '@typescript-eslint/no-empty-interface': 'error',
