@@ -1,5 +1,5 @@
 {
-  "extends": ["config:base", ":gitSignOff", ":disableDependencyDashboard"],
+  "extends": ["config:base", ":gitSignOff", ":disableDependencyDashboard", ":preserveSemverRanges"],
   "rangeStrategy": "pin",
   "lockFileMaintenance": {
     "enabled": true,
