@@ -82,18 +82,20 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
       return false;
     }
 
-    const deadScheduleFilter: Filter<ScheduleEntity> = { name: this.name, lastAlive: { $lt: threshold } };
-    const thisScheduleFilter: Filter<ScheduleEntity> = { scheduleId: this.scheduleId };
-
-    const thisAliveSchedule = await this.collection.findOne({ ...thisScheduleFilter, lastAlive: { $gte: threshold } });
-    const executions = thisAliveSchedule?.executions ?? {};
-
     const updatedSchedule: Partial<ScheduleEntity> = {
       name: this.name,
       scheduleId: this.scheduleId,
       lastAlive: now,
-      executions,
     };
+
+    const deadScheduleFilter: Filter<ScheduleEntity> = { name: this.name, lastAlive: { $lt: threshold } };
+    const thisScheduleFilter: Filter<ScheduleEntity> = { scheduleId: this.scheduleId };
+
+    // clear executions of a dead schedule
+    const thisAliveSchedule = await this.collection.findOne({ ...thisScheduleFilter, lastAlive: { $gte: threshold } });
+    if (!thisAliveSchedule) {
+      updatedSchedule.executions = {};
+    }
 
     try {
       await this.collection.updateOne(
