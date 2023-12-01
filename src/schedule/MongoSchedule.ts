@@ -84,10 +84,6 @@ export class MongoSchedule extends Schedule {
     return this.schedulePing.start();
   }
 
-  private async startAllJobs(): Promise<void> {
-    await Promise.all(Object.values(this.getJobSchedulers()).map(async (jobScheduler) => jobScheduler.start()));
-  }
-
   public id(): string {
     return this.scheduleId;
   }

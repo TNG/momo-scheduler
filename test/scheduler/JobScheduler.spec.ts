@@ -81,7 +81,7 @@ describe('JobScheduler', () => {
       verify(await jobExecutor.execute(anything(), anything())).once();
     });
 
-    it('executes a job with the desired paramteres', async () => {
+    it('executes a job with the desired parameters', async () => {
       createIntervalJob({ parameters: { foo: 'bar' } });
       await jobScheduler.start();
 
