@@ -82,21 +82,26 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
       return false;
     }
 
-    const deadSchedule: Filter<ScheduleEntity> = { name: this.name, lastAlive: { $lt: threshold } };
-    const thisSchedule: Filter<ScheduleEntity> = { scheduleId: this.scheduleId };
-
     const updatedSchedule: Partial<ScheduleEntity> = {
       name: this.name,
       scheduleId: this.scheduleId,
       lastAlive: now,
-      executions: {},
     };
+
+    const deadScheduleFilter: Filter<ScheduleEntity> = { name: this.name, lastAlive: { $lt: threshold } };
+    const thisScheduleFilter: Filter<ScheduleEntity> = { scheduleId: this.scheduleId };
+
+    // clear executions of a dead schedule
+    const thisAliveSchedule = await this.collection.findOne({ ...thisScheduleFilter, lastAlive: { $gte: threshold } });
+    if (!thisAliveSchedule) {
+      updatedSchedule.executions = {};
+    }
 
     try {
       await this.collection.updateOne(
         // we already checked with isActiveSchedule that this instance should be the active one, but to prevent
         // concurrent modification, we use a filter to ensure that we only overwrite a dead schedule or ping this schedule
-        { $or: [deadSchedule, thisSchedule] },
+        { $or: [deadScheduleFilter, thisScheduleFilter] },
         { $set: updatedSchedule },
         { upsert: true },
       );

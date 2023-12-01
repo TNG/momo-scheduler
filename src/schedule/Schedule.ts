@@ -208,7 +208,7 @@ export class Schedule extends LogEmitter {
     return this.jobSchedulers[name]?.getJobDescription();
   }
 
-  protected getJobSchedulers(): { [name: string]: JobScheduler } {
-    return this.jobSchedulers;
+  protected async startAllJobs(): Promise<void> {
+    await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.start()));
   }
 }
