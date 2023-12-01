@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+
+## v2.0.4 (2023-12-01)
+- Fix: maxRunning is now always respected, also for longer running jobs ([#706](https://github.com/TNG/momo-scheduler/issues/706))
+
 ## v2.0.3 (2023-10-20)
 - Fix: remove error spam when checking for active schedules ([#624](https://github.com/TNG/momo-scheduler/issues/624))
 
