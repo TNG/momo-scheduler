@@ -48,7 +48,7 @@
     "@types/human-interval": "1.0.2",
     "@types/jest": "29.5.11",
     "@types/lodash": "4.14.202",
-    "@types/luxon": "3.4.1",
+    "@types/luxon": "3.4.2",
     "@types/node": "20.11.5",
     "@types/pino": "7.0.4",
     "@types/sinonjs__fake-timers": "8.1.5",
@@ -67,7 +67,7 @@
     "mongodb-memory-server": "9.1.6",
     "pino": "8.17.2",
     "prettier": "3.2.4",
-    "ts-jest": "29.1.1",
+    "ts-jest": "29.1.2",
     "ts-mockito": "2.6.1",
     "ts-node": "10.9.2",
     "typescript": "5.3.3"
