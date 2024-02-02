@@ -88,4 +88,18 @@ describe('JobExecutor', () => {
     verify(schedulesRepository.addExecution(job.name, job.maxRunning)).once();
     verify(schedulesRepository.removeExecution(job.name)).once();
   });
+
+  it('reports undefined job error', async () => {
+    const error = {} as Error;
+    handler.mockImplementation(() => {
+      throw error;
+    });
+
+    await jobExecutor.execute(job);
+
+    expect(errorFn).toHaveBeenCalledWith('job failed', MomoErrorType.executeJob, { name: job.name }, error);
+
+    verify(schedulesRepository.addExecution(job.name, job.maxRunning)).once();
+    verify(schedulesRepository.removeExecution(job.name)).once();
+  });
 });
