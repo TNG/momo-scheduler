@@ -1,5 +1,5 @@
 import { JobEntity } from '../repository/JobEntity';
-import { CronSchedule, IntervalSchedule, JobParameters, toSchedule } from './MomoJob';
+import { CronSchedule, IntervalSchedule, toSchedule } from './MomoJob';
 
 /**
  * information about scheduled job
@@ -12,23 +12,23 @@ export interface JobSchedulerStatus {
   running: number;
 }
 
-export interface MomoJobDescription {
+export interface MomoJobDescription<JobParams> {
   name: string;
   schedule: IntervalSchedule | CronSchedule;
   concurrency: number;
   maxRunning: number;
-  parameters?: JobParameters;
+  parameters?: JobParams;
   /** present only if the job is started */
   schedulerStatus?: JobSchedulerStatus;
 }
 
-export function toMomoJobDescription({
+export function toMomoJobDescription<JobParams>({
   name,
   schedule,
   concurrency,
   maxRunning,
   parameters,
-}: JobEntity): MomoJobDescription {
+}: JobEntity<JobParams>): MomoJobDescription<JobParams> {
   return {
     name,
     schedule: toSchedule(schedule),

@@ -14,15 +14,17 @@ import { CronSchedule } from '../../src/job/MomoJob';
 describe('JobScheduler', () => {
   const errorFn = jest.fn();
 
+  type JobParams = { foo: String };
+
   let schedulesRepository: SchedulesRepository;
   let jobRepository: JobRepository;
-  let jobExecutor: JobExecutor;
-  let jobScheduler: JobScheduler;
+  let jobExecutor: JobExecutor<JobParams>;
+  let jobScheduler: JobScheduler<JobParams>;
 
   beforeEach(() => {
     schedulesRepository = mock(SchedulesRepository);
     jobRepository = mock(JobRepository);
-    jobExecutor = mock(JobExecutor);
+    jobExecutor = mock(JobExecutor<JobParams>);
     when(jobExecutor.execute(anything())).thenResolve();
     when(jobExecutor.execute(anything(), anything())).thenResolve();
   });
@@ -31,9 +33,9 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
   });
 
-  function createJob<Schedule extends ParsedIntervalSchedule | CronSchedule>(
-    job: JobDefinition<Schedule>,
-  ): JobDefinition<Schedule> {
+  function createJob<JobParams, Schedule extends ParsedIntervalSchedule | CronSchedule>(
+    job: JobDefinition<JobParams, Schedule>,
+  ): JobDefinition<JobParams, Schedule> {
     jobScheduler = new JobScheduler(
       job.name,
       instance(jobExecutor),
@@ -49,9 +51,9 @@ describe('JobScheduler', () => {
     return job;
   }
 
-  function createIntervalJob(
-    partialJob: Partial<JobDefinition<ParsedIntervalSchedule>> = {},
-  ): JobDefinition<ParsedIntervalSchedule> {
+  function createIntervalJob<JobParams>(
+    partialJob: Partial<JobDefinition<JobParams, ParsedIntervalSchedule>> = {},
+  ): JobDefinition<JobParams, ParsedIntervalSchedule> {
     const job = {
       name: 'interval job',
       schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 1000, parsedFirstRunAfter: 1000 },
@@ -62,7 +64,9 @@ describe('JobScheduler', () => {
     return createJob(job);
   }
 
-  function createCronJob(partialJob: Partial<JobDefinition<CronSchedule>> = {}): JobDefinition<CronSchedule> {
+  function createCronJob<JobParams>(
+    partialJob: Partial<JobDefinition<JobParams, CronSchedule>> = {},
+  ): JobDefinition<JobParams, CronSchedule> {
     return createJob({
       name: 'cron job',
       schedule: { cronSchedule: '*/1 * * * * *' },

@@ -2,18 +2,22 @@ import { ParsedIntervalSchedule } from './Job';
 
 export type JobParameters = Record<string, object | number | string | boolean | undefined>;
 
-export type Handler = (parameters?: JobParameters) => Promise<string | undefined | void> | string | undefined | void;
+export type Handler<JobParams> = (
+  parameters?: JobParams,
+) => Promise<string | undefined | void> | string | undefined | void;
 
-export interface TypedMomoJob<Schedule> {
-  handler: Handler;
+export interface TypedMomoJob<JobParams, Schedule> {
+  handler: Handler<JobParams>;
   schedule: Schedule;
   name: string;
   concurrency?: number;
   maxRunning?: number;
-  parameters?: JobParameters;
+  parameters?: JobParams;
 }
 
-export type MomoJob = TypedMomoJob<IntervalSchedule> | TypedMomoJob<CronSchedule>;
+export type MomoJob<JobParams = JobParameters> =
+  | TypedMomoJob<JobParams, IntervalSchedule>
+  | TypedMomoJob<JobParams, CronSchedule>;
 
 export interface IntervalSchedule {
   interval: number | string;
@@ -44,6 +48,6 @@ export function toSchedule(schedule: ParsedIntervalSchedule | CronSchedule): Req
   return { interval, firstRunAfter };
 }
 
-export function isCronJob(momoJob: MomoJob): momoJob is TypedMomoJob<CronSchedule> {
+export function isCronJob<JobParams>(momoJob: MomoJob<JobParams>): momoJob is TypedMomoJob<JobParams, CronSchedule> {
   return isCronSchedule(momoJob.schedule);
 }

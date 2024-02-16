@@ -6,13 +6,13 @@ import { JobRepository } from '../repository/JobRepository';
 import { JobScheduler } from '../scheduler/JobScheduler';
 import { LogEmitter } from '../logging/LogEmitter';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { JobParameters, MomoJob } from '../job/MomoJob';
+import { MomoJob } from '../job/MomoJob';
 import { MomoJobDescription } from '../job/MomoJobDescription';
-import { tryToJob } from '../job/Job';
+import { Job, tryToJob } from '../job/Job';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class Schedule extends LogEmitter {
-  private jobSchedulers: { [name: string]: JobScheduler } = {};
+  private jobSchedulers: { [name: string]: JobScheduler<unknown> } = {};
 
   constructor(
     protected readonly scheduleId: string,
@@ -51,11 +51,11 @@ export class Schedule extends LogEmitter {
    * the scheduler has to be started again to pick up the change.
    *
    * @param momoJob the job to define
-   * @returns true if jobs was defined, false if the job was invalid
+   * @returns true if job was defined, false if the job was invalid
    *
    * @throws if the database throws
    */
-  public async define(momoJob: MomoJob): Promise<boolean> {
+  public async define<JobParams>(momoJob: MomoJob<JobParams>): Promise<boolean> {
     const jobResult = tryToJob(momoJob);
     if (jobResult.isErr()) {
       const { schedule, name, maxRunning } = momoJob;
@@ -77,7 +77,12 @@ export class Schedule extends LogEmitter {
 
     await this.jobRepository.define(job);
 
-    this.jobSchedulers[job.name] = JobScheduler.forJob(job, this.logger, this.schedulesRepository, this.jobRepository);
+    this.jobSchedulers[job.name] = JobScheduler.forJob(
+      job as Job,
+      this.logger,
+      this.schedulesRepository,
+      this.jobRepository,
+    );
 
     return true;
   }
@@ -94,8 +99,8 @@ export class Schedule extends LogEmitter {
    * @param delay the job will be run after delay milliseconds
    * @returns the return value of the job's handler or one of: 'finished', 'max running reached' (job could not be executed), 'not found', 'failed'
    */
-  public async run(name: string, parameters?: JobParameters, delay = 0): Promise<JobResult> {
-    const jobScheduler = this.jobSchedulers[name];
+  public async run<JobParams>(name: string, parameters?: JobParams, delay = 0): Promise<JobResult> {
+    const jobScheduler = this.jobSchedulers[name]; // why does line 111 work without this? -> as JobScheduler<JobParams> | undefined;
 
     if (!jobScheduler) {
       this.logger.debug('cannot run job - not found', { name });
@@ -166,10 +171,10 @@ export class Schedule extends LogEmitter {
    *
    * @throws if the database throws
    */
-  public async list(): Promise<MomoJobDescription[]> {
+  public async list(): Promise<MomoJobDescription<unknown>[]> {
     return (
       await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.getJobDescription()))
-    ).filter((jobDescription): jobDescription is MomoJobDescription => jobDescription !== undefined);
+    ).filter((jobDescription): jobDescription is MomoJobDescription<unknown> => jobDescription !== undefined);
   }
 
   /**
@@ -204,7 +209,7 @@ export class Schedule extends LogEmitter {
    *
    * @throws if the database throws
    */
-  public async get(name: string): Promise<MomoJobDescription | undefined> {
+  public async get(name: string): Promise<MomoJobDescription<unknown> | undefined> {
     return this.jobSchedulers[name]?.getJobDescription();
   }
 

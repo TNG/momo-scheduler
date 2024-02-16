@@ -7,7 +7,9 @@ import { ExecutionInfo } from '../job/ExecutionInfo';
 import { ParsedIntervalSchedule } from '../job/Job';
 import { IntervalSchedule } from '../job/MomoJob';
 
-export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<IntervalSchedule>> {
+export class ExecutableIntervalSchedule<JobParams = unknown>
+  implements ExecutableSchedule<JobParams, Required<IntervalSchedule>>
+{
   private readonly interval: number | string;
   private readonly parsedInterval: number;
   private readonly firstRunAfter: number | string;
@@ -28,7 +30,13 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<I
     };
   }
 
-  execute({ executionInfo, callback, jobParameters, logger, errorMessage }: ExecutionParameters): NextExecutionTime {
+  execute({
+    executionInfo,
+    callback,
+    jobParameters,
+    logger,
+    errorMessage,
+  }: ExecutionParameters<JobParams>): NextExecutionTime {
     const delay = this.calculateDelay(executionInfo);
 
     this.timeoutHandle = setSafeIntervalWithDelay(

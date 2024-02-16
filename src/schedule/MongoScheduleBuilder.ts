@@ -2,11 +2,11 @@ import { MomoJob } from '../job/MomoJob';
 import { MomoOptions, MongoSchedule } from './MongoSchedule';
 
 export class MongoScheduleBuilder {
-  private momoJobs?: MomoJob[];
+  private momoJobs?: MomoJob<unknown>[];
   private momoConnectionOptions?: MomoOptions;
 
-  withJob(momoJob: MomoJob): this {
-    this.momoJobs = this.momoJobs ? this.momoJobs.concat(momoJob) : [momoJob];
+  withJob<JobParams>(momoJob: MomoJob<JobParams>): this {
+    this.momoJobs = this.momoJobs ? this.momoJobs.concat(momoJob as MomoJob<unknown>) : [momoJob as MomoJob<unknown>];
     return this;
   }
 

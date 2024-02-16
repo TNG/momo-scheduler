@@ -10,7 +10,10 @@ import { Job, ParsedIntervalSchedule } from '../../src/job/Job';
 describe('JobExecutor', () => {
   const errorFn = jest.fn();
   const handler = jest.fn();
-  const job: Job<ParsedIntervalSchedule> = {
+
+  type JobParams = { foo: String };
+
+  const job: Job<ParsedIntervalSchedule, JobParams> = {
     name: 'test',
     schedule: {
       interval: '1 minute',
@@ -25,7 +28,7 @@ describe('JobExecutor', () => {
 
   let jobRepository: JobRepository;
   let schedulesRepository: SchedulesRepository;
-  let jobExecutor: JobExecutor;
+  let jobExecutor: JobExecutor<JobParams>;
 
   beforeEach(() => {
     jest.clearAllMocks();

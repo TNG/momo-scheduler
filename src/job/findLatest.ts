@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 
 import { JobEntity } from '../repository/JobEntity';
 
-function compareLastFinished<T extends JobEntity>(left: T, right: T): T {
+function compareLastFinished<JobParams, T extends JobEntity<JobParams>>(left: T, right: T): T {
   const r = right.executionInfo?.lastFinished;
   if (r === undefined) return left;
   const l = left.executionInfo?.lastFinished;
@@ -10,7 +10,7 @@ function compareLastFinished<T extends JobEntity>(left: T, right: T): T {
   return DateTime.fromISO(r).toMillis() > DateTime.fromISO(l).toMillis() ? right : left;
 }
 
-export function findLatest<T extends JobEntity>(jobs: T[]): T | undefined {
+export function findLatest<JobParams, T extends JobEntity<JobParams>>(jobs: T[]): T | undefined {
   if (jobs.length === 0) return undefined;
   return jobs.reduce(compareLastFinished);
 }

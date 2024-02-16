@@ -1,24 +1,24 @@
-import { Handler, JobParameters, MomoJob } from './MomoJob';
+import { Handler, MomoJob, isCronSchedule } from './MomoJob';
 
-interface MomoJobBuilderBase<T> {
+interface MomoJobBuilderBase<JobParams, T> {
   withName: (name: string) => T;
   withConcurrency: (concurrency: number) => T;
   withMaxRunning: (maxRunning: number) => T;
-  withHandler: (handler: Handler) => T;
-  withParameters: (parameters: JobParameters) => T;
-  build: () => MomoJob;
+  withHandler: (handler: Handler<JobParams>) => T;
+  withParameters: (parameters: JobParams) => T;
+  build: () => MomoJob<JobParams>;
 }
 
-interface MomoIntervalJobBuilder extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
-  withSchedule: (interval: number | string, firstRunAfter?: number | string) => MomoIntervalJobBuilder;
+interface MomoIntervalJobBuilder<JobParams> extends MomoJobBuilderBase<JobParams, MomoIntervalJobBuilder<JobParams>> {
+  withSchedule: (interval: number | string, firstRunAfter?: number | string) => MomoIntervalJobBuilder<JobParams>;
 }
 
-interface MomoCronJobBuilder extends MomoJobBuilderBase<MomoCronJobBuilder> {
-  withCronSchedule: (cronSchedule: string) => MomoCronJobBuilder;
+interface MomoCronJobBuilder<JobParams> extends MomoJobBuilderBase<JobParams, MomoCronJobBuilder<JobParams>> {
+  withCronSchedule: (cronSchedule: string) => MomoCronJobBuilder<JobParams>;
 }
 
-export class MomoJobBuilder {
-  protected momoJob: Partial<MomoJob> = {};
+export class MomoJobBuilder<JobParams> {
+  protected momoJob: Partial<MomoJob<JobParams>> = {};
 
   withName(name: string): this {
     this.momoJob.name = name;
@@ -26,17 +26,17 @@ export class MomoJobBuilder {
   }
 
   // The interval is either a number in milliseconds or an interval in human-readable form (see readme)
-  withSchedule(interval: number | string, firstRunAfter: number | string = 0): MomoIntervalJobBuilder {
+  withSchedule(interval: number | string, firstRunAfter: number | string = 0): MomoIntervalJobBuilder<JobParams> {
     this.momoJob.schedule = { firstRunAfter, interval };
     return this;
   }
 
-  withCronSchedule(cronSchedule: string): MomoCronJobBuilder {
+  withCronSchedule(cronSchedule: string): MomoCronJobBuilder<JobParams> {
     this.momoJob.schedule = { cronSchedule };
     return this;
   }
 
-  withParameters(jobParameters: JobParameters): this {
+  withParameters(jobParameters: JobParams): this {
     this.momoJob.parameters = jobParameters;
     return this;
   }
@@ -51,24 +51,30 @@ export class MomoJobBuilder {
     return this;
   }
 
-  withHandler(handler: Handler): this {
+  withHandler(handler: Handler<JobParams>): this {
     this.momoJob.handler = handler;
     return this;
   }
 
-  build(): MomoJob {
-    if (this.momoJob.name === undefined) {
+  build(): MomoJob<JobParams> {
+    const name = this.momoJob.name;
+    if (name === undefined) {
       throw Error('Error: Job must have a specified name');
     }
 
-    if (!this.momoJob.schedule) {
+    const schedule = this.momoJob.schedule;
+    if (!schedule) {
       throw Error('Error: Job must have a specified schedule');
     }
 
-    if (!this.momoJob.handler) {
+    const handler = this.momoJob.handler;
+    if (!handler) {
       throw Error('Error: Job must have a specified handler');
     }
 
-    return this.momoJob as MomoJob;
+    // compiler needs to know the type of schedule to get the types right
+    return isCronSchedule(schedule)
+      ? { ...this.momoJob, name, schedule, handler }
+      : { ...this.momoJob, name, schedule, handler };
   }
 }

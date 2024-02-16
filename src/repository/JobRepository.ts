@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { Filter, MongoClient, WithId } from 'mongodb';
 
 import { ExecutionInfo } from '../job/ExecutionInfo';
 import { JobDefinition } from '../job/Job';
@@ -21,12 +21,19 @@ export class JobRepository extends Repository<JobEntity> {
     this.logger = logger;
   }
 
+  async findOne<JobParams>(
+    filter: Filter<JobEntity<JobParams>> = {},
+  ): Promise<WithId<JobEntity<JobParams>> | undefined> {
+    const entity = await super.findOne(filter as JobEntity);
+    return entity ? { ...entity, parameters: entity.parameters as JobParams | undefined } : undefined;
+  }
+
   async check(name: string): Promise<ExecutionInfo | undefined> {
     const job = await this.findOne({ name });
     return job?.executionInfo;
   }
 
-  async define(job: JobDefinition): Promise<void> {
+  async define(job: JobDefinition<unknown>): Promise<void> {
     const { name, schedule, concurrency, maxRunning } = job;
 
     this.logger?.debug('define job', {

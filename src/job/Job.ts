@@ -2,7 +2,7 @@ import humanInterval from 'human-interval';
 import { Result, err, ok } from 'neverthrow';
 import { parseExpression } from 'cron-parser';
 
-import { CronSchedule, Handler, IntervalSchedule, JobParameters, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
+import { CronSchedule, Handler, IntervalSchedule, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
 import { momoError } from '../logging/error/MomoError';
 
 export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
@@ -10,16 +10,17 @@ export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedFirstRunAfter: number;
 }
 
-export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedule> {
+export interface JobDefinition<JobParams, JobSchedule = ParsedIntervalSchedule | CronSchedule> {
   name: string;
   schedule: JobSchedule;
   concurrency: number;
   maxRunning: number;
-  parameters?: JobParameters;
+  parameters?: JobParams;
 }
 
-export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule> extends JobDefinition<Schedule> {
-  handler: Handler;
+export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule, JobParams = unknown>
+  extends JobDefinition<JobParams, Schedule> {
+  handler: Handler<JobParams>;
 }
 
 /**
@@ -27,7 +28,9 @@ export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule> extends J
  *
  * @param momoJob to be verified and converted into a `Job`
  */
-export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
+export function tryToJob<JobParams>(
+  momoJob: MomoJob<JobParams>,
+): Result<Job<ParsedIntervalSchedule | CronSchedule, JobParams>, Error> {
   const { concurrency, maxRunning } = momoJob;
   if (maxRunning !== undefined && maxRunning < 0) {
     return err(momoError.invalidMaxRunning);
@@ -47,7 +50,9 @@ export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
  *
  * @param momoJob to be verified and converted into a `Job`
  */
-export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Result<Job<ParsedIntervalSchedule>, Error> {
+export function tryToIntervalJob<JobParams>(
+  momoJob: TypedMomoJob<JobParams, IntervalSchedule>,
+): Result<Job<ParsedIntervalSchedule, JobParams>, Error> {
   const { interval, firstRunAfter } = momoJob.schedule;
   const parsedInterval = typeof interval === 'number' ? interval : humanInterval(interval);
   const parsedFirstRunAfter = typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
@@ -84,7 +89,9 @@ export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Resul
  *
  * @param momoJob to be verified and converted into a `Job`
  */
-export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<CronSchedule>, Error> {
+export function tryToCronJob<JobParams>(
+  momoJob: TypedMomoJob<JobParams, CronSchedule>,
+): Result<Job<CronSchedule, JobParams>, Error> {
   try {
     parseExpression(momoJob.schedule.cronSchedule);
 
@@ -104,8 +111,9 @@ export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<Cr
  * @param job
  */
 export function toJobDefinition<
+  JobParams,
   Schedule extends ParsedIntervalSchedule | CronSchedule,
-  Type extends JobDefinition<Schedule>,
->({ name, schedule, maxRunning, concurrency, parameters }: Type): JobDefinition<Schedule> {
+  Type extends JobDefinition<JobParams, Schedule>,
+>({ name, schedule, maxRunning, concurrency, parameters }: Type): JobDefinition<JobParams, Schedule> {
   return { name, schedule, maxRunning, concurrency, parameters };
 }

@@ -14,7 +14,7 @@ describe('Job', () => {
           handler: () => 'finished',
           parameters: { foo: 'bar' },
         };
-        const expected: Job<ParsedIntervalSchedule> = {
+        const expected: Job<ParsedIntervalSchedule, { foo: String }> = {
           name: job.name,
           schedule: {
             interval: job.schedule.interval,
@@ -108,7 +108,7 @@ describe('Job', () => {
 
     describe('cron job', () => {
       it('validates a job', () => {
-        const job: MomoJob = {
+        const job: MomoJob<unknown> = {
           name: 'test',
           schedule: { cronSchedule: '0 9 * * 1-5' },
           handler: () => 'finished',

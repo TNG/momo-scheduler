@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
 import { Logger } from '../logging/Logger';
-import { CronSchedule, JobParameters, isCronSchedule } from '../job/MomoJob';
+import { CronSchedule, isCronSchedule } from '../job/MomoJob';
 import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { ExecutionInfo } from '../job/ExecutionInfo';
@@ -11,23 +11,23 @@ export interface NextExecutionTime {
   nextExecution: DateTime;
 }
 
-export interface ExecutionParameters {
-  callback: (parameters?: JobParameters) => Promise<void>;
+export interface ExecutionParameters<JobParams> {
+  callback: (parameters?: JobParams) => Promise<void>;
   logger: Logger;
   errorMessage: string;
-  jobParameters?: JobParameters;
+  jobParameters?: JobParams;
   executionInfo?: ExecutionInfo;
 }
 
-export interface ExecutableSchedule<I> {
-  execute: (executionParameters: ExecutionParameters) => NextExecutionTime;
+export interface ExecutableSchedule<JobParams, ScheduleType> {
+  execute: (executionParameters: ExecutionParameters<JobParams>) => NextExecutionTime;
   stop: () => void;
   isStarted: () => boolean;
-  toObject: () => I;
+  toObject: () => ScheduleType;
 }
 
-export function toExecutableSchedule(
+export function toExecutableSchedule<JobParams>(
   schedule: ParsedIntervalSchedule | CronSchedule,
-): ExecutableIntervalSchedule | ExecutableCronSchedule {
+): ExecutableIntervalSchedule<JobParams> | ExecutableCronSchedule<JobParams> {
   return isCronSchedule(schedule) ? new ExecutableCronSchedule(schedule) : new ExecutableIntervalSchedule(schedule);
 }

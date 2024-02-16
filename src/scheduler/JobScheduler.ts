@@ -2,7 +2,7 @@ import { min } from 'lodash';
 
 import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
 import { SchedulesRepository } from '../repository/SchedulesRepository';
-import { Job } from '../job/Job';
+import { Job, ParsedIntervalSchedule } from '../job/Job';
 import { JobExecutor } from '../executor/JobExecutor';
 import { JobRepository } from '../repository/JobRepository';
 import { Logger } from '../logging/Logger';
@@ -12,26 +12,26 @@ import { momoError } from '../logging/error/MomoError';
 import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { toExecutableSchedule } from './ExecutableSchedule';
-import { JobParameters } from '../job/MomoJob';
+import { CronSchedule } from '../job/MomoJob';
 
-export class JobScheduler {
+export class JobScheduler<JobParams> {
   private unexpectedErrorCount = 0;
-  private executableSchedule?: ExecutableIntervalSchedule | ExecutableCronSchedule;
+  private executableSchedule?: ExecutableIntervalSchedule<JobParams> | ExecutableCronSchedule<JobParams>;
 
   constructor(
     private readonly jobName: string,
-    private readonly jobExecutor: JobExecutor,
+    private readonly jobExecutor: JobExecutor<JobParams>,
     private readonly schedulesRepository: SchedulesRepository,
     private readonly jobRepository: JobRepository,
     private readonly logger: Logger,
   ) {}
 
-  static forJob(
-    job: Job,
+  static forJob<JobParams>(
+    job: Job<ParsedIntervalSchedule | CronSchedule, JobParams>,
     logger: Logger,
     schedulesRepository: SchedulesRepository,
     jobRepository: JobRepository,
-  ): JobScheduler {
+  ): JobScheduler<JobParams> {
     const executor = new JobExecutor(job.handler, schedulesRepository, jobRepository, logger);
     return new JobScheduler(job.name, executor, schedulesRepository, jobRepository, logger);
   }
@@ -44,7 +44,7 @@ export class JobScheduler {
     return this.executableSchedule?.isStarted() ?? false;
   }
 
-  async getJobDescription(): Promise<MomoJobDescription | undefined> {
+  async getJobDescription(): Promise<MomoJobDescription<unknown> | undefined> {
     const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
@@ -69,7 +69,7 @@ export class JobScheduler {
   async start(): Promise<void> {
     await this.stop();
 
-    const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
+    const jobEntity = await this.jobRepository.findOne<JobParams>({ name: this.jobName });
     if (!jobEntity) {
       this.logger.error(
         'cannot schedule job',
@@ -105,9 +105,9 @@ export class JobScheduler {
     }
   }
 
-  async executeOnce(parameters?: JobParameters): Promise<JobResult> {
+  async executeOnce(parameters?: JobParams): Promise<JobResult> {
     try {
-      const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
+      const jobEntity = await this.jobRepository.findOne<JobParams>({ name: this.jobName });
       if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
@@ -129,9 +129,9 @@ export class JobScheduler {
     }
   }
 
-  async executeConcurrently(parameters?: JobParameters): Promise<void> {
+  async executeConcurrently(parameters?: JobParams): Promise<void> {
     try {
-      const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
+      const jobEntity = await this.jobRepository.findOne<JobParams>({ name: this.jobName });
       if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',

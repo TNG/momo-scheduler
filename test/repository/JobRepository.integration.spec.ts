@@ -93,7 +93,7 @@ describe('JobRepository', () => {
 
   describe('list', () => {
     it('returns jobs', async () => {
-      const job1: JobEntity<ParsedIntervalSchedule> = {
+      const job1: JobEntity<unknown, ParsedIntervalSchedule> = {
         name: 'job1',
         schedule: {
           interval: '1 minute',
@@ -105,7 +105,7 @@ describe('JobRepository', () => {
         concurrency: 1,
         maxRunning: 3,
       };
-      const job2: JobEntity<CronSchedule> = {
+      const job2: JobEntity<unknown, CronSchedule> = {
         name: 'job2',
         schedule: {
           cronSchedule: '0 9 * * 1-5',

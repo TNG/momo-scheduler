@@ -7,7 +7,7 @@ import { ExecutableSchedule, ExecutionParameters, NextExecutionTime } from './Ex
 import { momoError } from '../logging/error/MomoError';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
 
-export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> {
+export class ExecutableCronSchedule<JobParams = unknown> implements ExecutableSchedule<JobParams, CronSchedule> {
   private readonly cronSchedule: string;
   private scheduledJob?: CronJob;
 
@@ -19,7 +19,7 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
     return { cronSchedule: this.cronSchedule };
   }
 
-  execute({ callback, jobParameters, logger, errorMessage }: ExecutionParameters): NextExecutionTime {
+  execute({ callback, jobParameters, logger, errorMessage }: ExecutionParameters<JobParams>): NextExecutionTime {
     this.validateCronSchedule();
 
     this.scheduledJob = new CronJob(this.cronSchedule, async () => callback(jobParameters));

@@ -3,7 +3,15 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { v4 as uuid } from 'uuid';
 
 import { Connection } from '../../src/Connection';
-import { ExecutionStatus, MomoErrorEvent, MomoErrorType, MomoJob, MongoSchedule, momoError } from '../../src';
+import {
+  ExecutionStatus,
+  JobParameters,
+  MomoErrorEvent,
+  MomoErrorType,
+  MomoJob,
+  MongoSchedule,
+  momoError,
+} from '../../src';
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { initLoggingForTests } from '../utils/logging';
@@ -70,7 +78,7 @@ describe('Momo', () => {
   function createTestIntervalJob(
     jobHandler: TestJobHandler,
     schedule: IntervalSchedule,
-  ): TypedMomoJob<IntervalSchedule> {
+  ): TypedMomoJob<JobParameters, IntervalSchedule> {
     return {
       name: `interval_test_job_${uuid()}`,
       handler: jobHandler.handler,
@@ -78,7 +86,10 @@ describe('Momo', () => {
     };
   }
 
-  function createTestCronJob(jobHandler: TestJobHandler, schedule: CronSchedule): TypedMomoJob<CronSchedule> {
+  function createTestCronJob(
+    jobHandler: TestJobHandler,
+    schedule: CronSchedule,
+  ): TypedMomoJob<JobParameters, CronSchedule> {
     return {
       name: `cron_test_job_${uuid()}`,
       handler: jobHandler.handler,
@@ -102,7 +113,7 @@ describe('Momo', () => {
 
     describe('single interval job', () => {
       let jobHandler: TestJobHandler;
-      let intervalJob: TypedMomoJob<IntervalSchedule>;
+      let intervalJob: TypedMomoJob<JobParameters, IntervalSchedule>;
 
       beforeEach(() => {
         jobHandler = createTestJobHandler();
@@ -578,10 +589,9 @@ describe('Momo', () => {
         });
 
         expect(executionInfo).toBeDefined();
-        if (!executionInfo) throw new Error('should be defined');
         const duration =
-          DateTime.fromISO(executionInfo.lastFinished).toMillis() -
-          DateTime.fromISO(executionInfo.lastStarted).toMillis();
+          DateTime.fromISO(executionInfo!.lastFinished).toMillis() -
+          DateTime.fromISO(executionInfo!.lastStarted).toMillis();
         expect(duration).toBeGreaterThan(3000);
       });
 
@@ -839,7 +849,7 @@ describe('Momo', () => {
     });
 
     describe('job parameters', () => {
-      let intervalJob: TypedMomoJob<IntervalSchedule>;
+      let intervalJob: TypedMomoJob<JobParameters, IntervalSchedule>;
 
       beforeEach(() => {
         intervalJob = {
