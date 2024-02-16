@@ -24,7 +24,13 @@ export function loggerForTests(
     debug: (message, data) => logger.info({ message, data }),
     error: (message, type, data, error) => {
       errorLogger.error({ message, type, data, error });
-      if (errorFn) errorFn(message, type, data, error);
+      if (errorFn) {
+        if (error !== undefined) {
+          errorFn(message, type, data, error);
+        } else {
+          errorFn(message, type, data);
+        }
+      }
     },
   };
 }

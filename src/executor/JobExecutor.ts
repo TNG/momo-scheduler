@@ -71,9 +71,10 @@ export class JobExecutor {
         status: ExecutionStatus.finished,
         handlerResult: data ?? 'finished',
       };
-    } catch (e) {
+    } catch (e: unknown) {
+      const message = (e as Partial<Error>).message ?? 'unknown error';
       this.logger.error('job failed', MomoErrorType.executeJob, { name: jobEntity.name }, e);
-      result = { status: ExecutionStatus.failed, handlerResult: (e as Error).message };
+      result = { status: ExecutionStatus.failed, handlerResult: message };
     }
     return { started, result };
   }
