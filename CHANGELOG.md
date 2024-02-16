@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
 
+## v2.1.0 (24-02-16)
+- Feat: handle improper error objects (like null, undefined ...) returned from jobs gracefully ([#720](https://github.com/TNG/momo-scheduler/issues/720))
+
 ## v2.0.4 (2023-12-01)
 - Fix: maxRunning is now always respected, also for longer running jobs ([#706](https://github.com/TNG/momo-scheduler/issues/706))
 
