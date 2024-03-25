@@ -44,17 +44,17 @@
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "11.2.2",
-    "@types/cron": "2.0.1",
+    "@types/cron": "2.4.0",
     "@types/human-interval": "1.0.2",
     "@types/jest": "29.5.12",
     "@types/lodash": "4.17.0",
     "@types/luxon": "3.4.2",
-    "@types/node": "20.11.28",
-    "@types/pino": "7.0.4",
+    "@types/node": "20.11.30",
+    "@types/pino": "7.0.5",
     "@types/sinonjs__fake-timers": "8.1.5",
     "@types/uuid": "9.0.8",
-    "@typescript-eslint/eslint-plugin": "7.2.0",
-    "@typescript-eslint/parser": "7.2.0",
+    "@typescript-eslint/eslint-plugin": "7.4.0",
+    "@typescript-eslint/parser": "7.4.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-import": "2.29.1",
@@ -70,6 +70,6 @@
     "ts-jest": "29.1.2",
     "ts-mockito": "2.6.1",
     "ts-node": "10.9.2",
-    "typescript": "5.4.2"
+    "typescript": "5.4.3"
   }
 }
