@@ -23,7 +23,7 @@
     },
     {
       "matchDepTypes": ["devDependencies"],
-      "excludePackagePrefixes": ["eslint", "@types/, @typescript-eslint/"],
+      "excludePackagePrefixes": ["eslint", "@types/", "@typescript-eslint/"],
       "automerge": true,
       "automergeType": "branch",
       "groupName":  "Dev dependencies",
