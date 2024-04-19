@@ -2,9 +2,7 @@
   "extends": ["config:base", ":gitSignOff", ":disableDependencyDashboard", ":preserveSemverRanges"],
   "rangeStrategy": "pin",
   "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true,
-    "automergeType": "branch"
+    "enabled": true
   },
   "packageRules": [
     {
