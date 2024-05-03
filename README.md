@@ -45,13 +45,13 @@ import { MongoScheduleBuilder } from './MongoScheduleBuilder';
 
 const mongo = await MongoMemoryServer.create();
 const mongoSchedule = await new MongoScheduleBuilder()
-.withConnection({
-  url: mongo.getUri(),
-  collectionsPrefix: 'momo',
-  scheduleName: 'MySchedule',
-  pingIntervalMs: 10_000
-})
-.build();
+  .withConnection({
+    url: mongo.getUri(),
+    collectionsPrefix: 'momo',
+    scheduleName: 'MySchedule',
+    pingIntervalMs: 10_000,
+  })
+  .build();
 
 const intervalJob: MomoJob = new MomoJobBuilder()
   .withName('interval job')
@@ -83,10 +83,10 @@ const cronJobWithoutParameters: MomoJob = new MomoJobBuilder()
 await mongoSchedule.define(cronJobWithoutParameters);
 
 // optional: listen to error and debug events
-mongoSchedule.on("error", (error: MomoErrorEvent) => {
+mongoSchedule.on('error', (error: MomoErrorEvent) => {
   /* handle error */
 });
-mongoSchedule.on("debug", (debug: MomoEvent) => {
+mongoSchedule.on('debug', (debug: MomoEvent) => {
   /* ... */
 });
 
@@ -157,7 +157,7 @@ database.
 | collectionsPrefix | `string` | no        | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                             |
 | pingIntervalMs    | number   | no        | `60_000`  | The keep alive ping interval of the schedule, in milliseconds. After twice the amount of time has elapsed without a ping of your Momo instance, other instances may take over. You might want to reduce this if you have jobs running on short intervals. |
 
-#### Reacting to events
+### Reacting to events
 
 The MongoSchedule is an EventEmitter, emitting `'debug'` and `'error'` events.
 You can define callbacks to handle them:
@@ -172,7 +172,7 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 });
 ```
 
-### MomoEvent and MomoErrorEvent
+#### MomoEvent and MomoErrorEvent
 
 | event | property         | type                     | description                                                                                                                                   |
 |-------|------------------|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
