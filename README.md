@@ -45,13 +45,13 @@ import { MongoScheduleBuilder } from './MongoScheduleBuilder';
 
 const mongo = await MongoMemoryServer.create();
 const mongoSchedule = await new MongoScheduleBuilder()
-  .withConnection({
-    url: mongo.getUri(),
-    collectionsPrefix: 'momo',
-    scheduleName: 'MySchedule',
-    pingIntervalMs: 10_000,
-  })
-  .build();
+.withConnection({
+  url: mongo.getUri(),
+  collectionsPrefix: 'momo',
+  scheduleName: 'MySchedule',
+  pingIntervalMs: 10_000
+})
+.build();
 
 const intervalJob: MomoJob = new MomoJobBuilder()
   .withName('interval job')
@@ -73,20 +73,20 @@ const cronJob: MomoJob = new MomoJobBuilder()
   .build();
 await mongoSchedule.define(cronJob);
 
-const cronJobWithNoParameters: MomoJob = new MomoJobBuilder()
+const cronJobWithoutParameters: MomoJob = new MomoJobBuilder()
   .withName('cron job without parameters')
   .withConcurrency(1)
   .withMaxRunning(3)
   .withCronSchedule('0 0 * * 1-3')
   .withHandler(() => console.log('This is a momo job that runs on Monday, Tuesday and Wednesday!'))
   .build();
-await mongoSchedule.define(cronJobWithNoParameters);
+await mongoSchedule.define(cronJobWithoutParameters);
 
 // optional: listen to error and debug events
-mongoSchedule.on('error', (error: MomoErrorEvent) => {
+mongoSchedule.on("error", (error: MomoErrorEvent) => {
   /* handle error */
 });
-mongoSchedule.on('debug', (debug: MomoEvent) => {
+mongoSchedule.on("debug", (debug: MomoEvent) => {
   /* ... */
 });
 
@@ -110,7 +110,7 @@ You can instantiate a momo job using the `MomoJobBuilder` class. It provides the
 | withConcurrency  | `concurrency: number`                                                          | no        | 1             | How many instances of a job are started at a time.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | withMaxRunning   | `maxRunning: number`                                                           | no        | 0             | Maximum number of job executions that is allowed at a time. Set to 0 for no max. The schedule will trigger no more job executions if maxRunning is reached.                                                                                                                                                                                                                                                                                                                                                                                                   |
 | withHandler      | `handler: function`                                                            | yes       |               | The function to execute.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| withParameters   | `jobParameters: JobParameters`                                                 | no        |               | The parameters with which the function provided by `withHandler` is called.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| withParameters   | `jobParameters: JobParameters`                                                 | no        |               | The parameters the `handler` function is called with.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 ### MongoSchedule
 
@@ -127,8 +127,8 @@ The schedule offers the following methods to create and run jobs:
 | function   | parameters                                                                                         | description                                                                                                                                                                                                                                                                                         |
 |------------|----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | connect    | `options: MomoConnectionOptions`                                                                   | Creates a new MongoSchedule connected to your database. See below for the available options.                                                                                                                                                                                                        |
-| disconnect |                                                                                                    | Disconnects the MongoSchedule from the database.                                                                                                                                                                                                                                                    |
-| define     | `job: MomoJob`                                                                                     | Creates a new MomoJob on the schedule or updates an existing job with the same name. If the job existed before, it will be stopped!                                                                                                                                                                 |
+| disconnect |                                                                                                    | Cancels all jobs and disconnects the MongoSchedule from the database.                                                                                                                                                                                                                               |
+| define     | `job: MomoJob`                                                                                     | Creates a new job on the schedule or updates an existing one with the same name. If the job existed before, it will be stopped!                                                                                                                                                                     |
 | start      |                                                                                                    | Starts jobs that are on the schedule.                                                                                                                                                                                                                                                               |
 | stop       |                                                                                                    | Stops jobs, but does not remove them from either the schedule or the database.                                                                                                                                                                                                                      |
 | cancel     |                                                                                                    | Stops and removes jobs from the schedule, does not remove them from the database.                                                                                                                                                                                                                   |
@@ -150,12 +150,12 @@ database.
 
 #### MomoConnectionOptions
 
-| property          | type     | mandatory | default   | description                                                                                                                                                                                                                                                 |
-|-------------------|----------|-----------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| url               | `string` | yes       |           | The connection string of your database.                                                                                                                                                                                                                     |
-| scheduleName      | `string` | yes       |           | Only one schedule per name can be active at a time. If multiple instances of your application define a schedule with the same name, only one at a time will actually run jobs.                                                                              |
-| collectionsPrefix | `string` | no        | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                               |
-| pingIntervalMs    | number   | no        | `60_000`  | The keep alive ping interval of the schedule, in milliseconds. After twice the amount of time has elapsed without a ping of your Momo instance, other instances would take over. You might want to reduce this if you have jobs running on short intervals. |
+| property          | type     | mandatory | default   | description                                                                                                                                                                                                                                               |
+|-------------------|----------|-----------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| url               | `string` | yes       |           | The connection string of your database.                                                                                                                                                                                                                   |
+| scheduleName      | `string` | yes       |           | Only one schedule per name can be active at a time. If multiple instances of your application define a schedule with the same name, only one at a time will actually run jobs.                                                                            |
+| collectionsPrefix | `string` | no        | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                             |
+| pingIntervalMs    | number   | no        | `60_000`  | The keep alive ping interval of the schedule, in milliseconds. After twice the amount of time has elapsed without a ping of your Momo instance, other instances may take over. You might want to reduce this if you have jobs running on short intervals. |
 
 #### Reacting to events
 
@@ -187,28 +187,28 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 import { MomoJobBuilder } from './MomoJobBuilder';
 
 const example1 = new MomoJobBuilder()
-.withName('example 1')
-.withInterval('5 minutes')
-.withHandler(() => console.log('This is momo'))
-.build();
+  .withName('example 1')
+  .withInterval('5 minutes')
+  .withHandler(() => console.log('This is momo'))
+  .build();
 
 const example2 = new MomoJobBuilder()
-.withName('example 2')
-.withInterval('5 minutes', 60 * 1000) // first run after one minute
-.withHandler(() => console.log('This is momo'))
-.build();
+  .withName('example 2')
+  .withInterval('5 minutes', 60 * 1000) // first run after one minute
+  .withHandler(() => console.log('This is momo'))
+  .build();
 
 const example3 = new MomoJobBuilder()
-.withName('example 3')
-.withInterval('5 minutes', '4 minutes') // first run after four minutes
-.withHandler(() => console.log('This is momo'))
-.build();
+  .withName('example 3')
+  .withInterval('5 minutes', '4 minutes') // first run after four minutes
+  .withHandler(() => console.log('This is momo'))
+  .build();
 
 const example4 = new MomoJobBuilder()
-.withName('example 4')
-.withCronSchedule('0 0 * * 1-5') // every weekday at midnight
-.withHandler(() => console.log('This is momo'))
-.build();
+  .withName('example 4')
+  .withCronSchedule('0 0 * * 1-5') // every weekday at midnight
+  .withHandler(() => console.log('This is momo'))
+  .build();
 ```
 
 Assume it is 12:00 AM when the MongoSchedule with these four example jobs is started.
@@ -232,8 +232,8 @@ Now assume the MongoSchedule is stopped at 12:02 and then immediately started ag
 - `example 4` will be run at midnight every weekday
 
 If your application is not running while a cron job should start, the missed run will not be started when your
-application resumes. This is the case for interval jobs, though - if the time of the next run of an interval job has
-already elapsed after the application restarted, the job will be run immediately.
+application resumes. This is the case for interval jobs, though - if the time of the next run has already elapsed after
+the application restarted, the job will be run immediately.
 
 The benefit of cron jobs is that you can control the exact time of execution. They are also not
 restricted to a constant interval.
