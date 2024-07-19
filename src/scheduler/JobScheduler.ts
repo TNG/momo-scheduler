@@ -145,7 +145,7 @@ export class JobScheduler {
       const running = await this.schedulesRepository.countRunningExecutions(jobEntity.name);
       const numToExecute =
         jobEntity.maxRunning > 0
-          ? min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency
+          ? (min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency)
           : jobEntity.concurrency;
       this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
 
