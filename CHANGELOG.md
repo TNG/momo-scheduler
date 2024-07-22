@@ -3,8 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v2.1.1 (2024-07-22)
+- Chore: Dependency updates
 
-## v2.1.0 (24-02-16)
+## v2.1.0 (2024-02-16)
 - Feat: handle improper error objects (like null, undefined ...) returned from jobs gracefully ([#720](https://github.com/TNG/momo-scheduler/issues/720))
 
 ## v2.0.4 (2023-12-01)
