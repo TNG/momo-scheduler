@@ -34,8 +34,8 @@
     "cron-parser": "4.9.0",
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
-    "luxon": "3.4.4",
-    "neverthrow": "7.0.0",
+    "luxon": "3.5.0",
+    "neverthrow": "7.0.1",
     "typed-emitter": "2.1.0",
     "uuid": "10.0.0"
   },
