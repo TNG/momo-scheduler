@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v2.2.0 (2024-09-13)
+- Chore: Dependency updates
+
 ## v2.1.1 (2024-07-22)
 - Chore: Dependency updates
 
