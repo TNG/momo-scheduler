@@ -132,6 +132,7 @@ export class SchedulesRepository extends Repository<ScheduleEntity> {
    */
   async createIndex(): Promise<void> {
     await this.collection.createIndex({ name: 1 }, { unique: true });
+    await this.collection.createIndex({ scheduleId: 1 }, { unique: true });
   }
 
   async removeJob(jobName: string): Promise<void> {
