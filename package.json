@@ -47,7 +47,7 @@
     "@stylistic/eslint-plugin": "^2.8.0",
     "@types/human-interval": "1.0.2",
     "@types/jest": "29.5.13",
-    "@types/lodash": "4.17.9",
+    "@types/lodash": "4.17.10",
     "@types/luxon": "3.4.2",
     "@types/node": "20.16.10",
     "@types/sinonjs__fake-timers": "8.1.5",
