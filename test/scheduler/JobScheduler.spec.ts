@@ -1,15 +1,16 @@
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobDefinition, ParsedIntervalSchedule, toJobDefinition } from '../../src/job/Job';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
-import { MomoErrorType, momoError } from '../../src';
+import { ExecutionStatus, MomoErrorType, momoError } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { CronSchedule } from '../../src/job/MomoJob';
+import { JobEntity } from '../../src/repository/JobEntity';
 
 describe('JobScheduler', () => {
   const errorFn = jest.fn();
@@ -41,10 +42,11 @@ describe('JobScheduler', () => {
       instance(jobRepository),
       loggerForTests(errorFn),
     );
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve({
+    const jobEntity: WithId<JobEntity> = {
       ...toJobDefinition(job),
       _id: new ObjectId(),
-    });
+    };
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
     when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
@@ -241,6 +243,36 @@ describe('JobScheduler', () => {
       );
 
       expect(jobScheduler.getUnexpectedErrorCount()).toBe(1);
+    });
+
+    it('reports timeout after unexpected error', async () => {
+      const job = createIntervalJob({ timeout: 100 });
+      const error = new Error('something unexpected happened');
+      when(jobExecutor.execute(anything(), anything())).thenReject(error);
+
+      await jobScheduler.start();
+
+      await sleep(1500);
+
+      expect(errorFn).toHaveBeenCalledWith('timeout reached', MomoErrorType.executeJob, { name: job.name });
+    });
+
+    it('reports timeout after unexpected error for concurrent job', async () => {
+      const job = createIntervalJob({ timeout: 100, concurrency: 2, maxRunning: 2 });
+      let i = 0;
+      when(jobExecutor.execute(anything(), anything())).thenCall(async () => {
+        i++;
+        if (i === 1) {
+          throw new Error('something weird happened!'); // first execution fails
+        }
+        return { status: ExecutionStatus.finished }; // second one works fine
+      });
+
+      await jobScheduler.start();
+
+      await sleep(1500);
+
+      expect(errorFn).toHaveBeenCalledWith('timeout reached', MomoErrorType.executeJob, { name: job.name, i: 0 });
     });
   });
 
