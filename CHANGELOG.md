@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v2.3.0 (2024-10-18)
+- Feat: Add option to pass MongoClientOptions to momo ([#857](https://github.com/TNG/momo-scheduler/issues/857))
+- Feat: Add index for scheduleId column ([#839](https://github.com/TNG/momo-scheduler/issues/839))
+- Chore: Dependency updates
+
 ## v2.2.0 (2024-09-13)
 - Chore: Dependency updates
 
