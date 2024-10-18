@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, MongoClientOptions } from 'mongodb';
 
 import { SchedulesRepository } from './repository/SchedulesRepository';
 import { JobRepository } from './repository/JobRepository';
@@ -8,6 +8,12 @@ export interface MomoConnectionOptions {
    * The mongodb connection string.
    */
   url: string;
+  /**
+   * Additional options for the connection to the Mongo client.
+   * Refer to MongoClientOptions in the MongoDB API documentation for a list of all available settings.
+   * Useful for providing configuration options that are not available via the connection string (url).
+   */
+  mongoClientOptions?: MongoClientOptions;
   /**
    * Used to prefix all mongodb collections created by Momo.
    */
@@ -22,12 +28,12 @@ export class Connection {
   ) {}
 
   static async create(
-    { url, collectionsPrefix }: MomoConnectionOptions,
+    { url, mongoClientOptions, collectionsPrefix }: MomoConnectionOptions,
     pingIntervalMs: number,
     scheduleId: string,
     scheduleName: string,
   ): Promise<Connection> {
-    const mongoClient = new MongoClient(url);
+    const mongoClient = new MongoClient(url, mongoClientOptions);
     await mongoClient.connect();
 
     const schedulesRepository = new SchedulesRepository(
