@@ -13,9 +13,11 @@ import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { toExecutableSchedule } from './ExecutableSchedule';
 import { JobParameters } from '../job/MomoJob';
+import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class JobScheduler {
   private unexpectedErrorCount = 0;
+  private executorError: boolean[] = [];
   private executableSchedule?: ExecutableIntervalSchedule | ExecutableCronSchedule;
 
   constructor(
@@ -122,7 +124,7 @@ export class JobScheduler {
 
       return this.jobExecutor.execute(jobEntity, parameters);
     } catch (e) {
-      this.handleUnexpectedError(e);
+      this.handleUnexpectedError(-1, e);
       return {
         status: ExecutionStatus.failed,
       };
@@ -149,23 +151,54 @@ export class JobScheduler {
           : jobEntity.concurrency;
       this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
 
+      this.executorError = new Array(numToExecute);
+
       for (let i = 0; i < numToExecute; i++) {
+        this.logger.debug('execute', { i });
+        this.executorError[i] = false;
+
+        const executionTimeout =
+          jobEntity.timeout !== undefined
+            ? setSafeTimeout(
+                async () => this.handleTimeoutReached(i),
+                jobEntity.timeout,
+                this.logger,
+                'error occurred in timeout',
+              )
+            : undefined;
+
         // eslint-disable-next-line no-void
-        void this.jobExecutor.execute(jobEntity, parameters).catch((e) => {
-          this.handleUnexpectedError(e);
-        });
+        void this.jobExecutor
+          .execute(jobEntity, parameters)
+          .catch((e) => {
+            this.handleUnexpectedError(i, e);
+          })
+          .finally(() => {
+            if (!this.executorError[i]) {
+              this.logger.debug('job executed just fine, cancel timout', { i });
+              clearTimeout(executionTimeout);
+            }
+          });
       }
     } catch (e) {
-      this.handleUnexpectedError(e);
+      this.handleUnexpectedError(-1, e);
     }
   }
 
-  private handleUnexpectedError(error: unknown): void {
+  private handleTimeoutReached(i: number): void {
+    this.logger.error('timeout reached', MomoErrorType.executeJob, { name: this.jobName, i });
+    // TODO how to clean up? what to do now?
+    // clean up only the failed execution? But we do not store every execution of a concurrent job separately, we only have one executionInfo. Change it to an array of length maxRunning?
+    // or clean up everything - that is, stop the job and restart it?
+  }
+
+  private handleUnexpectedError(i: number, error: unknown): void {
     this.unexpectedErrorCount++;
+    if (i >= 0) this.executorError[i] = true;
     this.logger.error(
       'an unexpected error occurred while executing job',
       MomoErrorType.executeJob,
-      { name: this.jobName },
+      { name: this.jobName, i },
       error,
     );
   }
