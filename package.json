@@ -30,14 +30,14 @@
     "format": "prettier --write \"**/*.ts\" && eslint --fix"
   },
   "dependencies": {
-    "cron": "3.1.7",
+    "cron": "3.2.1",
     "cron-parser": "4.9.0",
     "human-interval": "2.0.1",
     "lodash": "4.17.21",
     "luxon": "3.5.0",
     "neverthrow": "8.1.1",
     "typed-emitter": "2.1.0",
-    "uuid": "11.0.2"
+    "uuid": "11.0.3"
   },
   "peerDependencies": {
     "mongodb": "4 || 5 || 6"
