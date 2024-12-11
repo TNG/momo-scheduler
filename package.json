@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "13.0.5",
-    "@stylistic/eslint-plugin": "2.11.0",
+    "@stylistic/eslint-plugin": "2.12.1",
     "@types/human-interval": "1.0.2",
     "@types/jest": "29.5.14",
     "@types/lodash": "4.17.13",
