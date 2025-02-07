@@ -153,14 +153,14 @@ export class JobScheduler {
 
       this.executorError = new Array(numToExecute);
 
-      for (let i = 0; i < numToExecute; i++) {
-        this.logger.debug('execute', { i });
-        this.executorError[i] = false;
+      for (let instanceNumber = 0; instanceNumber < numToExecute; instanceNumber++) {
+        this.logger.debug('executing job instance', { instanceNumber });
+        this.executorError[instanceNumber] = false;
 
         const executionTimeout =
           jobEntity.timeout !== undefined
             ? setSafeTimeout(
-                async () => this.handleTimeoutReached(i),
+                async () => this.handleTimeoutReached(instanceNumber),
                 jobEntity.timeout,
                 this.logger,
                 'error occurred in timeout',
@@ -171,11 +171,11 @@ export class JobScheduler {
         void this.jobExecutor
           .execute(jobEntity, parameters)
           .catch((e) => {
-            this.handleUnexpectedError(i, e);
+            this.handleUnexpectedError(instanceNumber, e);
           })
           .finally(() => {
-            if (!this.executorError[i]) {
-              this.logger.debug('job executed just fine, cancel timout', { i });
+            if (this.executorError[instanceNumber] !== undefined) {
+              this.logger.debug('job executed correctly, cancel timout', { instanceNumber });
               clearTimeout(executionTimeout);
             }
           });
@@ -185,20 +185,23 @@ export class JobScheduler {
     }
   }
 
-  private handleTimeoutReached(i: number): void {
-    this.logger.error('timeout reached', MomoErrorType.executeJob, { name: this.jobName, i });
+  private handleTimeoutReached(instanceNumber: number): void {
+    this.logger.error('timeout reached', MomoErrorType.executeJob, { name: this.jobName, instanceNumber });
     // TODO how to clean up? what to do now?
     // clean up only the failed execution? But we do not store every execution of a concurrent job separately, we only have one executionInfo. Change it to an array of length maxRunning?
     // or clean up everything - that is, stop the job and restart it?
   }
 
-  private handleUnexpectedError(i: number, error: unknown): void {
+  private handleUnexpectedError(instanceNumber: number, error: unknown): void {
     this.unexpectedErrorCount++;
-    if (i >= 0) this.executorError[i] = true;
+    if (instanceNumber >= 0) {
+      this.executorError[instanceNumber] = true;
+    }
+
     this.logger.error(
       'an unexpected error occurred while executing job',
       MomoErrorType.executeJob,
-      { name: this.jobName, i },
+      { name: this.jobName, instanceNumber },
       error,
     );
   }

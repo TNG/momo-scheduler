@@ -212,6 +212,9 @@ describe('JobScheduler', () => {
   });
 
   describe('error cases', () => {
+    const timeout = 100;
+    const slowJobExecution = async (): Promise<void> => sleep(timeout * 2);
+
     it('reports error when job was removed before scheduling', async () => {
       const job = createIntervalJob();
       when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(undefined);
@@ -238,7 +241,7 @@ describe('JobScheduler', () => {
       expect(errorFn).toHaveBeenCalledWith(
         'an unexpected error occurred while executing job',
         MomoErrorType.executeJob,
-        { name: job.name },
+        { name: job.name, instanceNumber: -1 },
         error,
       );
 
@@ -246,24 +249,27 @@ describe('JobScheduler', () => {
     });
 
     it('reports timeout after unexpected error', async () => {
-      const job = createIntervalJob({ timeout: 100 });
-      const error = new Error('something unexpected happened');
-      when(jobExecutor.execute(anything(), anything())).thenReject(error);
+      const job = createIntervalJob({ timeout });
+
+      when(jobExecutor.execute(anything(), anything())).thenCall(slowJobExecution);
 
       await jobScheduler.start();
 
       await sleep(1500);
 
-      expect(errorFn).toHaveBeenCalledWith('timeout reached', MomoErrorType.executeJob, { name: job.name });
+      expect(errorFn).toHaveBeenCalledWith('timeout reached', MomoErrorType.executeJob, {
+        name: job.name,
+        instanceNumber: 0,
+      });
     });
 
-    it('reports timeout after unexpected error for concurrent job', async () => {
-      const job = createIntervalJob({ timeout: 100, concurrency: 2, maxRunning: 2 });
+    it('reports timeout after one of the job instances times out', async () => {
+      const job = createIntervalJob({ timeout, concurrency: 2, maxRunning: 2 });
       let i = 0;
       when(jobExecutor.execute(anything(), anything())).thenCall(async () => {
         i++;
         if (i === 1) {
-          throw new Error('something weird happened!'); // first execution fails
+          await slowJobExecution(); // first execution timeout
         }
         return { status: ExecutionStatus.finished }; // second one works fine
       });
@@ -272,7 +278,10 @@ describe('JobScheduler', () => {
 
       await sleep(1500);
 
-      expect(errorFn).toHaveBeenCalledWith('timeout reached', MomoErrorType.executeJob, { name: job.name, i: 0 });
+      expect(errorFn).toHaveBeenCalledWith('timeout reached', MomoErrorType.executeJob, {
+        name: job.name,
+        instanceNumber: 0,
+      });
     });
   });
 
