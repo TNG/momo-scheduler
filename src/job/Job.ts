@@ -1,6 +1,6 @@
 import humanInterval from 'human-interval';
 import { Result, err, ok } from 'neverthrow';
-import { parseExpression } from 'cron-parser';
+import CronExpressionParser from 'cron-parser';
 
 import { CronSchedule, Handler, IntervalSchedule, JobParameters, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
 import { momoError } from '../logging/error/MomoError';
@@ -88,7 +88,7 @@ export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Resul
  */
 export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<CronSchedule>, Error> {
   try {
-    parseExpression(momoJob.schedule.cronSchedule);
+    CronExpressionParser.parse(momoJob.schedule.cronSchedule);
 
     return ok({
       concurrency: 1,

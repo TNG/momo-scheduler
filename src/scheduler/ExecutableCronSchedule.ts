@@ -1,4 +1,4 @@
-import { parseExpression } from 'cron-parser';
+import CronExpressionParser from 'cron-parser';
 import { CronJob } from 'cron';
 import { DateTime } from 'luxon';
 
@@ -45,7 +45,7 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
 
   private validateCronSchedule(): void {
     try {
-      parseExpression(this.cronSchedule);
+      CronExpressionParser.parse(this.cronSchedule);
     } catch {
       // the cron schedule was already validated when the job was defined
       throw momoError.nonParsableCronSchedule;
