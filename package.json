@@ -37,7 +37,7 @@
     "luxon": "3.5.0",
     "neverthrow": "8.1.1",
     "typed-emitter": "2.1.0",
-    "uuid": "11.0.5"
+    "uuid": "11.1.0"
   },
   "peerDependencies": {
     "mongodb": "4 || 5 || 6"
