@@ -1,6 +1,13 @@
 import { err, ok } from 'neverthrow';
 
-import { Job, ParsedIntervalSchedule, tryToCronJob, tryToIntervalJob, tryToJob } from '../../src/job/Job';
+import {
+  Job,
+  ParsedIntervalSchedule,
+  maxNodeTimeoutDelay,
+  tryToCronJob,
+  tryToIntervalJob,
+  tryToJob,
+} from '../../src/job/Job';
 import { MomoJob, momoError } from '../../src';
 import { CronSchedule } from '../../src/job/MomoJob';
 
@@ -78,10 +85,37 @@ describe('Job', () => {
         expect(tryToJob(job)).toEqual(err(momoError.invalidInterval));
       });
 
-      it('reports error when firstRunAfter is invalid', async () => {
+      it('reports error when human readable interval is too large', () => {
+        const job: MomoJob = {
+          name: 'test',
+          schedule: { interval: '25 days', firstRunAfter: 0 },
+          handler: () => 'finished',
+        };
+        expect(tryToJob(job)).toEqual(err(momoError.invalidInterval));
+      });
+
+      it('reports error when interval is too large', () => {
+        const job: MomoJob = {
+          name: 'test',
+          schedule: { interval: maxNodeTimeoutDelay + 1, firstRunAfter: 0 },
+          handler: () => 'finished',
+        };
+        expect(tryToJob(job)).toEqual(err(momoError.invalidInterval));
+      });
+
+      it('reports error when firstRunAfter is negative', async () => {
         const job: MomoJob = {
           name: 'test',
           schedule: { interval: '1 minute', firstRunAfter: -1 },
+          handler: () => 'finished',
+        };
+        expect(tryToJob(job)).toEqual(err(momoError.invalidFirstRunAfter));
+      });
+
+      it('reports error when firstRunAfter is too large', async () => {
+        const job: MomoJob = {
+          name: 'test',
+          schedule: { interval: '1 minute', firstRunAfter: maxNodeTimeoutDelay + 1 },
           handler: () => 'finished',
         };
         expect(tryToJob(job)).toEqual(err(momoError.invalidFirstRunAfter));
@@ -96,10 +130,19 @@ describe('Job', () => {
         expect(tryToJob(job)).toEqual(err(momoError.nonParsableFirstRunAfter));
       });
 
-      it('reports error when firstRunAfter is parseable but invalid', async () => {
+      it('reports error when firstRunAfter is parseable but negative', async () => {
         const job: MomoJob = {
           name: 'test',
           schedule: { interval: '1 minute', firstRunAfter: '-1 minute' },
+          handler: () => 'finished',
+        };
+        expect(tryToJob(job)).toEqual(err(momoError.invalidFirstRunAfter));
+      });
+
+      it('reports error when firstRunAfter is parseable but too large', async () => {
+        const job: MomoJob = {
+          name: 'test',
+          schedule: { interval: '1 minute', firstRunAfter: '25 days' },
           handler: () => 'finished',
         };
         expect(tryToJob(job)).toEqual(err(momoError.invalidFirstRunAfter));

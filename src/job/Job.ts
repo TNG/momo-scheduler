@@ -5,6 +5,8 @@ import { parseExpression } from 'cron-parser';
 import { CronSchedule, Handler, IntervalSchedule, JobParameters, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
 import { momoError } from '../logging/error/MomoError';
 
+export const maxNodeTimeoutDelay = 2147483647;
+
 export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedInterval: number;
   parsedFirstRunAfter: number;
@@ -55,13 +57,13 @@ export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Resul
 
   if (typeof parsedInterval !== 'number' || isNaN(parsedInterval)) {
     return err(momoError.nonParsableInterval);
-  } else if (parsedInterval <= 0) {
+  } else if (parsedInterval <= 0 || parsedInterval > maxNodeTimeoutDelay) {
     return err(momoError.invalidInterval);
   }
   if (firstRunAfter !== undefined) {
     if (typeof parsedFirstRunAfter !== 'number' || isNaN(parsedFirstRunAfter)) {
       return err(momoError.nonParsableFirstRunAfter);
-    } else if (parsedFirstRunAfter < 0) {
+    } else if (parsedFirstRunAfter < 0 || parsedFirstRunAfter > maxNodeTimeoutDelay) {
       return err(momoError.invalidFirstRunAfter);
     }
   }
