@@ -17,6 +17,7 @@ export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedu
   schedule: JobSchedule;
   concurrency: number;
   maxRunning: number;
+  timeout?: number;
   parameters?: JobParameters;
 }
 
@@ -108,6 +109,6 @@ export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<Cr
 export function toJobDefinition<
   Schedule extends ParsedIntervalSchedule | CronSchedule,
   Type extends JobDefinition<Schedule>,
->({ name, schedule, maxRunning, concurrency, parameters }: Type): JobDefinition<Schedule> {
-  return { name, schedule, maxRunning, concurrency, parameters };
+>({ name, schedule, maxRunning, concurrency, timeout, parameters }: Type): JobDefinition<Schedule> {
+  return { name, schedule, maxRunning, concurrency, timeout, parameters };
 }

@@ -13,6 +13,7 @@ import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { toExecutableSchedule } from './ExecutableSchedule';
 import { JobParameters } from '../job/MomoJob';
+import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class JobScheduler {
   private unexpectedErrorCount = 0;
@@ -149,10 +150,27 @@ export class JobScheduler {
           : jobEntity.concurrency;
       this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
 
-      for (let i = 0; i < numToExecute; i++) {
+      for (let instanceNumber = 0; instanceNumber < numToExecute; instanceNumber++) {
+        this.logger.debug('executing job instance', { instanceNumber });
+
         // eslint-disable-next-line no-void
         void this.jobExecutor.execute(jobEntity, parameters).catch((e) => {
           this.handleUnexpectedError(e);
+
+          // TODO move this into handleUnexpectedError
+          if (jobEntity.timeout !== undefined) {
+            // auto restart job after timeout
+            // TODO this.stop();
+            setSafeTimeout(
+              async () => this.handleTimeoutReached(instanceNumber),
+              jobEntity.timeout,
+              this.logger,
+              'error occurred in timeout',
+            );
+          }
+          return {
+            status: ExecutionStatus.failed,
+          };
         });
       }
     } catch (e) {
@@ -160,8 +178,14 @@ export class JobScheduler {
     }
   }
 
+  private handleTimeoutReached(instanceNumber: number): void {
+    this.logger.error('timeout reached', MomoErrorType.executeJob, { name: this.jobName, instanceNumber });
+    // TODO job restart
+  }
+
   private handleUnexpectedError(error: unknown): void {
     this.unexpectedErrorCount++;
+
     this.logger.error(
       'an unexpected error occurred while executing job',
       MomoErrorType.executeJob,
