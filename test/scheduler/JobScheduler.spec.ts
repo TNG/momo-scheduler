@@ -1,5 +1,5 @@
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobDefinition, ParsedIntervalSchedule, toJobDefinition } from '../../src/job/Job';
@@ -10,6 +10,7 @@ import { MomoErrorType, momoError } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { CronSchedule } from '../../src/job/MomoJob';
+import { JobEntity } from '../../src/repository/JobEntity';
 
 describe('JobScheduler', () => {
   const errorFn = jest.fn();
@@ -41,10 +42,11 @@ describe('JobScheduler', () => {
       instance(jobRepository),
       loggerForTests(errorFn),
     );
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve({
+    const jobEntity: WithId<JobEntity> = {
       ...toJobDefinition(job),
       _id: new ObjectId(),
-    });
+    };
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
     when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
@@ -210,6 +212,8 @@ describe('JobScheduler', () => {
   });
 
   describe('error cases', () => {
+    const timeout = 100;
+
     it('reports error when job was removed before scheduling', async () => {
       const job = createIntervalJob();
       when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(undefined);
@@ -241,6 +245,60 @@ describe('JobScheduler', () => {
       );
 
       expect(jobScheduler.getUnexpectedErrorCount()).toBe(1);
+    });
+
+    it('reports unexpected error with job execution', async () => {
+      const job = createIntervalJob();
+
+      const error = new Error('Boom');
+      when(jobExecutor.execute(anything(), anything())).thenReject(error);
+
+      await jobScheduler.start();
+
+      await sleep(1500);
+
+      expect(errorFn).toHaveBeenCalledWith(
+        'an unexpected error occurred while executing job',
+        MomoErrorType.executeJob,
+        { name: job.name },
+        error,
+      );
+    });
+
+    it('reports error and restarts job after timeout due to unexpected error', async () => {
+      const job = createIntervalJob({ timeout });
+
+      when(jobExecutor.execute(anything(), anything())).thenReject(new Error('Boom'));
+
+      await jobScheduler.start();
+
+      await sleep(1500);
+
+      expect(errorFn).toHaveBeenCalledWith('timeout reached, restarting job now', MomoErrorType.executeJob, {
+        name: job.name,
+      });
+
+      await sleep(1000);
+
+      verify(await jobExecutor.execute(anything(), anything())).twice();
+    });
+
+    it('reports error and restarts job after timeout due to unexpected error in one of the multiple job instances', async () => {
+      const job = createIntervalJob({ timeout, concurrency: 2, maxRunning: 2 });
+
+      when(jobExecutor.execute(anything(), anything())).thenResolve().thenReject(new Error('Boom'));
+
+      await jobScheduler.start();
+
+      await sleep(1500);
+
+      expect(errorFn).toHaveBeenCalledWith('timeout reached, restarting job now', MomoErrorType.executeJob, {
+        name: job.name,
+      });
+
+      await sleep(1000);
+
+      verify(await jobExecutor.execute(anything(), anything())).times(4);
     });
   });
 
