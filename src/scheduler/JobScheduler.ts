@@ -68,6 +68,7 @@ export class JobScheduler {
   }
 
   async start(): Promise<void> {
+    // Make sure the job is actually stopped. This should only be necessary when mongo errors prevented momo from correctly updating its state
     await this.stop();
 
     const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
@@ -154,20 +155,8 @@ export class JobScheduler {
         this.logger.debug('executing job instance', { instanceNumber });
 
         // eslint-disable-next-line no-void
-        void this.jobExecutor.execute(jobEntity, parameters).catch((e) => {
-          this.handleUnexpectedError(e);
-
-          // TODO move this into handleUnexpectedError
-          if (jobEntity.timeout !== undefined) {
-            // auto restart job after timeout
-            // TODO this.stop();
-            setSafeTimeout(
-              async () => this.handleTimeoutReached(instanceNumber),
-              jobEntity.timeout,
-              this.logger,
-              'error occurred in timeout',
-            );
-          }
+        void this.jobExecutor.execute(jobEntity, parameters).catch(async (e) => {
+          await this.handleUnexpectedErrorWithTimeout(e, jobEntity.timeout);
           return {
             status: ExecutionStatus.failed,
           };
@@ -176,11 +165,6 @@ export class JobScheduler {
     } catch (e) {
       this.handleUnexpectedError(e);
     }
-  }
-
-  private handleTimeoutReached(instanceNumber: number): void {
-    this.logger.error('timeout reached', MomoErrorType.executeJob, { name: this.jobName, instanceNumber });
-    // TODO job restart
   }
 
   private handleUnexpectedError(error: unknown): void {
@@ -192,5 +176,31 @@ export class JobScheduler {
       { name: this.jobName },
       error,
     );
+  }
+
+  private async handleUnexpectedErrorWithTimeout(error: unknown, timeout: number | undefined): Promise<void> {
+    this.unexpectedErrorCount++;
+
+    if (timeout === undefined) {
+      this.handleUnexpectedError(error);
+      return;
+    }
+
+    this.logger.error(
+      `an unexpected error occurred while executing job; stopping current job and scheduling restart after configured timout=${timeout}ms`,
+      MomoErrorType.executeJob,
+      { name: this.jobName },
+      error,
+    );
+
+    // auto restart job after timeout
+    setSafeTimeout(async () => this.handleTimeoutReached(), timeout, this.logger, 'error occurred in timeout');
+
+    await this.stop();
+  }
+
+  private async handleTimeoutReached(): Promise<void> {
+    this.logger.error('timeout reached, restarting job now', MomoErrorType.executeJob, { name: this.jobName });
+    await this.start();
   }
 }

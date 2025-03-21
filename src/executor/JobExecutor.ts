@@ -23,6 +23,7 @@ export class JobExecutor {
   }
 
   async execute(jobEntity: JobEntity, parameters?: JobParameters): Promise<JobResult> {
+    // TODO: Wrap this in a try-catch
     const { added, running } = await this.schedulesRepository.addExecution(jobEntity.name, jobEntity.maxRunning);
     if (!added) {
       this.logger.debug('maxRunning reached, skip', {

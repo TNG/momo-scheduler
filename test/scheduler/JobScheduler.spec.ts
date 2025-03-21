@@ -6,7 +6,7 @@ import { JobDefinition, ParsedIntervalSchedule, toJobDefinition } from '../../sr
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
-import { ExecutionStatus, MomoErrorType, momoError } from '../../src';
+import { MomoErrorType, momoError } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { CronSchedule } from '../../src/job/MomoJob';
@@ -213,7 +213,6 @@ describe('JobScheduler', () => {
 
   describe('error cases', () => {
     const timeout = 100;
-    const slowJobExecution = async (): Promise<void> => sleep(timeout * 2);
 
     it('reports error when job was removed before scheduling', async () => {
       const job = createIntervalJob();
@@ -241,47 +240,65 @@ describe('JobScheduler', () => {
       expect(errorFn).toHaveBeenCalledWith(
         'an unexpected error occurred while executing job',
         MomoErrorType.executeJob,
-        { name: job.name, instanceNumber: -1 },
+        { name: job.name },
         error,
       );
 
       expect(jobScheduler.getUnexpectedErrorCount()).toBe(1);
     });
 
-    it('reports timeout after unexpected error', async () => {
-      const job = createIntervalJob({ timeout });
+    it('reports unexpected error with job execution', async () => {
+      const job = createIntervalJob();
 
-      when(jobExecutor.execute(anything(), anything())).thenCall(slowJobExecution);
+      const error = new Error('Boom');
+      when(jobExecutor.execute(anything(), anything())).thenReject(error);
 
       await jobScheduler.start();
 
       await sleep(1500);
 
-      expect(errorFn).toHaveBeenCalledWith('timeout reached', MomoErrorType.executeJob, {
-        name: job.name,
-        instanceNumber: 0,
-      });
+      expect(errorFn).toHaveBeenCalledWith(
+        'an unexpected error occurred while executing job',
+        MomoErrorType.executeJob,
+        { name: job.name },
+        error,
+      );
     });
 
-    it('reports timeout after one of the job instances times out', async () => {
-      const job = createIntervalJob({ timeout, concurrency: 2, maxRunning: 2 });
-      let i = 0;
-      when(jobExecutor.execute(anything(), anything())).thenCall(async () => {
-        i++;
-        if (i === 1) {
-          await slowJobExecution(); // first execution timeout
-        }
-        return { status: ExecutionStatus.finished }; // second one works fine
-      });
+    it('reports error and restarts job after timeout due to unexpected error', async () => {
+      const job = createIntervalJob({ timeout });
+
+      when(jobExecutor.execute(anything(), anything())).thenReject(new Error('Boom'));
 
       await jobScheduler.start();
 
       await sleep(1500);
 
-      expect(errorFn).toHaveBeenCalledWith('timeout reached', MomoErrorType.executeJob, {
+      expect(errorFn).toHaveBeenCalledWith('timeout reached, restarting job now', MomoErrorType.executeJob, {
         name: job.name,
-        instanceNumber: 0,
       });
+
+      await sleep(1000);
+
+      verify(await jobExecutor.execute(anything(), anything())).twice();
+    });
+
+    it('reports error and restarts job after timeout due to unexpected error in one of the multiple job instances', async () => {
+      const job = createIntervalJob({ timeout, concurrency: 2, maxRunning: 2 });
+
+      when(jobExecutor.execute(anything(), anything())).thenResolve().thenReject(new Error('Boom'));
+
+      await jobScheduler.start();
+
+      await sleep(1500);
+
+      expect(errorFn).toHaveBeenCalledWith('timeout reached, restarting job now', MomoErrorType.executeJob, {
+        name: job.name,
+      });
+
+      await sleep(1000);
+
+      verify(await jobExecutor.execute(anything(), anything())).times(4);
     });
   });
 
