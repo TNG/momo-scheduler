@@ -6,6 +6,7 @@ interface MomoJobBuilderBase<T> {
   withMaxRunning: (maxRunning: number) => T;
   withHandler: (handler: Handler) => T;
   withParameters: (parameters: JobParameters) => T;
+  withTimeout: (timeout: number) => T;
   build: () => MomoJob;
 }
 
@@ -53,6 +54,11 @@ export class MomoJobBuilder {
 
   withHandler(handler: Handler): this {
     this.momoJob.handler = handler;
+    return this;
+  }
+
+  withTimeout(timeout: number): this {
+    this.momoJob.timeout = timeout;
     return this;
   }
 
