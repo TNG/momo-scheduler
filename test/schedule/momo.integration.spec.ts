@@ -32,8 +32,12 @@ describe('Momo', () => {
   let mongoSchedule: MongoSchedule;
   let connection: Connection;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
+  });
+
+  afterAll(async () => {
+    await mongo.stop();
   });
 
   afterEach(async () => {
@@ -44,7 +48,6 @@ describe('Momo', () => {
     await jobRepository.delete();
     await mongoSchedule.disconnect();
     await connection.disconnect();
-    await mongo.stop();
     jest.setTimeout(5000);
   });
 
