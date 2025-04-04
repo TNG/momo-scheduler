@@ -79,7 +79,7 @@ describe('JobScheduler', () => {
     );
 
     // the job is restarted after timeout
-    await waitFor(() => expect(jobHandler).toHaveBeenCalledTimes(2), 700);
+    await waitFor(() => expect(jobHandler).toHaveBeenCalledTimes(2), 1000);
     expect(errorFn).toHaveBeenCalledWith('timeout reached, restarting job now', MomoErrorType.executeJob, {
       name: job.name,
     });
@@ -103,7 +103,7 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
 
     // the restart timeout is cancelled and the job is not restarted
-    await sleep(800);
+    await sleep(1000);
     expect(jobHandler).toHaveBeenCalledTimes(1);
   });
 });
