@@ -10,6 +10,7 @@ export interface TypedMomoJob<Schedule> {
   name: string;
   concurrency?: number;
   maxRunning?: number;
+  timeout?: number;
   parameters?: JobParameters;
 }
 

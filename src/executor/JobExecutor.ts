@@ -53,7 +53,6 @@ export class JobExecutor {
     if (!this.stopped) {
       await this.schedulesRepository.removeExecution(jobEntity.name);
     }
-
     return result;
   }
 

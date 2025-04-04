@@ -13,10 +13,12 @@ import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { toExecutableSchedule } from './ExecutableSchedule';
 import { JobParameters } from '../job/MomoJob';
+import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class JobScheduler {
   private unexpectedErrorCount = 0;
   private executableSchedule?: ExecutableIntervalSchedule | ExecutableCronSchedule;
+  private restartTimeout: NodeJS.Timeout | undefined;
 
   constructor(
     private readonly jobName: string,
@@ -97,6 +99,11 @@ export class JobScheduler {
   }
 
   async stop(): Promise<void> {
+    if (this.restartTimeout) {
+      this.logger.debug('clear restart timeout', { name: this.jobName });
+      clearTimeout(this.restartTimeout);
+    }
+
     if (this.executableSchedule) {
       this.executableSchedule.stop();
       this.jobExecutor.stop();
@@ -149,10 +156,15 @@ export class JobScheduler {
           : jobEntity.concurrency;
       this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
 
-      for (let i = 0; i < numToExecute; i++) {
+      for (let instanceNumber = 0; instanceNumber < numToExecute; instanceNumber++) {
+        this.logger.debug('executing job instance', { instanceNumber });
+
         // eslint-disable-next-line no-void
-        void this.jobExecutor.execute(jobEntity, parameters).catch((e) => {
-          this.handleUnexpectedError(e);
+        void this.jobExecutor.execute(jobEntity, parameters).catch(async (e) => {
+          await this.handleUnexpectedErrorWithTimeout(e, jobEntity.timeout);
+          return {
+            status: ExecutionStatus.failed,
+          };
         });
       }
     } catch (e) {
@@ -162,11 +174,43 @@ export class JobScheduler {
 
   private handleUnexpectedError(error: unknown): void {
     this.unexpectedErrorCount++;
+
     this.logger.error(
       'an unexpected error occurred while executing job',
       MomoErrorType.executeJob,
       { name: this.jobName },
       error,
     );
+  }
+
+  private async handleUnexpectedErrorWithTimeout(error: unknown, timeout: number | undefined): Promise<void> {
+    this.unexpectedErrorCount++;
+
+    if (timeout === undefined) {
+      this.handleUnexpectedError(error);
+      return;
+    }
+
+    this.logger.error(
+      `an unexpected error occurred while executing job; stopping current job and scheduling restart after configured timout=${timeout} ms`,
+      MomoErrorType.executeJob,
+      { name: this.jobName },
+      error,
+    );
+
+    await this.stop();
+
+    // auto restart job after timeout
+    this.restartTimeout = setSafeTimeout(
+      async () => this.handleTimeoutReached(),
+      timeout,
+      this.logger,
+      'error occurred in timeout',
+    );
+  }
+
+  private async handleTimeoutReached(): Promise<void> {
+    this.logger.error('timeout reached, restarting job now', MomoErrorType.executeJob, { name: this.jobName });
+    await this.start();
   }
 }

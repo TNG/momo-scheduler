@@ -72,7 +72,7 @@ export class Schedule extends LogEmitter {
     try {
       await this.jobSchedulers[job.name]?.stop();
     } catch (error) {
-      this.logger.error('message failed to stop job', MomoErrorType.stopJob, { name: job.name }, error);
+      this.logger.error('failed to stop job', MomoErrorType.stopJob, { name: job.name }, error);
     }
 
     await this.jobRepository.define(job);
@@ -125,7 +125,7 @@ export class Schedule extends LogEmitter {
     try {
       await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.stop()));
     } catch (error) {
-      this.logger.error('message failed to stop jobs', MomoErrorType.stopJob, { count: this.count() }, error);
+      this.logger.error('failed to stop jobs', MomoErrorType.stopJob, { count: this.count() }, error);
     }
   }
 
