@@ -18,6 +18,7 @@ import { setSafeTimeout } from '../timeout/safeTimeouts';
 export class JobScheduler {
   private unexpectedErrorCount = 0;
   private executableSchedule?: ExecutableIntervalSchedule | ExecutableCronSchedule;
+  private restartTimeout: NodeJS.Timeout | undefined;
 
   constructor(
     private readonly jobName: string,
@@ -68,7 +69,6 @@ export class JobScheduler {
   }
 
   async start(): Promise<void> {
-    // Make sure the job is actually stopped. This should only be necessary when mongo errors prevented momo from correctly updating its state
     await this.stop();
 
     const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
@@ -99,6 +99,11 @@ export class JobScheduler {
   }
 
   async stop(): Promise<void> {
+    if (this.restartTimeout) {
+      this.logger.debug('clear restart timeout', { name: this.jobName });
+      clearTimeout(this.restartTimeout);
+    }
+
     if (this.executableSchedule) {
       this.executableSchedule.stop();
       this.jobExecutor.stop();
@@ -187,16 +192,21 @@ export class JobScheduler {
     }
 
     this.logger.error(
-      `an unexpected error occurred while executing job; stopping current job and scheduling restart after configured timout=${timeout}ms`,
+      `an unexpected error occurred while executing job; stopping current job and scheduling restart after configured timout=${timeout} ms`,
       MomoErrorType.executeJob,
       { name: this.jobName },
       error,
     );
 
-    // auto restart job after timeout
-    setSafeTimeout(async () => this.handleTimeoutReached(), timeout, this.logger, 'error occurred in timeout');
-
     await this.stop();
+
+    // auto restart job after timeout
+    this.restartTimeout = setSafeTimeout(
+      async () => this.handleTimeoutReached(),
+      timeout,
+      this.logger,
+      'error occurred in timeout',
+    );
   }
 
   private async handleTimeoutReached(): Promise<void> {
