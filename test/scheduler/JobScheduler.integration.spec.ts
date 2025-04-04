@@ -4,7 +4,7 @@ import { deepEqual, instance, mock, when } from 'ts-mockito';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { waitFor } from '../utils/waitFor';
-import { Job } from '../../src/job/Job';
+import { Job, toJobDefinition } from '../../src/job/Job';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
@@ -38,10 +38,11 @@ describe('JobScheduler', () => {
       handler: jobHandler,
     };
 
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve({
-      ...job,
+    const jobEntity: WithId<JobEntity> = {
+      ...toJobDefinition(job),
       _id: new ObjectId(),
-    } as WithId<JobEntity>);
+    };
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
     when(schedulesRepository.addExecution(job.name, job.maxRunning)).thenResolve({ added: true, running: 1 });
 
     const jobExecutor = new JobExecutor(
