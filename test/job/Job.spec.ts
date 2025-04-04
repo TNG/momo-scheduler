@@ -3,6 +3,7 @@ import { err, ok } from 'neverthrow';
 import {
   Job,
   ParsedIntervalSchedule,
+  maxJobTimeout,
   maxNodeTimeoutDelay,
   tryToCronJob,
   tryToIntervalJob,
@@ -83,6 +84,26 @@ describe('Job', () => {
           handler: () => 'finished',
         };
         expect(tryToJob(job)).toEqual(err(momoError.invalidInterval));
+      });
+
+      it('reports error when timeout is too large', () => {
+        const job: MomoJob = {
+          name: 'test',
+          schedule: { interval: '1 day', firstRunAfter: 0 },
+          timeout: maxJobTimeout + 1,
+          handler: () => 'finished',
+        };
+        expect(tryToJob(job)).toEqual(err(momoError.invalidTimeout));
+      });
+
+      it('reports error when timeout is less than 1', () => {
+        const job: MomoJob = {
+          name: 'test',
+          schedule: { interval: '1 day', firstRunAfter: 0 },
+          timeout: 0.5,
+          handler: () => 'finished',
+        };
+        expect(tryToJob(job)).toEqual(err(momoError.invalidTimeout));
       });
 
       it('reports error when human readable interval is too large', () => {

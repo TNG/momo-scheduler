@@ -6,6 +6,7 @@ import { CronSchedule, Handler, IntervalSchedule, JobParameters, MomoJob, TypedM
 import { momoError } from '../logging/error/MomoError';
 
 export const maxNodeTimeoutDelay = 2147483647;
+export const maxJobTimeout = maxNodeTimeoutDelay;
 
 export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedInterval: number;
@@ -31,7 +32,7 @@ export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule> extends J
  * @param momoJob to be verified and converted into a `Job`
  */
 export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
-  const { concurrency, maxRunning } = momoJob;
+  const { concurrency, maxRunning, timeout } = momoJob;
   if (maxRunning !== undefined && maxRunning < 0) {
     return err(momoError.invalidMaxRunning);
   }
@@ -40,6 +41,9 @@ export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
   }
   if (maxRunning !== undefined && maxRunning > 0 && concurrency !== undefined && concurrency > maxRunning) {
     return err(momoError.invalidConcurrency);
+  }
+  if (timeout !== undefined && (timeout > maxJobTimeout || timeout < 1)) {
+    return err(momoError.invalidTimeout);
   }
 
   return isCronJob(momoJob) ? tryToCronJob(momoJob) : tryToIntervalJob(momoJob);
