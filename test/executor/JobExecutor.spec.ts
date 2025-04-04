@@ -75,6 +75,31 @@ describe('JobExecutor', () => {
     verify(schedulesRepository.addExecution(job.name, job.maxRunning)).once();
   });
 
+  it('reports repository error when adding execution', async () => {
+    const error = new Error('something bad happened');
+    when(schedulesRepository.addExecution(job.name, job.maxRunning)).thenReject(error);
+
+    await jobExecutor.execute(job);
+
+    expect(errorFn).toHaveBeenCalledWith('job failed', MomoErrorType.executeJob, { name: job.name }, error);
+
+    verify(schedulesRepository.addExecution(job.name, job.maxRunning)).once();
+  });
+
+  it('reports repository error when removing execution', async () => {
+    const jobParameters = { foo: 'bar' };
+    const error = new Error('something bad happened');
+    when(schedulesRepository.removeExecution(job.name)).thenReject(error);
+
+    await jobExecutor.execute(job, jobParameters);
+
+    expect(job.handler).toHaveBeenCalledWith(jobParameters);
+
+    expect(errorFn).toHaveBeenCalledWith('job failed', MomoErrorType.executeJob, { name: job.name }, error);
+
+    verify(schedulesRepository.addExecution(job.name, job.maxRunning)).once();
+  });
+
   it('reports job error', async () => {
     const error = new Error('something bad happened');
     handler.mockImplementation(() => {
