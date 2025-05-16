@@ -105,7 +105,7 @@ export class JobScheduler {
     }
 
     if (this.executableSchedule) {
-      this.executableSchedule.stop();
+      await this.executableSchedule.stop();
       this.jobExecutor.stop();
       await this.schedulesRepository.removeJob(this.jobName);
       this.executableSchedule = undefined;

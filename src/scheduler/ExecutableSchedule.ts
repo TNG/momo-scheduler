@@ -21,7 +21,7 @@ export interface ExecutionParameters {
 
 export interface ExecutableSchedule<I> {
   execute: (executionParameters: ExecutionParameters) => NextExecutionTime;
-  stop: () => void;
+  stop: () => Promise<void>;
   isStarted: () => boolean;
   toObject: () => I;
 }

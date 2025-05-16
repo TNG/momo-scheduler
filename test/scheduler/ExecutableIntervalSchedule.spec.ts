@@ -33,8 +33,8 @@ describe('ExecutableIntervalSchedule', () => {
     executableIntervalSchedule = new ExecutableIntervalSchedule(parsedIntervalSchedule);
   });
 
-  afterEach(() => {
-    executableIntervalSchedule.stop();
+  afterEach(async () => {
+    await executableIntervalSchedule.stop();
   });
 
   describe('toObject', () => {
@@ -59,9 +59,9 @@ describe('ExecutableIntervalSchedule', () => {
   });
 
   describe('stop', () => {
-    it('stops the schedule', () => {
+    it('stops the schedule', async () => {
       executableIntervalSchedule.execute({ callback, logger, errorMessage });
-      executableIntervalSchedule.stop();
+      await executableIntervalSchedule.stop();
 
       expect(executableIntervalSchedule.isStarted()).toBe(false);
     });
