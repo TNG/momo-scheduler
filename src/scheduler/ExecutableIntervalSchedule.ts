@@ -46,7 +46,7 @@ export class ExecutableIntervalSchedule implements ExecutableSchedule<Required<I
     return !!this.timeoutHandle;
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     if (this.timeoutHandle) {
       clearTimeout(this.timeoutHandle.get());
       this.timeoutHandle = undefined;

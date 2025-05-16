@@ -32,9 +32,9 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
     return { nextExecution: DateTime.fromMillis(this.scheduledJob.nextDate().toMillis()) };
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     if (this.scheduledJob) {
-      this.scheduledJob.stop();
+      await this.scheduledJob.stop();
       this.scheduledJob = undefined;
     }
   }

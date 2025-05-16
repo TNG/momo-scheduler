@@ -26,8 +26,8 @@ describe('ExecutableIntervalSchedule', () => {
     executableCronSchedule = new ExecutableCronSchedule(cronSchedule);
   });
 
-  afterEach(() => {
-    executableCronSchedule.stop();
+  afterEach(async () => {
+    await executableCronSchedule.stop();
   });
 
   describe('toObject', () => {
@@ -49,9 +49,9 @@ describe('ExecutableIntervalSchedule', () => {
   });
 
   describe('stop', () => {
-    it('stops the schedule', () => {
+    it('stops the schedule', async () => {
       executableCronSchedule.execute({ callback, logger, errorMessage });
-      executableCronSchedule.stop();
+      await executableCronSchedule.stop();
 
       expect(executableCronSchedule.isStarted()).toBe(false);
     });
