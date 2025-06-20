@@ -10,10 +10,6 @@ interface MomoJobBuilderBase<T> {
   build: () => MomoJob;
 }
 
-interface MomoNeverJobBuilder extends MomoJobBuilderBase<MomoNeverJobBuilder> {
-  never: () => MomoNeverJobBuilder;
-}
-
 interface MomoIntervalJobBuilder extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
   withSchedule: (interval: number | string, firstRunAfter?: number | string) => MomoIntervalJobBuilder;
 }
@@ -32,17 +28,17 @@ export class MomoJobBuilder {
 
   // The interval is either a number in milliseconds or an interval in human-readable form (see readme)
   withSchedule(interval: number | string, firstRunAfter: number | string = 0): MomoIntervalJobBuilder {
+    if (interval === 'Never' || interval === 'never') {
+      this.momoJob.schedule = { interval };
+      return this;
+    }
+
     this.momoJob.schedule = { firstRunAfter, interval };
     return this;
   }
 
   withCronSchedule(cronSchedule: string): MomoCronJobBuilder {
     this.momoJob.schedule = { cronSchedule };
-    return this;
-  }
-
-  never(): MomoNeverJobBuilder {
-    this.momoJob.schedule = { interval: 'Never' };
     return this;
   }
 

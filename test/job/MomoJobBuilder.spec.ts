@@ -4,7 +4,7 @@ describe('MomoJobBuilder', () => {
   it('can build an interval job that never runs automatically', () => {
     const momoJob = new MomoJobBuilder()
       .withName('name')
-      .never()
+      .withSchedule('never')
       .withConcurrency(1)
       .withMaxRunning(1)
       .withHandler(jest.fn())
@@ -13,7 +13,7 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJob.name).toEqual('name');
-    expect(momoJob.schedule).toEqual({ interval: 'Never' });
+    expect(momoJob.schedule).toEqual({ interval: 'never' });
     expect(momoJob.concurrency).toEqual(1);
     expect(momoJob.maxRunning).toEqual(1);
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
