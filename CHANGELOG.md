@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v2.5.0 (2025-06-20)
+
+- Feat: Add option to define jobs with `interval: 'never'` that are never started to run periodically but can be triggered to run once.
+- Chore: Dependency updates
+
 ## v2.4.0 (2025-04-04)
 
 - Feat: Recover from MongoDB errors during job execution by stopping and restarting the job after
