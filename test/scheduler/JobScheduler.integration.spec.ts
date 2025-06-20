@@ -64,6 +64,8 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
   });
 
+  it('does not automatically run a never job');
+
   it('stops failing job and restarts after timeout', async () => {
     const error = new Error('boom');
     when(schedulesRepository.removeExecution(job.name)).thenReject(error).thenResolve();

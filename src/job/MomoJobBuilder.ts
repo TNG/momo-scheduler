@@ -10,6 +10,10 @@ interface MomoJobBuilderBase<T> {
   build: () => MomoJob;
 }
 
+interface MomoNeverJobBuilder extends MomoJobBuilderBase<MomoNeverJobBuilder> {
+  neverRun: () => MomoNeverJobBuilder;
+}
+
 interface MomoIntervalJobBuilder extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
   withSchedule: (interval: number | string, firstRunAfter?: number | string) => MomoIntervalJobBuilder;
 }
@@ -23,6 +27,11 @@ export class MomoJobBuilder {
 
   withName(name: string): this {
     this.momoJob.name = name;
+    return this;
+  }
+
+  neverRun(): MomoNeverJobBuilder {
+    this.momoJob.schedule = { noAutomaticRuns: true };
     return this;
   }
 

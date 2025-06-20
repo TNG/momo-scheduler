@@ -1,6 +1,26 @@
 import { MomoJobBuilder } from '../../src';
 
 describe('MomoJobBuilder', () => {
+  it('can build an interval job that never runs automatically', () => {
+    const momoJob = new MomoJobBuilder()
+      .withName('name')
+      .neverRun()
+      .withConcurrency(1)
+      .withMaxRunning(1)
+      .withHandler(jest.fn())
+      .withParameters({ foo: 'bar' })
+      .withTimeout(1)
+      .build();
+
+    expect(momoJob.name).toEqual('name');
+    expect(momoJob.schedule).toEqual({ interval: -1, firstRunAfter: -1 });
+    expect(momoJob.concurrency).toEqual(1);
+    expect(momoJob.maxRunning).toEqual(1);
+    expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
+    expect(momoJob.parameters).toEqual({ foo: 'bar' });
+    expect(momoJob.timeout).toEqual(1);
+  });
+
   it('can build an interval job with all attributes and an interval', () => {
     const momoJob = new MomoJobBuilder()
       .withName('name')

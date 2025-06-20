@@ -2,7 +2,17 @@ import humanInterval from 'human-interval';
 import { Result, err, ok } from 'neverthrow';
 import CronExpressionParser from 'cron-parser';
 
-import { CronSchedule, Handler, IntervalSchedule, JobParameters, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
+import {
+  CronSchedule,
+  Handler,
+  IntervalSchedule,
+  JobParameters,
+  MomoJob,
+  NeverSchedule,
+  TypedMomoJob,
+  isCronJob,
+  isNeverJob,
+} from './MomoJob';
 import { momoError } from '../logging/error/MomoError';
 
 export const maxNodeTimeoutDelay = 2147483647;
@@ -13,7 +23,7 @@ export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedFirstRunAfter: number;
 }
 
-export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedule> {
+export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedule | NeverSchedule> {
   name: string;
   schedule: JobSchedule;
   concurrency: number;
@@ -22,7 +32,7 @@ export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedu
   parameters?: JobParameters;
 }
 
-export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule> extends JobDefinition<Schedule> {
+export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule | NeverSchedule> extends JobDefinition<Schedule> {
   handler: Handler;
 }
 
@@ -46,44 +56,24 @@ export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
     return err(momoError.invalidTimeout);
   }
 
-  return isCronJob(momoJob) ? tryToCronJob(momoJob) : tryToIntervalJob(momoJob);
+  return isNeverJob(momoJob)
+    ? tryToNeverJob(momoJob)
+    : isCronJob(momoJob)
+      ? tryToCronJob(momoJob)
+      : tryToIntervalJob(momoJob);
 }
 
-/**
- * This validates all fields and sets defaults for not defined optional fields.
- *
- * @param momoJob to be verified and converted into a `Job`
- */
-export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Result<Job<ParsedIntervalSchedule>, Error> {
-  const { interval, firstRunAfter } = momoJob.schedule;
-  const parsedInterval = typeof interval === 'number' ? interval : humanInterval(interval);
-  const parsedFirstRunAfter = typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
-
-  if (typeof parsedInterval !== 'number' || isNaN(parsedInterval)) {
-    return err(momoError.nonParsableInterval);
-  } else if (parsedInterval <= 0 || parsedInterval > maxNodeTimeoutDelay) {
-    return err(momoError.invalidInterval);
+export function tryToNeverJob(momoJob: TypedMomoJob<NeverSchedule>): Result<Job<NeverSchedule>, Error> {
+  try {
+    return ok({
+      concurrency: 1,
+      maxRunning: 0,
+      ...momoJob,
+    });
+  } catch {
+    // TODO: Figure out what errors might actually occur here
+    return err(momoError.nonParsableCronSchedule);
   }
-  if (firstRunAfter !== undefined) {
-    if (typeof parsedFirstRunAfter !== 'number' || isNaN(parsedFirstRunAfter)) {
-      return err(momoError.nonParsableFirstRunAfter);
-    } else if (parsedFirstRunAfter < 0 || parsedFirstRunAfter > maxNodeTimeoutDelay) {
-      return err(momoError.invalidFirstRunAfter);
-    }
-  }
-
-  const schedule = {
-    interval: momoJob.schedule.interval,
-    parsedInterval,
-    firstRunAfter: firstRunAfter ?? 0,
-    parsedFirstRunAfter: parsedFirstRunAfter ?? 0,
-  };
-  return ok({
-    concurrency: 1,
-    maxRunning: 0,
-    ...momoJob,
-    schedule,
-  });
 }
 
 /**
@@ -106,12 +96,49 @@ export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<Cr
 }
 
 /**
+ * This validates all fields and sets defaults for not defined optional fields.
+ *
+ * @param momoJob to be verified and converted into a `Job`
+ */
+export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Result<Job<ParsedIntervalSchedule>, Error> {
+  const { interval, firstRunAfter } = momoJob.schedule;
+  const parsedInterval = typeof interval === 'number' ? interval : humanInterval(interval);
+  const parsedFirstRunAfter = typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
+
+  if (typeof parsedInterval !== 'number' || isNaN(parsedInterval)) {
+    return err(momoError.nonParsableInterval);
+  } else if (parsedInterval <= 0 || parsedInterval > maxNodeTimeoutDelay) {
+    return err(momoError.invalidInterval);
+  }
+  if (firstRunAfter !== undefined) {
+    if (typeof parsedFirstRunAfter !== 'number' || isNaN(parsedFirstRunAfter)) {
+      return err(momoError.nonParsableFirstRunAfter);
+    } else if ((parsedFirstRunAfter < 0 && parsedFirstRunAfter !== -1) || parsedFirstRunAfter > maxNodeTimeoutDelay) {
+      return err(momoError.invalidFirstRunAfter);
+    }
+  }
+
+  const schedule = {
+    interval: momoJob.schedule.interval,
+    parsedInterval,
+    firstRunAfter: firstRunAfter ?? 0,
+    parsedFirstRunAfter: parsedFirstRunAfter ?? 0,
+  };
+  return ok({
+    concurrency: 1,
+    maxRunning: 0,
+    ...momoJob,
+    schedule,
+  });
+}
+
+/**
  * removes properties that are not part of the JobDefinition interface
  *
  * @param job
  */
 export function toJobDefinition<
-  Schedule extends ParsedIntervalSchedule | CronSchedule,
+  Schedule extends ParsedIntervalSchedule | CronSchedule | NeverSchedule,
   Type extends JobDefinition<Schedule>,
 >({ name, schedule, maxRunning, concurrency, timeout, parameters }: Type): JobDefinition<Schedule> {
   return { name, schedule, maxRunning, concurrency, timeout, parameters };

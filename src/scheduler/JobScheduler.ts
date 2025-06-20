@@ -12,7 +12,7 @@ import { momoError } from '../logging/error/MomoError';
 import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
 import { toExecutableSchedule } from './ExecutableSchedule';
-import { JobParameters } from '../job/MomoJob';
+import { JobParameters, isNeverSchedule } from '../job/MomoJob';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class JobScheduler {
@@ -79,6 +79,14 @@ export class JobScheduler {
         { name: this.jobName },
         momoError.jobNotFound,
       );
+      return;
+    }
+
+    if (isNeverSchedule(jobEntity.schedule)) {
+      this.logger.debug('job will never run automatically', {
+        name: this.jobName,
+      });
+
       return;
     }
 
