@@ -1,5 +1,5 @@
 import { JobEntity } from '../repository/JobEntity';
-import { CronSchedule, IntervalSchedule, JobParameters, toSchedule } from './MomoJob';
+import { CronSchedule, IntervalSchedule, JobParameters, NeverSchedule, toSchedule } from './MomoJob';
 
 /**
  * information about scheduled job
@@ -14,7 +14,7 @@ export interface JobSchedulerStatus {
 
 export interface MomoJobDescription {
   name: string;
-  schedule: IntervalSchedule | CronSchedule;
+  schedule: IntervalSchedule | CronSchedule | NeverSchedule;
   concurrency: number;
   maxRunning: number;
   parameters?: JobParameters;

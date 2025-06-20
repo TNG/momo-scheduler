@@ -19,9 +19,15 @@ export function initLoggingForTests(eventEmitter: TypedEmitter<MomoEvents>): voi
 
 export function loggerForTests(
   errorFn?: (message: string, type: MomoErrorType, data?: MomoEventData, error?: unknown) => void,
+  debugFn?: (message: string, data?: MomoEventData) => void,
 ): Logger {
   return {
-    debug: (message, data) => logger.info({ message, data }),
+    debug: (message, data) => {
+      logger.info({ message, data });
+      if (debugFn) {
+        debugFn(message, data);
+      }
+    },
     error: (message, type, data, error) => {
       errorLogger.error({ message, type, data, error });
       if (errorFn) {

@@ -10,6 +10,10 @@ interface MomoJobBuilderBase<T> {
   build: () => MomoJob;
 }
 
+interface MomoNeverJobBuilder extends MomoJobBuilderBase<MomoNeverJobBuilder> {
+  never: () => MomoNeverJobBuilder;
+}
+
 interface MomoIntervalJobBuilder extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
   withSchedule: (interval: number | string, firstRunAfter?: number | string) => MomoIntervalJobBuilder;
 }
@@ -34,6 +38,11 @@ export class MomoJobBuilder {
 
   withCronSchedule(cronSchedule: string): MomoCronJobBuilder {
     this.momoJob.schedule = { cronSchedule };
+    return this;
+  }
+
+  never(): MomoNeverJobBuilder {
+    this.momoJob.schedule = { interval: 'Never' };
     return this;
   }
 

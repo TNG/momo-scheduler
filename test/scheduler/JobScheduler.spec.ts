@@ -9,10 +9,11 @@ import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { MomoErrorType, momoError } from '../../src';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
-import { CronSchedule } from '../../src/job/MomoJob';
+import { CronSchedule, NeverSchedule } from '../../src/job/MomoJob';
 import { JobEntity } from '../../src/repository/JobEntity';
 
 describe('JobScheduler', () => {
+  const debugFn = jest.fn();
   const errorFn = jest.fn();
 
   let schedulesRepository: SchedulesRepository;
@@ -32,7 +33,7 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
   });
 
-  function createJob<Schedule extends ParsedIntervalSchedule | CronSchedule>(
+  function createJob<Schedule extends ParsedIntervalSchedule | CronSchedule | NeverSchedule>(
     job: JobDefinition<Schedule>,
   ): JobDefinition<Schedule> {
     jobScheduler = new JobScheduler(
@@ -40,7 +41,7 @@ describe('JobScheduler', () => {
       instance(jobExecutor),
       instance(schedulesRepository),
       instance(jobRepository),
-      loggerForTests(errorFn),
+      loggerForTests(errorFn, debugFn),
     );
     const jobEntity: WithId<JobEntity> = {
       ...toJobDefinition(job),
@@ -49,6 +50,17 @@ describe('JobScheduler', () => {
     when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
     when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
+  }
+
+  function createNeverJob(partialJob: Partial<JobDefinition<NeverSchedule>> = {}): JobDefinition<NeverSchedule> {
+    const job = {
+      name: 'interval job',
+      schedule: { interval: 'never' } as NeverSchedule,
+      concurrency: 1,
+      maxRunning: 0,
+      ...partialJob,
+    };
+    return createJob(job);
   }
 
   function createIntervalJob(
@@ -73,6 +85,15 @@ describe('JobScheduler', () => {
       ...partialJob,
     });
   }
+
+  describe('single never job', () => {
+    it('does not start "never" job', async () => {
+      const job = createNeverJob();
+      await jobScheduler.start();
+
+      expect(debugFn).toHaveBeenCalledWith("do not start job specified to run 'never'", { name: job.name });
+    });
+  });
 
   describe('single interval job', () => {
     it('executes a job', async () => {
