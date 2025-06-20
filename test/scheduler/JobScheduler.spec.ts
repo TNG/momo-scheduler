@@ -53,9 +53,9 @@ describe('JobScheduler', () => {
   }
 
   function createNeverJob(partialJob: Partial<JobDefinition<NeverSchedule>> = {}): JobDefinition<NeverSchedule> {
-    const job = {
-      name: 'interval job',
-      schedule: { interval: 'never' } as NeverSchedule,
+    const job: JobDefinition<NeverSchedule> = {
+      name: 'never job',
+      schedule: { interval: 'never' },
       concurrency: 1,
       maxRunning: 0,
       ...partialJob,
