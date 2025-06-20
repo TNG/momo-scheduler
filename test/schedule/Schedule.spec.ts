@@ -97,6 +97,18 @@ describe('Schedule', () => {
       expect(momoJob.handler).toHaveBeenCalledTimes(1);
     });
 
+    it('runs a "never" job once', async () => {
+      await mongoSchedule.define({ ...momoJob, schedule: { interval: 'never' } });
+
+      when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
+      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({ added: true, running: 0 });
+
+      const result = await mongoSchedule.run(momoJob.name);
+
+      expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
+      expect(momoJob.handler).toHaveBeenCalledTimes(1);
+    });
+
     it('does not run job once when job is not found', async () => {
       const result = await mongoSchedule.run('not defined');
 

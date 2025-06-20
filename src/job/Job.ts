@@ -2,7 +2,17 @@ import humanInterval from 'human-interval';
 import { Result, err, ok } from 'neverthrow';
 import CronExpressionParser from 'cron-parser';
 
-import { CronSchedule, Handler, IntervalSchedule, JobParameters, MomoJob, TypedMomoJob, isCronJob } from './MomoJob';
+import {
+  CronSchedule,
+  Handler,
+  IntervalSchedule,
+  JobParameters,
+  MomoJob,
+  NeverSchedule,
+  TypedMomoJob,
+  isCronJob,
+  isNeverJob,
+} from './MomoJob';
 import { momoError } from '../logging/error/MomoError';
 
 export const maxNodeTimeoutDelay = 2147483647;
@@ -13,7 +23,7 @@ export interface ParsedIntervalSchedule extends Required<IntervalSchedule> {
   parsedFirstRunAfter: number;
 }
 
-export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedule> {
+export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedule | NeverSchedule> {
   name: string;
   schedule: JobSchedule;
   concurrency: number;
@@ -22,7 +32,7 @@ export interface JobDefinition<JobSchedule = ParsedIntervalSchedule | CronSchedu
   parameters?: JobParameters;
 }
 
-export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule> extends JobDefinition<Schedule> {
+export interface Job<Schedule = ParsedIntervalSchedule | CronSchedule | NeverSchedule> extends JobDefinition<Schedule> {
   handler: Handler;
 }
 
@@ -46,7 +56,19 @@ export function tryToJob(momoJob: MomoJob): Result<Job, Error> {
     return err(momoError.invalidTimeout);
   }
 
-  return isCronJob(momoJob) ? tryToCronJob(momoJob) : tryToIntervalJob(momoJob);
+  return isNeverJob(momoJob)
+    ? tryToNeverJob(momoJob)
+    : isCronJob(momoJob)
+      ? tryToCronJob(momoJob)
+      : tryToIntervalJob(momoJob);
+}
+
+export function tryToNeverJob(momoJob: TypedMomoJob<NeverSchedule>): Result<Job<NeverSchedule>, Error> {
+  return ok({
+    concurrency: 1,
+    maxRunning: 0,
+    ...momoJob,
+  });
 }
 
 /**
@@ -111,7 +133,7 @@ export function tryToCronJob(momoJob: TypedMomoJob<CronSchedule>): Result<Job<Cr
  * @param job
  */
 export function toJobDefinition<
-  Schedule extends ParsedIntervalSchedule | CronSchedule,
+  Schedule extends ParsedIntervalSchedule | CronSchedule | NeverSchedule,
   Type extends JobDefinition<Schedule>,
 >({ name, schedule, maxRunning, concurrency, timeout, parameters }: Type): JobDefinition<Schedule> {
   return { name, schedule, maxRunning, concurrency, timeout, parameters };

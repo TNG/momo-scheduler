@@ -28,6 +28,11 @@ export class MomoJobBuilder {
 
   // The interval is either a number in milliseconds or an interval in human-readable form (see readme)
   withSchedule(interval: number | string, firstRunAfter: number | string = 0): MomoIntervalJobBuilder {
+    if (interval === 'Never' || interval === 'never') {
+      this.momoJob.schedule = { interval };
+      return this;
+    }
+
     this.momoJob.schedule = { firstRunAfter, interval };
     return this;
   }

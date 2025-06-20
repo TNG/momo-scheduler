@@ -14,7 +14,7 @@ export interface TypedMomoJob<Schedule> {
   parameters?: JobParameters;
 }
 
-export type MomoJob = TypedMomoJob<IntervalSchedule> | TypedMomoJob<CronSchedule>;
+export type MomoJob = TypedMomoJob<IntervalSchedule> | TypedMomoJob<CronSchedule> | TypedMomoJob<NeverSchedule>;
 
 export interface IntervalSchedule {
   interval: number | string;
@@ -25,9 +25,18 @@ export interface CronSchedule {
   cronSchedule: string;
 }
 
+export interface NeverSchedule {
+  interval: 'Never' | 'never';
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isCronSchedule(input: any): input is CronSchedule {
   return input.cronSchedule !== undefined && typeof input.cronSchedule === 'string';
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isNeverSchedule(input: any): input is NeverSchedule {
+  return input.interval !== undefined && (input.interval === 'Never' || input.interval === 'never');
 }
 
 /**
@@ -35,8 +44,10 @@ export function isCronSchedule(input: any): input is CronSchedule {
  *
  * @param schedule
  */
-export function toSchedule(schedule: ParsedIntervalSchedule | CronSchedule): Required<IntervalSchedule> | CronSchedule {
-  if (isCronSchedule(schedule)) {
+export function toSchedule(
+  schedule: ParsedIntervalSchedule | CronSchedule | NeverSchedule,
+): Required<IntervalSchedule> | CronSchedule | NeverSchedule {
+  if (isNeverSchedule(schedule) || isCronSchedule(schedule)) {
     return schedule;
   }
 
@@ -47,4 +58,8 @@ export function toSchedule(schedule: ParsedIntervalSchedule | CronSchedule): Req
 
 export function isCronJob(momoJob: MomoJob): momoJob is TypedMomoJob<CronSchedule> {
   return isCronSchedule(momoJob.schedule);
+}
+
+export function isNeverJob(momoJob: MomoJob): momoJob is TypedMomoJob<NeverSchedule> {
+  return isNeverSchedule(momoJob.schedule);
 }
