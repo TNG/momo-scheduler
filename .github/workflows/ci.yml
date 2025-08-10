@@ -63,7 +63,7 @@ jobs:
       - name: Use Node.js 18
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
       - run: npm ci
       - name: Use mongodb v${{ matrix.mongodb }}
         run: npm i mongodb@${{ matrix.mongodb }}
