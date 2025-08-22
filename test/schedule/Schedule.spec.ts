@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { deepEqual, instance, mock, when } from 'ts-mockito';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   ExecutionStatus,
@@ -15,7 +16,7 @@ import { initLoggingForTests } from '../utils/logging';
 
 const schedulesRepository = mock(SchedulesRepository);
 const jobRepository = mock(JobRepository);
-jest.mock('../../src/Connection', () => {
+vi.mock('../../src/Connection', () => {
   return {
     Connection: {
       create: async (_options: MomoOptions) => {
@@ -34,7 +35,7 @@ describe('Schedule', () => {
   const momoJob: MomoJob = {
     name: 'test job',
     schedule: { interval: 'one minute', firstRunAfter: 0 },
-    handler: jest.fn(),
+    handler: vi.fn(),
   };
   const entityWithId = {
     _id: new ObjectId(),
@@ -44,7 +45,7 @@ describe('Schedule', () => {
   let mongoSchedule: MongoSchedule;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
     when(schedulesRepository.setActiveSchedule()).thenResolve(true);

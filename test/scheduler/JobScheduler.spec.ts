@@ -1,5 +1,6 @@
 import { ObjectId, type WithId } from 'mongodb';
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MomoErrorType, momoError } from '../../src';
 import { JobExecutor } from '../../src/executor/JobExecutor';
 import {
@@ -16,8 +17,8 @@ import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 
 describe('JobScheduler', () => {
-  const debugFn = jest.fn();
-  const errorFn = jest.fn();
+  const debugFn = vi.fn();
+  const errorFn = vi.fn();
 
   let schedulesRepository: SchedulesRepository;
   let jobRepository: JobRepository;

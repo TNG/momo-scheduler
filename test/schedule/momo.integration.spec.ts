@@ -4,6 +4,17 @@ import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { v4 as uuid } from 'uuid';
 import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+
+import {
   ExecutionStatus,
   type MomoErrorEvent,
   MomoErrorType,
@@ -59,7 +70,7 @@ describe('Momo', () => {
     await jobRepository.delete();
     await mongoSchedule.disconnect();
     await connection.disconnect();
-    jest.setTimeout(5000);
+    vi.setConfig({ testTimeout: 5000 });
   });
 
   function createTestJobHandler(duration = 10): TestJobHandler {
@@ -622,7 +633,7 @@ describe('Momo', () => {
     });
 
     describe('long running interval jobs', () => {
-      jest.setTimeout(10_000);
+      vi.setConfig({ testTimeout: 10_000 });
 
       let jobHandler: TestJobHandler;
       let job: MomoJob;
@@ -775,7 +786,7 @@ describe('Momo', () => {
     });
 
     describe('long running cron jobs', () => {
-      jest.setTimeout(10_000);
+      vi.setConfig({ testTimeout: 10_000 });
 
       let jobHandler: TestJobHandler;
       let job: MomoJob;
@@ -958,7 +969,7 @@ describe('Momo', () => {
 
       beforeEach(() => {
         intervalJob = {
-          handler: jest.fn(),
+          handler: vi.fn(),
           name: 'test',
           schedule: { interval: '1 second', firstRunAfter: 0 },
           concurrency: 3,
@@ -989,7 +1000,7 @@ describe('Momo', () => {
   });
 
   describe('with short ping interval', () => {
-    jest.setTimeout(10_000);
+    vi.setConfig({ testTimeout: 10_000 });
 
     let jobHandler: TestJobHandler;
     let job: MomoJob;

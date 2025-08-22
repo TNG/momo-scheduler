@@ -1,14 +1,24 @@
 import { DateTime } from 'luxon';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { ExecutionStatus } from '../../src';
 import type { ParsedIntervalSchedule } from '../../src/job/Job';
 import type { Logger } from '../../src/logging/Logger';
 import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule';
 
 describe('ExecutableIntervalSchedule', () => {
-  const callback = jest.fn();
+  const callback = vi.fn();
   const logger: Logger = {
-    debug: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
   };
   const errorMessage = 'Something went wrong';
   const parsedIntervalSchedule: ParsedIntervalSchedule = {
@@ -21,11 +31,11 @@ describe('ExecutableIntervalSchedule', () => {
   let executableIntervalSchedule: ExecutableIntervalSchedule;
 
   beforeAll(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   beforeEach(() => {
@@ -70,7 +80,7 @@ describe('ExecutableIntervalSchedule', () => {
 
   describe('execute', () => {
     it('returns the correct NextExecutionTime if job has never run before', () => {
-      jest.setSystemTime(0);
+      vi.setSystemTime(0);
       const nextExecutionTime = executableIntervalSchedule.execute({
         callback,
         logger,
@@ -85,7 +95,7 @@ describe('ExecutableIntervalSchedule', () => {
     });
 
     it('returns the correct NextExecutionTime if the job has already run', () => {
-      jest.setSystemTime(100);
+      vi.setSystemTime(100);
       const executionInfo = {
         lastStarted: DateTime.fromMillis(50).toString(),
         lastFinished: DateTime.fromMillis(51).toString(),
@@ -105,7 +115,7 @@ describe('ExecutableIntervalSchedule', () => {
     });
 
     it('schedules the job to run immediately if more time has elapsed since the last run than the interval', () => {
-      jest.setSystemTime(2000);
+      vi.setSystemTime(2000);
       const executionInfo = {
         lastStarted: DateTime.fromMillis(50).toString(),
         lastFinished: DateTime.fromMillis(51).toString(),

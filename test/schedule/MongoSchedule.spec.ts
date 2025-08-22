@@ -1,11 +1,13 @@
 import { instance, mock, verify, when } from 'ts-mockito';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { type MomoOptions, MongoSchedule } from '../../src';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 
 const schedulesRepository = mock(SchedulesRepository);
-const disconnect = jest.fn();
-jest.mock('../../src/Connection', () => {
+const disconnect = vi.fn();
+vi.mock('../../src/Connection', () => {
   return {
     Connection: {
       create: async (_options: MomoOptions) => {
@@ -21,7 +23,7 @@ jest.mock('../../src/Connection', () => {
 
 describe('MongoSchedule', () => {
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('connects and starts the ping and disconnects and stops the ping', async () => {
