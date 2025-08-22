@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { Connection } from '../../src/Connection';
 import { ExecutionInfo, ExecutionStatus } from '../../src';

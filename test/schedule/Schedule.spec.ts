@@ -1,5 +1,6 @@
 import { deepEqual, instance, mock, when } from 'ts-mockito';
 import { ObjectId } from 'mongodb';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ExecutionStatus, MomoEvent, MomoJob, MomoOptions, MongoSchedule } from '../../src';
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
@@ -9,7 +10,7 @@ import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
 
 const schedulesRepository = mock(SchedulesRepository);
 const jobRepository = mock(JobRepository);
-jest.mock('../../src/Connection', () => {
+vi.mock('../../src/Connection', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     Connection: {
@@ -29,14 +30,14 @@ describe('Schedule', () => {
   const momoJob: MomoJob = {
     name: 'test job',
     schedule: { interval: 'one minute', firstRunAfter: 0 },
-    handler: jest.fn(),
+    handler: vi.fn(),
   };
   const entityWithId = { _id: new ObjectId(), ...toJobDefinition(tryToIntervalJob(momoJob)._unsafeUnwrap()) };
 
   let mongoSchedule: MongoSchedule;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
     when(schedulesRepository.setActiveSchedule()).thenResolve(true);

@@ -1,13 +1,14 @@
 import { DateTime } from 'luxon';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ExecutableCronSchedule } from '../../src/scheduler/ExecutableCronSchedule';
 import { Logger } from '../../src/logging/Logger';
 
 describe('ExecutableIntervalSchedule', () => {
-  const callback = jest.fn();
+  const callback = vi.fn();
   const logger: Logger = {
-    debug: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
   };
   const errorMessage = 'Something went wrong';
   const cronSchedule = { cronSchedule: '* * * * * *' };
@@ -15,11 +16,11 @@ describe('ExecutableIntervalSchedule', () => {
   let executableCronSchedule: ExecutableCronSchedule;
 
   beforeAll(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   beforeEach(() => {
@@ -59,7 +60,7 @@ describe('ExecutableIntervalSchedule', () => {
 
   describe('execute', () => {
     it('returns the correct NextExecutionTime', () => {
-      jest.setSystemTime(0);
+      vi.setSystemTime(0);
       const nextExecutionTime = executableCronSchedule.execute({ callback, logger, errorMessage });
 
       expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(1000) });

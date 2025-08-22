@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import { describe, expect, it } from 'vitest';
 
 import { ExecutionInfo } from '../../src';
 import { JobEntity } from '../../src/repository/JobEntity';

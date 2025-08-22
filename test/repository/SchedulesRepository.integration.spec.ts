@@ -1,5 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { DateTime } from 'luxon';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Connection } from '../../src/Connection';
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
@@ -62,8 +63,8 @@ describe('SchedulesRepository', () => {
         scheduleName,
       );
       const anotherSchedulesRepository = anotherInstance.getSchedulesRepository();
-      const debug = jest.fn();
-      anotherSchedulesRepository.setLogger({ debug, error: jest.fn() });
+      const debug = vi.fn();
+      anotherSchedulesRepository.setLogger({ debug, error: vi.fn() });
 
       const active = await anotherSchedulesRepository.setActiveSchedule();
       await anotherInstance.disconnect();
