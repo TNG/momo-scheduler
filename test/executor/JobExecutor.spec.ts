@@ -1,4 +1,5 @@
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ExecutionStatus, MomoErrorType } from '../../src';
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
@@ -8,8 +9,8 @@ import { loggerForTests } from '../utils/logging';
 import { Job, ParsedIntervalSchedule } from '../../src/job/Job';
 
 describe('JobExecutor', () => {
-  const errorFn = jest.fn();
-  const handler = jest.fn();
+  const errorFn = vi.fn();
+  const handler = vi.fn();
   const job: Job<ParsedIntervalSchedule> = {
     name: 'test',
     schedule: {
@@ -28,7 +29,7 @@ describe('JobExecutor', () => {
   let jobExecutor: JobExecutor;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     jobRepository = mock(JobRepository);
     schedulesRepository = mock(SchedulesRepository);

@@ -2,10 +2,10 @@ import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import jsdoc from 'eslint-plugin-jsdoc';
 import stylistic from '@stylistic/eslint-plugin';
 import preferArrow from 'eslint-plugin-prefer-arrow';
-import jest from 'eslint-plugin-jest';
 import globals from 'globals';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import tsParser from '@typescript-eslint/parser';
+import vitest from '@vitest/eslint-plugin';
 
 export default [
   {
@@ -26,13 +26,12 @@ export default [
       '@stylistic': stylistic,
       jsdoc,
       'prefer-arrow': preferArrow,
-      jest,
+      vitest,
     },
 
     languageOptions: {
       globals: {
         ...globals.node,
-        ...jest.configs['flat/recommended'].languageOptions.globals,
       },
 
       parser: tsParser,
@@ -53,10 +52,9 @@ export default [
     },
 
     rules: {
-      ...jest.configs['flat/recommended'].rules,
-
-      'jest/expect-expect': [
-        'warn',
+      ...vitest.configs.recommended.rules,
+      'vitest/expect-expect': [
+        'error',
         {
           assertFunctionNames: ['verify', 'expect'],
         },

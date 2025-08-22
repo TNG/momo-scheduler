@@ -1,4 +1,5 @@
 import { instance, mock, verify, when } from 'ts-mockito';
+import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { SchedulePing } from '../../src/schedule/SchedulePing';
@@ -7,17 +8,17 @@ import { sleep } from '../utils/sleep';
 describe('SchedulePing', () => {
   const interval = 1000;
   const logData = { name: 'name', scheduleId: 'scheduleId' };
-  let error: jest.Mock;
+  let error: Mock;
 
   let schedulesRepository: SchedulesRepository;
   let schedulePing: SchedulePing;
-  let startAllJobs: jest.Mock;
+  let startAllJobs: Mock;
 
   beforeEach(() => {
-    startAllJobs = jest.fn();
+    startAllJobs = vi.fn();
     schedulesRepository = mock(SchedulesRepository);
-    error = jest.fn();
-    schedulePing = new SchedulePing(instance(schedulesRepository), { debug: jest.fn(), error }, interval, startAllJobs);
+    error = vi.fn();
+    schedulePing = new SchedulePing(instance(schedulesRepository), { debug: vi.fn(), error }, interval, startAllJobs);
   });
 
   afterEach(async () => schedulePing.stop());

@@ -1,4 +1,5 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { Connection } from '../../src/Connection';
 import { MomoJob, MomoOptions, MongoSchedule, MongoScheduleBuilder } from '../../src';
@@ -8,19 +9,19 @@ describe('MongoScheduleBuilder', () => {
   const job1: MomoJob = {
     name: 'test job 1',
     schedule: { interval: 'one minute', firstRunAfter: 0 },
-    handler: jest.fn(),
+    handler: vi.fn(),
   };
 
   const job2: MomoJob = {
     name: 'test job 2',
     schedule: { cronSchedule: '0 * * * *' },
-    handler: jest.fn(),
+    handler: vi.fn(),
   };
 
   const job3: MomoJob = {
     name: 'test job 3',
     schedule: { interval: 'one day', firstRunAfter: 0 },
-    handler: jest.fn(),
+    handler: vi.fn(),
   };
 
   let mongo: MongoMemoryServer;
