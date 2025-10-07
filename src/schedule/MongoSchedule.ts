@@ -27,7 +27,21 @@ export class MongoSchedule extends Schedule {
     protected readonly scheduleId: string,
     protected readonly connection: Connection,
     pingIntervalMs: number,
+    maxPingRetries: number,
+    retryIntervalMs: number,
   ) {
+    if (!Number.isFinite(pingIntervalMs) || pingIntervalMs < 1) {
+      throw new Error('Error: pingIntervalMs must be a positive number');
+    }
+
+    if (!Number.isFinite(maxPingRetries) || maxPingRetries < 1) {
+      throw new Error('Error: maxPingRetries must be a positive number');
+    }
+
+    if (!Number.isFinite(retryIntervalMs) || retryIntervalMs < 1) {
+      throw new Error('Error: retryIntervalMs must be a positive number');
+    }
+
     const schedulesRepository = connection.getSchedulesRepository();
     const jobRepository = connection.getJobRepository();
 
@@ -42,6 +56,8 @@ export class MongoSchedule extends Schedule {
       this.logger,
       pingIntervalMs,
       this.startAllJobs.bind(this),
+      maxPingRetries,
+      retryIntervalMs,
     );
   }
 
@@ -49,16 +65,18 @@ export class MongoSchedule extends Schedule {
    * Creates a MongoSchedule that is connected to the MongoDB with the provided url.
    *
    * @param momoOptions configuration options for the connection to establish and the Schedule instance to create
+   * @param maxPingRetries attempts of retrying failed schedule pings before throwing an error (default 1)
+   * @param retryIntervalMs time before retrying a failed schedule ping (default 1000 ms)
    */
-  public static async connect({
-    pingIntervalMs = 60_000,
-    scheduleName,
-    ...connectionOptions
-  }: MomoOptions): Promise<MongoSchedule> {
+  public static async connect(
+    { pingIntervalMs = 60_000, scheduleName, ...connectionOptions }: MomoOptions,
+    maxPingRetries = 1,
+    retryIntervalMs = 1_000,
+  ): Promise<MongoSchedule> {
     const scheduleId = uuid();
     const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId, scheduleName);
 
-    return new MongoSchedule(scheduleId, connection, pingIntervalMs);
+    return new MongoSchedule(scheduleId, connection, pingIntervalMs, maxPingRetries, retryIntervalMs);
   }
 
   /**

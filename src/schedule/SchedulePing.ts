@@ -12,13 +12,20 @@ enum StartJobsStatus {
 export class SchedulePing {
   private handle?: NodeJS.Timeout;
   private startJobsStatus: StartJobsStatus = StartJobsStatus.notStarted;
+  private readonly maxPingRetries: number;
+  private readonly retryIntervalMs: number;
 
   constructor(
     private readonly schedulesRepository: SchedulesRepository,
     private readonly logger: Logger,
     private readonly interval: number,
     private readonly startAllJobs: () => Promise<void>,
-  ) {}
+    maxPingRetries: number = 1,
+    retryIntervalMs: number = 1_000,
+  ) {
+    this.maxPingRetries = maxPingRetries;
+    this.retryIntervalMs = retryIntervalMs;
+  }
 
   async start(): Promise<void> {
     if (this.handle) {
@@ -26,11 +33,29 @@ export class SchedulePing {
     }
     const errorMessage = 'Pinging or cleaning the Schedules repository failed';
     try {
-      await this.checkActiveSchedule();
+      await this.checkActiveScheduleWithRetries(errorMessage);
     } catch (e) {
       this.logger.error(errorMessage, MomoErrorType.internal, this.schedulesRepository.getLogData(), e);
     }
-    this.handle = setSafeInterval(this.checkActiveSchedule.bind(this), this.interval, this.logger, errorMessage);
+    this.handle = setSafeInterval(
+      this.checkActiveScheduleWithRetries.bind(this, errorMessage),
+      this.interval,
+      this.logger,
+      errorMessage,
+    );
+  }
+
+  private async checkActiveScheduleWithRetries(errorMessage: string): Promise<void> {
+    for (let attempt = 1; attempt <= this.maxPingRetries; attempt++) {
+      try {
+        return await this.checkActiveSchedule();
+      } catch (error) {
+        if (attempt >= this.maxPingRetries) throw error;
+
+        this.logger.debug(`${errorMessage} after ${attempt} attempt. Retrying in ${this.retryIntervalMs} ms.`);
+        await new Promise((r) => setTimeout(r, this.retryIntervalMs));
+      }
+    }
   }
 
   private async checkActiveSchedule(): Promise<void> {
