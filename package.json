@@ -65,12 +65,12 @@
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-prettier": "5.5.4",
     "jest": "29.7.0",
-    "mongodb-memory-server": "10.2.1",
-    "pino": "9.10.0",
+    "mongodb-memory-server": "10.2.3",
+    "pino": "9.13.1",
     "prettier": "3.6.2",
-    "ts-jest": "29.4.3",
+    "ts-jest": "29.4.4",
     "ts-mockito": "2.6.1",
     "ts-node": "10.9.2",
-    "typescript": "5.9.2"
+    "typescript": "5.9.3"
   }
 }
