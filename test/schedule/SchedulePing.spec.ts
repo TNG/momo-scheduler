@@ -58,6 +58,37 @@ describe('SchedulePing', () => {
     );
   });
 
+  it('retries failed pings if configured', async () => {
+    const schedulePingWithRetries = new SchedulePing(
+      instance(schedulesRepository),
+      { debug: jest.fn(), error },
+      10,
+      startAllJobs,
+      3,
+      1,
+    );
+
+    try {
+      when(schedulesRepository.getLogData()).thenReturn(logData);
+      const message = 'I am an error that should lead to a retry';
+      when(schedulesRepository.setActiveSchedule()).thenReject({
+        message,
+      } as Error);
+
+      await schedulePingWithRetries.start();
+
+      verify(schedulesRepository.setActiveSchedule()).thrice();
+      expect(error).toHaveBeenCalledWith(
+        'Pinging or cleaning the Schedules repository failed',
+        'an internal error occurred',
+        logData,
+        { message },
+      );
+    } finally {
+      await schedulePingWithRetries.stop();
+    }
+  });
+
   it('does not start any jobs for inactive schedule', async () => {
     await schedulePing.start();
 
