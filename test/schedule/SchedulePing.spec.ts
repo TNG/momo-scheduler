@@ -62,10 +62,10 @@ describe('SchedulePing', () => {
     const schedulePingWithRetries = new SchedulePing(
       instance(schedulesRepository),
       { debug: jest.fn(), error },
-      10_000,
+      10,
       startAllJobs,
       3,
-      500,
+      1,
     );
 
     try {
