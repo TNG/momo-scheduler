@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { Connection, MomoConnectionOptions } from '../Connection';
 import { Schedule } from './Schedule';
 import { SchedulePing } from './SchedulePing';
+import { maxNodeTimeoutDelay } from '../job/Job';
 
 export interface MomoOptions extends MomoConnectionOptions {
   /**
@@ -30,7 +31,7 @@ export class MongoSchedule extends Schedule {
     maxPingRetries: number,
     retryIntervalMs: number,
   ) {
-    if (!Number.isFinite(pingIntervalMs) || pingIntervalMs < 1) {
+    if (!Number.isFinite(pingIntervalMs) || pingIntervalMs < 1 || pingIntervalMs > maxNodeTimeoutDelay) {
       throw new Error('Error: pingIntervalMs must be a positive number');
     }
 
@@ -38,7 +39,7 @@ export class MongoSchedule extends Schedule {
       throw new Error('Error: maxPingRetries must be a positive number');
     }
 
-    if (!Number.isFinite(retryIntervalMs) || retryIntervalMs < 1) {
+    if (!Number.isFinite(retryIntervalMs) || retryIntervalMs < 1 || retryIntervalMs > maxNodeTimeoutDelay) {
       throw new Error('Error: retryIntervalMs must be a positive number');
     }
 
