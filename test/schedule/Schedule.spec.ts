@@ -11,7 +11,6 @@ const schedulesRepository = mock(SchedulesRepository);
 const jobRepository = mock(JobRepository);
 jest.mock('../../src/Connection', () => {
   return {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     Connection: {
       create: async (_options: MomoOptions) => {
         return {
