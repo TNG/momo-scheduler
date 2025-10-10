@@ -44,7 +44,6 @@ describe('Momo', () => {
 
   afterEach(async () => {
     receivedError = undefined;
-    // eslint-disable-next-line jest/no-standalone-expect
     expect(mongoSchedule.getUnexpectedErrorCount()).toBe(0);
     await schedulesRepository.delete();
     await jobRepository.delete();

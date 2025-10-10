@@ -166,7 +166,6 @@ export class JobScheduler {
       for (let instanceNumber = 0; instanceNumber < numToExecute; instanceNumber++) {
         this.logger.debug('executing job instance', { instanceNumber });
 
-        // eslint-disable-next-line no-void
         void this.jobExecutor.execute(jobEntity, parameters).catch(async (e) => {
           await this.handleUnexpectedErrorWithTimeout(e, jobEntity.timeout);
           return {

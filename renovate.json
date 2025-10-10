@@ -6,16 +6,12 @@
   },
   "packageRules": [
     {
-      "matchPackagePatterns": ["^eslint", "^@typescript-eslint/"],
-      "groupName": "ESLint packages"
-    },
-    {
       "matchPackagePatterns": ["^@types/"],
       "groupName": "Types"
     },
     {
       "matchDepTypes": ["devDependencies"],
-      "excludePackagePrefixes": ["eslint", "@types/", "@typescript-eslint/"],
+      "excludePackagePrefixes": ["@types/"],
       "groupName":  "Dev dependencies"
     },
     {
