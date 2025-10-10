@@ -22,12 +22,12 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "npm run clean && tsc",
+    "format": "biome check --write",
+    "lint": "biome ci",
     "clean": "npx rimraf dist",
     "test": "jest --detectOpenHandles",
     "test:unit": "npm run test \"^((?!\\.integration\\.).)*$\"",
-    "test:integration": "npm run test integration",
-    "lint": "prettier --check \"**/*.ts\"  && eslint",
-    "format": "prettier --write \"**/*.ts\" && eslint --fix"
+    "test:integration": "npm run test integration"
   },
   "engines": {
     "node": ">=20"
@@ -46,6 +46,7 @@
     "mongodb": "5 || 6 || 7"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.5",
     "@sinonjs/fake-timers": "14.0.0",
     "@stylistic/eslint-plugin": "4.4.1",
     "@types/human-interval": "1.0.2",
