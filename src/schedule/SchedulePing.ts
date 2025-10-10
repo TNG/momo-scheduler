@@ -1,7 +1,7 @@
-import { SchedulesRepository } from '../repository/SchedulesRepository';
-import { Logger } from '../logging/Logger';
-import { setSafeInterval } from '../timeout/safeTimeouts';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
+import type { Logger } from '../logging/Logger';
+import type { SchedulesRepository } from '../repository/SchedulesRepository';
+import { setSafeInterval } from '../timeout/safeTimeouts';
 
 enum StartJobsStatus {
   notStarted,
@@ -28,9 +28,19 @@ export class SchedulePing {
     try {
       await this.checkActiveSchedule();
     } catch (e) {
-      this.logger.error(errorMessage, MomoErrorType.internal, this.schedulesRepository.getLogData(), e);
+      this.logger.error(
+        errorMessage,
+        MomoErrorType.internal,
+        this.schedulesRepository.getLogData(),
+        e,
+      );
     }
-    this.handle = setSafeInterval(this.checkActiveSchedule.bind(this), this.interval, this.logger, errorMessage);
+    this.handle = setSafeInterval(
+      this.checkActiveSchedule.bind(this),
+      this.interval,
+      this.logger,
+      errorMessage,
+    );
   }
 
   private async checkActiveSchedule(): Promise<void> {
@@ -39,22 +49,34 @@ export class SchedulePing {
       return;
     }
 
-    this.logger.debug('This schedule is active', this.schedulesRepository.getLogData());
+    this.logger.debug(
+      'This schedule is active',
+      this.schedulesRepository.getLogData(),
+    );
 
     if (this.startJobsStatus !== StartJobsStatus.notStarted) {
       return;
     }
 
     this.startJobsStatus = StartJobsStatus.inProgress;
-    this.logger.debug('This schedule just turned active', this.schedulesRepository.getLogData());
+    this.logger.debug(
+      'This schedule just turned active',
+      this.schedulesRepository.getLogData(),
+    );
     await this.startAllJobs();
     this.startJobsStatus = StartJobsStatus.finished;
-    this.logger.debug('Finished starting scheduled jobs', this.schedulesRepository.getLogData());
+    this.logger.debug(
+      'Finished starting scheduled jobs',
+      this.schedulesRepository.getLogData(),
+    );
   }
 
   async stop(): Promise<void> {
     if (this.handle) {
-      this.logger.debug('stop SchedulePing', this.schedulesRepository.getLogData());
+      this.logger.debug(
+        'stop SchedulePing',
+        this.schedulesRepository.getLogData(),
+      );
       clearInterval(this.handle);
     }
 

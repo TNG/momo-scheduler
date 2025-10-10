@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
-
+import type { Logger } from '../../src/logging/Logger';
 import { ExecutableCronSchedule } from '../../src/scheduler/ExecutableCronSchedule';
-import { Logger } from '../../src/logging/Logger';
 
 describe('ExecutableIntervalSchedule', () => {
   const callback = jest.fn();
@@ -60,9 +59,15 @@ describe('ExecutableIntervalSchedule', () => {
   describe('execute', () => {
     it('returns the correct NextExecutionTime', () => {
       jest.setSystemTime(0);
-      const nextExecutionTime = executableCronSchedule.execute({ callback, logger, errorMessage });
+      const nextExecutionTime = executableCronSchedule.execute({
+        callback,
+        logger,
+        errorMessage,
+      });
 
-      expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(1000) });
+      expect(nextExecutionTime).toEqual({
+        nextExecution: DateTime.fromMillis(1000),
+      });
     });
   });
 });

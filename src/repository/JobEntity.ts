@@ -1,8 +1,8 @@
-import { ObjectId } from 'mongodb';
+import type { ObjectId } from 'mongodb';
 
-import { ExecutionInfo } from '../job/ExecutionInfo';
-import { JobDefinition, ParsedIntervalSchedule } from '../job/Job';
-import { CronSchedule, NeverSchedule } from '../job/MomoJob';
+import type { ExecutionInfo } from '../job/ExecutionInfo';
+import type { JobDefinition, ParsedIntervalSchedule } from '../job/Job';
+import type { CronSchedule, NeverSchedule } from '../job/MomoJob';
 
 export interface JobEntity<
   Schedule extends ParsedIntervalSchedule | CronSchedule | NeverSchedule =

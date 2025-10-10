@@ -1,13 +1,19 @@
-import CronExpressionParser from 'cron-parser';
 import { CronJob } from 'cron';
+import CronExpressionParser from 'cron-parser';
 import { DateTime } from 'luxon';
 
-import { CronSchedule } from '../job/MomoJob';
-import { ExecutableSchedule, ExecutionParameters, NextExecutionTime } from './ExecutableSchedule';
+import type { CronSchedule } from '../job/MomoJob';
 import { momoError } from '../logging/error/MomoError';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
+import type {
+  ExecutableSchedule,
+  ExecutionParameters,
+  NextExecutionTime,
+} from './ExecutableSchedule';
 
-export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> {
+export class ExecutableCronSchedule
+  implements ExecutableSchedule<CronSchedule>
+{
   private readonly cronSchedule: string;
   private scheduledJob?: CronJob;
 
@@ -19,17 +25,28 @@ export class ExecutableCronSchedule implements ExecutableSchedule<CronSchedule> 
     return { cronSchedule: this.cronSchedule };
   }
 
-  execute({ callback, jobParameters, logger, errorMessage }: ExecutionParameters): NextExecutionTime {
+  execute({
+    callback,
+    jobParameters,
+    logger,
+    errorMessage,
+  }: ExecutionParameters): NextExecutionTime {
     this.validateCronSchedule();
 
-    this.scheduledJob = new CronJob(this.cronSchedule, async () => callback(jobParameters));
+    this.scheduledJob = new CronJob(this.cronSchedule, async () =>
+      callback(jobParameters),
+    );
     try {
       this.scheduledJob.start();
     } catch (e) {
       logger.error(errorMessage, MomoErrorType.internal, {}, e);
     }
 
-    return { nextExecution: DateTime.fromMillis(this.scheduledJob.nextDate().toMillis()) };
+    return {
+      nextExecution: DateTime.fromMillis(
+        this.scheduledJob.nextDate().toMillis(),
+      ),
+    };
   }
 
   async stop(): Promise<void> {

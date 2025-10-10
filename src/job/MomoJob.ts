@@ -1,8 +1,14 @@
-import { ParsedIntervalSchedule } from './Job';
+import type { ParsedIntervalSchedule } from './Job';
 
-export type JobParameters = Record<string, object | number | string | boolean | undefined>;
+export type JobParameters = Record<
+  string,
+  object | number | string | boolean | undefined
+>;
 
-export type Handler = (parameters?: JobParameters) => Promise<string | undefined | void> | string | undefined | void;
+export type Handler = (
+  parameters?: JobParameters,
+  // biome-ignore lint/suspicious/noConfusingVoidType: we want to explicitly allow it here, so users have more freedom
+) => Promise<string | undefined | void> | string | undefined | void;
 
 export interface TypedMomoJob<Schedule> {
   handler: Handler;
@@ -14,7 +20,10 @@ export interface TypedMomoJob<Schedule> {
   parameters?: JobParameters;
 }
 
-export type MomoJob = TypedMomoJob<IntervalSchedule> | TypedMomoJob<CronSchedule> | TypedMomoJob<NeverSchedule>;
+export type MomoJob =
+  | TypedMomoJob<IntervalSchedule>
+  | TypedMomoJob<CronSchedule>
+  | TypedMomoJob<NeverSchedule>;
 
 export interface IntervalSchedule {
   interval: number | string;
@@ -29,14 +38,24 @@ export interface NeverSchedule {
   interval: 'Never' | 'never';
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isCronSchedule(input: any): input is CronSchedule {
-  return input.cronSchedule !== undefined && typeof input.cronSchedule === 'string';
+export function isCronSchedule(input: unknown): input is CronSchedule {
+  if (typeof input !== 'object') return false;
+
+  const schedule = input as Partial<CronSchedule>;
+  return (
+    schedule.cronSchedule !== undefined &&
+    typeof schedule.cronSchedule === 'string'
+  );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isNeverSchedule(input: any): input is NeverSchedule {
-  return input.interval !== undefined && (input.interval === 'Never' || input.interval === 'never');
+export function isNeverSchedule(input: unknown): input is NeverSchedule {
+  if (typeof input !== 'object') return false;
+
+  const schedule = input as Partial<NeverSchedule>;
+  return (
+    schedule.interval !== undefined &&
+    ['Never', 'never'].includes(schedule.interval)
+  );
 }
 
 /**
@@ -56,10 +75,14 @@ export function toSchedule(
   return { interval, firstRunAfter };
 }
 
-export function isCronJob(momoJob: MomoJob): momoJob is TypedMomoJob<CronSchedule> {
+export function isCronJob(
+  momoJob: MomoJob,
+): momoJob is TypedMomoJob<CronSchedule> {
   return isCronSchedule(momoJob.schedule);
 }
 
-export function isNeverJob(momoJob: MomoJob): momoJob is TypedMomoJob<NeverSchedule> {
+export function isNeverJob(
+  momoJob: MomoJob,
+): momoJob is TypedMomoJob<NeverSchedule> {
   return isNeverSchedule(momoJob.schedule);
 }

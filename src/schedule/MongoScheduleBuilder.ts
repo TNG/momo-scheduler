@@ -1,5 +1,5 @@
-import { MomoJob } from '../job/MomoJob';
-import { MomoOptions, MongoSchedule } from './MongoSchedule';
+import type { MomoJob } from '../job/MomoJob';
+import { type MomoOptions, MongoSchedule } from './MongoSchedule';
 
 export class MongoScheduleBuilder {
   private momoJobs?: MomoJob[];
@@ -17,10 +17,14 @@ export class MongoScheduleBuilder {
 
   async build(): Promise<MongoSchedule> {
     if (!this.momoConnectionOptions) {
-      throw Error('Error: MongoSchedule must be built with defined ConnectionOptions');
+      throw Error(
+        'Error: MongoSchedule must be built with defined ConnectionOptions',
+      );
     }
 
-    const mongoSchedule = await MongoSchedule.connect(this.momoConnectionOptions);
+    const mongoSchedule = await MongoSchedule.connect(
+      this.momoConnectionOptions,
+    );
 
     for (const momoJob of this.momoJobs ?? []) {
       await mongoSchedule.define(momoJob);

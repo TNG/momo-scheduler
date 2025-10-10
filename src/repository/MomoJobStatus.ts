@@ -1,12 +1,20 @@
-import { JobEntity } from './JobEntity';
-import { CronSchedule, IntervalSchedule, NeverSchedule, toSchedule } from '../job/MomoJob';
-import { ParsedIntervalSchedule } from '../job/Job';
+import type { ParsedIntervalSchedule } from '../job/Job';
+import {
+  type CronSchedule,
+  type IntervalSchedule,
+  type NeverSchedule,
+  toSchedule,
+} from '../job/MomoJob';
+import type { JobEntity } from './JobEntity';
 
-export interface MomoJobStatus extends Omit<JobEntity<never>, '_id' | 'schedule'> {
+export interface MomoJobStatus
+  extends Omit<JobEntity<never>, '_id' | 'schedule'> {
   schedule: Required<IntervalSchedule> | CronSchedule | NeverSchedule;
 }
 
-export function toMomoJobStatus<Schedule extends ParsedIntervalSchedule | CronSchedule | NeverSchedule>({
+export function toMomoJobStatus<
+  Schedule extends ParsedIntervalSchedule | CronSchedule | NeverSchedule,
+>({
   name,
   schedule,
   concurrency,

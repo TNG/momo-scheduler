@@ -1,10 +1,9 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-
+import { type MomoJob, MongoSchedule } from '../../src';
 import { Connection } from '../../src/Connection';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { MomoJob, MongoSchedule } from '../../src';
-import { initLoggingForTests } from '../utils/logging';
 import { tryToIntervalJob } from '../../src/job/Job';
+import type { JobRepository } from '../../src/repository/JobRepository';
+import { initLoggingForTests } from '../utils/logging';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -21,10 +20,18 @@ describe('Schedule', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    connection = await Connection.create({ url: mongo.getUri() }, 60_000, 'schedule_id', 'testSchedule');
+    connection = await Connection.create(
+      { url: mongo.getUri() },
+      60_000,
+      'schedule_id',
+      'testSchedule',
+    );
     jobRepository = connection.getJobRepository();
 
-    mongoSchedule = await MongoSchedule.connect({ scheduleName: 'schedule', url: mongo.getUri() });
+    mongoSchedule = await MongoSchedule.connect({
+      scheduleName: 'schedule',
+      url: mongo.getUri(),
+    });
 
     initLoggingForTests(mongoSchedule);
   });
@@ -79,7 +86,13 @@ describe('Schedule', () => {
     await mongoSchedule.define(job);
 
     expect(await mongoSchedule.list()).toEqual([
-      { name: job.name, schedule: job.schedule, parameters: job.parameters, concurrency: 1, maxRunning: 0 },
+      {
+        name: job.name,
+        schedule: job.schedule,
+        parameters: job.parameters,
+        concurrency: 1,
+        maxRunning: 0,
+      },
     ]);
   });
 

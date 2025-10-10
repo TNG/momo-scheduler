@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-import { Connection, MomoConnectionOptions } from '../Connection';
+import { Connection, type MomoConnectionOptions } from '../Connection';
 import { Schedule } from './Schedule';
 import { SchedulePing } from './SchedulePing';
 
@@ -56,7 +56,12 @@ export class MongoSchedule extends Schedule {
     ...connectionOptions
   }: MomoOptions): Promise<MongoSchedule> {
     const scheduleId = uuid();
-    const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId, scheduleName);
+    const connection = await Connection.create(
+      connectionOptions,
+      pingIntervalMs,
+      scheduleId,
+      scheduleName,
+    );
 
     return new MongoSchedule(scheduleId, connection, pingIntervalMs);
   }
