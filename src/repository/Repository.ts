@@ -1,12 +1,26 @@
-import { Collection, Filter, MongoClient, ObjectId, OptionalUnlessRequiredId, UpdateFilter, WithId } from 'mongodb';
 import { cloneDeep } from 'lodash';
+import type {
+  Collection,
+  Filter,
+  MongoClient,
+  ObjectId,
+  OptionalUnlessRequiredId,
+  UpdateFilter,
+  WithId,
+} from 'mongodb';
 
 export class Repository<ENTITY extends { _id?: ObjectId }> {
   protected readonly collection: Collection<ENTITY>;
 
-  constructor(mongoClient: MongoClient, collectionName: string, collectionPrefix?: string) {
+  constructor(
+    mongoClient: MongoClient,
+    collectionName: string,
+    collectionPrefix?: string,
+  ) {
     const prefixedCollectionName =
-      collectionPrefix !== undefined ? `${collectionPrefix}_${collectionName}` : collectionName;
+      collectionPrefix !== undefined
+        ? `${collectionPrefix}_${collectionName}`
+        : collectionName;
     this.collection = mongoClient.db().collection(prefixedCollectionName);
   }
 
@@ -15,7 +29,10 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
     await this.collection.insertOne(cloneDeep(entity));
   }
 
-  async updateOne(filter: Filter<ENTITY>, update: UpdateFilter<ENTITY>): Promise<void> {
+  async updateOne(
+    filter: Filter<ENTITY>,
+    update: UpdateFilter<ENTITY>,
+  ): Promise<void> {
     await this.collection.updateOne(filter, update);
   }
 
@@ -24,7 +41,9 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
     return entities.map(this.mapNullToUndefined);
   }
 
-  async findOne(filter: Filter<ENTITY> = {}): Promise<WithId<ENTITY> | undefined> {
+  async findOne(
+    filter: Filter<ENTITY> = {},
+  ): Promise<WithId<ENTITY> | undefined> {
     const entity = await this.collection.findOne(filter);
     return entity === null ? undefined : this.mapNullToUndefined(entity);
   }

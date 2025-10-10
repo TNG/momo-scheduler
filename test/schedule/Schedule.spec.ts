@@ -1,11 +1,17 @@
-import { deepEqual, instance, mock, when } from 'ts-mockito';
 import { ObjectId } from 'mongodb';
+import { deepEqual, instance, mock, when } from 'ts-mockito';
 
-import { ExecutionStatus, MomoEvent, MomoJob, MomoOptions, MongoSchedule } from '../../src';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { initLoggingForTests } from '../utils/logging';
+import {
+  ExecutionStatus,
+  type MomoEvent,
+  type MomoJob,
+  type MomoOptions,
+  MongoSchedule,
+} from '../../src';
 import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
+import { initLoggingForTests } from '../utils/logging';
 
 const schedulesRepository = mock(SchedulesRepository);
 const jobRepository = mock(JobRepository);
@@ -30,7 +36,10 @@ describe('Schedule', () => {
     schedule: { interval: 'one minute', firstRunAfter: 0 },
     handler: jest.fn(),
   };
-  const entityWithId = { _id: new ObjectId(), ...toJobDefinition(tryToIntervalJob(momoJob)._unsafeUnwrap()) };
+  const entityWithId = {
+    _id: new ObjectId(),
+    ...toJobDefinition(tryToIntervalJob(momoJob)._unsafeUnwrap()),
+  };
 
   let mongoSchedule: MongoSchedule;
 
@@ -40,7 +49,10 @@ describe('Schedule', () => {
     when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
     when(schedulesRepository.setActiveSchedule()).thenResolve(true);
 
-    mongoSchedule = await MongoSchedule.connect({ scheduleName, url: 'mongodb://does.not/matter' });
+    mongoSchedule = await MongoSchedule.connect({
+      scheduleName,
+      url: 'mongodb://does.not/matter',
+    });
     initLoggingForTests(mongoSchedule);
   });
 
@@ -51,8 +63,12 @@ describe('Schedule', () => {
   it('emits logs', async () => {
     const caughtEvents: string[] = [];
     const caughtErrors: string[] = [];
-    mongoSchedule.on('debug', (event: MomoEvent) => caughtEvents.push(event.message));
-    mongoSchedule.on('error', (event: MomoEvent) => caughtErrors.push(event.message));
+    mongoSchedule.on('debug', (event: MomoEvent) =>
+      caughtEvents.push(event.message),
+    );
+    mongoSchedule.on('error', (event: MomoEvent) =>
+      caughtErrors.push(event.message),
+    );
 
     await mongoSchedule.start();
 
@@ -75,36 +91,63 @@ describe('Schedule', () => {
     it('runs a job once', async () => {
       await mongoSchedule.define(momoJob);
 
-      when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
-      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({ added: true, running: 0 });
+      when(
+        jobRepository.findOne(deepEqual({ name: momoJob.name })),
+      ).thenResolve(entityWithId);
+      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({
+        added: true,
+        running: 0,
+      });
 
       const result = await mongoSchedule.run(momoJob.name);
 
-      expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
+      expect(result).toEqual({
+        status: ExecutionStatus.finished,
+        handlerResult: 'finished',
+      });
       expect(momoJob.handler).toHaveBeenCalledTimes(1);
     });
 
     it('runs a job once after delay', async () => {
       await mongoSchedule.define(momoJob);
 
-      when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
-      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({ added: true, running: 0 });
+      when(
+        jobRepository.findOne(deepEqual({ name: momoJob.name })),
+      ).thenResolve(entityWithId);
+      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({
+        added: true,
+        running: 0,
+      });
 
       const result = await mongoSchedule.run(momoJob.name, undefined, 500);
 
-      expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
+      expect(result).toEqual({
+        status: ExecutionStatus.finished,
+        handlerResult: 'finished',
+      });
       expect(momoJob.handler).toHaveBeenCalledTimes(1);
     });
 
     it('runs a "never" job once', async () => {
-      await mongoSchedule.define({ ...momoJob, schedule: { interval: 'never' } });
+      await mongoSchedule.define({
+        ...momoJob,
+        schedule: { interval: 'never' },
+      });
 
-      when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
-      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({ added: true, running: 0 });
+      when(
+        jobRepository.findOne(deepEqual({ name: momoJob.name })),
+      ).thenResolve(entityWithId);
+      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({
+        added: true,
+        running: 0,
+      });
 
       const result = await mongoSchedule.run(momoJob.name);
 
-      expect(result).toEqual({ status: ExecutionStatus.finished, handlerResult: 'finished' });
+      expect(result).toEqual({
+        status: ExecutionStatus.finished,
+        handlerResult: 'finished',
+      });
       expect(momoJob.handler).toHaveBeenCalledTimes(1);
     });
 
@@ -117,7 +160,9 @@ describe('Schedule', () => {
     it('skips running job once when job is not found in repository', async () => {
       await mongoSchedule.define(momoJob);
 
-      when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(undefined);
+      when(
+        jobRepository.findOne(deepEqual({ name: momoJob.name })),
+      ).thenResolve(undefined);
 
       const result = await mongoSchedule.run(momoJob.name);
 
@@ -127,7 +172,9 @@ describe('Schedule', () => {
     it('skips running job once when maxRunning is reached', async () => {
       await mongoSchedule.define(momoJob);
 
-      when(jobRepository.findOne(deepEqual({ name: momoJob.name }))).thenResolve(entityWithId);
+      when(
+        jobRepository.findOne(deepEqual({ name: momoJob.name })),
+      ).thenResolve(entityWithId);
       when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({
         added: false,
         running: 0,

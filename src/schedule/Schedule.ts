@@ -1,14 +1,18 @@
 import { sum } from 'lodash';
 
-import { ExecutionInfo, ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { SchedulesRepository } from '../repository/SchedulesRepository';
-import { JobRepository } from '../repository/JobRepository';
-import { JobScheduler } from '../scheduler/JobScheduler';
-import { LogEmitter } from '../logging/LogEmitter';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { JobParameters, MomoJob } from '../job/MomoJob';
-import { MomoJobDescription } from '../job/MomoJobDescription';
+import {
+  type ExecutionInfo,
+  ExecutionStatus,
+  type JobResult,
+} from '../job/ExecutionInfo';
 import { tryToJob } from '../job/Job';
+import type { JobParameters, MomoJob } from '../job/MomoJob';
+import type { MomoJobDescription } from '../job/MomoJobDescription';
+import { MomoErrorType } from '../logging/error/MomoErrorType';
+import { LogEmitter } from '../logging/LogEmitter';
+import type { JobRepository } from '../repository/JobRepository';
+import type { SchedulesRepository } from '../repository/SchedulesRepository';
+import { JobScheduler } from '../scheduler/JobScheduler';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
 
 export class Schedule extends LogEmitter {
@@ -37,7 +41,11 @@ export class Schedule extends LogEmitter {
     if (name !== undefined) {
       return this.jobSchedulers[name]?.getUnexpectedErrorCount() ?? 0;
     }
-    return sum(Object.values(this.jobSchedulers).map((jobScheduler) => jobScheduler.getUnexpectedErrorCount()));
+    return sum(
+      Object.values(this.jobSchedulers).map((jobScheduler) =>
+        jobScheduler.getUnexpectedErrorCount(),
+      ),
+    );
   }
 
   /**
@@ -72,12 +80,22 @@ export class Schedule extends LogEmitter {
     try {
       await this.jobSchedulers[job.name]?.stop();
     } catch (error) {
-      this.logger.error('failed to stop job', MomoErrorType.stopJob, { name: job.name }, error);
+      this.logger.error(
+        'failed to stop job',
+        MomoErrorType.stopJob,
+        { name: job.name },
+        error,
+      );
     }
 
     await this.jobRepository.define(job);
 
-    this.jobSchedulers[job.name] = JobScheduler.forJob(job, this.logger, this.schedulesRepository, this.jobRepository);
+    this.jobSchedulers[job.name] = JobScheduler.forJob(
+      job,
+      this.logger,
+      this.schedulesRepository,
+      this.jobRepository,
+    );
 
     return true;
   }
@@ -94,7 +112,11 @@ export class Schedule extends LogEmitter {
    * @param delay the job will be run after delay milliseconds
    * @returns the return value of the job's handler or one of: 'finished', 'max running reached' (job could not be executed), 'not found', 'failed'
    */
-  public async run(name: string, parameters?: JobParameters, delay = 0): Promise<JobResult> {
+  public async run(
+    name: string,
+    parameters?: JobParameters,
+    delay = 0,
+  ): Promise<JobResult> {
     const jobScheduler = this.jobSchedulers[name];
 
     if (!jobScheduler) {
@@ -123,9 +145,18 @@ export class Schedule extends LogEmitter {
   public async stop(): Promise<void> {
     this.logger.debug('stop all jobs', { count: this.count() });
     try {
-      await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.stop()));
+      await Promise.all(
+        Object.values(this.jobSchedulers).map(async (jobScheduler) =>
+          jobScheduler.stop(),
+        ),
+      );
     } catch (error) {
-      this.logger.error('failed to stop jobs', MomoErrorType.stopJob, { count: this.count() }, error);
+      this.logger.error(
+        'failed to stop jobs',
+        MomoErrorType.stopJob,
+        { count: this.count() },
+        error,
+      );
     }
   }
 
@@ -134,7 +165,9 @@ export class Schedule extends LogEmitter {
    */
   public async cancel(): Promise<void> {
     await this.stop();
-    this.logger.debug('cancel all jobs', { count: Object.keys(this.jobSchedulers).length });
+    this.logger.debug('cancel all jobs', {
+      count: Object.keys(this.jobSchedulers).length,
+    });
     this.jobSchedulers = {};
   }
 
@@ -157,7 +190,9 @@ export class Schedule extends LogEmitter {
    */
   public count(started = false): number {
     return started
-      ? Object.values(this.jobSchedulers).filter((jobScheduler) => jobScheduler.isStarted()).length
+      ? Object.values(this.jobSchedulers).filter((jobScheduler) =>
+          jobScheduler.isStarted(),
+        ).length
       : Object.values(this.jobSchedulers).length;
   }
 
@@ -168,8 +203,15 @@ export class Schedule extends LogEmitter {
    */
   public async list(): Promise<MomoJobDescription[]> {
     return (
-      await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.getJobDescription()))
-    ).filter((jobDescription): jobDescription is MomoJobDescription => jobDescription !== undefined);
+      await Promise.all(
+        Object.values(this.jobSchedulers).map(async (jobScheduler) =>
+          jobScheduler.getJobDescription(),
+        ),
+      )
+    ).filter(
+      (jobDescription): jobDescription is MomoJobDescription =>
+        jobDescription !== undefined,
+    );
   }
 
   /**
@@ -209,6 +251,10 @@ export class Schedule extends LogEmitter {
   }
 
   protected async startAllJobs(): Promise<void> {
-    await Promise.all(Object.values(this.jobSchedulers).map(async (jobScheduler) => jobScheduler.start()));
+    await Promise.all(
+      Object.values(this.jobSchedulers).map(async (jobScheduler) =>
+        jobScheduler.start(),
+      ),
+    );
   }
 }

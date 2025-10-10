@@ -1,5 +1,11 @@
-import { JobEntity } from '../repository/JobEntity';
-import { CronSchedule, IntervalSchedule, JobParameters, NeverSchedule, toSchedule } from './MomoJob';
+import type { JobEntity } from '../repository/JobEntity';
+import {
+  type CronSchedule,
+  type IntervalSchedule,
+  type JobParameters,
+  type NeverSchedule,
+  toSchedule,
+} from './MomoJob';
 
 /**
  * information about scheduled job

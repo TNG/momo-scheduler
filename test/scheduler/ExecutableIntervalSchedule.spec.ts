@@ -1,9 +1,8 @@
 import { DateTime } from 'luxon';
-
-import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule';
-import { Logger } from '../../src/logging/Logger';
 import { ExecutionStatus } from '../../src';
-import { ParsedIntervalSchedule } from '../../src/job/Job';
+import type { ParsedIntervalSchedule } from '../../src/job/Job';
+import type { Logger } from '../../src/logging/Logger';
+import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule';
 
 describe('ExecutableIntervalSchedule', () => {
   const callback = jest.fn();
@@ -30,7 +29,9 @@ describe('ExecutableIntervalSchedule', () => {
   });
 
   beforeEach(() => {
-    executableIntervalSchedule = new ExecutableIntervalSchedule(parsedIntervalSchedule);
+    executableIntervalSchedule = new ExecutableIntervalSchedule(
+      parsedIntervalSchedule,
+    );
   });
 
   afterEach(async () => {
@@ -70,10 +71,16 @@ describe('ExecutableIntervalSchedule', () => {
   describe('execute', () => {
     it('returns the correct NextExecutionTime if job has never run before', () => {
       jest.setSystemTime(0);
-      const nextExecutionTime = executableIntervalSchedule.execute({ callback, logger, errorMessage });
+      const nextExecutionTime = executableIntervalSchedule.execute({
+        callback,
+        logger,
+        errorMessage,
+      });
 
       expect(nextExecutionTime).toEqual({
-        nextExecution: DateTime.fromMillis(parsedIntervalSchedule.parsedFirstRunAfter),
+        nextExecution: DateTime.fromMillis(
+          parsedIntervalSchedule.parsedFirstRunAfter,
+        ),
       });
     });
 
@@ -92,7 +99,9 @@ describe('ExecutableIntervalSchedule', () => {
         executionInfo,
       });
 
-      expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(1050) });
+      expect(nextExecutionTime).toEqual({
+        nextExecution: DateTime.fromMillis(1050),
+      });
     });
 
     it('schedules the job to run immediately if more time has elapsed since the last run than the interval', () => {
@@ -110,7 +119,9 @@ describe('ExecutableIntervalSchedule', () => {
         executionInfo,
       });
 
-      expect(nextExecutionTime).toEqual({ nextExecution: DateTime.fromMillis(2000) });
+      expect(nextExecutionTime).toEqual({
+        nextExecution: DateTime.fromMillis(2000),
+      });
     });
   });
 });

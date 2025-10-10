@@ -1,5 +1,10 @@
 {
-  "extends": ["config:base", ":gitSignOff", ":disableDependencyDashboard", ":preserveSemverRanges"],
+  "extends": [
+    "config:base",
+    ":gitSignOff",
+    ":disableDependencyDashboard",
+    ":preserveSemverRanges"
+  ],
   "rangeStrategy": "pin",
   "lockFileMaintenance": {
     "enabled": true
@@ -12,11 +17,11 @@
     {
       "matchDepTypes": ["devDependencies"],
       "excludePackagePrefixes": ["@types/"],
-      "groupName":  "Dev dependencies"
+      "groupName": "Dev dependencies"
     },
     {
       "matchDepTypes": ["dependencies"],
-      "groupName":  "Prod dependencies"
+      "groupName": "Prod dependencies"
     }
   ]
 }
