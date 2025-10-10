@@ -1,4 +1,4 @@
-import { Handler, JobParameters, MomoJob } from './MomoJob';
+import type { Handler, JobParameters, MomoJob } from './MomoJob';
 
 interface MomoJobBuilderBase<T> {
   withName: (name: string) => T;
@@ -10,8 +10,12 @@ interface MomoJobBuilderBase<T> {
   build: () => MomoJob;
 }
 
-interface MomoIntervalJobBuilder extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
-  withSchedule: (interval: number | string, firstRunAfter?: number | string) => MomoIntervalJobBuilder;
+interface MomoIntervalJobBuilder
+  extends MomoJobBuilderBase<MomoIntervalJobBuilder> {
+  withSchedule: (
+    interval: number | string,
+    firstRunAfter?: number | string,
+  ) => MomoIntervalJobBuilder;
 }
 
 interface MomoCronJobBuilder extends MomoJobBuilderBase<MomoCronJobBuilder> {
@@ -27,7 +31,10 @@ export class MomoJobBuilder {
   }
 
   // The interval is either a number in milliseconds or an interval in human-readable form (see readme)
-  withSchedule(interval: number | string, firstRunAfter: number | string = 0): MomoIntervalJobBuilder {
+  withSchedule(
+    interval: number | string,
+    firstRunAfter: number | string = 0,
+  ): MomoIntervalJobBuilder {
     if (interval === 'Never' || interval === 'never') {
       this.momoJob.schedule = { interval };
       return this;

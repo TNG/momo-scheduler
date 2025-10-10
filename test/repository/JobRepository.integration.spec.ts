@@ -1,12 +1,15 @@
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-
+import { type ExecutionInfo, ExecutionStatus } from '../../src';
 import { Connection } from '../../src/Connection';
-import { ExecutionInfo, ExecutionStatus } from '../../src';
-import { JobEntity } from '../../src/repository/JobEntity';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { ParsedIntervalSchedule, toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
-import { CronSchedule } from '../../src/job/MomoJob';
+import {
+  type ParsedIntervalSchedule,
+  toJobDefinition,
+  tryToIntervalJob,
+} from '../../src/job/Job';
+import type { CronSchedule } from '../../src/job/MomoJob';
+import type { JobEntity } from '../../src/repository/JobEntity';
+import type { JobRepository } from '../../src/repository/JobRepository';
 
 describe('JobRepository', () => {
   const job = tryToIntervalJob({
@@ -22,7 +25,12 @@ describe('JobRepository', () => {
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
-    connection = await Connection.create({ url: mongo.getUri() }, 60_000, 'schedule-id', 'schedule');
+    connection = await Connection.create(
+      { url: mongo.getUri() },
+      60_000,
+      'schedule-id',
+      'schedule',
+    );
     jobRepository = connection.getJobRepository();
   });
 
@@ -58,7 +66,9 @@ describe('JobRepository', () => {
     it('saves a job', async () => {
       await jobRepository.define(job);
 
-      expect(await jobRepository.find({ name: job.name })).toEqual([{ ...jobDefinition, _id: expect.anything() }]);
+      expect(await jobRepository.find({ name: job.name })).toEqual([
+        { ...jobDefinition, _id: expect.anything() },
+      ]);
     });
 
     it('updates a job', async () => {
@@ -73,7 +83,12 @@ describe('JobRepository', () => {
     });
 
     it('cleans up duplicate jobs but keeps latest job', async () => {
-      const latest = { ...jobDefinition, executionInfo: { lastFinished: DateTime.now().toISO() } as ExecutionInfo };
+      const latest = {
+        ...jobDefinition,
+        executionInfo: {
+          lastFinished: DateTime.now().toISO(),
+        } as ExecutionInfo,
+      };
       await jobRepository.save(jobDefinition);
       await jobRepository.save(latest);
 
@@ -147,7 +162,10 @@ describe('JobRepository', () => {
         executionInfo: {
           lastStarted: DateTime.now().toISO(),
           lastFinished: DateTime.now().toISO(),
-          lastResult: { status: ExecutionStatus.finished, handlerResult: 'I was executed' },
+          lastResult: {
+            status: ExecutionStatus.finished,
+            handlerResult: 'I was executed',
+          },
         },
       };
       await jobRepository.save(savedJob);

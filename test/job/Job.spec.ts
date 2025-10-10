@@ -1,16 +1,15 @@
 import { err, ok } from 'neverthrow';
-
+import { type MomoJob, momoError } from '../../src';
 import {
-  Job,
-  ParsedIntervalSchedule,
+  type Job,
   maxJobTimeout,
   maxNodeTimeoutDelay,
+  type ParsedIntervalSchedule,
   tryToCronJob,
   tryToIntervalJob,
   tryToJob,
 } from '../../src/job/Job';
-import { MomoJob, momoError } from '../../src';
-import { CronSchedule } from '../../src/job/MomoJob';
+import type { CronSchedule } from '../../src/job/MomoJob';
 
 describe('Job', () => {
   describe('tryToJob', () => {
@@ -136,7 +135,10 @@ describe('Job', () => {
       it('reports error when firstRunAfter is too large', async () => {
         const job: MomoJob = {
           name: 'test',
-          schedule: { interval: '1 minute', firstRunAfter: maxNodeTimeoutDelay + 1 },
+          schedule: {
+            interval: '1 minute',
+            firstRunAfter: maxNodeTimeoutDelay + 1,
+          },
           handler: () => 'finished',
         };
         expect(tryToJob(job)).toEqual(err(momoError.invalidFirstRunAfter));
@@ -259,7 +261,12 @@ describe('Job', () => {
       expect(tryToIntervalJob(job)).toEqual(
         ok({
           ...job,
-          schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 0, parsedFirstRunAfter: 0 },
+          schedule: {
+            interval: '1 second',
+            parsedInterval: 1000,
+            firstRunAfter: 0,
+            parsedFirstRunAfter: 0,
+          },
           concurrency: 1,
           maxRunning: 0,
         }),
@@ -298,7 +305,12 @@ describe('Job', () => {
       expect(tryToIntervalJob(job)).toEqual(
         ok({
           ...job,
-          schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 42, parsedFirstRunAfter: 42 },
+          schedule: {
+            interval: '1 second',
+            parsedInterval: 1000,
+            firstRunAfter: 42,
+            parsedFirstRunAfter: 42,
+          },
           concurrency: 1,
           maxRunning: 0,
         }),

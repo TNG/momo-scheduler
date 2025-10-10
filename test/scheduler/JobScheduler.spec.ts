@@ -1,16 +1,19 @@
+import { ObjectId, type WithId } from 'mongodb';
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
-import { ObjectId, WithId } from 'mongodb';
-
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { JobDefinition, ParsedIntervalSchedule, toJobDefinition } from '../../src/job/Job';
-import { JobExecutor } from '../../src/executor/JobExecutor';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { MomoErrorType, momoError } from '../../src';
+import { JobExecutor } from '../../src/executor/JobExecutor';
+import {
+  type JobDefinition,
+  type ParsedIntervalSchedule,
+  toJobDefinition,
+} from '../../src/job/Job';
+import type { CronSchedule, NeverSchedule } from '../../src/job/MomoJob';
+import type { JobEntity } from '../../src/repository/JobEntity';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
+import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
-import { CronSchedule, NeverSchedule } from '../../src/job/MomoJob';
-import { JobEntity } from '../../src/repository/JobEntity';
 
 describe('JobScheduler', () => {
   const debugFn = jest.fn();
@@ -33,9 +36,9 @@ describe('JobScheduler', () => {
     await jobScheduler.stop();
   });
 
-  function createJob<Schedule extends ParsedIntervalSchedule | CronSchedule | NeverSchedule>(
-    job: JobDefinition<Schedule>,
-  ): JobDefinition<Schedule> {
+  function createJob<
+    Schedule extends ParsedIntervalSchedule | CronSchedule | NeverSchedule,
+  >(job: JobDefinition<Schedule>): JobDefinition<Schedule> {
     jobScheduler = new JobScheduler(
       job.name,
       instance(jobExecutor),
@@ -47,12 +50,16 @@ describe('JobScheduler', () => {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(
+      jobEntity,
+    );
     when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(0);
     return job;
   }
 
-  function createNeverJob(partialJob: Partial<JobDefinition<NeverSchedule>> = {}): JobDefinition<NeverSchedule> {
+  function createNeverJob(
+    partialJob: Partial<JobDefinition<NeverSchedule>> = {},
+  ): JobDefinition<NeverSchedule> {
     const job: JobDefinition<NeverSchedule> = {
       name: 'never job',
       schedule: { interval: 'never' },
@@ -68,7 +75,12 @@ describe('JobScheduler', () => {
   ): JobDefinition<ParsedIntervalSchedule> {
     const job = {
       name: 'interval job',
-      schedule: { interval: '1 second', parsedInterval: 1000, firstRunAfter: 1000, parsedFirstRunAfter: 1000 },
+      schedule: {
+        interval: '1 second',
+        parsedInterval: 1000,
+        firstRunAfter: 1000,
+        parsedFirstRunAfter: 1000,
+      },
       concurrency: 1,
       maxRunning: 0,
       ...partialJob,
@@ -76,7 +88,9 @@ describe('JobScheduler', () => {
     return createJob(job);
   }
 
-  function createCronJob(partialJob: Partial<JobDefinition<CronSchedule>> = {}): JobDefinition<CronSchedule> {
+  function createCronJob(
+    partialJob: Partial<JobDefinition<CronSchedule>> = {},
+  ): JobDefinition<CronSchedule> {
     return createJob({
       name: 'cron job',
       schedule: { cronSchedule: '*/1 * * * * *' },
@@ -91,7 +105,10 @@ describe('JobScheduler', () => {
       const job = createNeverJob();
       await jobScheduler.start();
 
-      expect(debugFn).toHaveBeenCalledWith("do not start job specified to run 'never'", { name: job.name });
+      expect(debugFn).toHaveBeenCalledWith(
+        "do not start job specified to run 'never'",
+        { name: job.name },
+      );
     });
   });
 
@@ -109,12 +126,19 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything(), deepEqual({ foo: 'bar' }))).once();
+      verify(
+        await jobExecutor.execute(anything(), deepEqual({ foo: 'bar' })),
+      ).once();
     });
 
     it('executes a job with firstRunAfter=0 immediately', async () => {
       createIntervalJob({
-        schedule: { interval: '1 second', parsedInterval: 60_000, firstRunAfter: 0, parsedFirstRunAfter: 0 },
+        schedule: {
+          interval: '1 second',
+          parsedInterval: 60_000,
+          firstRunAfter: 0,
+          parsedFirstRunAfter: 0,
+        },
       });
 
       await jobScheduler.start();
@@ -189,7 +213,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything(), deepEqual({ foo: 'bar' }))).once();
+      verify(
+        await jobExecutor.execute(anything(), deepEqual({ foo: 'bar' })),
+      ).once();
     });
 
     it('stops a job', async () => {
@@ -237,7 +263,9 @@ describe('JobScheduler', () => {
 
     it('reports error when job was removed before scheduling', async () => {
       const job = createIntervalJob();
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(undefined);
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(
+        undefined,
+      );
 
       await jobScheduler.start();
 
@@ -254,7 +282,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       const error = new Error('something unexpected happened');
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenThrow(error);
+      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenThrow(
+        error,
+      );
 
       await sleep(1100);
 
@@ -289,15 +319,21 @@ describe('JobScheduler', () => {
     it('reports error and restarts job after timeout due to unexpected error', async () => {
       const job = createIntervalJob({ timeout });
 
-      when(jobExecutor.execute(anything(), anything())).thenReject(new Error('Boom'));
+      when(jobExecutor.execute(anything(), anything())).thenReject(
+        new Error('Boom'),
+      );
 
       await jobScheduler.start();
 
       await sleep(1500);
 
-      expect(errorFn).toHaveBeenCalledWith('timeout reached, restarting job now', MomoErrorType.executeJob, {
-        name: job.name,
-      });
+      expect(errorFn).toHaveBeenCalledWith(
+        'timeout reached, restarting job now',
+        MomoErrorType.executeJob,
+        {
+          name: job.name,
+        },
+      );
 
       await sleep(1000);
 
@@ -307,15 +343,21 @@ describe('JobScheduler', () => {
     it('reports error and restarts job after timeout due to unexpected error in one of the multiple job instances', async () => {
       const job = createIntervalJob({ timeout, concurrency: 2, maxRunning: 2 });
 
-      when(jobExecutor.execute(anything(), anything())).thenResolve().thenReject(new Error('Boom'));
+      when(jobExecutor.execute(anything(), anything()))
+        .thenResolve()
+        .thenReject(new Error('Boom'));
 
       await jobScheduler.start();
 
       await sleep(1500);
 
-      expect(errorFn).toHaveBeenCalledWith('timeout reached, restarting job now', MomoErrorType.executeJob, {
-        name: job.name,
-      });
+      expect(errorFn).toHaveBeenCalledWith(
+        'timeout reached, restarting job now',
+        MomoErrorType.executeJob,
+        {
+          name: job.name,
+        },
+      );
 
       await sleep(1000);
 
@@ -337,7 +379,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(2100);
-      verify(await jobExecutor.execute(anything(), anything())).times(2 * job.concurrency);
+      verify(await jobExecutor.execute(anything(), anything())).times(
+        2 * job.concurrency,
+      );
     });
 
     it('executes job only twice if it is already running', async () => {
@@ -365,7 +409,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(2000);
-      verify(await jobExecutor.execute(anything(), anything())).times(2 * job.concurrency);
+      verify(await jobExecutor.execute(anything(), anything())).times(
+        2 * job.concurrency,
+      );
     });
 
     it('executes job only twice if it is already running', async () => {

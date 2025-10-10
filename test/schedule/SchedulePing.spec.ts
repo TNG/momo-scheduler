@@ -17,7 +17,12 @@ describe('SchedulePing', () => {
     startAllJobs = jest.fn();
     schedulesRepository = mock(SchedulesRepository);
     error = jest.fn();
-    schedulePing = new SchedulePing(instance(schedulesRepository), { debug: jest.fn(), error }, interval, startAllJobs);
+    schedulePing = new SchedulePing(
+      instance(schedulesRepository),
+      { debug: jest.fn(), error },
+      interval,
+      startAllJobs,
+    );
   });
 
   afterEach(async () => schedulePing.stop());

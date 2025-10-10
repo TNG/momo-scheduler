@@ -1,11 +1,14 @@
-import { DateTime } from 'luxon';
-
-import { Logger } from '../logging/Logger';
-import { CronSchedule, JobParameters, isCronSchedule } from '../job/MomoJob';
-import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
+import type { DateTime } from 'luxon';
+import type { ExecutionInfo } from '../job/ExecutionInfo';
+import type { ParsedIntervalSchedule } from '../job/Job';
+import {
+  type CronSchedule,
+  isCronSchedule,
+  type JobParameters,
+} from '../job/MomoJob';
+import type { Logger } from '../logging/Logger';
 import { ExecutableCronSchedule } from './ExecutableCronSchedule';
-import { ExecutionInfo } from '../job/ExecutionInfo';
-import { ParsedIntervalSchedule } from '../job/Job';
+import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
 
 export interface NextExecutionTime {
   nextExecution: DateTime;
@@ -29,5 +32,7 @@ export interface ExecutableSchedule<I> {
 export function toExecutableSchedule(
   schedule: ParsedIntervalSchedule | CronSchedule,
 ): ExecutableIntervalSchedule | ExecutableCronSchedule {
-  return isCronSchedule(schedule) ? new ExecutableCronSchedule(schedule) : new ExecutableIntervalSchedule(schedule);
+  return isCronSchedule(schedule)
+    ? new ExecutableCronSchedule(schedule)
+    : new ExecutableIntervalSchedule(schedule);
 }

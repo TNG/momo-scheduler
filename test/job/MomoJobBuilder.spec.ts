@@ -33,7 +33,10 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJob.name).toEqual('name');
-    expect(momoJob.schedule).toEqual({ interval: 'one minute', firstRunAfter: 0 });
+    expect(momoJob.schedule).toEqual({
+      interval: 'one minute',
+      firstRunAfter: 0,
+    });
     expect(momoJob.concurrency).toEqual(1);
     expect(momoJob.maxRunning).toEqual(1);
     expect(momoJob.handler.toString()).toEqual(jest.fn().toString());
@@ -69,10 +72,15 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJobWithInterval.name).toEqual('name');
-    expect(momoJobWithInterval.schedule).toEqual({ interval: 'one minute', firstRunAfter: 0 });
+    expect(momoJobWithInterval.schedule).toEqual({
+      interval: 'one minute',
+      firstRunAfter: 0,
+    });
     expect(momoJobWithInterval.concurrency).toBeUndefined();
     expect(momoJobWithInterval.maxRunning).toBeUndefined();
-    expect(momoJobWithInterval.handler.toString()).toEqual(jest.fn().toString());
+    expect(momoJobWithInterval.handler.toString()).toEqual(
+      jest.fn().toString(),
+    );
   });
 
   it('can build an interval job with a number as interval', () => {
@@ -83,10 +91,15 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJobWithInterval.name).toEqual('name');
-    expect(momoJobWithInterval.schedule).toEqual({ interval: 60000, firstRunAfter: 'two minutes' });
+    expect(momoJobWithInterval.schedule).toEqual({
+      interval: 60000,
+      firstRunAfter: 'two minutes',
+    });
     expect(momoJobWithInterval.concurrency).toBeUndefined();
     expect(momoJobWithInterval.maxRunning).toBeUndefined();
-    expect(momoJobWithInterval.handler.toString()).toEqual(jest.fn().toString());
+    expect(momoJobWithInterval.handler.toString()).toEqual(
+      jest.fn().toString(),
+    );
   });
 
   it('can build an interval job with human readable firstRunAfter', () => {
@@ -97,10 +110,15 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJobWithInterval.name).toEqual('name');
-    expect(momoJobWithInterval.schedule).toEqual({ interval: 'one minute', firstRunAfter: 'two minutes' });
+    expect(momoJobWithInterval.schedule).toEqual({
+      interval: 'one minute',
+      firstRunAfter: 'two minutes',
+    });
     expect(momoJobWithInterval.concurrency).toBeUndefined();
     expect(momoJobWithInterval.maxRunning).toBeUndefined();
-    expect(momoJobWithInterval.handler.toString()).toEqual(jest.fn().toString());
+    expect(momoJobWithInterval.handler.toString()).toEqual(
+      jest.fn().toString(),
+    );
   });
 
   it('can build a cron interval job with required attributes only', () => {
@@ -111,27 +129,43 @@ describe('MomoJobBuilder', () => {
       .build();
 
     expect(momoJobWithCronSchedule.name).toEqual('name');
-    expect(momoJobWithCronSchedule.schedule).toEqual({ cronSchedule: '0 9 * * 1-5' });
+    expect(momoJobWithCronSchedule.schedule).toEqual({
+      cronSchedule: '0 9 * * 1-5',
+    });
     expect(momoJobWithCronSchedule.concurrency).toBeUndefined();
     expect(momoJobWithCronSchedule.maxRunning).toBeUndefined();
-    expect(momoJobWithCronSchedule.handler.toString()).toEqual(jest.fn().toString());
+    expect(momoJobWithCronSchedule.handler.toString()).toEqual(
+      jest.fn().toString(),
+    );
   });
 
   it("cannot build if 'name' is not specified", () => {
-    const momoJobBuilder = new MomoJobBuilder().withSchedule('one minute').withHandler(jest.fn());
+    const momoJobBuilder = new MomoJobBuilder()
+      .withSchedule('one minute')
+      .withHandler(jest.fn());
 
-    expect(() => momoJobBuilder.build()).toThrow('Error: Job must have a specified name');
+    expect(() => momoJobBuilder.build()).toThrow(
+      'Error: Job must have a specified name',
+    );
   });
 
   it('cannot build if schedule is not specified', () => {
-    const momoJobBuilder = new MomoJobBuilder().withName('name').withHandler(jest.fn());
+    const momoJobBuilder = new MomoJobBuilder()
+      .withName('name')
+      .withHandler(jest.fn());
 
-    expect(() => momoJobBuilder.build()).toThrow('Error: Job must have a specified schedule');
+    expect(() => momoJobBuilder.build()).toThrow(
+      'Error: Job must have a specified schedule',
+    );
   });
 
   it("cannot build if 'handler' is not specified", () => {
-    const momoJobBuilder = new MomoJobBuilder().withName('name').withSchedule('one minute');
+    const momoJobBuilder = new MomoJobBuilder()
+      .withName('name')
+      .withSchedule('one minute');
 
-    expect(() => momoJobBuilder.build()).toThrow('Error: Job must have a specified handler');
+    expect(() => momoJobBuilder.build()).toThrow(
+      'Error: Job must have a specified handler',
+    );
   });
 });

@@ -1,12 +1,12 @@
-import { MongoClient } from 'mongodb';
+import type { MongoClient } from 'mongodb';
 
-import { ExecutionInfo } from '../job/ExecutionInfo';
-import { JobDefinition } from '../job/Job';
-import { JobEntity } from './JobEntity';
-import { Logger } from '../logging/Logger';
-import { Repository } from './Repository';
+import type { ExecutionInfo } from '../job/ExecutionInfo';
 import { findLatest } from '../job/findLatest';
-import { MomoJobStatus, toMomoJobStatus } from './MomoJobStatus';
+import type { JobDefinition } from '../job/Job';
+import type { Logger } from '../logging/Logger';
+import type { JobEntity } from './JobEntity';
+import { type MomoJobStatus, toMomoJobStatus } from './MomoJobStatus';
+import { Repository } from './Repository';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
 
@@ -56,7 +56,10 @@ export class JobRepository extends Repository<JobEntity> {
     const latest = findLatest(jobs);
     if (!latest) return undefined;
 
-    this.logger?.debug('duplicate job, keep latest only', { name, count: jobs.length });
+    this.logger?.debug('duplicate job, keep latest only', {
+      name,
+      count: jobs.length,
+    });
 
     jobs.splice(jobs.indexOf(latest), 1);
     await this.delete({ _id: { $in: jobs.map(({ _id }) => _id) } });
@@ -67,7 +70,10 @@ export class JobRepository extends Repository<JobEntity> {
   async list(): Promise<MomoJobStatus[]> {
     const jobs = await this.find();
 
-    return jobs.map((job) => ({ ...toMomoJobStatus(job), executionInfo: job.executionInfo }));
+    return jobs.map((job) => ({
+      ...toMomoJobStatus(job),
+      executionInfo: job.executionInfo,
+    }));
   }
 
   async updateJob(name: string, update: Partial<JobEntity>): Promise<void> {
@@ -76,6 +82,9 @@ export class JobRepository extends Repository<JobEntity> {
 
   async createIndex(): Promise<void> {
     await this.collection.createIndex({ name: 1 }, { name: 'job_name_index' });
-    await this.collection.createIndex({ scheduleId: 1 }, { name: 'schedule_id_index' });
+    await this.collection.createIndex(
+      { scheduleId: 1 },
+      { name: 'schedule_id_index' },
+    );
   }
 }
