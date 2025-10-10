@@ -2,6 +2,7 @@ import { ParsedIntervalSchedule } from './Job';
 
 export type JobParameters = Record<string, object | number | string | boolean | undefined>;
 
+// biome-ignore lint/suspicious/noConfusingVoidType: we want to explicitly allow it here, so users have more freedom
 export type Handler = (parameters?: JobParameters) => Promise<string | undefined | void> | string | undefined | void;
 
 export interface TypedMomoJob<Schedule> {
@@ -29,14 +30,19 @@ export interface NeverSchedule {
   interval: 'Never' | 'never';
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isCronSchedule(input: any): input is CronSchedule {
-  return input.cronSchedule !== undefined && typeof input.cronSchedule === 'string';
+
+export function isCronSchedule(input: unknown): input is CronSchedule {
+  if (typeof input !== 'object') return false;
+
+  const schedule = input as Partial<CronSchedule>;
+  return schedule.cronSchedule !== undefined && typeof schedule.cronSchedule === 'string';
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isNeverSchedule(input: any): input is NeverSchedule {
-  return input.interval !== undefined && (input.interval === 'Never' || input.interval === 'never');
+export function isNeverSchedule(input: unknown): input is NeverSchedule {
+  if (typeof input !== 'object') return false;
+
+  const schedule = input as Partial<NeverSchedule>;
+  return schedule.interval !== undefined && ['Never', 'never'].includes(schedule.interval);
 }
 
 /**

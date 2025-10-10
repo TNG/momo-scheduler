@@ -37,7 +37,7 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
   // mongodb returns null instead of undefined for optional fields
   private mapNullToUndefined(entity: WithId<ENTITY>): WithId<ENTITY> {
     const keys = Object.keys(entity);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: we have to map all fields on any type
     const entries = keys.map((key) => [key, (entity as any)[key] ?? undefined]);
     return Object.fromEntries(entries) as WithId<ENTITY>;
   }

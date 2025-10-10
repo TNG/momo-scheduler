@@ -1,3 +1,5 @@
+// biome-ignore-all lint/style/noNonNullAssertion: using null assertion in tests is fine
+
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { v4 as uuid } from 'uuid';
@@ -100,7 +102,9 @@ describe('Momo', () => {
 
       initLoggingForTests(mongoSchedule);
 
-      mongoSchedule.on('error', (error) => (receivedError = error));
+      mongoSchedule.on('error', (error) => {
+        receivedError = error;
+      });
     });
 
     describe('single interval job', () => {
@@ -892,7 +896,9 @@ describe('Momo', () => {
 
       initLoggingForTests(mongoSchedule);
 
-      mongoSchedule.on('error', (error) => (receivedError = error));
+      mongoSchedule.on('error', (error) => {
+        receivedError = error;
+      });
 
       jobHandler = createTestJobHandler(3200);
       job = createTestIntervalJob(jobHandler, { interval: '1 second', firstRunAfter: 0 });

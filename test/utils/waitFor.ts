@@ -6,7 +6,7 @@ export async function waitFor<T>(expectation: () => T | Promise<T>, timeout = 20
   for (let i = 0; i < timeout / millis; i++) {
     try {
       result = await expectation();
-    } catch (e) {
+    } catch (_e) {
       await sleep(millis);
     }
   }
