@@ -1,3 +1,5 @@
+// biome-ignore-all lint/style/noNonNullAssertion: using null assertion in tests is fine
+
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { DateTime } from 'luxon';
 

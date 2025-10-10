@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 
 import TypedEmitter from 'typed-emitter';
 

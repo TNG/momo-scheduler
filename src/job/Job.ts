@@ -81,13 +81,13 @@ export function tryToIntervalJob(momoJob: TypedMomoJob<IntervalSchedule>): Resul
   const parsedInterval = typeof interval === 'number' ? interval : humanInterval(interval);
   const parsedFirstRunAfter = typeof firstRunAfter === 'number' ? firstRunAfter : humanInterval(firstRunAfter);
 
-  if (typeof parsedInterval !== 'number' || isNaN(parsedInterval)) {
+  if (typeof parsedInterval !== 'number' || Number.isNaN(parsedInterval)) {
     return err(momoError.nonParsableInterval);
   } else if (parsedInterval <= 0 || parsedInterval > maxNodeTimeoutDelay) {
     return err(momoError.invalidInterval);
   }
   if (firstRunAfter !== undefined) {
-    if (typeof parsedFirstRunAfter !== 'number' || isNaN(parsedFirstRunAfter)) {
+    if (typeof parsedFirstRunAfter !== 'number' || Number.isNaN(parsedFirstRunAfter)) {
       return err(momoError.nonParsableFirstRunAfter);
     } else if (parsedFirstRunAfter < 0 || parsedFirstRunAfter > maxNodeTimeoutDelay) {
       return err(momoError.invalidFirstRunAfter);
