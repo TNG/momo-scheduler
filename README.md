@@ -118,10 +118,10 @@ You can instantiate a momo job using the `MomoJobBuilder` class. It provides the
 You can instantiate a mongo schedule using the `MongoScheduleBuilder` class. It provides the following setter
 methods:
 
-| setter         | parameter              | mandatory | default value | description                             |
-|----------------|------------------------|-----------|---------------|-----------------------------------------|
-| withJob        | `job: MomoJob`         | yes       |               | Adds a job to the schedule.             |
-| withConnection | `options: MomoOptions` | yes       |               | The connection options of the schedule. |
+| setter          | parameter                                                                          | mandatory | default value | description                               |
+|-----------------|------------------------------------------------------------------------------------|-----------|---------------|-------------------------------------------|
+| withJob         | `job: MomoJob`                                                                     | yes       |               | Adds a job to the schedule.               |
+| withConnection  | `options: MomoOptions`                                                             | yes       |               | The connection options of the schedule.   |
 
 The schedule offers the following methods to create and run jobs:
 
@@ -151,12 +151,12 @@ database.
 
 #### MomoConnectionOptions
 
-| property           | type                 | mandatory | default   | description                                                                                                                                                                                                                                               |
-|--------------------|----------------------|-----------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| url                | `string`             | yes       |           | The connection string of your database.                                                                                                                                                                                                                   |
-| scheduleName       | `string`             | yes       |           | Only one schedule per name can be active at a time. If multiple instances of your application define a schedule with the same name, only one at a time will actually run jobs.                                                                            |
-| collectionsPrefix  | `string`             | no        | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                             |
-| pingIntervalMs     | number               | no        | `60_000`  | The keep alive ping interval of the schedule, in milliseconds. After twice the amount of time has elapsed without a ping of your Momo instance, other instances may take over. You might want to reduce this if you have jobs running on short intervals. |
+| property           | type                | mandatory | default   | description                                                                                                                                                                                                                                               |
+|--------------------|---------------------|-----------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| url                | `string`            | yes       |           | The connection string of your database.                                                                                                                                                                                                                   |
+| scheduleName       | `string`            | yes       |           | Only one schedule per name can be active at a time. If multiple instances of your application define a schedule with the same name, only one at a time will actually run jobs.                                                                            |
+| collectionsPrefix  | `string`            | no        | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                             |
+| pingIntervalMs     | `number`            | no        | `60_000`  | The keep alive ping interval of the schedule, in milliseconds. After twice the amount of time has elapsed without a ping of your Momo instance, other instances may take over. You might want to reduce this if you have jobs running on short intervals. |
 | mongoClientOptions | `MongoClientOptions` | no        |           | Options for the connection to the MongoDB client as specified by the MongoDB API. Useful for providing configuration options that are not available via the connection string (url).                                                                      |
 
 ### Reacting to events

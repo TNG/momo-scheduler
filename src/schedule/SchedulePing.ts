@@ -18,6 +18,8 @@ export class SchedulePing {
     private readonly logger: Logger,
     private readonly interval: number,
     private readonly startAllJobs: () => Promise<void>,
+    private readonly maxPingAttempts: number = 1,
+    private readonly retryIntervalMs: number = 500,
   ) {}
 
   async start(): Promise<void> {
@@ -26,11 +28,29 @@ export class SchedulePing {
     }
     const errorMessage = 'Pinging or cleaning the Schedules repository failed';
     try {
-      await this.checkActiveSchedule();
+      await this.checkActiveScheduleWithRetries(errorMessage);
     } catch (e) {
       this.logger.error(errorMessage, MomoErrorType.internal, this.schedulesRepository.getLogData(), e);
     }
-    this.handle = setSafeInterval(this.checkActiveSchedule.bind(this), this.interval, this.logger, errorMessage);
+    this.handle = setSafeInterval(
+      this.checkActiveScheduleWithRetries.bind(this, errorMessage),
+      this.interval,
+      this.logger,
+      errorMessage,
+    );
+  }
+
+  private async checkActiveScheduleWithRetries(errorMessage: string): Promise<void> {
+    for (let attempt = 0; attempt < this.maxPingAttempts; attempt++) {
+      try {
+        return await this.checkActiveSchedule();
+      } catch (error) {
+        if (attempt >= this.maxPingAttempts - 1) throw error;
+
+        this.logger.debug(`${errorMessage} after ${attempt} attempt. Retrying in ${this.retryIntervalMs} ms.`);
+        await new Promise((r) => setTimeout(r, this.retryIntervalMs));
+      }
+    }
   }
 
   private async checkActiveSchedule(): Promise<void> {
