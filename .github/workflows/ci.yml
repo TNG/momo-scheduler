@@ -55,7 +55,7 @@ jobs:
 
     strategy:
       matrix:
-        mongodb: [4, 5]
+        mongodb: [5, 6, 7]
 
     steps:
       - name: Checkout the repository
