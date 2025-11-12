@@ -84,19 +84,20 @@ describe('MongoScheduleBuilder', () => {
     it('can be built with schedule ping retries', async () => {
       const connectSpy = jest.spyOn(MongoSchedule, 'connect');
 
-      const maxPingAttempts = 2;
-      const retryIntervalMs = 500;
+      const pingRetryOptions = {
+        maxPingAttempts: 2,
+        retryIntervalMs: 500,
+      };
 
       mongoSchedule = await new MongoScheduleBuilder()
-        .withConnection(connectionOptions)
-        .withPingRetries(2, 500)
+        .withConnection({ ...connectionOptions, pingRetryOptions })
         .build();
 
-      expect(connectSpy).toHaveBeenCalledWith(
-        expect.any(Object), // MomoOptions
-        maxPingAttempts,
-        retryIntervalMs,
-      );
+      expect(connectSpy).toHaveBeenCalledWith({
+        scheduleName,
+        pingRetryOptions,
+        url: mongo.getUri(),
+      });
     });
   });
 
