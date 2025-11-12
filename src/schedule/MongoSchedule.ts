@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { Connection, MomoConnectionOptions } from '../Connection';
 import { Schedule } from './Schedule';
 import { SchedulePing } from './SchedulePing';
+import { maxNodeTimeoutDelay } from '../job/Job';
 
 export interface MomoOptions extends MomoConnectionOptions {
   /**
@@ -17,6 +18,16 @@ export interface MomoOptions extends MomoConnectionOptions {
    * Only one schedule per name can be active at a time.
    */
   scheduleName: string;
+
+  /**
+   * Configure how often schedule pings should be retried (default is no retries).
+   */
+  pingRetryOptions?: PingRetryOptions;
+}
+
+export interface PingRetryOptions {
+  maxPingAttempts: number;
+  retryIntervalMs: number;
 }
 
 export class MongoSchedule extends Schedule {
@@ -27,7 +38,21 @@ export class MongoSchedule extends Schedule {
     protected readonly scheduleId: string,
     protected readonly connection: Connection,
     pingIntervalMs: number,
+    maxPingAttempts: number,
+    retryIntervalMs: number,
   ) {
+    if (!Number.isFinite(pingIntervalMs) || pingIntervalMs < 1 || pingIntervalMs > maxNodeTimeoutDelay) {
+      throw new Error(`Error: pingIntervalMs must be a positive number less than ${maxNodeTimeoutDelay}`);
+    }
+
+    if (!Number.isFinite(maxPingAttempts) || maxPingAttempts < 1) {
+      throw new Error('Error: maxPingAttempts must be a positive number');
+    }
+
+    if (!Number.isFinite(retryIntervalMs) || retryIntervalMs < 1 || retryIntervalMs > maxNodeTimeoutDelay) {
+      throw new Error(`Error: retryIntervalMs must be a positive number less than ${maxNodeTimeoutDelay}`);
+    }
+
     const schedulesRepository = connection.getSchedulesRepository();
     const jobRepository = connection.getJobRepository();
 
@@ -42,6 +67,8 @@ export class MongoSchedule extends Schedule {
       this.logger,
       pingIntervalMs,
       this.startAllJobs.bind(this),
+      maxPingAttempts,
+      retryIntervalMs,
     );
   }
 
@@ -53,12 +80,14 @@ export class MongoSchedule extends Schedule {
   public static async connect({
     pingIntervalMs = 60_000,
     scheduleName,
+    pingRetryOptions,
     ...connectionOptions
   }: MomoOptions): Promise<MongoSchedule> {
     const scheduleId = uuid();
     const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId, scheduleName);
+    const { maxPingAttempts = 1, retryIntervalMs = 500 } = pingRetryOptions ?? {};
 
-    return new MongoSchedule(scheduleId, connection, pingIntervalMs);
+    return new MongoSchedule(scheduleId, connection, pingIntervalMs, maxPingAttempts, retryIntervalMs);
   }
 
   /**

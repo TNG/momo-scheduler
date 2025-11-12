@@ -80,6 +80,25 @@ describe('MongoScheduleBuilder', () => {
       expect(jobList[2]?.name).toEqual(job3.name);
       expect(jobList[2]?.schedule).toEqual(job3.schedule);
     });
+
+    it('can be built with schedule ping retries', async () => {
+      const connectSpy = jest.spyOn(MongoSchedule, 'connect');
+
+      const pingRetryOptions = {
+        maxPingAttempts: 2,
+        retryIntervalMs: 500,
+      };
+
+      mongoSchedule = await new MongoScheduleBuilder()
+        .withConnection({ ...connectionOptions, pingRetryOptions })
+        .build();
+
+      expect(connectSpy).toHaveBeenCalledWith({
+        scheduleName,
+        pingRetryOptions,
+        url: mongo.getUri(),
+      });
+    });
   });
 
   it('throws an error when built with no connection', async () => {
