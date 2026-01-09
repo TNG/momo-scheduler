@@ -2,7 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
   type MomoJob,
   type MomoOptions,
-  type MongoSchedule,
+  MongoSchedule,
   MongoScheduleBuilder,
 } from '../../src';
 import { Connection } from '../../src/Connection';
