@@ -1,5 +1,5 @@
+import { MongoClient, type MongoClientOptions } from 'mongodb';
 import { Connection } from '../src/Connection';
-import { MongoClient, MongoClientOptions } from 'mongodb';
 
 jest.mock('mongodb');
 jest.mock('../src/repository/JobRepository');
@@ -16,7 +16,12 @@ describe('Connection', () => {
       secureContext: { context: 'very secure' },
     };
 
-    await Connection.create({ url, mongoClientOptions }, 0, scheduleId, scheduleName);
+    await Connection.create(
+      { url, mongoClientOptions },
+      0,
+      scheduleId,
+      scheduleName,
+    );
 
     expect(MongoClient).toHaveBeenCalledTimes(1);
     expect(MongoClient).toHaveBeenCalledWith(url, mongoClientOptions);

@@ -1,16 +1,15 @@
-import { ObjectId, WithId } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { deepEqual, instance, mock, when } from 'ts-mockito';
-
+import { MomoErrorType } from '../../src';
+import { JobExecutor } from '../../src/executor/JobExecutor';
+import { type Job, toJobDefinition } from '../../src/job/Job';
+import type { JobEntity } from '../../src/repository/JobEntity';
+import { JobRepository } from '../../src/repository/JobRepository';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
+import { JobScheduler } from '../../src/scheduler/JobScheduler';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { waitFor } from '../utils/waitFor';
-import { Job, toJobDefinition } from '../../src/job/Job';
-import { JobScheduler } from '../../src/scheduler/JobScheduler';
-import { JobExecutor } from '../../src/executor/JobExecutor';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { JobEntity } from '../../src/repository/JobEntity';
-import { MomoErrorType } from '../../src';
 
 describe('JobScheduler', () => {
   let jobHandler: jest.Mock;
@@ -31,7 +30,12 @@ describe('JobScheduler', () => {
 
     job = {
       name: 'interval job',
-      schedule: { interval: 200, parsedInterval: 200, firstRunAfter: 0, parsedFirstRunAfter: 0 },
+      schedule: {
+        interval: 200,
+        parsedInterval: 200,
+        firstRunAfter: 0,
+        parsedFirstRunAfter: 0,
+      },
       timeout: 800,
       concurrency: 1,
       maxRunning: 0,
@@ -42,8 +46,12 @@ describe('JobScheduler', () => {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(jobEntity);
-    when(schedulesRepository.addExecution(job.name, job.maxRunning)).thenResolve({ added: true, running: 1 });
+    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(
+      jobEntity,
+    );
+    when(
+      schedulesRepository.addExecution(job.name, job.maxRunning),
+    ).thenResolve({ added: true, running: 1 });
 
     const jobExecutor = new JobExecutor(
       job.handler,
@@ -66,7 +74,9 @@ describe('JobScheduler', () => {
 
   it('stops failing job and restarts after timeout', async () => {
     const error = new Error('boom');
-    when(schedulesRepository.removeExecution(job.name)).thenReject(error).thenResolve();
+    when(schedulesRepository.removeExecution(job.name))
+      .thenReject(error)
+      .thenResolve();
 
     await jobScheduler.start();
 
@@ -81,9 +91,13 @@ describe('JobScheduler', () => {
 
     // the job is restarted after timeout
     await waitFor(() => expect(jobHandler).toHaveBeenCalledTimes(2), 1000);
-    expect(errorFn).toHaveBeenCalledWith('timeout reached, restarting job now', MomoErrorType.executeJob, {
-      name: job.name,
-    });
+    expect(errorFn).toHaveBeenCalledWith(
+      'timeout reached, restarting job now',
+      MomoErrorType.executeJob,
+      {
+        name: job.name,
+      },
+    );
   });
 
   it('cancels restart timeout when stopping job', async () => {

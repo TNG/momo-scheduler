@@ -1,7 +1,11 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-
+import {
+  type MomoJob,
+  type MomoOptions,
+  MongoSchedule,
+  MongoScheduleBuilder,
+} from '../../src';
 import { Connection } from '../../src/Connection';
-import { MomoJob, MomoOptions, MongoSchedule, MongoScheduleBuilder } from '../../src';
 
 describe('MongoScheduleBuilder', () => {
   const scheduleName = 'schedule';
@@ -30,7 +34,12 @@ describe('MongoScheduleBuilder', () => {
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     connectionOptions = { scheduleName, url: mongo.getUri() };
-    connection = await Connection.create(connectionOptions, 60_000, 'schedule_id', scheduleName);
+    connection = await Connection.create(
+      connectionOptions,
+      60_000,
+      'schedule_id',
+      scheduleName,
+    );
   });
 
   afterAll(async () => {
@@ -48,7 +57,10 @@ describe('MongoScheduleBuilder', () => {
     });
 
     it('can build with one job and a connection', async () => {
-      mongoSchedule = await new MongoScheduleBuilder().withJob(job1).withConnection(connectionOptions).build();
+      mongoSchedule = await new MongoScheduleBuilder()
+        .withJob(job1)
+        .withConnection(connectionOptions)
+        .build();
 
       const jobList = await mongoSchedule.list();
       expect(jobList).toHaveLength(1);
@@ -57,7 +69,9 @@ describe('MongoScheduleBuilder', () => {
     });
 
     it('can build without a job', async () => {
-      mongoSchedule = await new MongoScheduleBuilder().withConnection(connectionOptions).build();
+      mongoSchedule = await new MongoScheduleBuilder()
+        .withConnection(connectionOptions)
+        .build();
 
       const jobList = await mongoSchedule.list();
       expect(jobList).toHaveLength(0);

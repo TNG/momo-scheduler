@@ -1,5 +1,5 @@
+import type { Logger } from '../logging/Logger';
 import { setSafeInterval, setSafeTimeout } from './safeTimeouts';
-import { Logger } from '../logging/Logger';
 
 export interface TimeoutHandle {
   get: () => NodeJS.Timeout;
@@ -12,17 +12,34 @@ export function setSafeIntervalWithDelay(
   logger: Logger,
   errorMessage: string,
 ): TimeoutHandle {
-  const intervalWithDelay = new IntervalWithDelay(callback, interval, delay, logger, errorMessage);
+  const intervalWithDelay = new IntervalWithDelay(
+    callback,
+    interval,
+    delay,
+    logger,
+    errorMessage,
+  );
   return { get: () => intervalWithDelay.timeout };
 }
 
 class IntervalWithDelay {
   timeout: NodeJS.Timeout;
 
-  constructor(callback: () => Promise<void>, interval: number, delay: number, logger: Logger, errorMessage: string) {
+  constructor(
+    callback: () => Promise<void>,
+    interval: number,
+    delay: number,
+    logger: Logger,
+    errorMessage: string,
+  ) {
     this.timeout = setSafeTimeout(
       async () => {
-        this.timeout = setSafeInterval(callback, interval, logger, errorMessage);
+        this.timeout = setSafeInterval(
+          callback,
+          interval,
+          logger,
+          errorMessage,
+        );
         await callback();
       },
       delay,

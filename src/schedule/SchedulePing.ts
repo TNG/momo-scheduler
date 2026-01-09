@@ -1,7 +1,7 @@
-import { SchedulesRepository } from '../repository/SchedulesRepository';
-import { Logger } from '../logging/Logger';
-import { setSafeInterval } from '../timeout/safeTimeouts';
 import { MomoErrorType } from '../logging/error/MomoErrorType';
+import type { Logger } from '../logging/Logger';
+import type { SchedulesRepository } from '../repository/SchedulesRepository';
+import { setSafeInterval } from '../timeout/safeTimeouts';
 
 enum StartJobsStatus {
   notStarted,
@@ -30,7 +30,12 @@ export class SchedulePing {
     try {
       await this.checkActiveScheduleWithRetries(errorMessage);
     } catch (e) {
-      this.logger.error(errorMessage, MomoErrorType.internal, this.schedulesRepository.getLogData(), e);
+      this.logger.error(
+        errorMessage,
+        MomoErrorType.internal,
+        this.schedulesRepository.getLogData(),
+        e,
+      );
     }
     this.handle = setSafeInterval(
       this.checkActiveScheduleWithRetries.bind(this, errorMessage),
@@ -40,14 +45,18 @@ export class SchedulePing {
     );
   }
 
-  private async checkActiveScheduleWithRetries(errorMessage: string): Promise<void> {
+  private async checkActiveScheduleWithRetries(
+    errorMessage: string,
+  ): Promise<void> {
     for (let attempt = 0; attempt < this.maxPingAttempts; attempt++) {
       try {
         return await this.checkActiveSchedule();
       } catch (error) {
         if (attempt >= this.maxPingAttempts - 1) throw error;
 
-        this.logger.debug(`${errorMessage} after ${attempt} attempt. Retrying in ${this.retryIntervalMs} ms.`);
+        this.logger.debug(
+          `${errorMessage} after ${attempt} attempt. Retrying in ${this.retryIntervalMs} ms.`,
+        );
         await new Promise((r) => setTimeout(r, this.retryIntervalMs));
       }
     }
@@ -59,22 +68,34 @@ export class SchedulePing {
       return;
     }
 
-    this.logger.debug('This schedule is active', this.schedulesRepository.getLogData());
+    this.logger.debug(
+      'This schedule is active',
+      this.schedulesRepository.getLogData(),
+    );
 
     if (this.startJobsStatus !== StartJobsStatus.notStarted) {
       return;
     }
 
     this.startJobsStatus = StartJobsStatus.inProgress;
-    this.logger.debug('This schedule just turned active', this.schedulesRepository.getLogData());
+    this.logger.debug(
+      'This schedule just turned active',
+      this.schedulesRepository.getLogData(),
+    );
     await this.startAllJobs();
     this.startJobsStatus = StartJobsStatus.finished;
-    this.logger.debug('Finished starting scheduled jobs', this.schedulesRepository.getLogData());
+    this.logger.debug(
+      'Finished starting scheduled jobs',
+      this.schedulesRepository.getLogData(),
+    );
   }
 
   async stop(): Promise<void> {
     if (this.handle) {
-      this.logger.debug('stop SchedulePing', this.schedulesRepository.getLogData());
+      this.logger.debug(
+        'stop SchedulePing',
+        this.schedulesRepository.getLogData(),
+      );
       clearInterval(this.handle);
     }
 

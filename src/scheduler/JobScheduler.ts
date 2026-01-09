@@ -1,23 +1,27 @@
 import { min } from 'lodash';
-
-import { ExecutionStatus, JobResult } from '../job/ExecutionInfo';
-import { SchedulesRepository } from '../repository/SchedulesRepository';
-import { Job } from '../job/Job';
 import { JobExecutor } from '../executor/JobExecutor';
-import { JobRepository } from '../repository/JobRepository';
-import { Logger } from '../logging/Logger';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { MomoJobDescription, toMomoJobDescription } from '../job/MomoJobDescription';
+import { ExecutionStatus, type JobResult } from '../job/ExecutionInfo';
+import type { Job } from '../job/Job';
+import { isNeverSchedule, type JobParameters } from '../job/MomoJob';
+import {
+  type MomoJobDescription,
+  toMomoJobDescription,
+} from '../job/MomoJobDescription';
 import { momoError } from '../logging/error/MomoError';
-import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
-import { ExecutableCronSchedule } from './ExecutableCronSchedule';
-import { toExecutableSchedule } from './ExecutableSchedule';
-import { JobParameters, isNeverSchedule } from '../job/MomoJob';
+import { MomoErrorType } from '../logging/error/MomoErrorType';
+import type { Logger } from '../logging/Logger';
+import type { JobRepository } from '../repository/JobRepository';
+import type { SchedulesRepository } from '../repository/SchedulesRepository';
 import { setSafeTimeout } from '../timeout/safeTimeouts';
+import type { ExecutableCronSchedule } from './ExecutableCronSchedule';
+import type { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
+import { toExecutableSchedule } from './ExecutableSchedule';
 
 export class JobScheduler {
   private unexpectedErrorCount = 0;
-  private executableSchedule?: ExecutableIntervalSchedule | ExecutableCronSchedule;
+  private executableSchedule?:
+    | ExecutableIntervalSchedule
+    | ExecutableCronSchedule;
   private restartTimeout: NodeJS.Timeout | undefined;
 
   constructor(
@@ -34,8 +38,19 @@ export class JobScheduler {
     schedulesRepository: SchedulesRepository,
     jobRepository: JobRepository,
   ): JobScheduler {
-    const executor = new JobExecutor(job.handler, schedulesRepository, jobRepository, logger);
-    return new JobScheduler(job.name, executor, schedulesRepository, jobRepository, logger);
+    const executor = new JobExecutor(
+      job.handler,
+      schedulesRepository,
+      jobRepository,
+      logger,
+    );
+    return new JobScheduler(
+      job.name,
+      executor,
+      schedulesRepository,
+      jobRepository,
+      logger,
+    );
   }
 
   getUnexpectedErrorCount(): number {
@@ -62,7 +77,9 @@ export class JobScheduler {
       ? undefined
       : {
           schedule: this.executableSchedule.toObject(),
-          running: await this.schedulesRepository.countRunningExecutions(jobEntity.name),
+          running: await this.schedulesRepository.countRunningExecutions(
+            jobEntity.name,
+          ),
         };
 
     return { ...toMomoJobDescription(jobEntity), schedulerStatus };
@@ -121,7 +138,9 @@ export class JobScheduler {
 
   async executeOnce(parameters?: JobParameters): Promise<JobResult> {
     try {
-      const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
+      const jobEntity = await this.jobRepository.findOne({
+        name: this.jobName,
+      });
       if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
@@ -145,7 +164,9 @@ export class JobScheduler {
 
   async executeConcurrently(parameters?: JobParameters): Promise<void> {
     try {
-      const jobEntity = await this.jobRepository.findOne({ name: this.jobName });
+      const jobEntity = await this.jobRepository.findOne({
+        name: this.jobName,
+      });
       if (!jobEntity) {
         this.logger.error(
           'job not found, skip execution',
@@ -156,23 +177,34 @@ export class JobScheduler {
         return;
       }
 
-      const running = await this.schedulesRepository.countRunningExecutions(jobEntity.name);
+      const running = await this.schedulesRepository.countRunningExecutions(
+        jobEntity.name,
+      );
       const numToExecute =
         jobEntity.maxRunning > 0
-          ? (min([jobEntity.concurrency, jobEntity.maxRunning - running]) ?? jobEntity.concurrency)
+          ? (min([jobEntity.concurrency, jobEntity.maxRunning - running]) ??
+            jobEntity.concurrency)
           : jobEntity.concurrency;
-      this.logger.debug('execute job', { name: this.jobName, times: numToExecute });
+      this.logger.debug('execute job', {
+        name: this.jobName,
+        times: numToExecute,
+      });
 
-      for (let instanceNumber = 0; instanceNumber < numToExecute; instanceNumber++) {
+      for (
+        let instanceNumber = 0;
+        instanceNumber < numToExecute;
+        instanceNumber++
+      ) {
         this.logger.debug('executing job instance', { instanceNumber });
 
-        // eslint-disable-next-line no-void
-        void this.jobExecutor.execute(jobEntity, parameters).catch(async (e) => {
-          await this.handleUnexpectedErrorWithTimeout(e, jobEntity.timeout);
-          return {
-            status: ExecutionStatus.failed,
-          };
-        });
+        void this.jobExecutor
+          .execute(jobEntity, parameters)
+          .catch(async (e) => {
+            await this.handleUnexpectedErrorWithTimeout(e, jobEntity.timeout);
+            return {
+              status: ExecutionStatus.failed,
+            };
+          });
       }
     } catch (e) {
       this.handleUnexpectedError(e);
@@ -190,7 +222,10 @@ export class JobScheduler {
     );
   }
 
-  private async handleUnexpectedErrorWithTimeout(error: unknown, timeout: number | undefined): Promise<void> {
+  private async handleUnexpectedErrorWithTimeout(
+    error: unknown,
+    timeout: number | undefined,
+  ): Promise<void> {
     this.unexpectedErrorCount++;
 
     if (timeout === undefined) {
@@ -217,7 +252,11 @@ export class JobScheduler {
   }
 
   private async handleTimeoutReached(): Promise<void> {
-    this.logger.error('timeout reached, restarting job now', MomoErrorType.executeJob, { name: this.jobName });
+    this.logger.error(
+      'timeout reached, restarting job now',
+      MomoErrorType.executeJob,
+      { name: this.jobName },
+    );
     await this.start();
   }
 }

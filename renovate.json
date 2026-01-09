@@ -1,26 +1,27 @@
 {
-  "extends": ["config:base", ":gitSignOff", ":disableDependencyDashboard", ":preserveSemverRanges"],
+  "extends": [
+    "config:base",
+    ":gitSignOff",
+    ":disableDependencyDashboard",
+    ":preserveSemverRanges"
+  ],
   "rangeStrategy": "pin",
   "lockFileMaintenance": {
     "enabled": true
   },
   "packageRules": [
     {
-      "matchPackagePatterns": ["^eslint", "^@typescript-eslint/"],
-      "groupName": "ESLint packages"
-    },
-    {
       "matchPackagePatterns": ["^@types/"],
       "groupName": "Types"
     },
     {
       "matchDepTypes": ["devDependencies"],
-      "excludePackagePrefixes": ["eslint", "@types/", "@typescript-eslint/"],
-      "groupName":  "Dev dependencies"
+      "excludePackagePrefixes": ["@types/"],
+      "groupName": "Dev dependencies"
     },
     {
       "matchDepTypes": ["dependencies"],
-      "groupName":  "Prod dependencies"
+      "groupName": "Prod dependencies"
     }
   ]
 }

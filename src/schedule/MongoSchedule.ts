@@ -1,9 +1,9 @@
 import { v4 as uuid } from 'uuid';
 
-import { Connection, MomoConnectionOptions } from '../Connection';
+import { Connection, type MomoConnectionOptions } from '../Connection';
+import { maxNodeTimeoutDelay } from '../job/Job';
 import { Schedule } from './Schedule';
 import { SchedulePing } from './SchedulePing';
-import { maxNodeTimeoutDelay } from '../job/Job';
 
 export interface MomoOptions extends MomoConnectionOptions {
   /**
@@ -41,16 +41,28 @@ export class MongoSchedule extends Schedule {
     maxPingAttempts: number,
     retryIntervalMs: number,
   ) {
-    if (!Number.isFinite(pingIntervalMs) || pingIntervalMs < 1 || pingIntervalMs > maxNodeTimeoutDelay) {
-      throw new Error(`Error: pingIntervalMs must be a positive number less than ${maxNodeTimeoutDelay}`);
+    if (
+      !Number.isFinite(pingIntervalMs) ||
+      pingIntervalMs < 1 ||
+      pingIntervalMs > maxNodeTimeoutDelay
+    ) {
+      throw new Error(
+        `Error: pingIntervalMs must be a positive number less than ${maxNodeTimeoutDelay}`,
+      );
     }
 
     if (!Number.isFinite(maxPingAttempts) || maxPingAttempts < 1) {
       throw new Error('Error: maxPingAttempts must be a positive number');
     }
 
-    if (!Number.isFinite(retryIntervalMs) || retryIntervalMs < 1 || retryIntervalMs > maxNodeTimeoutDelay) {
-      throw new Error(`Error: retryIntervalMs must be a positive number less than ${maxNodeTimeoutDelay}`);
+    if (
+      !Number.isFinite(retryIntervalMs) ||
+      retryIntervalMs < 1 ||
+      retryIntervalMs > maxNodeTimeoutDelay
+    ) {
+      throw new Error(
+        `Error: retryIntervalMs must be a positive number less than ${maxNodeTimeoutDelay}`,
+      );
     }
 
     const schedulesRepository = connection.getSchedulesRepository();
@@ -84,10 +96,22 @@ export class MongoSchedule extends Schedule {
     ...connectionOptions
   }: MomoOptions): Promise<MongoSchedule> {
     const scheduleId = uuid();
-    const connection = await Connection.create(connectionOptions, pingIntervalMs, scheduleId, scheduleName);
-    const { maxPingAttempts = 1, retryIntervalMs = 500 } = pingRetryOptions ?? {};
+    const connection = await Connection.create(
+      connectionOptions,
+      pingIntervalMs,
+      scheduleId,
+      scheduleName,
+    );
+    const { maxPingAttempts = 1, retryIntervalMs = 500 } =
+      pingRetryOptions ?? {};
 
-    return new MongoSchedule(scheduleId, connection, pingIntervalMs, maxPingAttempts, retryIntervalMs);
+    return new MongoSchedule(
+      scheduleId,
+      connection,
+      pingIntervalMs,
+      maxPingAttempts,
+      retryIntervalMs,
+    );
   }
 
   /**
