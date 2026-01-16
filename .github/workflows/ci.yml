@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20, 22]
+        node: [20, 22, 24]
 
     steps:
       - name: Checkout the repository
@@ -26,10 +26,10 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v6
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
       - run: npm ci
       - run: npm run lint
 
@@ -38,7 +38,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20, 22]
+        node: [20, 22, 24]
 
     steps:
       - name: Checkout the repository
@@ -60,10 +60,10 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v6
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
       - run: npm ci
       - name: Use mongodb v${{ matrix.mongodb }}
         run: npm i mongodb@${{ matrix.mongodb }}
