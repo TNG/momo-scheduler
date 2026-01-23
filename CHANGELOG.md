@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v3.1.0 (2026-01-23)
+
+- Feat: Add support for node 24
+- Chore: Dependency updates
+
 ## v3.0.0 (2025-11-12)
 
 - Feat: Add support for mongodb 7
