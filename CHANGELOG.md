@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v3.1.1 (2026-04-02)
+
+- Chore: Dependency updates
+
 ## v3.1.0 (2026-01-23)
 
 - Feat: Add support for node 24
@@ -11,13 +15,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ## v3.0.0 (2025-11-12)
 
 - Feat: Add support for mongodb 7
-- Feat: Configurable retries for schedule pings ([#1005](https://github.com/TNG/momo-scheduler/pull/1005); thank you [@StafanTNG](https://github.com/StefanTNG))
+- Feat: Configurable retries for schedule pings ([#1005](https://github.com/TNG/momo-scheduler/pull/1005); thank
+  you [@StafanTNG](https://github.com/StefanTNG))
 - Breaking: Remove support for mongodb 4
 - Breaking: Remove support node 18
 
 ## v2.5.0 (2025-06-20)
 
-- Feat: Add option to define jobs with `interval: 'never'` that are never started to run periodically but can be triggered to run once.
+- Feat: Add option to define jobs with `interval: 'never'` that are never started to run periodically but can be
+  triggered to run once.
 - Chore: Dependency updates
 
 ## v2.4.0 (2025-04-04)
