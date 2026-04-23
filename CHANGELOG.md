@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## v3.1.2 (2026-04-23)
+
+- Chore: Unpin dependency versions
+- Chore: Dependency updates
+
 ## v3.1.1 (2026-04-02)
 
 - Chore: Dependency updates

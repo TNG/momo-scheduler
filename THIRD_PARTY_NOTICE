@@ -1077,7 +1077,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: bare-fs:4.5.6
+Package: bare-fs:4.7.1
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -1285,7 +1285,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: bare-os:3.8.0
+Package: bare-os:3.9.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -1701,7 +1701,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: bare-stream:2.11.0
+Package: bare-stream:2.13.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -1909,7 +1909,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: bare-url:2.4.0
+Package: bare-url:2.4.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -2117,7 +2117,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: baseline-browser-mapping:2.10.11
+Package: baseline-browser-mapping:2.10.21
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -2325,7 +2325,7 @@ The following copyrights and licenses were found in the source code of this pack
 
 ----
 
-Package: brace-expansion:1.1.13
+Package: brace-expansion:1.1.14
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -2375,7 +2375,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: browserslist:4.28.1
+Package: browserslist:4.28.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -2966,7 +2966,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: caniuse-lite:1.0.30001781
+Package: caniuse-lite:1.0.30001790
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -3942,7 +3942,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: electron-to-chromium:1.5.328
+Package: electron-to-chromium:1.5.344
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4011,6 +4011,31 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ----
 
 Package: error-ex:1.3.4
+
+The following copyrights and licenses were found in the source code of this package:
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+Package: es-errors:1.3.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4728,7 +4753,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: follow-redirects:1.15.11
+Package: follow-redirects:1.16.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -4975,7 +5000,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: hasown:2.0.2
+Package: hasown:2.0.3
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -7549,7 +7574,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: node-releases:2.0.36
+Package: node-releases:2.0.38
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -8360,7 +8385,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: resolve:1.22.11
+Package: resolve:1.22.12
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -9659,7 +9684,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: ts-jest:29.4.6
+Package: ts-jest:29.4.9
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10384,7 +10409,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: uuid:13.0.0
+Package: uuid:14.0.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -10895,7 +10920,7 @@ THIS SOFTWARE.
 
 ----
 
-Package: yauzl:3.2.1
+Package: yauzl:3.3.0
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -11845,7 +11870,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @biomejs:biome:2.4.9
+Package: @biomejs:biome:2.4.12
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -12074,7 +12099,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @biomejs:cli-linux-x64:2.4.9
+Package: @biomejs:cli-linux-x64:2.4.12
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -12303,7 +12328,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @biomejs:cli-linux-x64-musl:2.4.9
+Package: @biomejs:cli-linux-x64-musl:2.4.12
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -12575,7 +12600,7 @@ THIS SOFTWARE.
 
 ----
 
-Package: @istanbuljs:schema:0.1.3
+Package: @istanbuljs:schema:0.1.6
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -13100,7 +13125,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @mongodb-js:saslprep:1.4.6
+Package: @mongodb-js:saslprep:1.4.8
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -13150,7 +13175,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @rollup:rollup-linux-x64-gnu:4.60.0
+Package: @rollup:rollup-linux-x64-gnu:4.60.2
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -13643,7 +13668,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:lodash:4.17.23
+Package: @types:lodash:4.17.24
 
 The following copyrights and licenses were found in the source code of this package:
 
@@ -13693,7 +13718,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
-Package: @types:node:24.10.11
+Package: @types:node:24.12.2
 
 The following copyrights and licenses were found in the source code of this package:
 
