@@ -634,7 +634,7 @@ describe('Momo', () => {
       const interval = 300;
 
       beforeEach(() => {
-        jobHandler = createTestJobHandler(1200);
+        jobHandler = createTestJobHandler(1250);
         job = createTestIntervalJob(jobHandler, {
           interval,
           firstRunAfter: 0,
