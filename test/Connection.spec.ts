@@ -1,9 +1,10 @@
 import { MongoClient, type MongoClientOptions } from 'mongodb';
+import { describe, expect, it, vi } from 'vitest';
 import { Connection } from '../src/Connection';
 
-jest.mock('mongodb');
-jest.mock('../src/repository/JobRepository');
-jest.mock('../src/repository/SchedulesRepository');
+vi.mock('mongodb');
+vi.mock('../src/repository/JobRepository');
+vi.mock('../src/repository/SchedulesRepository');
 
 describe('Connection', () => {
   const scheduleName = 'schedule';

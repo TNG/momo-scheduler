@@ -1,5 +1,15 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { type MomoJob, MongoSchedule } from '../../src';
+
 import { Connection } from '../../src/Connection';
 import { tryToIntervalJob } from '../../src/job/Job';
 import type { JobRepository } from '../../src/repository/JobRepository';
@@ -9,7 +19,7 @@ describe('Schedule', () => {
   const job: MomoJob = {
     name: 'test job',
     schedule: { interval: 'one minute', firstRunAfter: 0 },
-    handler: jest.fn(),
+    handler: vi.fn(),
     parameters: { foo: 'bar' },
   };
 
@@ -78,7 +88,7 @@ describe('Schedule', () => {
     await jobRepository.save(
       tryToIntervalJob({
         name: 'some job that is in the database but not on the schedule',
-        handler: jest.fn(),
+        handler: vi.fn(),
         schedule: { interval: 'one minute', firstRunAfter: 0 },
       })._unsafeUnwrap(),
     );

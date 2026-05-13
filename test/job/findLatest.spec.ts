@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import { describe, expect, it } from 'vitest';
 
 import type { ExecutionInfo } from '../../src';
 import { findLatest } from '../../src/job/findLatest';
