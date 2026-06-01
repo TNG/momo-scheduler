@@ -52,7 +52,7 @@
     "@types/lodash": "4.17.24",
     "@types/luxon": "3.7.1",
     "@types/node": "24.12.2",
-    "@types/sinonjs__fake-timers": "8.1.5",
+    "@types/sinonjs__fake-timers": "15.0.1",
     "@types/uuid": "11.0.0",
     "mongodb-memory-server": "10.4.3",
     "pino": "9.14.0",
