@@ -46,7 +46,7 @@
     "mongodb": "5 || 6 || 7"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.12",
+    "@biomejs/biome": "2.4.16",
     "@sinonjs/fake-timers": "14.0.0",
     "@types/human-interval": "1.0.2",
     "@types/lodash": "4.17.24",
@@ -59,6 +59,6 @@
     "ts-mockito": "2.6.1",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
-    "vitest": "3.2.4"
+    "vitest": "3.2.6"
   }
 }
