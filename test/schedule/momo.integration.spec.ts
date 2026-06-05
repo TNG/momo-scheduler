@@ -21,20 +21,20 @@ import {
   type MomoJob,
   MongoSchedule,
   momoError,
-} from '../../src';
-import { Connection } from '../../src/Connection';
-import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
+} from '../../src/index.js';
+import { Connection } from '../../src/Connection.js';
+import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job.js';
 import type {
   CronSchedule,
   IntervalSchedule,
   TypedMomoJob,
-} from '../../src/job/MomoJob';
-import type { JobEntity } from '../../src/repository/JobEntity';
-import type { JobRepository } from '../../src/repository/JobRepository';
-import type { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { initLoggingForTests } from '../utils/logging';
-import { sleep } from '../utils/sleep';
-import { waitFor } from '../utils/waitFor';
+} from '../../src/job/MomoJob.js';
+import type { JobEntity } from '../../src/repository/JobEntity.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { initLoggingForTests } from '../utils/logging.js';
+import { sleep } from '../utils/sleep.js';
+import { waitFor } from '../utils/waitFor.js';
 
 interface TestJobHandler {
   handler: () => Promise<string>;

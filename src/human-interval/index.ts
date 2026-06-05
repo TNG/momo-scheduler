@@ -1,1 +1,1 @@
-export { humanInterval } from './humanInterval';
+export { humanInterval } from './humanInterval.js';

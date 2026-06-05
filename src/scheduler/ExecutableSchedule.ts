@@ -1,14 +1,14 @@
 import type { DateTime } from 'luxon';
-import type { ExecutionInfo } from '../job/ExecutionInfo';
-import type { ParsedIntervalSchedule } from '../job/Job';
+import type { ExecutionInfo } from '../job/ExecutionInfo.js';
+import type { ParsedIntervalSchedule } from '../job/Job.js';
 import {
   type CronSchedule,
   isCronSchedule,
   type JobParameters,
-} from '../job/MomoJob';
-import type { Logger } from '../logging/Logger';
-import { ExecutableCronSchedule } from './ExecutableCronSchedule';
-import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
+} from '../job/MomoJob.js';
+import type { Logger } from '../logging/Logger.js';
+import { ExecutableCronSchedule } from './ExecutableCronSchedule.js';
+import { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule.js';
 
 export interface NextExecutionTime {
   nextExecution: DateTime;

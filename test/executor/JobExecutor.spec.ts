@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ExecutionStatus, MomoErrorType } from '../../src';
-import { JobExecutor } from '../../src/executor/JobExecutor';
-import type { Job, ParsedIntervalSchedule } from '../../src/job/Job';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { createMock } from '../utils/createMock';
-import { loggerForTests } from '../utils/logging';
+import { ExecutionStatus, MomoErrorType } from '../../src/index.js';
+import { JobExecutor } from '../../src/executor/JobExecutor.js';
+import type { Job, ParsedIntervalSchedule } from '../../src/job/Job.js';
+import { JobRepository } from '../../src/repository/JobRepository.js';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { createMock } from '../utils/createMock.js';
+import { loggerForTests } from '../utils/logging.js';
 
 describe('JobExecutor', () => {
   const errorFn = vi.fn();

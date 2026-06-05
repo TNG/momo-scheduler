@@ -9,17 +9,17 @@ import {
   vi,
 } from 'vitest';
 
-import { MomoErrorType } from '../../src';
-import { JobExecutor } from '../../src/executor/JobExecutor';
-import { type Job, toJobDefinition } from '../../src/job/Job';
-import type { JobEntity } from '../../src/repository/JobEntity';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { JobScheduler } from '../../src/scheduler/JobScheduler';
-import { createMock } from '../utils/createMock';
-import { loggerForTests } from '../utils/logging';
-import { sleep } from '../utils/sleep';
-import { waitFor } from '../utils/waitFor';
+import { MomoErrorType } from '../../src/index.js';
+import { JobExecutor } from '../../src/executor/JobExecutor.js';
+import { type Job, toJobDefinition } from '../../src/job/Job.js';
+import type { JobEntity } from '../../src/repository/JobEntity.js';
+import { JobRepository } from '../../src/repository/JobRepository.js';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
+import { createMock } from '../utils/createMock.js';
+import { loggerForTests } from '../utils/logging.js';
+import { sleep } from '../utils/sleep.js';
+import { waitFor } from '../utils/waitFor.js';
 
 describe('JobScheduler', () => {
   let jobHandler: Mock;

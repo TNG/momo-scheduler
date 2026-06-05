@@ -8,11 +8,11 @@ import {
   vi,
 } from 'vitest';
 
-import { MomoErrorType } from '../../src';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { SchedulePing } from '../../src/schedule/SchedulePing';
-import { createMock } from '../utils/createMock';
-import { sleep } from '../utils/sleep';
+import { MomoErrorType } from '../../src/index.js';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { SchedulePing } from '../../src/schedule/SchedulePing.js';
+import { createMock } from '../utils/createMock.js';
+import { sleep } from '../utils/sleep.js';
 
 describe('SchedulePing', () => {
   const interval = 1000;

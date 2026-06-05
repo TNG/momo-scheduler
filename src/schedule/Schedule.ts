@@ -4,16 +4,16 @@ import {
   type ExecutionInfo,
   ExecutionStatus,
   type JobResult,
-} from '../job/ExecutionInfo';
-import { tryToJob } from '../job/Job';
-import type { JobParameters, MomoJob } from '../job/MomoJob';
-import type { MomoJobDescription } from '../job/MomoJobDescription';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import { LogEmitter } from '../logging/LogEmitter';
-import type { JobRepository } from '../repository/JobRepository';
-import type { SchedulesRepository } from '../repository/SchedulesRepository';
-import { JobScheduler } from '../scheduler/JobScheduler';
-import { setSafeTimeout } from '../timeout/safeTimeouts';
+} from '../job/ExecutionInfo.js';
+import { tryToJob } from '../job/Job.js';
+import type { JobParameters, MomoJob } from '../job/MomoJob.js';
+import type { MomoJobDescription } from '../job/MomoJobDescription.js';
+import { MomoErrorType } from '../logging/error/MomoErrorType.js';
+import { LogEmitter } from '../logging/LogEmitter.js';
+import type { JobRepository } from '../repository/JobRepository.js';
+import type { SchedulesRepository } from '../repository/SchedulesRepository.js';
+import { JobScheduler } from '../scheduler/JobScheduler.js';
+import { setSafeTimeout } from '../timeout/safeTimeouts.js';
 
 export class Schedule extends LogEmitter {
   private jobSchedulers: { [name: string]: JobScheduler } = {};

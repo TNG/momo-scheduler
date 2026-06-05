@@ -5,11 +5,11 @@ import {
   type MongoClient,
   MongoServerError,
 } from 'mongodb';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import type { Logger } from '../logging/Logger';
-import type { MomoEventData } from '../logging/MomoEvents';
-import { Repository } from './Repository';
-import type { ScheduleEntity } from './ScheduleEntity';
+import { MomoErrorType } from '../logging/error/MomoErrorType.js';
+import type { Logger } from '../logging/Logger.js';
+import type { MomoEventData } from '../logging/MomoEvents.js';
+import { Repository } from './Repository.js';
+import type { ScheduleEntity } from './ScheduleEntity.js';
 
 export const SCHEDULES_COLLECTION_NAME = 'schedules';
 

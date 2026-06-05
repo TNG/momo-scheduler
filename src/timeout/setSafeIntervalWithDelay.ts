@@ -1,5 +1,5 @@
-import type { Logger } from '../logging/Logger';
-import { setSafeInterval, setSafeTimeout } from './safeTimeouts';
+import type { Logger } from '../logging/Logger.js';
+import { setSafeInterval, setSafeTimeout } from './safeTimeouts.js';
 
 export interface TimeoutHandle {
   get: () => NodeJS.Timeout;

@@ -1,4 +1,4 @@
-import { maxJobTimeout, maxNodeTimeoutDelay } from '../../job/Job';
+import { maxJobTimeout, maxNodeTimeoutDelay } from '../../job/Job.js';
 
 export const momoError = {
   nonParsableInterval: new Error('non-parsable job interval'),

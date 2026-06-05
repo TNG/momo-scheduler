@@ -1,11 +1,11 @@
-import type { ParsedIntervalSchedule } from '../job/Job';
+import type { ParsedIntervalSchedule } from '../job/Job.js';
 import {
   type CronSchedule,
   type IntervalSchedule,
   type NeverSchedule,
   toSchedule,
-} from '../job/MomoJob';
-import type { JobEntity } from './JobEntity';
+} from '../job/MomoJob.js';
+import type { JobEntity } from './JobEntity.js';
 
 export interface MomoJobStatus
   extends Omit<JobEntity<never>, '_id' | 'schedule'> {

@@ -1,7 +1,7 @@
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import type { Logger } from '../logging/Logger';
-import type { SchedulesRepository } from '../repository/SchedulesRepository';
-import { setSafeInterval } from '../timeout/safeTimeouts';
+import { MomoErrorType } from '../logging/error/MomoErrorType.js';
+import type { Logger } from '../logging/Logger.js';
+import type { SchedulesRepository } from '../repository/SchedulesRepository.js';
+import { setSafeInterval } from '../timeout/safeTimeouts.js';
 
 enum StartJobsStatus {
   notStarted,

@@ -14,8 +14,8 @@ import {
   type MomoOptions,
   MongoSchedule,
   MongoScheduleBuilder,
-} from '../../src';
-import { Connection } from '../../src/Connection';
+} from '../../src/index.js';
+import { Connection } from '../../src/Connection.js';
 
 describe('MongoScheduleBuilder', () => {
   const scheduleName = 'schedule';

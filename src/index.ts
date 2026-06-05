@@ -1,17 +1,17 @@
 import { Settings } from 'luxon';
 
-export { ExecutionInfo, ExecutionStatus } from './job/ExecutionInfo';
-export { JobParameters, MomoJob } from './job/MomoJob';
-export { MomoJobBuilder } from './job/MomoJobBuilder';
+export { ExecutionInfo, ExecutionStatus } from './job/ExecutionInfo.js';
+export { JobParameters, MomoJob } from './job/MomoJob.js';
+export { MomoJobBuilder } from './job/MomoJobBuilder.js';
 export {
   JobSchedulerStatus,
   MomoJobDescription,
-} from './job/MomoJobDescription';
-export { momoError } from './logging/error/MomoError';
-export { MomoErrorType } from './logging/error/MomoErrorType';
-export { MomoErrorEvent, MomoEvent, MomoEventData } from './logging/MomoEvents';
-export { MomoOptions, MongoSchedule } from './schedule/MongoSchedule';
-export { MongoScheduleBuilder } from './schedule/MongoScheduleBuilder';
+} from './job/MomoJobDescription.js';
+export { momoError } from './logging/error/MomoError.js';
+export { MomoErrorType } from './logging/error/MomoErrorType.js';
+export { MomoErrorEvent, MomoEvent, MomoEventData } from './logging/MomoEvents.js';
+export { MomoOptions, MongoSchedule } from './schedule/MongoSchedule.js';
+export { MongoScheduleBuilder } from './schedule/MongoScheduleBuilder.js';
 
 // We don't parse any dates that might be invalid, but only get the current date time
 Settings.throwOnInvalid = true;

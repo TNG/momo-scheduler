@@ -1,4 +1,4 @@
-import type { ParsedIntervalSchedule } from './Job';
+import type { ParsedIntervalSchedule } from './Job.js';
 
 export type JobParameters = Record<
   string,

@@ -1,6 +1,6 @@
 import { MongoClient, type MongoClientOptions } from 'mongodb';
 import { describe, expect, it, vi } from 'vitest';
-import { Connection } from '../src/Connection';
+import { Connection } from '../src/Connection.js';
 
 vi.mock('mongodb');
 vi.mock('../src/repository/JobRepository');
