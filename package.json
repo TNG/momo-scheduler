@@ -35,7 +35,6 @@
   "dependencies": {
     "cron": "^4.4.0",
     "cron-parser": "^5.5.0",
-    "human-interval": "^2.0.1",
     "lodash": "^4.18.1",
     "luxon": "^3.7.2",
     "neverthrow": "^8.2.0",
@@ -48,7 +47,6 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.16",
     "@sinonjs/fake-timers": "15.4.0",
-    "@types/human-interval": "1.0.2",
     "@types/lodash": "4.17.24",
     "@types/luxon": "3.7.1",
     "@types/node": "24.13.0",
