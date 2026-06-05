@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import type {
   Collection,
   Filter,
@@ -6,7 +6,7 @@ import type {
   ObjectId,
   OptionalUnlessRequiredId,
   UpdateFilter,
-  WithId,
+  WithId
 } from 'mongodb';
 
 export class Repository<ENTITY extends { _id?: ObjectId }> {
@@ -15,7 +15,7 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
   constructor(
     mongoClient: MongoClient,
     collectionName: string,
-    collectionPrefix?: string,
+    collectionPrefix?: string
   ) {
     const prefixedCollectionName =
       collectionPrefix !== undefined
@@ -31,7 +31,7 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
 
   async updateOne(
     filter: Filter<ENTITY>,
-    update: UpdateFilter<ENTITY>,
+    update: UpdateFilter<ENTITY>
   ): Promise<void> {
     await this.collection.updateOne(filter, update);
   }
@@ -42,7 +42,7 @@ export class Repository<ENTITY extends { _id?: ObjectId }> {
   }
 
   async findOne(
-    filter: Filter<ENTITY> = {},
+    filter: Filter<ENTITY> = {}
   ): Promise<WithId<ENTITY> | undefined> {
     const entity = await this.collection.findOne(filter);
     return entity === null ? undefined : this.mapNullToUndefined(entity);
