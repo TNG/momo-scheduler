@@ -13,7 +13,7 @@ import {
   it,
   vi,
 } from 'vitest';
-
+import { Connection } from '../../src/Connection.js';
 import {
   ExecutionStatus,
   type MomoErrorEvent,
@@ -22,7 +22,6 @@ import {
   MongoSchedule,
   momoError,
 } from '../../src/index.js';
-import { Connection } from '../../src/Connection.js';
 import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job.js';
 import type {
   CronSchedule,

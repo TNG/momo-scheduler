@@ -1,6 +1,6 @@
 import { CronExpressionParser } from 'cron-parser';
-import { humanInterval } from '../human-interval/index.js';
 import { err, ok, type Result } from 'neverthrow';
+import { humanInterval } from '../human-interval/index.js';
 import { momoError } from '../logging/error/MomoError.js';
 import {
   type CronSchedule,

@@ -28,7 +28,7 @@ export function humanInterval(time: string | undefined): number | undefined {
 
   let remaining = time.replace(/([^a-z\d.-]|and)+/g, ' ');
 
-  for (; ;) {
+  for (;;) {
     const match = remaining.match(regexp);
     if (!match || match.index === undefined) {
       return result;

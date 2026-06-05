@@ -8,9 +8,8 @@ import {
   it,
   vi,
 } from 'vitest';
-import { type MomoJob, MongoSchedule } from '../../src/index.js';
-
 import { Connection } from '../../src/Connection.js';
+import { type MomoJob, MongoSchedule } from '../../src/index.js';
 import { tryToIntervalJob } from '../../src/job/Job.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
 import { initLoggingForTests } from '../utils/logging.js';

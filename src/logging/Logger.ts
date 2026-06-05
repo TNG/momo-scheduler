@@ -1,7 +1,6 @@
-import type { TypedEmitter } from './TypedEmitter.js';
-
 import type { MomoErrorType } from './error/MomoErrorType.js';
 import type { MomoEventData, MomoEvents } from './MomoEvents.js';
+import type { TypedEmitter } from './TypedEmitter.js';
 
 export interface Logger {
   debug: (message: string, data?: MomoEventData) => void;

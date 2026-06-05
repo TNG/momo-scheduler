@@ -66,11 +66,11 @@ const WORD_MAP: Record<string, number | string> = {
 };
 
 for (const [num, word] of Object.entries(NUMBER_MAP)) {
-  WORD_MAP[word] = isNaN(Number(num)) ? num : Number(num);
+  WORD_MAP[word] = Number.isNaN(Number(num)) ? num : Number(num);
 }
 
 for (const [num, word] of Object.entries(CARDINAL_MAP)) {
-  WORD_MAP[word] = isNaN(Number(num)) ? num : Math.pow(10, Number(num));
+  WORD_MAP[word] = Number.isNaN(Number(num)) ? num : 10 ** Number(num);
 }
 
 function intervals(num: number): number {
@@ -146,7 +146,7 @@ export function parse(input: string): number {
       zeros = 0;
       largest = 0;
       largestInterval = 0;
-      total = total * Math.pow(10, -decimals);
+      total = total * 10 ** -decimals;
       continue;
     }
 
@@ -167,7 +167,7 @@ export function parse(input: string): number {
       }
       largest = token;
       largestInterval = intervals(largest);
-      total = (total + token) * Math.pow(10, zeros);
+      total = (total + token) * 10 ** zeros;
     }
   }
 
@@ -180,10 +180,11 @@ export function stringify(value: number): string {
 
   const numKey = String(num);
   if (NUMBER_MAP[numKey] !== undefined) return NUMBER_MAP[numKey];
-  if (num < 0) return NUMBER_MAP['-'] + ' ' + stringify(-num);
+  if (num < 0) return `${NUMBER_MAP['-']} ${stringify(-num)}`;
 
   if (floor !== num) {
     const words = [stringify(floor), NUMBER_MAP['.']];
+    // biome-ignore lint/style/noNonNullAssertion: split on '.' always produces at least one element
     const chars = String(num).split('.').pop()!;
     for (let i = 0; i < chars.length; i++) {
       words.push(stringify(Number(chars[i])));
@@ -203,8 +204,8 @@ export function stringify(value: number): string {
   const sentence: string[] = [];
   while (!CARDINAL_MAP[interval]) interval -= 1;
   if (CARDINAL_MAP[interval]) {
-    const remaining = Math.floor(num % Math.pow(10, interval));
-    sentence.push(stringify(Math.floor(num / Math.pow(10, interval))));
+    const remaining = Math.floor(num % 10 ** interval);
+    sentence.push(stringify(Math.floor(num / 10 ** interval)));
     sentence.push(CARDINAL_MAP[interval] + (remaining > 99 ? ',' : ''));
     if (remaining) {
       if (remaining < 100) sentence.push('and');

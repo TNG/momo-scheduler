@@ -9,8 +9,8 @@ import {
   MongoSchedule,
 } from '../../src/index.js';
 import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job.js';
-import { JobRepository } from '../../src/repository/JobRepository.js';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { createMock } from '../utils/createMock.js';
 import { initLoggingForTests } from '../utils/logging.js';
 

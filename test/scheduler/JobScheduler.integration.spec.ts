@@ -8,13 +8,12 @@ import {
   type Mock,
   vi,
 } from 'vitest';
-
-import { MomoErrorType } from '../../src/index.js';
 import { JobExecutor } from '../../src/executor/JobExecutor.js';
+import { MomoErrorType } from '../../src/index.js';
 import { type Job, toJobDefinition } from '../../src/job/Job.js';
 import type { JobEntity } from '../../src/repository/JobEntity.js';
-import { JobRepository } from '../../src/repository/JobRepository.js';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
 import { createMock } from '../utils/createMock.js';
 import { loggerForTests } from '../utils/logging.js';
@@ -27,7 +26,9 @@ describe('JobScheduler', () => {
 
   let job: Job;
 
-  let schedulesRepositoryMock: ReturnType<typeof createMock<SchedulesRepository>>;
+  let schedulesRepositoryMock: ReturnType<
+    typeof createMock<SchedulesRepository>
+  >;
   let jobRepositoryMock: ReturnType<typeof createMock<JobRepository>>;
   let jobScheduler: JobScheduler;
 
