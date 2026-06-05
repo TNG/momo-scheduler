@@ -1,5 +1,5 @@
 import { CronJob } from 'cron';
-import CronExpressionParser from 'cron-parser';
+import { CronExpressionParser } from 'cron-parser';
 import { DateTime } from 'luxon';
 
 import type { CronSchedule } from '../job/MomoJob.js';

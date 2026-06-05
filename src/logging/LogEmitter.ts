@@ -1,7 +1,6 @@
 import EventEmitter from 'node:events';
 
-import type TypedEmitter from 'typed-emitter';
-
+import type { TypedEmitter } from './TypedEmitter.js';
 import { debug, error, type Logger } from './Logger.js';
 import type { MomoEvents } from './MomoEvents.js';
 
