@@ -1,21 +1,21 @@
-import { min } from 'lodash';
-import { JobExecutor } from '../executor/JobExecutor';
-import { ExecutionStatus, type JobResult } from '../job/ExecutionInfo';
-import type { Job } from '../job/Job';
-import { isNeverSchedule, type JobParameters } from '../job/MomoJob';
+import { min } from 'lodash-es';
+import { JobExecutor } from '../executor/JobExecutor.js';
+import { ExecutionStatus, type JobResult } from '../job/ExecutionInfo.js';
+import type { Job } from '../job/Job.js';
+import { isNeverSchedule, type JobParameters } from '../job/MomoJob.js';
 import {
   type MomoJobDescription,
   toMomoJobDescription,
-} from '../job/MomoJobDescription';
-import { momoError } from '../logging/error/MomoError';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import type { Logger } from '../logging/Logger';
-import type { JobRepository } from '../repository/JobRepository';
-import type { SchedulesRepository } from '../repository/SchedulesRepository';
-import { setSafeTimeout } from '../timeout/safeTimeouts';
-import type { ExecutableCronSchedule } from './ExecutableCronSchedule';
-import type { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule';
-import { toExecutableSchedule } from './ExecutableSchedule';
+} from '../job/MomoJobDescription.js';
+import { momoError } from '../logging/error/MomoError.js';
+import { MomoErrorType } from '../logging/error/MomoErrorType.js';
+import type { Logger } from '../logging/Logger.js';
+import type { JobRepository } from '../repository/JobRepository.js';
+import type { SchedulesRepository } from '../repository/SchedulesRepository.js';
+import { setSafeTimeout } from '../timeout/safeTimeouts.js';
+import type { ExecutableCronSchedule } from './ExecutableCronSchedule.js';
+import type { ExecutableIntervalSchedule } from './ExecutableIntervalSchedule.js';
+import { toExecutableSchedule } from './ExecutableSchedule.js';
 
 export class JobScheduler {
   private unexpectedErrorCount = 0;

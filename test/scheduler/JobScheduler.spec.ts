@@ -1,36 +1,37 @@
 import { ObjectId, type WithId } from 'mongodb';
-import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MomoErrorType, momoError } from '../../src';
-import { JobExecutor } from '../../src/executor/JobExecutor';
+import { type DeepMockProxy, mockDeep } from 'vitest-mock-extended';
+import type { JobExecutor } from '../../src/executor/JobExecutor.js';
+import { ExecutionStatus, MomoErrorType, momoError } from '../../src/index.js';
 import {
   type JobDefinition,
   type ParsedIntervalSchedule,
   toJobDefinition,
-} from '../../src/job/Job';
-import type { CronSchedule, NeverSchedule } from '../../src/job/MomoJob';
-import type { JobEntity } from '../../src/repository/JobEntity';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { JobScheduler } from '../../src/scheduler/JobScheduler';
-import { loggerForTests } from '../utils/logging';
-import { sleep } from '../utils/sleep';
+} from '../../src/job/Job.js';
+import type { CronSchedule, NeverSchedule } from '../../src/job/MomoJob.js';
+import type { JobEntity } from '../../src/repository/JobEntity.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
+import { loggerForTests } from '../utils/logging.js';
+import { sleep } from '../utils/sleep.js';
 
 describe('JobScheduler', () => {
   const debugFn = vi.fn();
   const errorFn = vi.fn();
 
-  let schedulesRepository: SchedulesRepository;
-  let jobRepository: JobRepository;
-  let jobExecutor: JobExecutor;
+  let schedulesRepositoryMock: DeepMockProxy<SchedulesRepository>;
+  let jobRepositoryMock: DeepMockProxy<JobRepository>;
+  let jobExecutorMock: DeepMockProxy<JobExecutor>;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
-    schedulesRepository = mock(SchedulesRepository);
-    jobRepository = mock(JobRepository);
-    jobExecutor = mock(JobExecutor);
-    when(jobExecutor.execute(anything())).thenResolve();
-    when(jobExecutor.execute(anything(), anything())).thenResolve();
+    schedulesRepositoryMock = mockDeep<SchedulesRepository>();
+    jobRepositoryMock = mockDeep<JobRepository>();
+    jobExecutorMock = mockDeep<JobExecutor>();
+    jobExecutorMock.execute.mockResolvedValue({
+      status: ExecutionStatus.finished,
+    });
   });
 
   afterEach(async () => {
@@ -42,19 +43,17 @@ describe('JobScheduler', () => {
   >(job: JobDefinition<Schedule>): JobDefinition<Schedule> {
     jobScheduler = new JobScheduler(
       job.name,
-      instance(jobExecutor),
-      instance(schedulesRepository),
-      instance(jobRepository),
+      jobExecutorMock,
+      schedulesRepositoryMock,
+      jobRepositoryMock,
       loggerForTests(errorFn, debugFn),
     );
     const jobEntity: WithId<JobEntity> = {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(
-      jobEntity,
-    );
-    when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(0);
+    jobRepositoryMock.findOne.mockResolvedValue(jobEntity);
+    schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(0);
     return job;
   }
 
@@ -119,7 +118,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything(), anything())).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('executes a job with the desired parameters', async () => {
@@ -127,9 +126,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(
-        await jobExecutor.execute(anything(), deepEqual({ foo: 'bar' })),
-      ).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledWith(expect.anything(), {
+        foo: 'bar',
+      });
     });
 
     it('executes a job with firstRunAfter=0 immediately', async () => {
@@ -145,7 +144,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(100);
-      verify(await jobExecutor.execute(anything(), anything())).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('stops a job', async () => {
@@ -153,12 +152,12 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything(), anything())).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
 
       await jobScheduler.stop();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything(), anything())).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('returns job description', async () => {
@@ -206,7 +205,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything(), anything())).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('executes a job with the desired parameters', async () => {
@@ -214,9 +213,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(
-        await jobExecutor.execute(anything(), deepEqual({ foo: 'bar' })),
-      ).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledWith(expect.anything(), {
+        foo: 'bar',
+      });
     });
 
     it('stops a job', async () => {
@@ -224,12 +223,12 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything(), anything())).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
 
       await jobScheduler.stop();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything(), anything())).once();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('returns job description', async () => {
@@ -264,9 +263,7 @@ describe('JobScheduler', () => {
 
     it('reports error when job was removed before scheduling', async () => {
       const job = createIntervalJob();
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(
-        undefined,
-      );
+      jobRepositoryMock.findOne.mockResolvedValue(undefined);
 
       await jobScheduler.start();
 
@@ -283,9 +280,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       const error = new Error('something unexpected happened');
-      when(jobRepository.findOne(deepEqual({ name: job.name }))).thenThrow(
-        error,
-      );
+      jobRepositoryMock.findOne.mockRejectedValue(error);
 
       await sleep(1100);
 
@@ -300,10 +295,10 @@ describe('JobScheduler', () => {
     });
 
     it('reports unexpected error with job execution', async () => {
-      const job = createIntervalJob();
+      createIntervalJob();
 
       const error = new Error('Boom');
-      when(jobExecutor.execute(anything(), anything())).thenReject(error);
+      jobExecutorMock.execute.mockRejectedValue(error);
 
       await jobScheduler.start();
 
@@ -312,7 +307,7 @@ describe('JobScheduler', () => {
       expect(errorFn).toHaveBeenCalledWith(
         'an unexpected error occurred while executing job',
         MomoErrorType.executeJob,
-        { name: job.name },
+        { name: 'interval job' },
         error,
       );
     });
@@ -320,9 +315,7 @@ describe('JobScheduler', () => {
     it('reports error and restarts job after timeout due to unexpected error', async () => {
       const job = createIntervalJob({ timeout });
 
-      when(jobExecutor.execute(anything(), anything())).thenReject(
-        new Error('Boom'),
-      );
+      jobExecutorMock.execute.mockRejectedValue(new Error('Boom'));
 
       await jobScheduler.start();
 
@@ -338,15 +331,15 @@ describe('JobScheduler', () => {
 
       await sleep(1000);
 
-      verify(await jobExecutor.execute(anything(), anything())).twice();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
 
     it('reports error and restarts job after timeout due to unexpected error in one of the multiple job instances', async () => {
       const job = createIntervalJob({ timeout, concurrency: 2, maxRunning: 2 });
 
-      when(jobExecutor.execute(anything(), anything()))
-        .thenResolve()
-        .thenReject(new Error('Boom'));
+      jobExecutorMock.execute
+        .mockResolvedValueOnce({ status: ExecutionStatus.finished })
+        .mockRejectedValueOnce(new Error('Boom'));
 
       await jobScheduler.start();
 
@@ -362,7 +355,7 @@ describe('JobScheduler', () => {
 
       await sleep(1000);
 
-      verify(await jobExecutor.execute(anything(), anything())).times(4);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(4);
     });
   });
 
@@ -372,7 +365,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything(), anything())).thrice();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(3);
     });
 
     it('executes job when no maxRunning is set', async () => {
@@ -380,19 +373,19 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(2100);
-      verify(await jobExecutor.execute(anything(), anything())).times(
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(
         2 * job.concurrency,
       );
     });
 
     it('executes job only twice if it is already running', async () => {
-      const job = createIntervalJob({ concurrency: 3, maxRunning: 3 });
-      when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(1);
+      const _job = createIntervalJob({ concurrency: 3, maxRunning: 3 });
+      schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(1);
 
       await jobScheduler.start();
 
       await sleep(1100);
-      verify(await jobExecutor.execute(anything(), anything())).twice();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -402,7 +395,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything(), anything())).thrice();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(3);
     });
 
     it('executes job when no maxRunning is set', async () => {
@@ -410,19 +403,19 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(2000);
-      verify(await jobExecutor.execute(anything(), anything())).times(
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(
         2 * job.concurrency,
       );
     });
 
     it('executes job only twice if it is already running', async () => {
-      const job = createCronJob({ concurrency: 3, maxRunning: 3 });
-      when(schedulesRepository.countRunningExecutions(job.name)).thenResolve(1);
+      const _job = createCronJob({ concurrency: 3, maxRunning: 3 });
+      schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(1);
 
       await jobScheduler.start();
 
       await sleep(1000);
-      verify(await jobExecutor.execute(anything(), anything())).twice();
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
   });
 });

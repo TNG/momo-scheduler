@@ -1,15 +1,15 @@
 import { CronJob } from 'cron';
-import CronExpressionParser from 'cron-parser';
+import { CronExpressionParser } from 'cron-parser';
 import { DateTime } from 'luxon';
 
-import type { CronSchedule } from '../job/MomoJob';
-import { momoError } from '../logging/error/MomoError';
-import { MomoErrorType } from '../logging/error/MomoErrorType';
+import type { CronSchedule } from '../job/MomoJob.js';
+import { momoError } from '../logging/error/MomoError.js';
+import { MomoErrorType } from '../logging/error/MomoErrorType.js';
 import type {
   ExecutableSchedule,
   ExecutionParameters,
   NextExecutionTime,
-} from './ExecutableSchedule';
+} from './ExecutableSchedule.js';
 
 export class ExecutableCronSchedule
   implements ExecutableSchedule<CronSchedule>

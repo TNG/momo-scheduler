@@ -9,10 +9,10 @@ import {
   it,
   vi,
 } from 'vitest';
-import { ExecutionStatus } from '../../src';
-import type { ParsedIntervalSchedule } from '../../src/job/Job';
-import type { Logger } from '../../src/logging/Logger';
-import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule';
+import { ExecutionStatus } from '../../src/index.js';
+import type { ParsedIntervalSchedule } from '../../src/job/Job.js';
+import type { Logger } from '../../src/logging/Logger.js';
+import { ExecutableIntervalSchedule } from '../../src/scheduler/ExecutableIntervalSchedule.js';
 
 describe('ExecutableIntervalSchedule', () => {
   const callback = vi.fn();
