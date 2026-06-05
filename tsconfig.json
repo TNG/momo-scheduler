@@ -2,12 +2,8 @@
   "compilerOptions": {
     "allowJs": false,
     "declaration": true,
-    "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
@@ -16,11 +12,14 @@
     "outDir": "dist",
     "pretty": true,
     "resolveJsonModule": true,
+    "rootDir": "src",
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
-    "target": "es6",
-    "types": ["node"]
+    "target": "esnext",
+    "types": ["node"],
+    "verbatimModuleSyntax": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "test"]
