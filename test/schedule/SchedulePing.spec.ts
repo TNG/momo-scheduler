@@ -7,11 +7,11 @@ import {
   type Mock,
   vi,
 } from 'vitest';
+import { type DeepMockProxy, mockDeep } from 'vitest-mock-extended';
 
 import { MomoErrorType } from '../../src/index.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { SchedulePing } from '../../src/schedule/SchedulePing.js';
-import { createMock } from '../utils/createMock.js';
 import { sleep } from '../utils/sleep.js';
 
 describe('SchedulePing', () => {
@@ -19,18 +19,16 @@ describe('SchedulePing', () => {
   const logData = { name: 'name', scheduleId: 'scheduleId' };
   let error: Mock;
 
-  let schedulesRepositoryMock: ReturnType<
-    typeof createMock<SchedulesRepository>
-  >;
+  let schedulesRepositoryMock: DeepMockProxy<SchedulesRepository>;
   let schedulePing: SchedulePing;
   let startAllJobs: Mock;
 
   beforeEach(() => {
     startAllJobs = vi.fn();
-    schedulesRepositoryMock = createMock<SchedulesRepository>();
+    schedulesRepositoryMock = mockDeep<SchedulesRepository>();
     error = vi.fn();
     schedulePing = new SchedulePing(
-      schedulesRepositoryMock.instance,
+      schedulesRepositoryMock,
       { debug: vi.fn(), error },
       interval,
       startAllJobs,
@@ -40,41 +38,33 @@ describe('SchedulePing', () => {
   afterEach(async () => schedulePing.stop());
 
   it('starts, pings, cleans and stops', async () => {
-    schedulesRepositoryMock.stubs.setActiveSchedule.mockResolvedValue(true);
+    schedulesRepositoryMock.setActiveSchedule.mockResolvedValue(true);
     await schedulePing.start();
 
     expect(startAllJobs).toHaveBeenCalledTimes(1);
-    expect(
-      schedulesRepositoryMock.stubs.setActiveSchedule,
-    ).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.setActiveSchedule).toHaveBeenCalledTimes(1);
 
     await sleep(1.1 * interval);
     expect(startAllJobs).toHaveBeenCalledTimes(1);
-    expect(
-      schedulesRepositoryMock.stubs.setActiveSchedule,
-    ).toHaveBeenCalledTimes(2);
+    expect(schedulesRepositoryMock.setActiveSchedule).toHaveBeenCalledTimes(2);
 
     await schedulePing.stop();
     await sleep(interval);
 
-    expect(
-      schedulesRepositoryMock.stubs.setActiveSchedule,
-    ).toHaveBeenCalledTimes(2);
-    expect(schedulesRepositoryMock.stubs.deleteOne).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.setActiveSchedule).toHaveBeenCalledTimes(2);
+    expect(schedulesRepositoryMock.deleteOne).toHaveBeenCalledTimes(1);
   });
 
   it('handles mongo errors', async () => {
-    schedulesRepositoryMock.stubs.getLogData.mockReturnValue(logData);
+    schedulesRepositoryMock.getLogData.mockReturnValue(logData);
     const message = 'I am an error that should be caught';
-    schedulesRepositoryMock.stubs.setActiveSchedule.mockRejectedValue({
+    schedulesRepositoryMock.setActiveSchedule.mockRejectedValue({
       message,
     } as Error);
 
     await schedulePing.start();
 
-    expect(
-      schedulesRepositoryMock.stubs.setActiveSchedule,
-    ).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.setActiveSchedule).toHaveBeenCalledTimes(1);
     expect(error).toHaveBeenCalledWith(
       'Pinging or cleaning the Schedules repository failed',
       MomoErrorType.internal,
@@ -85,7 +75,7 @@ describe('SchedulePing', () => {
 
   it('retries failed pings if configured', async () => {
     const schedulePingWithRetries = new SchedulePing(
-      schedulesRepositoryMock.instance,
+      schedulesRepositoryMock,
       { debug: vi.fn(), error },
       10,
       startAllJobs,
@@ -94,17 +84,17 @@ describe('SchedulePing', () => {
     );
 
     try {
-      schedulesRepositoryMock.stubs.getLogData.mockReturnValue(logData);
+      schedulesRepositoryMock.getLogData.mockReturnValue(logData);
       const message = 'I am an error that should lead to a retry';
-      schedulesRepositoryMock.stubs.setActiveSchedule.mockRejectedValue({
+      schedulesRepositoryMock.setActiveSchedule.mockRejectedValue({
         message,
       } as Error);
 
       await schedulePingWithRetries.start();
 
-      expect(
-        schedulesRepositoryMock.stubs.setActiveSchedule,
-      ).toHaveBeenCalledTimes(3);
+      expect(schedulesRepositoryMock.setActiveSchedule).toHaveBeenCalledTimes(
+        3,
+      );
       expect(error).toHaveBeenCalledWith(
         'Pinging or cleaning the Schedules repository failed',
         MomoErrorType.internal,
@@ -123,7 +113,7 @@ describe('SchedulePing', () => {
   });
 
   it('does not start any jobs if setting active schedule fails', async () => {
-    schedulesRepositoryMock.stubs.setActiveSchedule.mockResolvedValue(false);
+    schedulesRepositoryMock.setActiveSchedule.mockResolvedValue(false);
 
     await schedulePing.start();
 
@@ -136,7 +126,7 @@ describe('SchedulePing', () => {
     expect(startAllJobs).toHaveBeenCalledTimes(0);
 
     // other schedule dies, this one becomes active
-    schedulesRepositoryMock.stubs.setActiveSchedule.mockResolvedValue(true);
+    schedulesRepositoryMock.setActiveSchedule.mockResolvedValue(true);
 
     await sleep(1.1 * interval);
     expect(startAllJobs).toHaveBeenCalledTimes(1);
@@ -144,7 +134,7 @@ describe('SchedulePing', () => {
 
   it('handles job start taking longer than interval', async () => {
     startAllJobs.mockImplementation(async () => sleep(2 * interval));
-    schedulesRepositoryMock.stubs.setActiveSchedule.mockResolvedValue(true);
+    schedulesRepositoryMock.setActiveSchedule.mockResolvedValue(true);
 
     await schedulePing.start();
     expect(startAllJobs).toHaveBeenCalledTimes(1);
@@ -156,6 +146,6 @@ describe('SchedulePing', () => {
 
     await sleep(interval);
     expect(startAllJobs).toHaveBeenCalledTimes(1);
-    expect(schedulesRepositoryMock.stubs.deleteOne).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.deleteOne).toHaveBeenCalledTimes(1);
   });
 });

@@ -8,6 +8,7 @@ import {
   type Mock,
   vi,
 } from 'vitest';
+import { type DeepMockProxy, mockDeep } from 'vitest-mock-extended';
 import { JobExecutor } from '../../src/executor/JobExecutor.js';
 import { MomoErrorType } from '../../src/index.js';
 import { type Job, toJobDefinition } from '../../src/job/Job.js';
@@ -15,7 +16,6 @@ import type { JobEntity } from '../../src/repository/JobEntity.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
-import { createMock } from '../utils/createMock.js';
 import { loggerForTests } from '../utils/logging.js';
 import { sleep } from '../utils/sleep.js';
 import { waitFor } from '../utils/waitFor.js';
@@ -26,15 +26,13 @@ describe('JobScheduler', () => {
 
   let job: Job;
 
-  let schedulesRepositoryMock: ReturnType<
-    typeof createMock<SchedulesRepository>
-  >;
-  let jobRepositoryMock: ReturnType<typeof createMock<JobRepository>>;
+  let schedulesRepositoryMock: DeepMockProxy<SchedulesRepository>;
+  let jobRepositoryMock: DeepMockProxy<JobRepository>;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
-    schedulesRepositoryMock = createMock<SchedulesRepository>();
-    jobRepositoryMock = createMock<JobRepository>();
+    schedulesRepositoryMock = mockDeep<SchedulesRepository>();
+    jobRepositoryMock = mockDeep<JobRepository>();
 
     jobHandler = vi.fn();
     errorFn = vi.fn();
@@ -57,23 +55,23 @@ describe('JobScheduler', () => {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    jobRepositoryMock.stubs.findOne.mockResolvedValue(jobEntity);
-    schedulesRepositoryMock.stubs.addExecution.mockResolvedValue({
+    jobRepositoryMock.findOne.mockResolvedValue(jobEntity);
+    schedulesRepositoryMock.addExecution.mockResolvedValue({
       added: true,
       running: 1,
     });
 
     const jobExecutor = new JobExecutor(
       job.handler,
-      schedulesRepositoryMock.instance,
-      jobRepositoryMock.instance,
+      schedulesRepositoryMock,
+      jobRepositoryMock,
       loggerForTests(errorFn),
     );
     jobScheduler = new JobScheduler(
       job.name,
       jobExecutor,
-      schedulesRepositoryMock.instance,
-      jobRepositoryMock.instance,
+      schedulesRepositoryMock,
+      jobRepositoryMock,
       loggerForTests(errorFn),
     );
   });
@@ -84,7 +82,7 @@ describe('JobScheduler', () => {
 
   it('stops failing job and restarts after timeout', async () => {
     const error = new Error('boom');
-    schedulesRepositoryMock.stubs.removeExecution
+    schedulesRepositoryMock.removeExecution
       .mockRejectedValueOnce(error)
       .mockResolvedValueOnce(undefined);
 
@@ -112,7 +110,7 @@ describe('JobScheduler', () => {
 
   it('cancels restart timeout when stopping job', async () => {
     const error = new Error('boom');
-    schedulesRepositoryMock.stubs.removeExecution.mockRejectedValue(error);
+    schedulesRepositoryMock.removeExecution.mockRejectedValue(error);
 
     await jobScheduler.start();
 

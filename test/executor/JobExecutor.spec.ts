@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { type DeepMockProxy, mockDeep } from 'vitest-mock-extended';
 import { JobExecutor } from '../../src/executor/JobExecutor.js';
 import { ExecutionStatus, MomoErrorType } from '../../src/index.js';
 import type { Job, ParsedIntervalSchedule } from '../../src/job/Job.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
-import { createMock } from '../utils/createMock.js';
 import { loggerForTests } from '../utils/logging.js';
 
 describe('JobExecutor', () => {
@@ -23,27 +23,25 @@ describe('JobExecutor', () => {
     handler,
   };
 
-  let jobRepositoryMock: ReturnType<typeof createMock<JobRepository>>;
-  let schedulesRepositoryMock: ReturnType<
-    typeof createMock<SchedulesRepository>
-  >;
+  let jobRepositoryMock: DeepMockProxy<JobRepository>;
+  let schedulesRepositoryMock: DeepMockProxy<SchedulesRepository>;
   let jobExecutor: JobExecutor;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    jobRepositoryMock = createMock<JobRepository>();
-    schedulesRepositoryMock = createMock<SchedulesRepository>();
+    jobRepositoryMock = mockDeep<JobRepository>();
+    schedulesRepositoryMock = mockDeep<SchedulesRepository>();
 
-    schedulesRepositoryMock.stubs.addExecution.mockResolvedValue({
+    schedulesRepositoryMock.addExecution.mockResolvedValue({
       added: true,
       running: 0,
     });
 
     jobExecutor = new JobExecutor(
       job.handler,
-      schedulesRepositoryMock.instance,
-      jobRepositoryMock.instance,
+      schedulesRepositoryMock,
+      jobRepositoryMock,
       loggerForTests(errorFn),
     );
   });
@@ -55,26 +53,24 @@ describe('JobExecutor', () => {
 
     expect(job.handler).toHaveBeenCalledWith(jobParameters);
 
-    expect(jobRepositoryMock.stubs.updateJob).toHaveBeenCalledTimes(1);
-    expect(jobRepositoryMock.stubs.updateJob).toHaveBeenCalledWith(
+    expect(jobRepositoryMock.updateJob).toHaveBeenCalledTimes(1);
+    expect(jobRepositoryMock.updateJob).toHaveBeenCalledWith(
       job.name,
       expect.anything(),
     );
-    const lastCall = jobRepositoryMock.stubs.updateJob.mock.calls[0] ?? [];
-    const update = lastCall[1];
-    expect(update.executionInfo?.lastResult).toEqual({
+    const lastCall = jobRepositoryMock.updateJob.mock.calls[0];
+    const update = lastCall?.[1];
+    expect(update?.executionInfo?.lastResult).toEqual({
       status: ExecutionStatus.finished,
       handlerResult: 'finished',
     });
 
-    expect(schedulesRepositoryMock.stubs.addExecution).toHaveBeenCalledTimes(1);
-    expect(schedulesRepositoryMock.stubs.removeExecution).toHaveBeenCalledTimes(
-      1,
-    );
+    expect(schedulesRepositoryMock.addExecution).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.removeExecution).toHaveBeenCalledTimes(1);
   });
 
   it('does not execute job when mongo entity could not be updated', async () => {
-    schedulesRepositoryMock.stubs.addExecution.mockResolvedValue({
+    schedulesRepositoryMock.addExecution.mockResolvedValue({
       added: false,
       running: 0,
     });
@@ -84,7 +80,7 @@ describe('JobExecutor', () => {
     expect(errorFn).not.toHaveBeenCalled();
     expect(job.handler).not.toHaveBeenCalled();
 
-    expect(schedulesRepositoryMock.stubs.addExecution).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.addExecution).toHaveBeenCalledTimes(1);
   });
 
   it('reports job error', async () => {
@@ -102,10 +98,8 @@ describe('JobExecutor', () => {
       error,
     );
 
-    expect(schedulesRepositoryMock.stubs.addExecution).toHaveBeenCalledTimes(1);
-    expect(schedulesRepositoryMock.stubs.removeExecution).toHaveBeenCalledTimes(
-      1,
-    );
+    expect(schedulesRepositoryMock.addExecution).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.removeExecution).toHaveBeenCalledTimes(1);
   });
 
   it('reports undefined job error', async () => {
@@ -123,9 +117,7 @@ describe('JobExecutor', () => {
       error,
     );
 
-    expect(schedulesRepositoryMock.stubs.addExecution).toHaveBeenCalledTimes(1);
-    expect(schedulesRepositoryMock.stubs.removeExecution).toHaveBeenCalledTimes(
-      1,
-    );
+    expect(schedulesRepositoryMock.addExecution).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.removeExecution).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { numbered, parse, stringify } from '../../src/human-interval/numbered.js';
+import {
+  numbered,
+  parse,
+  stringify,
+} from '../../src/human-interval/numbered.js';
 
 describe('parse', () => {
   it.each([
