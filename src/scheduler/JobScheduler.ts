@@ -1,4 +1,4 @@
-import { min } from 'lodash';
+import { min } from 'lodash-es';
 import { JobExecutor } from '../executor/JobExecutor';
 import { ExecutionStatus, type JobResult } from '../job/ExecutionInfo';
 import type { Job } from '../job/Job';

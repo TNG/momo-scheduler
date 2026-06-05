@@ -1,4 +1,4 @@
-import { max } from 'lodash';
+import { max } from 'lodash-es';
 import { DateTime } from 'luxon';
 import type { ExecutionInfo } from '../job/ExecutionInfo';
 import type { ParsedIntervalSchedule } from '../job/Job';
