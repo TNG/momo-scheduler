@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
 
 import {
   ExecutionStatus,
@@ -11,18 +12,17 @@ import {
 import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
-import { createMock } from '../utils/createMock.js';
 import { initLoggingForTests } from '../utils/logging.js';
 
-const schedulesRepositoryMock = createMock<SchedulesRepository>();
-const jobRepositoryMock = createMock<JobRepository>();
+const schedulesRepositoryMock = mockDeep<SchedulesRepository>();
+const jobRepositoryMock = mockDeep<JobRepository>();
 vi.mock('../../src/Connection', () => {
   return {
     Connection: {
       create: async (_options: MomoOptions) => {
         return {
-          getJobRepository: () => jobRepositoryMock.instance,
-          getSchedulesRepository: () => schedulesRepositoryMock.instance,
+          getJobRepository: () => jobRepositoryMock,
+          getSchedulesRepository: () => schedulesRepositoryMock,
           disconnect: async () => undefined,
         };
       },
@@ -47,8 +47,8 @@ describe('Schedule', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    jobRepositoryMock.stubs.find.mockResolvedValue([]);
-    schedulesRepositoryMock.stubs.setActiveSchedule.mockResolvedValue(true);
+    jobRepositoryMock.find.mockResolvedValue([]);
+    schedulesRepositoryMock.setActiveSchedule.mockResolvedValue(true);
 
     mongoSchedule = await MongoSchedule.connect({
       scheduleName,
@@ -92,8 +92,8 @@ describe('Schedule', () => {
     it('runs a job once', async () => {
       await mongoSchedule.define(momoJob);
 
-      jobRepositoryMock.stubs.findOne.mockResolvedValue(entityWithId);
-      schedulesRepositoryMock.stubs.addExecution.mockResolvedValue({
+      jobRepositoryMock.findOne.mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution.mockResolvedValue({
         added: true,
         running: 0,
       });
@@ -110,8 +110,8 @@ describe('Schedule', () => {
     it('runs a job once after delay', async () => {
       await mongoSchedule.define(momoJob);
 
-      jobRepositoryMock.stubs.findOne.mockResolvedValue(entityWithId);
-      schedulesRepositoryMock.stubs.addExecution.mockResolvedValue({
+      jobRepositoryMock.findOne.mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution.mockResolvedValue({
         added: true,
         running: 0,
       });
@@ -131,8 +131,8 @@ describe('Schedule', () => {
         schedule: { interval: 'never' },
       });
 
-      jobRepositoryMock.stubs.findOne.mockResolvedValue(entityWithId);
-      schedulesRepositoryMock.stubs.addExecution.mockResolvedValue({
+      jobRepositoryMock.findOne.mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution.mockResolvedValue({
         added: true,
         running: 0,
       });
@@ -155,7 +155,7 @@ describe('Schedule', () => {
     it('skips running job once when job is not found in repository', async () => {
       await mongoSchedule.define(momoJob);
 
-      jobRepositoryMock.stubs.findOne.mockResolvedValue(undefined);
+      jobRepositoryMock.findOne.mockResolvedValue(undefined);
 
       const result = await mongoSchedule.run(momoJob.name);
 
@@ -165,8 +165,8 @@ describe('Schedule', () => {
     it('skips running job once when maxRunning is reached', async () => {
       await mongoSchedule.define(momoJob);
 
-      jobRepositoryMock.stubs.findOne.mockResolvedValue(entityWithId);
-      schedulesRepositoryMock.stubs.addExecution.mockResolvedValue({
+      jobRepositoryMock.findOne.mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution.mockResolvedValue({
         added: false,
         running: 0,
       });

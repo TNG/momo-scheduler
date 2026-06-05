@@ -1,7 +1,8 @@
 import { ObjectId, type WithId } from 'mongodb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { type DeepMockProxy, mockDeep } from 'vitest-mock-extended';
 import type { JobExecutor } from '../../src/executor/JobExecutor.js';
-import { MomoErrorType, momoError } from '../../src/index.js';
+import { ExecutionStatus, MomoErrorType, momoError } from '../../src/index.js';
 import {
   type JobDefinition,
   type ParsedIntervalSchedule,
@@ -12,7 +13,6 @@ import type { JobEntity } from '../../src/repository/JobEntity.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
-import { createMock } from '../utils/createMock.js';
 import { loggerForTests } from '../utils/logging.js';
 import { sleep } from '../utils/sleep.js';
 
@@ -20,18 +20,18 @@ describe('JobScheduler', () => {
   const debugFn = vi.fn();
   const errorFn = vi.fn();
 
-  let schedulesRepositoryMock: ReturnType<
-    typeof createMock<SchedulesRepository>
-  >;
-  let jobRepositoryMock: ReturnType<typeof createMock<JobRepository>>;
-  let jobExecutorMock: ReturnType<typeof createMock<JobExecutor>>;
+  let schedulesRepositoryMock: DeepMockProxy<SchedulesRepository>;
+  let jobRepositoryMock: DeepMockProxy<JobRepository>;
+  let jobExecutorMock: DeepMockProxy<JobExecutor>;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
-    schedulesRepositoryMock = createMock<SchedulesRepository>();
-    jobRepositoryMock = createMock<JobRepository>();
-    jobExecutorMock = createMock<JobExecutor>();
-    jobExecutorMock.stubs.execute.mockResolvedValue(undefined);
+    schedulesRepositoryMock = mockDeep<SchedulesRepository>();
+    jobRepositoryMock = mockDeep<JobRepository>();
+    jobExecutorMock = mockDeep<JobExecutor>();
+    jobExecutorMock.execute.mockResolvedValue({
+      status: ExecutionStatus.finished,
+    });
   });
 
   afterEach(async () => {
@@ -43,17 +43,17 @@ describe('JobScheduler', () => {
   >(job: JobDefinition<Schedule>): JobDefinition<Schedule> {
     jobScheduler = new JobScheduler(
       job.name,
-      jobExecutorMock.instance,
-      schedulesRepositoryMock.instance,
-      jobRepositoryMock.instance,
+      jobExecutorMock,
+      schedulesRepositoryMock,
+      jobRepositoryMock,
       loggerForTests(errorFn, debugFn),
     );
     const jobEntity: WithId<JobEntity> = {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    jobRepositoryMock.stubs.findOne.mockResolvedValue(jobEntity);
-    schedulesRepositoryMock.stubs.countRunningExecutions.mockResolvedValue(0);
+    jobRepositoryMock.findOne.mockResolvedValue(jobEntity);
+    schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(0);
     return job;
   }
 
@@ -118,7 +118,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(1);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('executes a job with the desired parameters', async () => {
@@ -126,10 +126,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledWith(
-        expect.anything(),
-        { foo: 'bar' },
-      );
+      expect(jobExecutorMock.execute).toHaveBeenCalledWith(expect.anything(), {
+        foo: 'bar',
+      });
     });
 
     it('executes a job with firstRunAfter=0 immediately', async () => {
@@ -145,7 +144,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(100);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(1);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('stops a job', async () => {
@@ -153,12 +152,12 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(1);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
 
       await jobScheduler.stop();
 
       await sleep(1100);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(1);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('returns job description', async () => {
@@ -206,7 +205,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(1);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('executes a job with the desired parameters', async () => {
@@ -214,10 +213,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledWith(
-        expect.anything(),
-        { foo: 'bar' },
-      );
+      expect(jobExecutorMock.execute).toHaveBeenCalledWith(expect.anything(), {
+        foo: 'bar',
+      });
     });
 
     it('stops a job', async () => {
@@ -225,12 +223,12 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(1);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
 
       await jobScheduler.stop();
 
       await sleep(1000);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(1);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
     it('returns job description', async () => {
@@ -265,7 +263,7 @@ describe('JobScheduler', () => {
 
     it('reports error when job was removed before scheduling', async () => {
       const job = createIntervalJob();
-      jobRepositoryMock.stubs.findOne.mockResolvedValue(undefined);
+      jobRepositoryMock.findOne.mockResolvedValue(undefined);
 
       await jobScheduler.start();
 
@@ -282,7 +280,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       const error = new Error('something unexpected happened');
-      jobRepositoryMock.stubs.findOne.mockRejectedValue(error);
+      jobRepositoryMock.findOne.mockRejectedValue(error);
 
       await sleep(1100);
 
@@ -300,7 +298,7 @@ describe('JobScheduler', () => {
       createIntervalJob();
 
       const error = new Error('Boom');
-      jobExecutorMock.stubs.execute.mockRejectedValue(error);
+      jobExecutorMock.execute.mockRejectedValue(error);
 
       await jobScheduler.start();
 
@@ -317,7 +315,7 @@ describe('JobScheduler', () => {
     it('reports error and restarts job after timeout due to unexpected error', async () => {
       const job = createIntervalJob({ timeout });
 
-      jobExecutorMock.stubs.execute.mockRejectedValue(new Error('Boom'));
+      jobExecutorMock.execute.mockRejectedValue(new Error('Boom'));
 
       await jobScheduler.start();
 
@@ -333,14 +331,14 @@ describe('JobScheduler', () => {
 
       await sleep(1000);
 
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(2);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
 
     it('reports error and restarts job after timeout due to unexpected error in one of the multiple job instances', async () => {
       const job = createIntervalJob({ timeout, concurrency: 2, maxRunning: 2 });
 
-      jobExecutorMock.stubs.execute
-        .mockResolvedValueOnce(undefined)
+      jobExecutorMock.execute
+        .mockResolvedValueOnce({ status: ExecutionStatus.finished })
         .mockRejectedValueOnce(new Error('Boom'));
 
       await jobScheduler.start();
@@ -357,7 +355,7 @@ describe('JobScheduler', () => {
 
       await sleep(1000);
 
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(4);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(4);
     });
   });
 
@@ -367,7 +365,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1100);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(3);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(3);
     });
 
     it('executes job when no maxRunning is set', async () => {
@@ -375,19 +373,19 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(2100);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(
         2 * job.concurrency,
       );
     });
 
     it('executes job only twice if it is already running', async () => {
       const _job = createIntervalJob({ concurrency: 3, maxRunning: 3 });
-      schedulesRepositoryMock.stubs.countRunningExecutions.mockResolvedValue(1);
+      schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(1);
 
       await jobScheduler.start();
 
       await sleep(1100);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(2);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -397,7 +395,7 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(1000);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(3);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(3);
     });
 
     it('executes job when no maxRunning is set', async () => {
@@ -405,19 +403,19 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       await sleep(2000);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(
         2 * job.concurrency,
       );
     });
 
     it('executes job only twice if it is already running', async () => {
       const _job = createCronJob({ concurrency: 3, maxRunning: 3 });
-      schedulesRepositoryMock.stubs.countRunningExecutions.mockResolvedValue(1);
+      schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(1);
 
       await jobScheduler.start();
 
       await sleep(1000);
-      expect(jobExecutorMock.stubs.execute).toHaveBeenCalledTimes(2);
+      expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
   });
 });

@@ -64,6 +64,7 @@
     "mongodb-memory-server": "11.2.0",
     "pino": "10.3.1",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.8",
+    "vitest-mock-extended": "4.0.0"
   }
 }
