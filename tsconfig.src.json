@@ -17,15 +17,9 @@
     "strict": true,
     "strictNullChecks": true,
     "target": "esnext",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "verbatimModuleSyntax": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }
