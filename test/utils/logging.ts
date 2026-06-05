@@ -1,5 +1,5 @@
 import Pino from 'pino';
-import type TypedEmitter from 'typed-emitter';
+import type { TypedEmitter } from '../../src/logging/TypedEmitter.js';
 import type { MomoErrorType } from '../../src/index.js';
 import type { Logger } from '../../src/logging/Logger.js';
 import type { MomoEventData, MomoEvents } from '../../src/logging/MomoEvents.js';

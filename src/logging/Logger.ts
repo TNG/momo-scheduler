@@ -1,4 +1,4 @@
-import type TypedEmitter from 'typed-emitter';
+import type { TypedEmitter } from './TypedEmitter.js';
 
 import type { MomoErrorType } from './error/MomoErrorType.js';
 import type { MomoEventData, MomoEvents } from './MomoEvents.js';
