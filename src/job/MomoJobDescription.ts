@@ -1,11 +1,11 @@
-import type { JobEntity } from '../repository/JobEntity';
+import type { JobEntity } from '../repository/JobEntity.js';
 import {
   type CronSchedule,
   type IntervalSchedule,
   type JobParameters,
   type NeverSchedule,
   toSchedule,
-} from './MomoJob';
+} from './MomoJob.js';
 
 /**
  * information about scheduled job

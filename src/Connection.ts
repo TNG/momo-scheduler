@@ -1,6 +1,6 @@
 import { MongoClient, type MongoClientOptions } from 'mongodb';
-import { JobRepository } from './repository/JobRepository';
-import { SchedulesRepository } from './repository/SchedulesRepository';
+import { JobRepository } from './repository/JobRepository.js';
+import { SchedulesRepository } from './repository/SchedulesRepository.js';
 
 export interface MomoConnectionOptions {
   /**

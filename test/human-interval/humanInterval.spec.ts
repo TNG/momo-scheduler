@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { humanInterval } from '../../src/human-interval/humanInterval';
+import { humanInterval } from '../../src/human-interval/humanInterval.js';
 
 describe('humanInterval', () => {
   describe('returns undefined for falsy input', () => {

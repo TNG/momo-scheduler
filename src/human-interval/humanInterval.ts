@@ -3,7 +3,7 @@
 // Vendored from numbered v1.1.0 (MIT License)
 // https://github.com/blakeembrey/node-numbered
 
-import { parse as parseNumber } from './numbered';
+import { parse as parseNumber } from './numbered.js';
 
 const units: Record<string, number> = {};
 units.second = 1000;

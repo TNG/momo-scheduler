@@ -1,17 +1,17 @@
 import { max } from 'lodash-es';
 import { DateTime } from 'luxon';
-import type { ExecutionInfo } from '../job/ExecutionInfo';
-import type { ParsedIntervalSchedule } from '../job/Job';
-import type { IntervalSchedule } from '../job/MomoJob';
+import type { ExecutionInfo } from '../job/ExecutionInfo.js';
+import type { ParsedIntervalSchedule } from '../job/Job.js';
+import type { IntervalSchedule } from '../job/MomoJob.js';
 import {
   setSafeIntervalWithDelay,
   type TimeoutHandle,
-} from '../timeout/setSafeIntervalWithDelay';
+} from '../timeout/setSafeIntervalWithDelay.js';
 import type {
   ExecutableSchedule,
   ExecutionParameters,
   NextExecutionTime,
-} from './ExecutableSchedule';
+} from './ExecutableSchedule.js';
 
 export class ExecutableIntervalSchedule
   implements ExecutableSchedule<Required<IntervalSchedule>>

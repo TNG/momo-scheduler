@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type MomoOptions, MongoSchedule } from '../../src';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { createMock } from '../utils/createMock';
+import { type MomoOptions, MongoSchedule } from '../../src/index.js';
+import { JobRepository } from '../../src/repository/JobRepository.js';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { createMock } from '../utils/createMock.js';
 
 const schedulesRepositoryMock = createMock<SchedulesRepository>();
 const disconnect = vi.fn();

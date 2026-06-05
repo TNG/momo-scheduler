@@ -7,12 +7,12 @@ import {
   type MomoJob,
   type MomoOptions,
   MongoSchedule,
-} from '../../src';
-import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { createMock } from '../utils/createMock';
-import { initLoggingForTests } from '../utils/logging';
+} from '../../src/index.js';
+import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job.js';
+import { JobRepository } from '../../src/repository/JobRepository.js';
+import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { createMock } from '../utils/createMock.js';
+import { initLoggingForTests } from '../utils/logging.js';
 
 const schedulesRepositoryMock = createMock<SchedulesRepository>();
 const jobRepositoryMock = createMock<JobRepository>();
