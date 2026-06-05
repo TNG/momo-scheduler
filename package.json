@@ -51,7 +51,7 @@
     "@types/human-interval": "1.0.2",
     "@types/lodash": "4.17.24",
     "@types/luxon": "3.7.1",
-    "@types/node": "24.12.2",
+    "@types/node": "24.13.0",
     "@types/sinonjs__fake-timers": "15.0.1",
     "@types/uuid": "11.0.0",
     "mongodb-memory-server": "10.4.3",
