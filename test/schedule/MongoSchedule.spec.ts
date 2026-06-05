@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { type MomoOptions, MongoSchedule } from '../../src/index.js';
-import { JobRepository } from '../../src/repository/JobRepository.js';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { createMock } from '../utils/createMock.js';
 
 const schedulesRepositoryMock = createMock<SchedulesRepository>();
@@ -39,9 +39,13 @@ describe('MongoSchedule', () => {
     });
 
     await mongoSchedule.start();
-    expect(schedulesRepositoryMock.stubs.setActiveSchedule).toHaveBeenCalledTimes(1);
+    expect(
+      schedulesRepositoryMock.stubs.setActiveSchedule,
+    ).toHaveBeenCalledTimes(1);
     await secondSchedule.start();
-    expect(schedulesRepositoryMock.stubs.setActiveSchedule).toHaveBeenCalledTimes(2);
+    expect(
+      schedulesRepositoryMock.stubs.setActiveSchedule,
+    ).toHaveBeenCalledTimes(2);
 
     await mongoSchedule.disconnect();
     await secondSchedule.disconnect();

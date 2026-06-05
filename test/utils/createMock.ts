@@ -1,6 +1,7 @@
 import { type Mock, vi } from 'vitest';
 
 type MockStub<T> = {
+  // biome-ignore lint/suspicious/noExplicitAny: mock utility requires any in conditional types
   [K in keyof T]: T[K] extends (...args: any[]) => any ? Mock : T[K];
 };
 

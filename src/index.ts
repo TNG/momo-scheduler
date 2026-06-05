@@ -10,7 +10,11 @@ export type {
 } from './job/MomoJobDescription.js';
 export { momoError } from './logging/error/MomoError.js';
 export { MomoErrorType } from './logging/error/MomoErrorType.js';
-export type { MomoErrorEvent, MomoEvent, MomoEventData } from './logging/MomoEvents.js';
+export type {
+  MomoErrorEvent,
+  MomoEvent,
+  MomoEventData,
+} from './logging/MomoEvents.js';
 export type { MomoOptions } from './schedule/MongoSchedule.js';
 export { MongoSchedule } from './schedule/MongoSchedule.js';
 export { MongoScheduleBuilder } from './schedule/MongoScheduleBuilder.js';

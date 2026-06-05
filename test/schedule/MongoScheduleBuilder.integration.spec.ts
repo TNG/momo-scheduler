@@ -8,14 +8,13 @@ import {
   it,
   vi,
 } from 'vitest';
-
+import { Connection } from '../../src/Connection.js';
 import {
   type MomoJob,
   type MomoOptions,
   MongoSchedule,
   MongoScheduleBuilder,
 } from '../../src/index.js';
-import { Connection } from '../../src/Connection.js';
 
 describe('MongoScheduleBuilder', () => {
   const scheduleName = 'schedule';

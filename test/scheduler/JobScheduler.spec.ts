@@ -1,7 +1,7 @@
 import { ObjectId, type WithId } from 'mongodb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { JobExecutor } from '../../src/executor/JobExecutor.js';
 import { MomoErrorType, momoError } from '../../src/index.js';
-import { JobExecutor } from '../../src/executor/JobExecutor.js';
 import {
   type JobDefinition,
   type ParsedIntervalSchedule,
@@ -9,8 +9,8 @@ import {
 } from '../../src/job/Job.js';
 import type { CronSchedule, NeverSchedule } from '../../src/job/MomoJob.js';
 import type { JobEntity } from '../../src/repository/JobEntity.js';
-import { JobRepository } from '../../src/repository/JobRepository.js';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
 import { createMock } from '../utils/createMock.js';
 import { loggerForTests } from '../utils/logging.js';
@@ -20,7 +20,9 @@ describe('JobScheduler', () => {
   const debugFn = vi.fn();
   const errorFn = vi.fn();
 
-  let schedulesRepositoryMock: ReturnType<typeof createMock<SchedulesRepository>>;
+  let schedulesRepositoryMock: ReturnType<
+    typeof createMock<SchedulesRepository>
+  >;
   let jobRepositoryMock: ReturnType<typeof createMock<JobRepository>>;
   let jobExecutorMock: ReturnType<typeof createMock<JobExecutor>>;
   let jobScheduler: JobScheduler;
@@ -379,7 +381,7 @@ describe('JobScheduler', () => {
     });
 
     it('executes job only twice if it is already running', async () => {
-      const job = createIntervalJob({ concurrency: 3, maxRunning: 3 });
+      const _job = createIntervalJob({ concurrency: 3, maxRunning: 3 });
       schedulesRepositoryMock.stubs.countRunningExecutions.mockResolvedValue(1);
 
       await jobScheduler.start();
@@ -409,7 +411,7 @@ describe('JobScheduler', () => {
     });
 
     it('executes job only twice if it is already running', async () => {
-      const job = createCronJob({ concurrency: 3, maxRunning: 3 });
+      const _job = createCronJob({ concurrency: 3, maxRunning: 3 });
       schedulesRepositoryMock.stubs.countRunningExecutions.mockResolvedValue(1);
 
       await jobScheduler.start();
