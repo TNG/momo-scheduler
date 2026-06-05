@@ -1,5 +1,5 @@
 import CronExpressionParser from 'cron-parser';
-import humanInterval from 'human-interval';
+import { humanInterval } from '../human-interval';
 import { err, ok, type Result } from 'neverthrow';
 import { momoError } from '../logging/error/MomoError';
 import {
