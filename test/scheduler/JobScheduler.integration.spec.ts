@@ -1,5 +1,4 @@
 import { ObjectId, type WithId } from 'mongodb';
-import { deepEqual, instance, mock, when } from 'ts-mockito';
 import {
   afterEach,
   beforeEach,
@@ -17,6 +16,7 @@ import type { JobEntity } from '../../src/repository/JobEntity';
 import { JobRepository } from '../../src/repository/JobRepository';
 import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
 import { JobScheduler } from '../../src/scheduler/JobScheduler';
+import { createMock } from '../utils/createMock';
 import { loggerForTests } from '../utils/logging';
 import { sleep } from '../utils/sleep';
 import { waitFor } from '../utils/waitFor';
@@ -27,13 +27,13 @@ describe('JobScheduler', () => {
 
   let job: Job;
 
-  let schedulesRepository: SchedulesRepository;
-  let jobRepository: JobRepository;
+  let schedulesRepositoryMock: ReturnType<typeof createMock<SchedulesRepository>>;
+  let jobRepositoryMock: ReturnType<typeof createMock<JobRepository>>;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
-    schedulesRepository = mock(SchedulesRepository);
-    jobRepository = mock(JobRepository);
+    schedulesRepositoryMock = createMock<SchedulesRepository>();
+    jobRepositoryMock = createMock<JobRepository>();
 
     jobHandler = vi.fn();
     errorFn = vi.fn();
@@ -56,24 +56,23 @@ describe('JobScheduler', () => {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(
-      jobEntity,
-    );
-    when(
-      schedulesRepository.addExecution(job.name, job.maxRunning),
-    ).thenResolve({ added: true, running: 1 });
+    jobRepositoryMock.stubs.findOne.mockResolvedValue(jobEntity);
+    schedulesRepositoryMock.stubs.addExecution.mockResolvedValue({
+      added: true,
+      running: 1,
+    });
 
     const jobExecutor = new JobExecutor(
       job.handler,
-      instance(schedulesRepository),
-      instance(jobRepository),
+      schedulesRepositoryMock.instance,
+      jobRepositoryMock.instance,
       loggerForTests(errorFn),
     );
     jobScheduler = new JobScheduler(
       job.name,
       jobExecutor,
-      instance(schedulesRepository),
-      instance(jobRepository),
+      schedulesRepositoryMock.instance,
+      jobRepositoryMock.instance,
       loggerForTests(errorFn),
     );
   });
@@ -84,9 +83,9 @@ describe('JobScheduler', () => {
 
   it('stops failing job and restarts after timeout', async () => {
     const error = new Error('boom');
-    when(schedulesRepository.removeExecution(job.name))
-      .thenReject(error)
-      .thenResolve();
+    schedulesRepositoryMock.stubs.removeExecution
+      .mockRejectedValueOnce(error)
+      .mockResolvedValueOnce(undefined);
 
     await jobScheduler.start();
 
@@ -112,7 +111,7 @@ describe('JobScheduler', () => {
 
   it('cancels restart timeout when stopping job', async () => {
     const error = new Error('boom');
-    when(schedulesRepository.removeExecution(job.name)).thenReject(error);
+    schedulesRepositoryMock.stubs.removeExecution.mockRejectedValue(error);
 
     await jobScheduler.start();
 
