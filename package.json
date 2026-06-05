@@ -47,18 +47,18 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.3",
-    "@sinonjs/fake-timers": "14.0.0",
+    "@sinonjs/fake-timers": "15.4.0",
     "@types/human-interval": "1.0.2",
     "@types/lodash": "4.17.24",
     "@types/luxon": "3.7.2",
     "@types/node": "24.13.3",
     "@types/sinonjs__fake-timers": "15.0.1",
     "@types/uuid": "11.0.0",
-    "mongodb-memory-server": "10.4.3",
-    "pino": "9.14.0",
+    "mongodb-memory-server": "11.2.0",
+    "pino": "10.3.1",
     "ts-mockito": "2.6.1",
     "ts-node": "10.9.2",
-    "typescript": "5.9.3",
-    "vitest": "3.2.7"
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
   }
 }
