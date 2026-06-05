@@ -1,5 +1,11 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+    "verbatimModuleSyntax": true
+  },
   "include": ["src/**/*", "test/**/*"],
   "exclude": ["dist/**/*", "node_modules/**/*"]
 }
