@@ -1,3 +1,8 @@
+// Replaces the `ts-mockito` mocking library, which depends on CJS-only type system
+// features (experimentalDecorators, emitDecoratorMetadata) incompatible with
+// verbatimModuleSyntax + moduleResolution: nodenext. Provides a lightweight,
+// vitest-native alternative using Proxy-based stubs with full type safety.
+
 import { type Mock, vi } from 'vitest';
 
 type MockStub<T> = {
