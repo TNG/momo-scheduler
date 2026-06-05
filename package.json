@@ -31,7 +31,7 @@
   "private": false,
   "license": "Apache-2.0",
   "scripts": {
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc -p tsconfig.src.json",
     "format": "biome check --write",
     "lint": "biome ci",
     "clean": "npx rimraf dist",
