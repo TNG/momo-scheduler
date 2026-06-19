@@ -1,4 +1,4 @@
-import type { MomoErrorType } from './error/MomoErrorType';
+import type { MomoErrorType } from './error/MomoErrorType.js';
 
 export interface MomoEventData {
   [key: string]: boolean | number | string | undefined;

@@ -1,12 +1,12 @@
 import type { MongoClient } from 'mongodb';
 
-import type { ExecutionInfo } from '../job/ExecutionInfo';
-import { findLatest } from '../job/findLatest';
-import type { JobDefinition } from '../job/Job';
-import type { Logger } from '../logging/Logger';
-import type { JobEntity } from './JobEntity';
-import { type MomoJobStatus, toMomoJobStatus } from './MomoJobStatus';
-import { Repository } from './Repository';
+import type { ExecutionInfo } from '../job/ExecutionInfo.js';
+import { findLatest } from '../job/findLatest.js';
+import type { JobDefinition } from '../job/Job.js';
+import type { Logger } from '../logging/Logger.js';
+import type { JobEntity } from './JobEntity.js';
+import { type MomoJobStatus, toMomoJobStatus } from './MomoJobStatus.js';
+import { Repository } from './Repository.js';
 
 export const JOBS_COLLECTION_NAME = 'jobs';
 

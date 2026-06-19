@@ -1,4 +1,4 @@
-import type { Handler, JobParameters, MomoJob } from './MomoJob';
+import type { Handler, JobParameters, MomoJob } from './MomoJob.js';
 
 interface MomoJobBuilderBase<T> {
   withName: (name: string) => T;

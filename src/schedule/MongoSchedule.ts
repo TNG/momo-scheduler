@@ -1,9 +1,9 @@
 import { v4 as uuid } from 'uuid';
 
-import { Connection, type MomoConnectionOptions } from '../Connection';
-import { maxNodeTimeoutDelay } from '../job/Job';
-import { Schedule } from './Schedule';
-import { SchedulePing } from './SchedulePing';
+import { Connection, type MomoConnectionOptions } from '../Connection.js';
+import { maxNodeTimeoutDelay } from '../job/Job.js';
+import { Schedule } from './Schedule.js';
+import { SchedulePing } from './SchedulePing.js';
 
 export interface MomoOptions extends MomoConnectionOptions {
   /**

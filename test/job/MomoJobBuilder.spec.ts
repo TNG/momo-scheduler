@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { MomoJobBuilder } from '../../src';
+import { MomoJobBuilder } from '../../src/index.js';
 
 describe('MomoJobBuilder', () => {
   it('can build an interval job that never runs automatically', () => {

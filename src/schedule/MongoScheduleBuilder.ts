@@ -1,5 +1,5 @@
-import type { MomoJob } from '../job/MomoJob';
-import { type MomoOptions, MongoSchedule } from './MongoSchedule';
+import type { MomoJob } from '../job/MomoJob.js';
+import { type MomoOptions, MongoSchedule } from './MongoSchedule.js';
 
 export class MongoScheduleBuilder {
   private momoJobs?: MomoJob[];

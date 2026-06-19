@@ -13,9 +13,9 @@ import {
   vi,
 } from 'vitest';
 
-import { Connection } from '../../src/Connection';
-import type { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { sleep } from '../utils/sleep';
+import { Connection } from '../../src/Connection.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { sleep } from '../utils/sleep.js';
 
 describe('SchedulesRepository', () => {
   const scheduleName = 'schedule';

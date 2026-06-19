@@ -1,7 +1,7 @@
 import { err, ok } from 'neverthrow';
 import { describe, expect, it } from 'vitest';
 
-import { type MomoJob, momoError } from '../../src';
+import { type MomoJob, momoError } from '../../src/index.js';
 import {
   type Job,
   maxJobTimeout,
@@ -10,8 +10,8 @@ import {
   tryToCronJob,
   tryToIntervalJob,
   tryToJob,
-} from '../../src/job/Job';
-import type { CronSchedule } from '../../src/job/MomoJob';
+} from '../../src/job/Job.js';
+import type { CronSchedule } from '../../src/job/MomoJob.js';
 
 describe('Job', () => {
   describe('tryToJob', () => {

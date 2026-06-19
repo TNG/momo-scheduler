@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import type { JobEntity } from '../repository/JobEntity';
+import type { JobEntity } from '../repository/JobEntity.js';
 
 function compareLastFinished<T extends JobEntity>(left: T, right: T): T {
   const r = right.executionInfo?.lastFinished;
