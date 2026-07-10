@@ -13,6 +13,7 @@ import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { initLoggingForTests } from '../utils/logging.js';
+import { matchObject } from '../utils/matchers.js';
 
 const schedulesRepositoryMock = mockDeep<SchedulesRepository>();
 const jobRepositoryMock = mockDeep<JobRepository>();
@@ -92,11 +93,15 @@ describe('Schedule', () => {
     it('runs a job once', async () => {
       await mongoSchedule.define(momoJob);
 
-      jobRepositoryMock.findOne.mockResolvedValue(entityWithId);
-      schedulesRepositoryMock.addExecution.mockResolvedValue({
-        added: true,
-        running: 0,
-      });
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution
+        .calledWith(momoJob.name, 0)
+        .mockResolvedValue({
+          added: true,
+          running: 0,
+        });
 
       const result = await mongoSchedule.run(momoJob.name);
 
@@ -110,11 +115,15 @@ describe('Schedule', () => {
     it('runs a job once after delay', async () => {
       await mongoSchedule.define(momoJob);
 
-      jobRepositoryMock.findOne.mockResolvedValue(entityWithId);
-      schedulesRepositoryMock.addExecution.mockResolvedValue({
-        added: true,
-        running: 0,
-      });
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution
+        .calledWith(momoJob.name, 0)
+        .mockResolvedValue({
+          added: true,
+          running: 0,
+        });
 
       const result = await mongoSchedule.run(momoJob.name, undefined, 500);
 
@@ -131,11 +140,15 @@ describe('Schedule', () => {
         schedule: { interval: 'never' },
       });
 
-      jobRepositoryMock.findOne.mockResolvedValue(entityWithId);
-      schedulesRepositoryMock.addExecution.mockResolvedValue({
-        added: true,
-        running: 0,
-      });
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution
+        .calledWith(momoJob.name, 0)
+        .mockResolvedValue({
+          added: true,
+          running: 0,
+        });
 
       const result = await mongoSchedule.run(momoJob.name);
 
@@ -155,7 +168,9 @@ describe('Schedule', () => {
     it('skips running job once when job is not found in repository', async () => {
       await mongoSchedule.define(momoJob);
 
-      jobRepositoryMock.findOne.mockResolvedValue(undefined);
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(undefined);
 
       const result = await mongoSchedule.run(momoJob.name);
 
@@ -165,11 +180,15 @@ describe('Schedule', () => {
     it('skips running job once when maxRunning is reached', async () => {
       await mongoSchedule.define(momoJob);
 
-      jobRepositoryMock.findOne.mockResolvedValue(entityWithId);
-      schedulesRepositoryMock.addExecution.mockResolvedValue({
-        added: false,
-        running: 0,
-      });
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution
+        .calledWith(momoJob.name, 0)
+        .mockResolvedValue({
+          added: false,
+          running: 0,
+        });
 
       const result = await mongoSchedule.run(momoJob.name);
 

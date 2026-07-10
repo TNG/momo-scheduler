@@ -33,10 +33,12 @@ describe('JobExecutor', () => {
     jobRepositoryMock = mockDeep<JobRepository>();
     schedulesRepositoryMock = mockDeep<SchedulesRepository>();
 
-    schedulesRepositoryMock.addExecution.mockResolvedValue({
-      added: true,
-      running: 0,
-    });
+    schedulesRepositoryMock.addExecution
+      .calledWith(job.name, job.maxRunning)
+      .mockResolvedValue({
+        added: true,
+        running: 0,
+      });
 
     jobExecutor = new JobExecutor(
       job.handler,
@@ -58,8 +60,8 @@ describe('JobExecutor', () => {
       job.name,
       expect.anything(),
     );
-    const lastCall = jobRepositoryMock.updateJob.mock.calls[0];
-    const update = lastCall?.[1];
+    const onlyCall = jobRepositoryMock.updateJob.mock.calls[0];
+    const update = onlyCall?.[1];
     expect(update?.executionInfo?.lastResult).toEqual({
       status: ExecutionStatus.finished,
       handlerResult: 'finished',
@@ -70,10 +72,12 @@ describe('JobExecutor', () => {
   });
 
   it('does not execute job when mongo entity could not be updated', async () => {
-    schedulesRepositoryMock.addExecution.mockResolvedValue({
-      added: false,
-      running: 0,
-    });
+    schedulesRepositoryMock.addExecution
+      .calledWith(job.name, job.maxRunning)
+      .mockResolvedValue({
+        added: false,
+        running: 0,
+      });
 
     await jobExecutor.execute(job);
 
@@ -81,6 +85,10 @@ describe('JobExecutor', () => {
     expect(job.handler).not.toHaveBeenCalled();
 
     expect(schedulesRepositoryMock.addExecution).toHaveBeenCalledTimes(1);
+    expect(schedulesRepositoryMock.addExecution).toHaveBeenCalledWith(
+      job.name,
+      job.maxRunning,
+    );
   });
 
   it('reports job error', async () => {

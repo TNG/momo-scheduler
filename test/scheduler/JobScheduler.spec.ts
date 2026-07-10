@@ -14,6 +14,7 @@ import type { JobRepository } from '../../src/repository/JobRepository.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
 import { loggerForTests } from '../utils/logging.js';
+import { matchObject } from '../utils/matchers.js';
 import { sleep } from '../utils/sleep.js';
 
 describe('JobScheduler', () => {
@@ -52,8 +53,12 @@ describe('JobScheduler', () => {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    jobRepositoryMock.findOne.mockResolvedValue(jobEntity);
-    schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(0);
+    jobRepositoryMock.findOne
+      .calledWith(matchObject({ name: job.name }))
+      .mockResolvedValue(jobEntity);
+    schedulesRepositoryMock.countRunningExecutions
+      .calledWith(job.name)
+      .mockResolvedValue(0);
     return job;
   }
 
@@ -263,7 +268,9 @@ describe('JobScheduler', () => {
 
     it('reports error when job was removed before scheduling', async () => {
       const job = createIntervalJob();
-      jobRepositoryMock.findOne.mockResolvedValue(undefined);
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: job.name }))
+        .mockResolvedValue(undefined);
 
       await jobScheduler.start();
 
@@ -280,7 +287,9 @@ describe('JobScheduler', () => {
       await jobScheduler.start();
 
       const error = new Error('something unexpected happened');
-      jobRepositoryMock.findOne.mockRejectedValue(error);
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: job.name }))
+        .mockRejectedValue(error);
 
       await sleep(1100);
 
@@ -379,8 +388,10 @@ describe('JobScheduler', () => {
     });
 
     it('executes job only twice if it is already running', async () => {
-      const _job = createIntervalJob({ concurrency: 3, maxRunning: 3 });
-      schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(1);
+      const job = createIntervalJob({ concurrency: 3, maxRunning: 3 });
+      schedulesRepositoryMock.countRunningExecutions
+        .calledWith(job.name)
+        .mockResolvedValue(1);
 
       await jobScheduler.start();
 
@@ -409,8 +420,10 @@ describe('JobScheduler', () => {
     });
 
     it('executes job only twice if it is already running', async () => {
-      const _job = createCronJob({ concurrency: 3, maxRunning: 3 });
-      schedulesRepositoryMock.countRunningExecutions.mockResolvedValue(1);
+      const job = createCronJob({ concurrency: 3, maxRunning: 3 });
+      schedulesRepositoryMock.countRunningExecutions
+        .calledWith(job.name)
+        .mockResolvedValue(1);
 
       await jobScheduler.start();
 

@@ -17,6 +17,7 @@ import type { JobRepository } from '../../src/repository/JobRepository.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
 import { loggerForTests } from '../utils/logging.js';
+import { matchObject } from '../utils/matchers.js';
 import { sleep } from '../utils/sleep.js';
 import { waitFor } from '../utils/waitFor.js';
 
@@ -55,11 +56,15 @@ describe('JobScheduler', () => {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    jobRepositoryMock.findOne.mockResolvedValue(jobEntity);
-    schedulesRepositoryMock.addExecution.mockResolvedValue({
-      added: true,
-      running: 1,
-    });
+    jobRepositoryMock.findOne
+      .calledWith(matchObject({ name: job.name }))
+      .mockResolvedValue(jobEntity);
+    schedulesRepositoryMock.addExecution
+      .calledWith(job.name, job.maxRunning)
+      .mockResolvedValue({
+        added: true,
+        running: 1,
+      });
 
     const jobExecutor = new JobExecutor(
       job.handler,
@@ -83,6 +88,7 @@ describe('JobScheduler', () => {
   it('stops failing job and restarts after timeout', async () => {
     const error = new Error('boom');
     schedulesRepositoryMock.removeExecution
+      .calledWith(job.name)
       .mockRejectedValueOnce(error)
       .mockResolvedValueOnce(undefined);
 
@@ -110,7 +116,9 @@ describe('JobScheduler', () => {
 
   it('cancels restart timeout when stopping job', async () => {
     const error = new Error('boom');
-    schedulesRepositoryMock.removeExecution.mockRejectedValue(error);
+    schedulesRepositoryMock.removeExecution
+      .calledWith(job.name)
+      .mockRejectedValue(error);
 
     await jobScheduler.start();
 
