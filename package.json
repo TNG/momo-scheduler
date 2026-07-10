@@ -35,7 +35,8 @@
     "format": "biome check --write",
     "lint": "biome ci",
     "clean": "npx rimraf dist",
-    "test": "vitest run",
+    "test": "npm run test:checkTypes && vitest run",
+    "test:checkTypes": "tsc -p tsconfig.test.json",
     "test:unit": "vitest run --exclude \"test/**/*.integration.*\"",
     "test:integration": "vitest run test/**/*.integration.*"
   },
