@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  numbered,
-  parse,
-  stringify,
-} from '../../src/human-interval/numbered.js';
+import { parse } from '../../src/human-interval/numbered.js';
 
 describe('parse', () => {
   it.each([
@@ -34,30 +30,5 @@ describe('parse', () => {
 
   it('parses "two point zero five" as approximately 2.05', () => {
     expect(parse('two point zero five')).toBeCloseTo(2.05);
-  });
-});
-
-describe('stringify', () => {
-  it.each([
-    [0, 'zero'],
-    [5, 'five'],
-    [10, 'ten'],
-    [13, 'thirteen'],
-    [21, 'twenty-one'],
-    [99, 'ninety-nine'],
-    [100, 'one hundred'],
-    [1000, 'one thousand'],
-    [-1, 'negative one'],
-    [1.5, 'one point five'],
-  ])('stringifies %d as "%s"', (input, expected) => {
-    expect(stringify(input)).toBe(expected);
-  });
-});
-
-describe('numbered', () => {
-  it('throws for unsupported types', () => {
-    expect(() => numbered(true as unknown as number)).toThrow(
-      'Numbered can only parse strings or stringify numbers',
-    );
   });
 });

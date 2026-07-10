@@ -1,3 +1,6 @@
+// Vendored from numbered v1.1.0 (MIT License)
+// https://github.com/blakeembrey/node-numbered
+
 const NUMBER_MAP: Record<string, string> = {
   '.': 'point',
   '-': 'negative',
@@ -174,51 +177,10 @@ export function parse(input: string): number {
   return modifier * (total + totalStack(stack, largest));
 }
 
-export function stringify(value: number): string {
-  const num = Number(value);
-  const floor = Math.floor(num);
+/*
 
-  const numKey = String(num);
-  if (NUMBER_MAP[numKey] !== undefined) return NUMBER_MAP[numKey];
-  if (num < 0) return `${NUMBER_MAP['-']} ${stringify(-num)}`;
+Node-numbered License (19.06.2026) https://github.com/blakeembrey/node-numbered
 
-  if (floor !== num) {
-    const words = [stringify(floor), NUMBER_MAP['.']];
-    // biome-ignore lint/style/noNonNullAssertion: split on '.' always produces at least one element
-    const chars = String(num).split('.').pop()!;
-    for (let i = 0; i < chars.length; i++) {
-      words.push(stringify(Number(chars[i])));
-    }
-    return words.join(' ');
-  }
+MIT
 
-  let interval = intervals(num);
-  if (interval === 1) {
-    return (
-      NUMBER_MAP[String(Math.floor(num / 10) * 10)] +
-      '-' +
-      stringify(Math.floor(num % 10))
-    );
-  }
-
-  const sentence: string[] = [];
-  while (!CARDINAL_MAP[interval]) interval -= 1;
-  if (CARDINAL_MAP[interval]) {
-    const remaining = Math.floor(num % 10 ** interval);
-    sentence.push(stringify(Math.floor(num / 10 ** interval)));
-    sentence.push(CARDINAL_MAP[interval] + (remaining > 99 ? ',' : ''));
-    if (remaining) {
-      if (remaining < 100) sentence.push('and');
-      sentence.push(stringify(remaining));
-    }
-  }
-  return sentence.join(' ');
-}
-
-export function numbered(input: string): number;
-export function numbered(input: number): string;
-export function numbered(input: string | number): number | string {
-  if (typeof input === 'string') return parse(input);
-  if (typeof input === 'number') return stringify(input);
-  throw new Error('Numbered can only parse strings or stringify numbers');
-}
+ */

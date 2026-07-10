@@ -1,7 +1,5 @@
 // Vendored from human-interval v2.0.1 (MIT License)
 // https://github.com/agenda/human-interval
-// Vendored from numbered v1.1.0 (MIT License)
-// https://github.com/blakeembrey/node-numbered
 
 import { parse as parseNumber } from './numbered.js';
 
@@ -81,13 +79,5 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- */
-
-/*
-
-Node-numbered License (19.06.2026) https://github.com/blakeembrey/node-numbered
-
-MIT
 
  */
