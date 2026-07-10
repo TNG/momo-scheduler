@@ -30,7 +30,7 @@
     "test:integration": "vitest run test/**/*.integration.*"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "cron": "^4.4.0",

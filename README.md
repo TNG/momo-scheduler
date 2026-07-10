@@ -242,7 +242,7 @@ restricted to a constant interval.
 
 ## Supported Node Versions
 
-momo-scheduler is currently tested on the node LTS versions 20, 22 and 24.
+momo-scheduler is currently tested on the node LTS versions 22, 24 and 26.
 
 ## License
 
