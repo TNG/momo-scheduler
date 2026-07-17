@@ -1,5 +1,4 @@
 import { ObjectId, type WithId } from 'mongodb';
-import { deepEqual, instance, mock, when } from 'ts-mockito';
 import {
   afterEach,
   beforeEach,
@@ -9,17 +8,18 @@ import {
   type Mock,
   vi,
 } from 'vitest';
-
-import { MomoErrorType } from '../../src';
-import { JobExecutor } from '../../src/executor/JobExecutor';
-import { type Job, toJobDefinition } from '../../src/job/Job';
-import type { JobEntity } from '../../src/repository/JobEntity';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { JobScheduler } from '../../src/scheduler/JobScheduler';
-import { loggerForTests } from '../utils/logging';
-import { sleep } from '../utils/sleep';
-import { waitFor } from '../utils/waitFor';
+import { type DeepMockProxy, mockDeep } from 'vitest-mock-extended';
+import { JobExecutor } from '../../src/executor/JobExecutor.js';
+import { MomoErrorType } from '../../src/index.js';
+import { type Job, toJobDefinition } from '../../src/job/Job.js';
+import type { JobEntity } from '../../src/repository/JobEntity.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
+import { loggerForTests } from '../utils/logging.js';
+import { matchObject } from '../utils/matchers.js';
+import { sleep } from '../utils/sleep.js';
+import { waitFor } from '../utils/waitFor.js';
 
 describe('JobScheduler', () => {
   let jobHandler: Mock;
@@ -27,13 +27,13 @@ describe('JobScheduler', () => {
 
   let job: Job;
 
-  let schedulesRepository: SchedulesRepository;
-  let jobRepository: JobRepository;
+  let schedulesRepositoryMock: DeepMockProxy<SchedulesRepository>;
+  let jobRepositoryMock: DeepMockProxy<JobRepository>;
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
-    schedulesRepository = mock(SchedulesRepository);
-    jobRepository = mock(JobRepository);
+    schedulesRepositoryMock = mockDeep<SchedulesRepository>();
+    jobRepositoryMock = mockDeep<JobRepository>();
 
     jobHandler = vi.fn();
     errorFn = vi.fn();
@@ -56,24 +56,27 @@ describe('JobScheduler', () => {
       ...toJobDefinition(job),
       _id: new ObjectId(),
     };
-    when(jobRepository.findOne(deepEqual({ name: job.name }))).thenResolve(
-      jobEntity,
-    );
-    when(
-      schedulesRepository.addExecution(job.name, job.maxRunning),
-    ).thenResolve({ added: true, running: 1 });
+    jobRepositoryMock.findOne
+      .calledWith(matchObject({ name: job.name }))
+      .mockResolvedValue(jobEntity);
+    schedulesRepositoryMock.addExecution
+      .calledWith(job.name, job.maxRunning)
+      .mockResolvedValue({
+        added: true,
+        running: 1,
+      });
 
     const jobExecutor = new JobExecutor(
       job.handler,
-      instance(schedulesRepository),
-      instance(jobRepository),
+      schedulesRepositoryMock,
+      jobRepositoryMock,
       loggerForTests(errorFn),
     );
     jobScheduler = new JobScheduler(
       job.name,
       jobExecutor,
-      instance(schedulesRepository),
-      instance(jobRepository),
+      schedulesRepositoryMock,
+      jobRepositoryMock,
       loggerForTests(errorFn),
     );
   });
@@ -84,9 +87,10 @@ describe('JobScheduler', () => {
 
   it('stops failing job and restarts after timeout', async () => {
     const error = new Error('boom');
-    when(schedulesRepository.removeExecution(job.name))
-      .thenReject(error)
-      .thenResolve();
+    schedulesRepositoryMock.removeExecution
+      .calledWith(job.name)
+      .mockRejectedValueOnce(error)
+      .mockResolvedValueOnce(undefined);
 
     await jobScheduler.start();
 
@@ -112,7 +116,9 @@ describe('JobScheduler', () => {
 
   it('cancels restart timeout when stopping job', async () => {
     const error = new Error('boom');
-    when(schedulesRepository.removeExecution(job.name)).thenReject(error);
+    schedulesRepositoryMock.removeExecution
+      .calledWith(job.name)
+      .mockRejectedValue(error);
 
     await jobScheduler.start();
 

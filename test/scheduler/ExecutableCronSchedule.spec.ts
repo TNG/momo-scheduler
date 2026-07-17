@@ -9,9 +9,9 @@ import {
   it,
   vi,
 } from 'vitest';
-import type { Logger } from '../../src/logging/Logger';
+import type { Logger } from '../../src/logging/Logger.js';
 
-import { ExecutableCronSchedule } from '../../src/scheduler/ExecutableCronSchedule';
+import { ExecutableCronSchedule } from '../../src/scheduler/ExecutableCronSchedule.js';
 
 describe('ExecutableIntervalSchedule', () => {
   const callback = vi.fn();

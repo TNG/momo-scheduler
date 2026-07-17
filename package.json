@@ -2,8 +2,18 @@
   "name": "@tngtech/momo-scheduler",
   "version": "3.1.2",
   "description": "momo is a scheduler that persists jobs in mongodb",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TNG/momo-scheduler.git"
@@ -21,11 +31,12 @@
   "private": false,
   "license": "Apache-2.0",
   "scripts": {
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc -p tsconfig.src.json",
     "format": "biome check --write",
     "lint": "biome ci",
     "clean": "npx rimraf dist",
-    "test": "vitest run",
+    "test": "npm run test:checkTypes && vitest run",
+    "test:checkTypes": "tsc -p tsconfig.test.json",
     "test:unit": "vitest run --exclude \"test/**/*.integration.*\"",
     "test:integration": "vitest run test/**/*.integration.*"
   },
@@ -35,11 +46,9 @@
   "dependencies": {
     "cron": "^4.4.0",
     "cron-parser": "^5.5.0",
-    "human-interval": "^2.0.1",
-    "lodash": "^4.18.1",
+    "lodash-es": "^4.18.1",
     "luxon": "^3.7.2",
     "neverthrow": "^8.2.0",
-    "typed-emitter": "^2.1.0",
     "uuid": "^14.0.0"
   },
   "peerDependencies": {
@@ -47,18 +56,15 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.3",
-    "@sinonjs/fake-timers": "14.0.0",
-    "@types/human-interval": "1.0.2",
-    "@types/lodash": "4.17.24",
+    "@sinonjs/fake-timers": "15.4.0",
+    "@types/lodash-es": "4.17.12",
     "@types/luxon": "3.7.2",
     "@types/node": "24.13.3",
     "@types/sinonjs__fake-timers": "15.0.1",
-    "@types/uuid": "11.0.0",
-    "mongodb-memory-server": "10.4.3",
-    "pino": "9.14.0",
-    "ts-mockito": "2.6.1",
-    "ts-node": "10.9.2",
-    "typescript": "5.9.3",
-    "vitest": "3.2.7"
+    "mongodb-memory-server": "11.2.0",
+    "pino": "10.3.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8",
+    "vitest-mock-extended": "4.0.0"
   }
 }

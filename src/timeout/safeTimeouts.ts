@@ -1,5 +1,5 @@
-import { MomoErrorType } from '../logging/error/MomoErrorType';
-import type { Logger } from '../logging/Logger';
+import { MomoErrorType } from '../logging/error/MomoErrorType.js';
+import type { Logger } from '../logging/Logger.js';
 
 export function setSafeTimeout(
   callback: () => Promise<void>,

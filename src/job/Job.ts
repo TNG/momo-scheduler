@@ -1,7 +1,7 @@
-import CronExpressionParser from 'cron-parser';
-import humanInterval from 'human-interval';
+import { CronExpressionParser } from 'cron-parser';
 import { err, ok, type Result } from 'neverthrow';
-import { momoError } from '../logging/error/MomoError';
+import { humanInterval } from '../human-interval/humanInterval.js';
+import { momoError } from '../logging/error/MomoError.js';
 import {
   type CronSchedule,
   type Handler,
@@ -12,7 +12,7 @@ import {
   type MomoJob,
   type NeverSchedule,
   type TypedMomoJob,
-} from './MomoJob';
+} from './MomoJob.js';
 
 export const maxNodeTimeoutDelay = 2147483647;
 export const maxJobTimeout = maxNodeTimeoutDelay;

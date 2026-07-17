@@ -1,19 +1,20 @@
-import { instance, mock, verify, when } from 'ts-mockito';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
 
-import { type MomoOptions, MongoSchedule } from '../../src';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
+import { type MomoOptions, MongoSchedule } from '../../src/index.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 
-const schedulesRepository = mock(SchedulesRepository);
+const schedulesRepositoryMock = mockDeep<SchedulesRepository>();
+const jobRepositoryMock = mockDeep<JobRepository>();
 const disconnect = vi.fn();
 vi.mock('../../src/Connection', () => {
   return {
     Connection: {
       create: async (_options: MomoOptions) => {
         return {
-          getJobRepository: () => instance(mock(JobRepository)),
-          getSchedulesRepository: () => instance(schedulesRepository),
+          getJobRepository: () => jobRepositoryMock,
+          getSchedulesRepository: () => schedulesRepositoryMock,
           disconnect,
         };
       },
@@ -27,7 +28,7 @@ describe('MongoSchedule', () => {
   });
 
   it('connects and starts the ping and disconnects and stops the ping', async () => {
-    when(schedulesRepository.setActiveSchedule()).thenResolve(true);
+    schedulesRepositoryMock.setActiveSchedule.mockResolvedValue(true);
 
     const mongoSchedule = await MongoSchedule.connect({
       scheduleName: 'schedule',
@@ -39,13 +40,13 @@ describe('MongoSchedule', () => {
     });
 
     await mongoSchedule.start();
-    verify(schedulesRepository.setActiveSchedule()).once();
+    expect(schedulesRepositoryMock.setActiveSchedule).toHaveBeenCalledTimes(1);
     await secondSchedule.start();
-    verify(schedulesRepository.setActiveSchedule()).twice();
+    expect(schedulesRepositoryMock.setActiveSchedule).toHaveBeenCalledTimes(2);
 
     await mongoSchedule.disconnect();
     await secondSchedule.disconnect();
-    verify(schedulesRepository.deleteOne()).twice();
+    expect(schedulesRepositoryMock.deleteOne).toHaveBeenCalledTimes(2);
 
     expect(disconnect).toHaveBeenCalledTimes(2);
   });

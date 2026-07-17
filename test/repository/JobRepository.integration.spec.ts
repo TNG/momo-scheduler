@@ -1,16 +1,16 @@
 import { DateTime } from 'luxon';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { type ExecutionInfo, ExecutionStatus } from '../../src';
-import { Connection } from '../../src/Connection';
+import { Connection } from '../../src/Connection.js';
+import { type ExecutionInfo, ExecutionStatus } from '../../src/index.js';
 import {
   type ParsedIntervalSchedule,
   toJobDefinition,
   tryToIntervalJob,
-} from '../../src/job/Job';
-import type { CronSchedule } from '../../src/job/MomoJob';
-import type { JobEntity } from '../../src/repository/JobEntity';
-import type { JobRepository } from '../../src/repository/JobRepository';
+} from '../../src/job/Job.js';
+import type { CronSchedule } from '../../src/job/MomoJob.js';
+import type { JobEntity } from '../../src/repository/JobEntity.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
 
 describe('JobRepository', () => {
   const job = tryToIntervalJob({

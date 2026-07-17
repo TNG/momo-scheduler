@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
-import { deepEqual, instance, mock, when } from 'ts-mockito';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
 
 import {
   ExecutionStatus,
@@ -8,21 +8,22 @@ import {
   type MomoJob,
   type MomoOptions,
   MongoSchedule,
-} from '../../src';
-import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job';
-import { JobRepository } from '../../src/repository/JobRepository';
-import { SchedulesRepository } from '../../src/repository/SchedulesRepository';
-import { initLoggingForTests } from '../utils/logging';
+} from '../../src/index.js';
+import { toJobDefinition, tryToIntervalJob } from '../../src/job/Job.js';
+import type { JobRepository } from '../../src/repository/JobRepository.js';
+import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { initLoggingForTests } from '../utils/logging.js';
+import { matchObject } from '../utils/matchers.js';
 
-const schedulesRepository = mock(SchedulesRepository);
-const jobRepository = mock(JobRepository);
+const schedulesRepositoryMock = mockDeep<SchedulesRepository>();
+const jobRepositoryMock = mockDeep<JobRepository>();
 vi.mock('../../src/Connection', () => {
   return {
     Connection: {
       create: async (_options: MomoOptions) => {
         return {
-          getJobRepository: () => instance(jobRepository),
-          getSchedulesRepository: () => instance(schedulesRepository),
+          getJobRepository: () => jobRepositoryMock,
+          getSchedulesRepository: () => schedulesRepositoryMock,
           disconnect: async () => undefined,
         };
       },
@@ -47,8 +48,8 @@ describe('Schedule', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    when(jobRepository.find(deepEqual({ name: momoJob.name }))).thenResolve([]);
-    when(schedulesRepository.setActiveSchedule()).thenResolve(true);
+    jobRepositoryMock.find.mockResolvedValue([]);
+    schedulesRepositoryMock.setActiveSchedule.mockResolvedValue(true);
 
     mongoSchedule = await MongoSchedule.connect({
       scheduleName,
@@ -92,13 +93,15 @@ describe('Schedule', () => {
     it('runs a job once', async () => {
       await mongoSchedule.define(momoJob);
 
-      when(
-        jobRepository.findOne(deepEqual({ name: momoJob.name })),
-      ).thenResolve(entityWithId);
-      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({
-        added: true,
-        running: 0,
-      });
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution
+        .calledWith(momoJob.name, 0)
+        .mockResolvedValue({
+          added: true,
+          running: 0,
+        });
 
       const result = await mongoSchedule.run(momoJob.name);
 
@@ -112,13 +115,15 @@ describe('Schedule', () => {
     it('runs a job once after delay', async () => {
       await mongoSchedule.define(momoJob);
 
-      when(
-        jobRepository.findOne(deepEqual({ name: momoJob.name })),
-      ).thenResolve(entityWithId);
-      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({
-        added: true,
-        running: 0,
-      });
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution
+        .calledWith(momoJob.name, 0)
+        .mockResolvedValue({
+          added: true,
+          running: 0,
+        });
 
       const result = await mongoSchedule.run(momoJob.name, undefined, 500);
 
@@ -135,13 +140,15 @@ describe('Schedule', () => {
         schedule: { interval: 'never' },
       });
 
-      when(
-        jobRepository.findOne(deepEqual({ name: momoJob.name })),
-      ).thenResolve(entityWithId);
-      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({
-        added: true,
-        running: 0,
-      });
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution
+        .calledWith(momoJob.name, 0)
+        .mockResolvedValue({
+          added: true,
+          running: 0,
+        });
 
       const result = await mongoSchedule.run(momoJob.name);
 
@@ -161,9 +168,9 @@ describe('Schedule', () => {
     it('skips running job once when job is not found in repository', async () => {
       await mongoSchedule.define(momoJob);
 
-      when(
-        jobRepository.findOne(deepEqual({ name: momoJob.name })),
-      ).thenResolve(undefined);
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(undefined);
 
       const result = await mongoSchedule.run(momoJob.name);
 
@@ -173,13 +180,15 @@ describe('Schedule', () => {
     it('skips running job once when maxRunning is reached', async () => {
       await mongoSchedule.define(momoJob);
 
-      when(
-        jobRepository.findOne(deepEqual({ name: momoJob.name })),
-      ).thenResolve(entityWithId);
-      when(schedulesRepository.addExecution(momoJob.name, 0)).thenResolve({
-        added: false,
-        running: 0,
-      });
+      jobRepositoryMock.findOne
+        .calledWith(matchObject({ name: momoJob.name }))
+        .mockResolvedValue(entityWithId);
+      schedulesRepositoryMock.addExecution
+        .calledWith(momoJob.name, 0)
+        .mockResolvedValue({
+          added: false,
+          running: 0,
+        });
 
       const result = await mongoSchedule.run(momoJob.name);
 

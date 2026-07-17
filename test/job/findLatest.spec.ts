@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon';
 import { describe, expect, it } from 'vitest';
 
-import type { ExecutionInfo } from '../../src';
-import { findLatest } from '../../src/job/findLatest';
-import type { JobEntity } from '../../src/repository/JobEntity';
+import type { ExecutionInfo } from '../../src/index.js';
+import { findLatest } from '../../src/job/findLatest.js';
+import type { JobEntity } from '../../src/repository/JobEntity.js';
 
 function createJob(lastFinished?: number): JobEntity {
   const job = { name: 'test' } as JobEntity;
