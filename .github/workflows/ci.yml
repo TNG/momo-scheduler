@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20, 22, 24]
+        node: [22, 24, 26]
 
     steps:
       - name: Checkout the repository
@@ -38,7 +38,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20, 22, 24]
+        node: [22, 24, 26]
 
     steps:
       - name: Checkout the repository
