@@ -58,13 +58,12 @@ describe('humanInterval', () => {
   });
 
   describe('returns NaN for special inputs', () => {
-    it.each([
-      ['never'],
-      ['not an interval'],
-      ['1000'],
-    ])('returns NaN for "%s"', (input) => {
-      expect(humanInterval(input)).toBeNaN();
-    });
+    it.each([['never'], ['not an interval'], ['1000']])(
+      'returns NaN for "%s"',
+      (input) => {
+        expect(humanInterval(input)).toBeNaN();
+      },
+    );
   });
 
   describe('parses negative intervals', () => {
@@ -89,11 +88,12 @@ describe('humanInterval', () => {
   });
 
   describe('parses compound intervals without "and"', () => {
-    it.each([
-      ['2 hours 30 minutes 10 seconds', 9_010_000],
-    ])('parses "%s"', (input, expected) => {
-      expect(humanInterval(input)).toBe(expected);
-    });
+    it.each([['2 hours 30 minutes 10 seconds', 9_010_000]])(
+      'parses "%s"',
+      (input, expected) => {
+        expect(humanInterval(input)).toBe(expected);
+      },
+    );
   });
 
   describe('parses hyphenated word numbers beyond twenty-one', () => {
@@ -115,11 +115,12 @@ describe('humanInterval', () => {
   });
 
   describe('parses word number decimals', () => {
-    it.each([
-      ['one point five seconds', 1500],
-    ])('parses "%s"', (input, expected) => {
-      expect(humanInterval(input)).toBe(expected);
-    });
+    it.each([['one point five seconds', 1500]])(
+      'parses "%s"',
+      (input, expected) => {
+        expect(humanInterval(input)).toBe(expected);
+      },
+    );
   });
 
   describe('handles edge cases', () => {
