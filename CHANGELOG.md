@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## Next release
+
+- Breaking: Remove support for node 20
+
 ## v3.1.2 (2026-04-23)
 
 - Chore: Unpin dependency versions
