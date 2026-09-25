@@ -1,7 +1,6 @@
 // biome-ignore-all lint/style/noNonNullAssertion: using null assertion in tests is fine
 
 import { DateTime } from 'luxon';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
   afterAll,
   afterEach,
@@ -15,6 +14,7 @@ import {
 
 import { Connection } from '../../src/Connection.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
+import { getTestDbUri } from '../utils/mongo.js';
 import { sleep } from '../utils/sleep.js';
 
 describe('SchedulesRepository', () => {
@@ -23,15 +23,13 @@ describe('SchedulesRepository', () => {
   const pingInterval = 500;
   const name = 'test job';
 
-  let mongo: MongoMemoryServer;
   let connection: Connection;
   let secondConnection: Connection | undefined;
   let schedulesRepository: SchedulesRepository;
 
   beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
     connection = await Connection.create(
-      { url: mongo.getUri() },
+      { url: getTestDbUri('schedules-repository') },
       pingInterval,
       scheduleId,
       scheduleName,
@@ -45,7 +43,6 @@ describe('SchedulesRepository', () => {
 
   afterAll(async () => {
     await connection.disconnect();
-    await mongo.stop();
   });
 
   describe('setActiveSchedule', () => {
@@ -80,7 +77,7 @@ describe('SchedulesRepository', () => {
 
       const anotherScheduleId = 'not active';
       const anotherInstance = await Connection.create(
-        { url: mongo.getUri() },
+        { url: getTestDbUri('schedules-repository') },
         pingInterval,
         anotherScheduleId,
         scheduleName,
@@ -106,7 +103,7 @@ describe('SchedulesRepository', () => {
       const connections = await Promise.all(
         ['a', 'b', 'c', 'd', 'e'].map(async (id) =>
           Connection.create(
-            { url: mongo.getUri() },
+            { url: getTestDbUri('schedules-repository') },
             pingInterval,
             id,
             scheduleName,
@@ -134,7 +131,7 @@ describe('SchedulesRepository', () => {
       const otherScheduleId = 'other schedule ID';
 
       secondConnection = await Connection.create(
-        { url: mongo.getUri() },
+        { url: getTestDbUri('schedules-repository') },
         pingInterval,
         otherScheduleId,
         scheduleName,
@@ -153,7 +150,7 @@ describe('SchedulesRepository', () => {
       const otherScheduleId = 'other schedule ID';
 
       secondConnection = await Connection.create(
-        { url: mongo.getUri() },
+        { url: getTestDbUri('schedules-repository') },
         pingInterval,
         otherScheduleId,
         otherName,
@@ -200,7 +197,7 @@ describe('SchedulesRepository', () => {
       const otherScheduleId = 'other schedule ID';
 
       secondConnection = await Connection.create(
-        { url: mongo.getUri() },
+        { url: getTestDbUri('schedules-repository') },
         pingInterval,
         otherScheduleId,
         scheduleName,
@@ -298,7 +295,7 @@ describe('SchedulesRepository', () => {
       it('does not add executions in schedule that is not active', async () => {
         const otherScheduleId = 'other schedule';
         const otherConnection = await Connection.create(
-          { url: mongo.getUri() },
+          { url: getTestDbUri('schedules-repository') },
           pingInterval,
           otherScheduleId,
           scheduleName,
