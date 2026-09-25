@@ -52,8 +52,8 @@ describe('MongoScheduleBuilder', () => {
   });
 
   afterAll(async () => {
-    await mongo.stop();
     await connection.disconnect();
+    await mongo.stop();
   });
 
   describe('build a mongoSchedule', () => {
