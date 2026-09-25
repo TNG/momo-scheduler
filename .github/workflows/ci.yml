@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
-      - run: npm ci
+      - run: npm i
       - run: npm run build
 
   lint:
@@ -30,7 +30,7 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: npm ci
+      - run: npm i
       - run: npm run lint
 
   test:
@@ -47,7 +47,7 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
-      - run: npm ci
+      - run: npm i
       - run: npm run test
 
   mongo-compatibility:
@@ -64,7 +64,7 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: npm ci
+      - run: npm i
       - name: Use mongodb v${{ matrix.mongodb }}
         run: npm i mongodb@${{ matrix.mongodb }}
       - run: npm run build
