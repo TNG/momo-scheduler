@@ -15,7 +15,7 @@ import type { SchedulesRepository } from '../../src/repository/SchedulesReposito
 import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
 import { loggerForTests } from '../utils/logging.js';
 import { matchObject } from '../utils/matchers.js';
-import { sleep } from '../utils/sleep.js';
+import { sleep, sleepUntilAfterFullSecond } from '../utils/sleep.js';
 
 describe('JobScheduler', () => {
   const debugFn = vi.fn();
@@ -205,6 +205,8 @@ describe('JobScheduler', () => {
   });
 
   describe('single cron job', () => {
+    beforeEach(async () => sleepUntilAfterFullSecond());
+
     it('executes a job', async () => {
       createCronJob();
       await jobScheduler.start();
@@ -401,6 +403,8 @@ describe('JobScheduler', () => {
   });
 
   describe('concurrent cron job', () => {
+    beforeEach(async () => sleepUntilAfterFullSecond());
+
     it('executes job thrice', async () => {
       createCronJob({ concurrency: 3, maxRunning: 3 });
       await jobScheduler.start();
