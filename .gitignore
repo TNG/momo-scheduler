@@ -5,3 +5,4 @@ ort
 test-report.json
 .DS_Store
 .opencode/
+package-lock.json
