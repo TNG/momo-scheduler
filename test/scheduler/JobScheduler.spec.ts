@@ -15,7 +15,6 @@ import type { SchedulesRepository } from '../../src/repository/SchedulesReposito
 import { JobScheduler } from '../../src/scheduler/JobScheduler.js';
 import { loggerForTests } from '../utils/logging.js';
 import { matchObject } from '../utils/matchers.js';
-import { sleep, sleepUntilAfterFullSecond } from '../utils/sleep.js';
 
 describe('JobScheduler', () => {
   const debugFn = vi.fn();
@@ -27,6 +26,7 @@ describe('JobScheduler', () => {
   let jobScheduler: JobScheduler;
 
   beforeEach(() => {
+    vi.useFakeTimers({ now: new Date('2026-01-01T00:00:00.500Z') });
     schedulesRepositoryMock = mockDeep<SchedulesRepository>();
     jobRepositoryMock = mockDeep<JobRepository>();
     jobExecutorMock = mockDeep<JobExecutor>();
@@ -37,6 +37,7 @@ describe('JobScheduler', () => {
 
   afterEach(async () => {
     await jobScheduler.stop();
+    vi.useRealTimers();
   });
 
   function createJob<
@@ -122,7 +123,7 @@ describe('JobScheduler', () => {
       createIntervalJob();
       await jobScheduler.start();
 
-      await sleep(1100);
+      await vi.advanceTimersByTimeAsync(1100);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
@@ -130,7 +131,7 @@ describe('JobScheduler', () => {
       createIntervalJob({ parameters: { foo: 'bar' } });
       await jobScheduler.start();
 
-      await sleep(1100);
+      await vi.advanceTimersByTimeAsync(1100);
       expect(jobExecutorMock.execute).toHaveBeenCalledWith(expect.anything(), {
         foo: 'bar',
       });
@@ -148,7 +149,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      await sleep(100);
+      await vi.advanceTimersByTimeAsync(100);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
@@ -156,12 +157,12 @@ describe('JobScheduler', () => {
       createIntervalJob();
       await jobScheduler.start();
 
-      await sleep(1100);
+      await vi.advanceTimersByTimeAsync(1100);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
 
       await jobScheduler.stop();
 
-      await sleep(1100);
+      await vi.advanceTimersByTimeAsync(1100);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
@@ -205,13 +206,11 @@ describe('JobScheduler', () => {
   });
 
   describe('single cron job', () => {
-    beforeEach(async () => sleepUntilAfterFullSecond());
-
     it('executes a job', async () => {
       createCronJob();
       await jobScheduler.start();
 
-      await sleep(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
@@ -219,7 +218,7 @@ describe('JobScheduler', () => {
       createCronJob({ parameters: { foo: 'bar' } });
       await jobScheduler.start();
 
-      await sleep(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(jobExecutorMock.execute).toHaveBeenCalledWith(expect.anything(), {
         foo: 'bar',
       });
@@ -229,12 +228,12 @@ describe('JobScheduler', () => {
       createCronJob();
       await jobScheduler.start();
 
-      await sleep(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
 
       await jobScheduler.stop();
 
-      await sleep(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(1);
     });
 
@@ -293,7 +292,7 @@ describe('JobScheduler', () => {
         .calledWith(matchObject({ name: job.name }))
         .mockRejectedValue(error);
 
-      await sleep(1100);
+      await vi.advanceTimersByTimeAsync(1100);
 
       expect(errorFn).toHaveBeenCalledWith(
         'an unexpected error occurred while executing job',
@@ -313,7 +312,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      await sleep(1500);
+      await vi.advanceTimersByTimeAsync(1500);
 
       expect(errorFn).toHaveBeenCalledWith(
         'an unexpected error occurred while executing job',
@@ -330,7 +329,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      await sleep(1500);
+      await vi.advanceTimersByTimeAsync(1500);
 
       expect(errorFn).toHaveBeenCalledWith(
         'timeout reached, restarting job now',
@@ -340,7 +339,7 @@ describe('JobScheduler', () => {
         },
       );
 
-      await sleep(1000);
+      await vi.advanceTimersByTimeAsync(1000);
 
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
@@ -354,7 +353,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      await sleep(1500);
+      await vi.advanceTimersByTimeAsync(1500);
 
       expect(errorFn).toHaveBeenCalledWith(
         'timeout reached, restarting job now',
@@ -364,7 +363,7 @@ describe('JobScheduler', () => {
         },
       );
 
-      await sleep(1000);
+      await vi.advanceTimersByTimeAsync(1000);
 
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(4);
     });
@@ -375,7 +374,7 @@ describe('JobScheduler', () => {
       createIntervalJob({ concurrency: 3, maxRunning: 3 });
       await jobScheduler.start();
 
-      await sleep(1100);
+      await vi.advanceTimersByTimeAsync(1100);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(3);
     });
 
@@ -383,7 +382,7 @@ describe('JobScheduler', () => {
       const job = createIntervalJob({ maxRunning: 0, concurrency: 3 });
       await jobScheduler.start();
 
-      await sleep(2100);
+      await vi.advanceTimersByTimeAsync(2100);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(
         2 * job.concurrency,
       );
@@ -397,19 +396,17 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      await sleep(1100);
+      await vi.advanceTimersByTimeAsync(1100);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('concurrent cron job', () => {
-    beforeEach(async () => sleepUntilAfterFullSecond());
-
     it('executes job thrice', async () => {
       createCronJob({ concurrency: 3, maxRunning: 3 });
       await jobScheduler.start();
 
-      await sleep(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(3);
     });
 
@@ -417,7 +414,7 @@ describe('JobScheduler', () => {
       const job = createCronJob({ maxRunning: 0, concurrency: 3 });
       await jobScheduler.start();
 
-      await sleep(2000);
+      await vi.advanceTimersByTimeAsync(2000);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(
         2 * job.concurrency,
       );
@@ -431,7 +428,7 @@ describe('JobScheduler', () => {
 
       await jobScheduler.start();
 
-      await sleep(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(jobExecutorMock.execute).toHaveBeenCalledTimes(2);
     });
   });
