@@ -62,7 +62,7 @@
     "@types/node": "24.19.1",
     "@types/sinonjs__fake-timers": "15.0.1",
     "mongodb-memory-server": "11.3.0",
-    "pino": "10.3.1",
+    "pino": "10.4.0",
     "typescript": "7.0.2",
     "vitest": "5.0.3",
     "vitest-mock-extended": "5.1.1"
