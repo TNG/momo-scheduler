@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { Connection } from '../../src/Connection.js';
 import { type ExecutionInfo, ExecutionStatus } from '../../src/index.js';
@@ -11,6 +10,7 @@ import {
 import type { CronSchedule } from '../../src/job/MomoJob.js';
 import type { JobEntity } from '../../src/repository/JobEntity.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
+import { getTestDbUri } from '../utils/mongo.js';
 
 describe('JobRepository', () => {
   const job = tryToIntervalJob({
@@ -20,14 +20,12 @@ describe('JobRepository', () => {
   })._unsafeUnwrap();
   const jobDefinition = toJobDefinition(job);
 
-  let mongo: MongoMemoryServer;
   let connection: Connection;
   let jobRepository: JobRepository;
 
   beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
     connection = await Connection.create(
-      { url: mongo.getUri() },
+      { url: getTestDbUri('job-repository') },
       60_000,
       'schedule-id',
       'schedule',
@@ -39,7 +37,6 @@ describe('JobRepository', () => {
 
   afterAll(async () => {
     await connection.disconnect();
-    await mongo.stop();
   });
 
   describe('check', () => {
