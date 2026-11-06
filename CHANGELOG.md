@@ -3,9 +3,11 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## Next release
+## v4.0.0 (2026-11-06)
 
 - Breaking: Remove support for node 20
+- Feat: Add support for node 26
+- Chore: Dependency updates
 
 ## v3.1.2 (2026-04-23)
 
