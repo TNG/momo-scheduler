@@ -14,10 +14,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
-      - name: Setup node 24
+      - name: Setup node 26
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Run script
         run: |
