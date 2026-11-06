@@ -1,4 +1,3 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
   afterAll,
   afterEach,
@@ -15,6 +14,7 @@ import {
   MongoSchedule,
   MongoScheduleBuilder,
 } from '../../src/index.js';
+import { getTestDbUri } from '../utils/mongo.js';
 
 describe('MongoScheduleBuilder', () => {
   const scheduleName = 'schedule';
@@ -36,13 +36,14 @@ describe('MongoScheduleBuilder', () => {
     handler: vi.fn(),
   };
 
-  let mongo: MongoMemoryServer;
   let connectionOptions: MomoOptions;
   let connection: Connection;
 
   beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
-    connectionOptions = { scheduleName, url: mongo.getUri() };
+    connectionOptions = {
+      scheduleName,
+      url: getTestDbUri('mongo-schedule-builder'),
+    };
     connection = await Connection.create(
       connectionOptions,
       60_000,
@@ -119,7 +120,7 @@ describe('MongoScheduleBuilder', () => {
       expect(connectSpy).toHaveBeenCalledWith({
         scheduleName,
         pingRetryOptions,
-        url: mongo.getUri(),
+        url: connectionOptions.url,
       });
     });
   });

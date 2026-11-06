@@ -1,4 +1,3 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
   afterAll,
   beforeAll,
@@ -13,6 +12,7 @@ import { type MomoJob, MongoSchedule } from '../../src/index.js';
 import { tryToIntervalJob } from '../../src/job/Job.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
 import { initLoggingForTests } from '../utils/logging.js';
+import { getTestDbUri } from '../utils/mongo.js';
 
 describe('Schedule', () => {
   const job: MomoJob = {
@@ -22,15 +22,13 @@ describe('Schedule', () => {
     parameters: { foo: 'bar' },
   };
 
-  let mongo: MongoMemoryServer;
   let connection: Connection;
   let jobRepository: JobRepository;
   let mongoSchedule: MongoSchedule;
 
   beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
     connection = await Connection.create(
-      { url: mongo.getUri() },
+      { url: getTestDbUri('schedule') },
       60_000,
       'schedule_id',
       'testSchedule',
@@ -39,7 +37,7 @@ describe('Schedule', () => {
 
     mongoSchedule = await MongoSchedule.connect({
       scheduleName: 'schedule',
-      url: mongo.getUri(),
+      url: getTestDbUri('schedule'),
     });
 
     initLoggingForTests(mongoSchedule);
@@ -53,7 +51,6 @@ describe('Schedule', () => {
   afterAll(async () => {
     await mongoSchedule.disconnect();
     await connection.disconnect();
-    await mongo.stop();
   });
 
   it('saves job with defaults and returns description of jobs on the schedule', async () => {
