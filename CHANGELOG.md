@@ -84,7 +84,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ## v2.0.0 (2023-05-12)
 
 - Feature: only one schedule with a given name can be active at the same time
-    - if an instance stops running, a different instance will take over the job scheduling
+  - if an instance stops running, a different instance will take over the job scheduling
 - Fix: Fixed the usage to mongo collection prefixes
 - Breaking: dropped Node 14 support (still works with node 14 though)
 - Breaking: Removed `executions` collection and use `schedules` collection
@@ -125,7 +125,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 - Feature: compatibility with mongodb v4 (removed typeorm dependency)
 - Breaking: moved utility functions into classes
-    - `check` and `clear` are now part of the `Schedule`
+  - `check` and `clear` are now part of the `Schedule`
 
 ## v0.2.0 (2021-07-16)
 
