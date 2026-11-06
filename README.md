@@ -16,9 +16,9 @@ minutes" or "run that job at 9 AM every weekday".
 - supports long-running jobs
 - allows error handling
 - supports cluster mode (e.g. several instances using the same job database)
-    - only one schedule per name will attempt to schedule jobs
-    - if an active schedule stops running (e.g. the application instance was stopped), another schedule with the same
-      name (e.g. running on a different instance) will take over
+  - only one schedule per name will attempt to schedule jobs
+  - if an active schedule stops running (e.g. the application instance was stopped), another schedule with the same
+    name (e.g. running on a different instance) will take over
 
 ## Installation
 
@@ -39,7 +39,13 @@ You're all set!
 ## Usage
 
 ```typescript
-import { MongoSchedule, MomoJob, MomoJobBuilder, MomoErrorEvent, MomoEvent } from 'momo-scheduler';
+import {
+  MongoSchedule,
+  MomoJob,
+  MomoJobBuilder,
+  MomoErrorEvent,
+  MomoEvent,
+} from 'momo-scheduler';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MongoScheduleBuilder } from './MongoScheduleBuilder';
 
@@ -59,7 +65,9 @@ const intervalJob: MomoJob = new MomoJobBuilder()
   .withMaxRunning(3)
   .withSchedule('5 seconds')
   .withParameters({ foo: 'bar' })
-  .withHandler(() => console.log('This is a momo job that runs twice every five seconds!'))
+  .withHandler(() =>
+    console.log('This is a momo job that runs twice every five seconds!'),
+  )
   .build();
 await mongoSchedule.define(intervalJob);
 
@@ -69,7 +77,9 @@ const cronJob: MomoJob = new MomoJobBuilder()
   .withMaxRunning(1)
   .withCronSchedule('0 0 * * 1-5')
   .withParameters({ foo: { bar: 'baz' } })
-  .withHandler(() => console.log('This is a momo job that runs every weekday at midnight!'))
+  .withHandler(() =>
+    console.log('This is a momo job that runs every weekday at midnight!'),
+  )
   .build();
 await mongoSchedule.define(cronJob);
 
@@ -78,7 +88,11 @@ const cronJobWithoutParameters: MomoJob = new MomoJobBuilder()
   .withConcurrency(1)
   .withMaxRunning(3)
   .withCronSchedule('0 0 * * 1-3')
-  .withHandler(() => console.log('This is a momo job that runs on Monday, Tuesday and Wednesday!'))
+  .withHandler(() =>
+    console.log(
+      'This is a momo job that runs on Monday, Tuesday and Wednesday!',
+    ),
+  )
   .build();
 await mongoSchedule.define(cronJobWithoutParameters);
 
@@ -103,7 +117,7 @@ await mongoSchedule.disconnect();
 You can instantiate a momo job using the `MomoJobBuilder` class. It provides the following setter methods:
 
 | setter           | parameter                                                                      | mandatory | default value | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|------------------|--------------------------------------------------------------------------------|-----------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------- | ------------------------------------------------------------------------------ | --------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | withName         | `name: string`                                                                 | yes       |               | The name of the job. Used as a unique identifier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | withSchedule     | `interval: number \| string`, `firstRunAfter: number \| string` (default: `0`) | no        |               | Either this setter or `withCronSchedule()` must be called. Specifies the schedule for starting the job. Time intervals can be given in human-readable formats (like '1 minute', check the section [ human-readable intervals ](#human-readable-intervals) below for details), as a number in milliseconds, or set to 'never'. A job with interval 'never' will not be started to run periodically but needs to be run explicitly. If the DB holds no record of a job with the same name running before, the job will run after `firstRunAfter` for the first time. Just like the `interval`, `firstRunAfter` can also be given in a human-readable format or as milliseconds. The maximum value for both `interval` and `firstRunAfter` is 2147483647 ms (or its human readable equivalents). On jobs with interval 'never', any value passed for `firstRunAfter` is ignored. |
 | withCronSchedule | `cronSchedule: string`                                                         | no        |               | Either this setter or `withCronSchedule()` must be called. Specifies the cron schedule according to which the job will run. See https://www.npmjs.com/package/cron#cron-ranges for the allowed cron ranges.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -116,37 +130,38 @@ You can instantiate a momo job using the `MomoJobBuilder` class. It provides the
 
 To specify `interval` or `firstRunAfter` for a job schedule in a human-readable format, you can use the following units:
 
-* second(s)
-* minute(s)
-* hour(s)
-* day(s)
-* weeks(s)
-* month(s) (= 30 days)
-* year(s) (= 365 days)
+- second(s)
+- minute(s)
+- hour(s)
+- day(s)
+- weeks(s)
+- month(s) (= 30 days)
+- year(s) (= 365 days)
 
-The numbers can be written as digits or as words. 
+The numbers can be written as digits or as words.
 
 Examples:
-* "one minute"
-* "seventy-three days and 5 hours"
-* "100 seconds"
-* "1.5 weeks"
-* "zero point five hours"
+
+- "one minute"
+- "seventy-three days and 5 hours"
+- "100 seconds"
+- "1.5 weeks"
+- "zero point five hours"
 
 ### MongoSchedule
 
 You can instantiate a mongo schedule using the `MongoScheduleBuilder` class. It provides the following setter
 methods:
 
-| setter          | parameter                                                                          | mandatory | default value | description                               |
-|-----------------|------------------------------------------------------------------------------------|-----------|---------------|-------------------------------------------|
-| withJob         | `job: MomoJob`                                                                     | yes       |               | Adds a job to the schedule.               |
-| withConnection  | `options: MomoOptions`                                                             | yes       |               | The connection options of the schedule.   |
+| setter         | parameter              | mandatory | default value | description                             |
+| -------------- | ---------------------- | --------- | ------------- | --------------------------------------- |
+| withJob        | `job: MomoJob`         | yes       |               | Adds a job to the schedule.             |
+| withConnection | `options: MomoOptions` | yes       |               | The connection options of the schedule. |
 
 The schedule offers the following methods to create and run jobs:
 
 | function   | parameters                                                                                         | description                                                                                                                                                                                                                                                                                         |
-|------------|----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | connect    | `options: MomoConnectionOptions`                                                                   | Creates a new MongoSchedule connected to your database. See below for the available options.                                                                                                                                                                                                        |
 | disconnect |                                                                                                    | Cancels all jobs and disconnects the MongoSchedule from the database.                                                                                                                                                                                                                               |
 | define     | `job: MomoJob`                                                                                     | Creates a new job on the schedule or updates an existing one with the same name. If the job existed before, it will be stopped!                                                                                                                                                                     |
@@ -171,12 +186,12 @@ database.
 
 #### MomoConnectionOptions
 
-| property           | type                | mandatory | default   | description                                                                                                                                                                                                                                               |
-|--------------------|---------------------|-----------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| url                | `string`            | yes       |           | The connection string of your database.                                                                                                                                                                                                                   |
-| scheduleName       | `string`            | yes       |           | Only one schedule per name can be active at a time. If multiple instances of your application define a schedule with the same name, only one at a time will actually run jobs.                                                                            |
-| collectionsPrefix  | `string`            | no        | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                             |
-| pingIntervalMs     | `number`            | no        | `60_000`  | The keep alive ping interval of the schedule, in milliseconds. After twice the amount of time has elapsed without a ping of your Momo instance, other instances may take over. You might want to reduce this if you have jobs running on short intervals. |
+| property           | type                 | mandatory | default   | description                                                                                                                                                                                                                                               |
+| ------------------ | -------------------- | --------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| url                | `string`             | yes       |           | The connection string of your database.                                                                                                                                                                                                                   |
+| scheduleName       | `string`             | yes       |           | Only one schedule per name can be active at a time. If multiple instances of your application define a schedule with the same name, only one at a time will actually run jobs.                                                                            |
+| collectionsPrefix  | `string`             | no        | no prefix | A prefix for all collections created by Momo.                                                                                                                                                                                                             |
+| pingIntervalMs     | `number`             | no        | `60_000`  | The keep alive ping interval of the schedule, in milliseconds. After twice the amount of time has elapsed without a ping of your Momo instance, other instances may take over. You might want to reduce this if you have jobs running on short intervals. |
 | mongoClientOptions | `MongoClientOptions` | no        |           | Options for the connection to the MongoDB client as specified by the MongoDB API. Useful for providing configuration options that are not available via the connection string (url).                                                                      |
 
 ### Reacting to events
@@ -197,7 +212,7 @@ mongoSchedule.on('debug', ({ data, message }: MomoEvent) => {
 #### MomoEvent and MomoErrorEvent
 
 | event | property         | type                     | description                                                                                                                                   |
-|-------|------------------|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| ----- | ---------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | both  | message          | `string`                 | Some information about the event that occurred.                                                                                               |
 | both  | data (optional)  | `{ name?: string; ... }` | Contains additional information like the name of the affected job.                                                                            |
 | error | type             | `MomoErrorType`          | one of: `'defining job failed'`, `'scheduling job failed'`, `'executing job failed'`, `'stopping job failed'`, `'an internal error occurred'` |

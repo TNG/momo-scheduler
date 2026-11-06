@@ -34,12 +34,12 @@ npm run format
 
 If you want to submit a contribution, please follow the following workflow:
 
-* Fork the project
-* Create a feature branch
-* Add your contribution
-* Make sure that the project successfully builds and all tests are green
-* Please format your code
-* Create a Pull Request
+- Fork the project
+- Create a feature branch
+- Add your contribution
+- Make sure that the project successfully builds and all tests are green
+- Please format your code
+- Create a Pull Request
 
 ### Commits
 

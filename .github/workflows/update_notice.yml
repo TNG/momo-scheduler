@@ -3,7 +3,7 @@ name: Update THIRD_PARTY_NOTICE
 on:
   push:
     branches:
-      - '*-release'
+      - "*-release"
 
 jobs:
   update-notice:
