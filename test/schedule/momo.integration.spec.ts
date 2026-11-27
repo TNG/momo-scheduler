@@ -1,18 +1,8 @@
 // biome-ignore-all lint/style/noNonNullAssertion: using null assertion in tests is fine
 
 import { DateTime } from 'luxon';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { v4 as uuid } from 'uuid';
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Connection } from '../../src/Connection.js';
 import {
   ExecutionStatus,
@@ -32,6 +22,7 @@ import type { JobEntity } from '../../src/repository/JobEntity.js';
 import type { JobRepository } from '../../src/repository/JobRepository.js';
 import type { SchedulesRepository } from '../../src/repository/SchedulesRepository.js';
 import { initLoggingForTests } from '../utils/logging.js';
+import { getTestDbUri } from '../utils/mongo.js';
 import { sleep } from '../utils/sleep.js';
 import { waitFor } from '../utils/waitFor.js';
 
@@ -48,19 +39,10 @@ describe('Momo', () => {
   const scheduleName = 'schedule';
   let receivedError: MomoErrorEvent | undefined;
 
-  let mongo: MongoMemoryServer;
   let jobRepository: JobRepository;
   let schedulesRepository: SchedulesRepository;
   let mongoSchedule: MongoSchedule;
   let connection: Connection;
-
-  beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
-  });
-
-  afterAll(async () => {
-    await mongo.stop();
-  });
 
   afterEach(async () => {
     receivedError = undefined;
@@ -117,12 +99,12 @@ describe('Momo', () => {
     beforeEach(async () => {
       mongoSchedule = await MongoSchedule.connect({
         scheduleName,
-        url: mongo.getUri(),
+        url: getTestDbUri('momo'),
       });
 
       // since we have no access to momo's connection to mongo, create our own to access mongo during the tests
       connection = await Connection.create(
-        { url: mongo.getUri() },
+        { url: getTestDbUri('momo') },
         0,
         mongoSchedule.id(),
         scheduleName,
@@ -1016,12 +998,12 @@ describe('Momo', () => {
       mongoSchedule = await MongoSchedule.connect({
         pingIntervalMs,
         scheduleName,
-        url: mongo.getUri(),
+        url: getTestDbUri('momo'),
       });
 
       // since we have no access to momo's connection to mongo, create our own to access mongo during the tests
       connection = await Connection.create(
-        { url: mongo.getUri() },
+        { url: getTestDbUri('momo') },
         0,
         mongoSchedule.id(),
         scheduleName,
